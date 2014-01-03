@@ -1,0 +1,7 @@
+./runtime
+
+.idea
+*.iml
+
+Vendor/yii2
+Tests/Log/*
