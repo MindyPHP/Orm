@@ -1,7 +1,6 @@
 <?php
 
 // yii2
-
 include __DIR__ . '/vendor/yii2/framework/yii/Yii.php';
 
 include __DIR__ . '/vendor/yii2/framework/yii/base/Arrayable.php';
@@ -39,7 +38,6 @@ class Application
 Yii::$app = new Application();
 
 // Mindy
-
 include __DIR__ . '/src/Mindy/Db/Traits/Migrations.php';
 include __DIR__ . '/src/Mindy/Db/Traits/Fields.php';
 
