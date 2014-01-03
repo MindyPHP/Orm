@@ -14,5 +14,10 @@ class FieldsTest extends TestCase
         $this->assertEquals([
             'name' => new CharField()
         ], $model->getFields());
+
+        $this->assertEquals([
+            'id' => new $model->autoField(),
+            'name' => new CharField(),
+        ], $model->getFieldsInit());
     }
 }

@@ -3,4 +3,4 @@
 
 runtime
 Vendor/*
-Tests/Log/*
+Tests/Log

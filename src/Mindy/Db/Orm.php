@@ -64,6 +64,10 @@ class Orm extends OrmBase
      */
     public function __get($name)
     {
+        if($name == 'pk') {
+            return $this->getPk();
+        }
+
         if ($this->hasField($name)) {
             $field = $this->getField($name);
             if (is_a($field, $this->relatedField)) {
@@ -80,8 +84,23 @@ class Orm extends OrmBase
             }
         }
 
-        // throw new Exception('Getting unknown property: ' . get_class($this) . '::' . $name);
-        return parent::__get($name);
+        throw new Exception('Getting unknown property: ' . get_class($this) . '::' . $name);
+    }
+
+    public function getPk()
+    {
+        /* @var $field \Mindy\Db\Fields\Field */
+        if($this->hasField('id')) {
+            return $this->getField('id')->getValue();
+        } else {
+            foreach ($this->getFieldsInit() as $name => $field) {
+                if (is_a($field, $this->autoField)) {
+                    return $field->getValue();
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
