@@ -1,7 +1,6 @@
-./runtime
-
 .idea
 *.iml
 
-Vendor/yii2
+runtime
+Vendor/*
 Tests/Log/*
