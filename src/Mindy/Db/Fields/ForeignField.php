@@ -16,6 +16,7 @@ namespace Mindy\Db\Fields;
 
 
 use Exception;
+use Mindy\Db\Relation;
 
 class ForeignField extends RelatedField
 {
@@ -23,22 +24,23 @@ class ForeignField extends RelatedField
 
     public $onUpdate;
 
-    public function __construct(array $options = [])
+    public function __construct($modelClass, array $options = [])
     {
         parent::__construct($options);
 
-        // $relation = $this->hasOne($options['model'], )
-        // TODO
-
-        if($this->getRelation()->multiple) {
-            throw new Exception("Incorrect relation");
-        }
+        $link = [];
+        $relation = new Relation([
+            'modelClass' => $modelClass,
+            'primaryModel' => $this,
+            'link' => $link,
+            'multiple' => false,
+        ]);
     }
 
     public function setValue($value)
     {
-        if(is_a($value, 'Orm') === false) {
-            throw new Exception("value must be a Orm instance. " . gettype($value) . "given");
+        if(is_a($value, '\Mindy\Db\Model') === false) {
+            throw new Exception("value must be a Mindy\\Db\\Model instance. " . gettype($value) . "given");
         }
 
         $this->value = $value;

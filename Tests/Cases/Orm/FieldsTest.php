@@ -20,4 +20,20 @@ class FieldsTest extends TestCase
             'name' => new CharField(),
         ], $model->getFieldsInit());
     }
+
+    /**
+     * @expectedException \Exception
+     */
+    public function testUnknownFieldException()
+    {
+        $model = new ModelFields();
+        $model->getField('something');
+    }
+
+    public function testUnknownField()
+    {
+        $model = new ModelFields();
+        $field = $model->getField('something', false);
+        $this->assertNull($field);
+    }
 }

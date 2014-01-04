@@ -40,19 +40,28 @@ Yii::$app = new Application();
 // Mindy
 include __DIR__ . '/src/Mindy/Db/Traits/Migrations.php';
 include __DIR__ . '/src/Mindy/Db/Traits/Fields.php';
+include __DIR__ . '/src/Mindy/Db/Traits/YiiCompatible.php';
 
 include __DIR__ . '/src/Mindy/Db/Validator/Validator.php';
 include __DIR__ . '/src/Mindy/Db/Validator/MinLengthValidator.php';
 include __DIR__ . '/src/Mindy/Db/Validator/EmailValidator.php';
 
 include __DIR__ . '/src/Mindy/Db/Connection.php';
-include __DIR__ . '/src/Mindy/Db/OrmBase.php';
+include __DIR__ . '/src/Mindy/Db/Base.php';
 include __DIR__ . '/src/Mindy/Db/Orm.php';
+include __DIR__ . '/src/Mindy/Db/Query.php';
 include __DIR__ . '/src/Mindy/Db/Model.php';
+include __DIR__ . '/src/Mindy/Db/Manager.php';
+include __DIR__ . '/src/Mindy/Db/Relation.php';
 
 include __DIR__ . '/src/Mindy/Db/Fields/Field.php';
 include __DIR__ . '/src/Mindy/Db/Fields/IntField.php';
 include __DIR__ . '/src/Mindy/Db/Fields/AutoField.php';
 include __DIR__ . '/src/Mindy/Db/Fields/CharField.php';
+include __DIR__ . '/src/Mindy/Db/Fields/BooleanField.php';
 include __DIR__ . '/src/Mindy/Db/Fields/TextField.php';
 include __DIR__ . '/src/Mindy/Db/Fields/JsonField.php';
+
+include __DIR__ . '/src/Mindy/Db/Fields/RelatedField.php';
+include __DIR__ . '/src/Mindy/Db/Fields/ForeignField.php';
+include __DIR__ . '/src/Mindy/Db/Fields/ManyToManyField.php';

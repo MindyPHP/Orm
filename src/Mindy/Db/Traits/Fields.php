@@ -15,6 +15,8 @@
 namespace Mindy\Db\Traits;
 
 
+use Exception;
+
 trait Fields
 {
     /**
@@ -66,7 +68,7 @@ trait Fields
                     $this->_fields[$name] = $newField;
                     self::$_relations[$field->relatedName] = $newField->getRelation();
                 } else {
-                    $this->_fields[$name . '_id'] = $field;
+                    $this->_fields[$name] = $field;
                 }
             } else {
                 $this->_fields[$name] = $field;
@@ -114,12 +116,16 @@ trait Fields
      * @param $name
      * @return \Mindy\Db\Fields\Field|null
      */
-    public function getField($name)
+    public function getField($name, $throw = true)
     {
         if($this->hasField($name)) {
             return $this->_fields[$name];
         }
 
-        return null;
+        if($throw) {
+            throw new Exception('Field ' . $name . ' not found');
+        } else {
+            return null;
+        }
     }
 }

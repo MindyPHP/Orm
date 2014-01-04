@@ -30,6 +30,10 @@ trait Migrations
         $columns = [];
         foreach ($this->getFieldsInit() as $name => $field) {
             if ($field->sqlType() !== false) {
+                if(is_a($field, $this->foreignField)) {
+                    $name .= "_id";
+                }
+
                 $columns[$name] = $field->sql();
             }
         }
@@ -44,5 +48,46 @@ trait Migrations
     {
         /* @var $this \Mindy\Db\Orm */
         return $this->getConnection()->createCommand()->dropTable($this->tableName());
+    }
+
+    /**
+     * TODO
+     */
+    public function createIndexes()
+    {
+//        $command = self::$db->createCommand();
+//        foreach($this->getFields() as $name => $field) {
+//            if(is_a($field, 'ForeignField')) {
+//                /* @var $modelClass Orm */
+//                /* @var $field ForeignField */
+//                $modelClass = $field->relation->modelClass;
+//                foreach($field->relation->link as $currentColumn => $fkColumn) {
+//                    $command->addForeignKey(
+//                        "fk_{$name}",
+//                        self::tableName(), [$currentColumn],
+//                        $modelClass::tableName(), [$fkColumn],
+//                        $delete = $field->getOnDelete(),
+//                        $update = $field->getOnUpdate()
+//                    );
+//                    $command->execute();
+//                }
+//            }
+//        }
+    }
+
+    /**
+     * TODO
+     */
+    public function dropIndexes()
+    {
+//        $command = self::$db->createCommand();
+//        foreach($this->getFields() as $name => $field) {
+//            if(is_a($field, 'ForeignField')) {
+//                /* @var $modelClass Orm */
+//                /* @var $field ForeignField */
+//                // $modelClass = $field->relation->modelClass;
+//                $command->dropForeignKey("fk_{$name}", self::tableName());
+//            }
+//        }
     }
 }

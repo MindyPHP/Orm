@@ -16,13 +16,9 @@ namespace Mindy\Db;
 
 
 use Exception;
-use Mindy\Db\Traits\Fields;
-use Mindy\Db\Traits\Migrations;
 
-class Orm extends OrmBase
+class Orm extends Base
 {
-    use Fields, Migrations;
-
     /**
      * @var array validation errors (attribute name => array of errors)
      */
