@@ -28,17 +28,25 @@ trait Migrations
         /* @var $this \Mindy\Db\Orm */
         /* @var $field \Mindy\Db\Fields\Field */
         $columns = [];
+        /* @var $command \yii\db\Command */
+        $command = $this->getConnection()->createCommand();
         foreach ($this->getFieldsInit() as $name => $field) {
             if ($field->sqlType() !== false) {
                 if(is_a($field, $this->foreignField)) {
                     $name .= "_id";
                 }
 
+                if(is_a($field, $this->manyToManyField) && $field->through === null) {
+                    /* @var $field \Mindy\Db\Fields\ManyToManyField */
+                    d($field->getTableName(), $field->getColumns());
+                    $command->createTable($field->getTableName(), $field->getColumns())->execute();
+                }
+
                 $columns[$name] = $field->sql();
             }
         }
 
-        return $this->getConnection()->createCommand()->createTable($this->tableName(), $columns);
+        return $command->createTable($this->tableName(), $columns);
     }
 
     /**

@@ -23,7 +23,7 @@ class Application
                  'file' => [
                      'class' => 'yii\log\FileTarget',
                      'levels' => ['trace', 'info'],
-                     'categories' => ['yii\*'],
+                     'categories' => ['yii\db\*'],
                  ],
              ],
         ]);
@@ -38,6 +38,8 @@ class Application
 Yii::$app = new Application();
 
 // Mindy
+include __DIR__ . '/src/Mindy/Helper/Dumper.php';
+
 include __DIR__ . '/src/Mindy/Db/Traits/Migrations.php';
 include __DIR__ . '/src/Mindy/Db/Traits/Fields.php';
 include __DIR__ . '/src/Mindy/Db/Traits/YiiCompatible.php';
@@ -65,3 +67,19 @@ include __DIR__ . '/src/Mindy/Db/Fields/JsonField.php';
 include __DIR__ . '/src/Mindy/Db/Fields/RelatedField.php';
 include __DIR__ . '/src/Mindy/Db/Fields/ForeignField.php';
 include __DIR__ . '/src/Mindy/Db/Fields/ManyToManyField.php';
+
+use Mindy\Helper\Dumper;
+
+function d() {
+    $debug = debug_backtrace();
+    $args = func_get_args();
+    $data = array(
+        'data' => $args,
+        'debug' => array(
+            'file' => $debug[0]['file'],
+            'line' => $debug[0]['line'],
+        )
+    );
+    Dumper::dump($data, 10);
+    die();
+}

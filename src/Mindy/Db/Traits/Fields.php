@@ -45,28 +45,38 @@ trait Fields
     private $_fields = [];
 
     /**
+     * @var array
+     */
+    private static $_relations = [];
+
+
+    /**
      * Initialize fields
      * @void
      */
     public function initFields()
     {
-        /* @var $field \Mindy\Db\Fields\Field */
-        /* @var $field \Mindy\Db\Fields\RelatedField */
-
         $needPk = true;
         foreach ($this->getFields() as $name => $field) {
+            /* @var $field \Mindy\Db\Fields\Field */
             if (is_a($field, $this->autoField)) {
                 $needPk = false;
             }
 
             if (is_a($field, $this->relatedField)) {
+                /* @var $field \Mindy\Db\Fields\RelatedField */
                 if (is_a($field, $this->manyToManyField)) {
-                    $newField = new $this->manyToManyField([
-                        'owner' => $this,
-                        'model' => $field->getRelation()->modelClass,
-                    ]);
-                    $this->_fields[$name] = $newField;
-                    self::$_relations[$field->relatedName] = $newField->getRelation();
+                    /* @var $field \Mindy\Db\Fields\ManyToManyField */
+                    $field->setModel($this);
+
+                    // @TODO
+                    /* @var $newField \Mindy\Db\Fields\ManyToManyField */
+//                    $newField = new $this->manyToManyField(static::className());
+//                    $newField->setModel($this);
+//                    self::$_relations[$field->relatedName] = $newField->getRelation();
+//                    $this->_fields[$name] = $newField;
+
+                    $this->_fields[$name] = $field;
                 } else {
                     $this->_fields[$name] = $field;
                 }

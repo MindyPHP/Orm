@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -15,38 +15,132 @@
 namespace Mindy\Db\Fields;
 
 
-use Exception;
+use Mindy\Db\Model;
+use Mindy\Db\Relation;
 
 class ManyToManyField extends RelatedField
 {
-    public function __construct(array $options = [])
+    /**
+     * @var null|string
+     */
+    public $through;
+
+    /**
+     * @var string
+     */
+    public $modelClass;
+
+    /**
+     * @var string
+     */
+    public $via;
+
+    /**
+     * @var array
+     */
+    public $viaTable;
+
+    /**
+     * @var array
+     */
+    public $params = [];
+
+    /**
+     * @var \Mindy\Db\Model
+     */
+    private $_model;
+
+    /**
+     * @var string
+     */
+    private $_tableName;
+
+    /**
+     * @var
+     */
+    private $_columns = [];
+
+    /**
+     * @param \Mindy\Db\Model $modelClass
+     */
+    public function __construct($modelClass)
     {
-        parent::__construct($options);
+        // TODO ugly, refactoring
+        $this->modelClass = $modelClass;
 
-        /* @var \Mindy\Db\Orm $owner */
-        $owner = $options['owner'];
-        $ownerClass = $owner->className();
-        $modelClass = $options['model'];
-        $link = ['id' => strtolower($ownerClass) . '_id'];
+        $pk = $modelClass::primaryKey();
 
-        /* @var \Mindy\Db\OrmRelation $relation */
-        $relation = $this->hasMany($owner, $modelClass, $link);
+        $column = $modelClass::tableName() . '_id';
+        $this->addColumn($column);
 
-        if(isset($options['through'])) {
-            $relation->via($options['through']);
-        } else {
-            $relation->viaTable(strtolower($ownerClass . '_' . $modelClass), [strtolower($modelClass) . '_id' => 'id']);
-        }
-
-        if(!$relation->multiple) {
-            throw new Exception("Incorrect relation");
-        } else {
-            $this->setRelation($relation);
-        }
+        $link = [$pk[0] => $column];
+        $this->params = [
+            'modelClass' => $modelClass,
+            'link' => $link,
+            'multiple' => true,
+        ];
     }
 
     public function sqlType()
     {
         return false;
+    }
+
+    public function setModel(Model $model)
+    {
+        $this->_model = $model;
+
+        // TODO ugly, refactoring
+        if (isset($options['through'])) {
+            $this->via = $options['through'];
+        } else {
+            $pk = $model->primaryKey();
+
+            $this->setTableName($model);
+            $column = $model->tableName() . '_id';
+            $this->addColumn($column);
+            $this->viaTable = [
+                $this->getTableName(), [$column => $pk[0]]
+            ];
+        }
+    }
+
+    public function getModel()
+    {
+        return $this->_model;
+    }
+
+    public function getRelation()
+    {
+        $relation = new Relation($this->params);
+        $relation->primaryModel = $this->getModel();
+        if ($this->via) {
+            $relation->via($this->via);
+        } else {
+            list($tableName, $link) = $this->viaTable;
+            $relation->viaTable($tableName, $link);
+        }
+        return $relation;
+    }
+
+    public function setTableName(Model $model)
+    {
+        $modelClass = $this->modelClass;
+        $this->_tableName = $model->tableName() . '_' . $modelClass::tableName();
+    }
+
+    public function getTableName()
+    {
+        return $this->_tableName;
+    }
+
+    public function addColumn($column)
+    {
+        $this->_columns[$column] = 'int';
+    }
+
+    public function getColumns()
+    {
+        return $this->_columns;
     }
 }

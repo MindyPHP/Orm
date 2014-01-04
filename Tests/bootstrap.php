@@ -10,3 +10,4 @@ foreach($models as $model) {
 }
 
 require __DIR__ . '/custom.php';
+@unlink(__DIR__ . '/../runtime/logs/app.log');
