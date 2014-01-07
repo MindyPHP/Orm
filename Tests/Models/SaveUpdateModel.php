@@ -15,10 +15,10 @@
 namespace Tests\Models;
 
 
-use Mindy\Db\Fields\BooleanField;
-use Mindy\Db\Fields\CharField;
-use Mindy\Db\Fields\IntField;
-use Mindy\Db\Model;
+use Mindy\Orm\Fields\BooleanField;
+use Mindy\Orm\Fields\CharField;
+use Mindy\Orm\Fields\IntField;
+use Mindy\Orm\Model;
 
 class SaveUpdateModel extends Model
 {

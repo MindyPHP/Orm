@@ -37,7 +37,7 @@ class ManyToManyFieldTest extends DatabaseTestCase
     {
         $model = new ManyModel();
         $this->assertNull($model->pk);
-        $this->assertInstanceOf('\Mindy\Db\Relation', $model->items);
+        $this->assertInstanceOf('\Mindy\Orm\Relation', $model->items);
         $this->assertEquals(0, $model->items->count());
         $this->assertEquals([], $model->items->all());
 

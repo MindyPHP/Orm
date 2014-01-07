@@ -1,6 +1,6 @@
 <?php
 
-use Mindy\Db\Model;
+use Mindy\Orm\Model;
 
 class WithoutNamespace extends Model
 {

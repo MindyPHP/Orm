@@ -9,18 +9,18 @@
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
- * @date 03/01/14.01.2014 21:58
+ * @date 03/01/14.01.2014 22:01
  */
 
-namespace Mindy\Db\Fields;
+namespace Mindy\Orm\Fields;
 
 
-class CharField extends Field
+class IntField extends Field
 {
-    public $length = 255;
+    public $length = 11;
 
     public function sqlType()
     {
-        return 'string(' . (int)$this->length . ')';
+        return 'int(' . (int) $this->length . ')';
     }
 }

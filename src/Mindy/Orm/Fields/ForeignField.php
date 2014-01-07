@@ -12,11 +12,11 @@
  * @date 03/01/14.01.2014 22:03
  */
 
-namespace Mindy\Db\Fields;
+namespace Mindy\Orm\Fields;
 
 
 use Exception;
-use Mindy\Db\Relation;
+use Mindy\Orm\Relation;
 
 class ForeignField extends RelatedField
 {
@@ -39,7 +39,7 @@ class ForeignField extends RelatedField
 
     public function setValue($value)
     {
-        if(is_a($value, '\Mindy\Db\Model') === false) {
+        if(is_a($value, '\Mindy\Orm\Model') === false) {
             throw new Exception("value must be a Mindy\\Db\\Model instance. " . gettype($value) . "given");
         }
 

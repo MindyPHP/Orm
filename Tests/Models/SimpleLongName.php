@@ -15,7 +15,7 @@
 namespace Tests\Models;
 
 
-use Mindy\Db\Model;
+use Mindy\Orm\Model;
 
 class SimpleLongName extends Model
 {

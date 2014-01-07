@@ -12,7 +12,7 @@
  * @date 03/01/14.01.2014 21:52
  */
 
-namespace Mindy\Db;
+namespace Mindy\Orm;
 
 
 use Exception;
@@ -70,7 +70,7 @@ class Orm extends Base
                 if (is_a($field, $this->foreignField)) {
                     return $field->getValue();
                 } else if (is_a($field, $this->manyToManyField)) {
-                    /* @var $field \Mindy\Db\Fields\ManyToManyField */
+                    /* @var $field \Mindy\Orm\Fields\ManyToManyField */
                     return $field->getRelation();
                 } else {
                     throw new Exception("Unknown field type " . $name . " in " . get_class($this));
@@ -85,7 +85,7 @@ class Orm extends Base
 
     public function getPk()
     {
-        /* @var $field \Mindy\Db\Fields\Field */
+        /* @var $field \Mindy\Orm\Fields\Field */
         if($this->hasField('id')) {
             return $this->getField('id')->getValue();
         } else {
@@ -171,7 +171,7 @@ class Orm extends Base
     {
         $this->clearErrors();
 
-        /* @var $field \Mindy\Db\Fields\Field */
+        /* @var $field \Mindy\Orm\Fields\Field */
         foreach ($this->getFieldsInit() as $name => $field) {
             if ($field->isValid() === false) {
                 foreach ($field->getErrors() as $error) {

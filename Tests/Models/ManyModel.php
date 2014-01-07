@@ -15,8 +15,8 @@
 namespace Tests\Models;
 
 
-use Mindy\Db\Fields\ManyToManyField;
-use Mindy\Db\Model;
+use Mindy\Orm\Fields\ManyToManyField;
+use Mindy\Orm\Model;
 
 class ManyModel extends Model
 {

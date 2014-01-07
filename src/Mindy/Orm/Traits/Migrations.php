@@ -12,11 +12,11 @@
  * @date 03/01/14.01.2014 22:49
  */
 
-namespace Mindy\Db\Traits;
+namespace Mindy\Orm\Traits;
 
 /**
  * Class Migrations
- * @package Mindy\Db\Traits
+ * @package Mindy\Orm\Traits
  */
 trait Migrations
 {
@@ -25,8 +25,8 @@ trait Migrations
      */
     public function createTable()
     {
-        /* @var $this \Mindy\Db\Orm */
-        /* @var $field \Mindy\Db\Fields\Field */
+        /* @var $this \Mindy\Orm\Orm */
+        /* @var $field \Mindy\Orm\Fields\Field */
         $columns = [];
         /* @var $command \yii\db\Command */
         $command = $this->getConnection()->createCommand();
@@ -37,12 +37,12 @@ trait Migrations
                 }
 
                 if(is_a($field, $this->manyToManyField) && $field->through === null) {
-                    /* @var $field \Mindy\Db\Fields\ManyToManyField */
+                    /* @var $field \Mindy\Orm\Fields\ManyToManyField */
                     d($field->getTableName(), $field->getColumns());
                     $command->createTable($field->getTableName(), $field->getColumns())->execute();
+                } else {
+                    $columns[$name] = $field->sql();
                 }
-
-                $columns[$name] = $field->sql();
             }
         }
 
@@ -54,7 +54,7 @@ trait Migrations
      */
     public function dropTable()
     {
-        /* @var $this \Mindy\Db\Orm */
+        /* @var $this \Mindy\Orm\Orm */
         return $this->getConnection()->createCommand()->dropTable($this->tableName());
     }
 

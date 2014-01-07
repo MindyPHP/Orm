@@ -12,7 +12,7 @@
  * @date 03/01/14.01.2014 21:58
  */
 
-namespace Mindy\Db\Fields;
+namespace Mindy\Orm\Fields;
 
 
 use Closure;
@@ -35,7 +35,7 @@ abstract class Field
 
     public $validators = [];
 
-    private $_validatorClass = '\Mindy\Db\Validator\Validator';
+    private $_validatorClass = '\Mindy\Orm\Validator\Validator';
 
     private $_errors = [];
 
@@ -127,7 +127,7 @@ abstract class Field
                     $this->addErrors($valid);
                 }
             } else if(is_subclass_of($validator, $this->_validatorClass)) {
-                /* @var $validator \Mindy\Db\Validator\Validator */
+                /* @var $validator \Mindy\Orm\Validator\Validator */
                 $validator->clearErrors();
 
                 $valid = $validator->validate($this->value);

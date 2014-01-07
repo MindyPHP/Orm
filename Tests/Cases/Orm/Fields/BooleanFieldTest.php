@@ -15,7 +15,7 @@
 namespace Tests\Orm\Fields;
 
 
-use Mindy\Db\Fields\BooleanField;
+use Mindy\Orm\Fields\BooleanField;
 use Tests\TestCase;
 
 

@@ -12,7 +12,7 @@
  * @date 03/01/14.01.2014 21:59
  */
 
-namespace Mindy\Db\Validator;
+namespace Mindy\Orm\Validator;
 
 
 class MinLengthValidator extends Validator

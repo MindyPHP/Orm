@@ -12,11 +12,11 @@
  * @date 03/01/14.01.2014 22:03
  */
 
-namespace Mindy\Db\Fields;
+namespace Mindy\Orm\Fields;
 
 
-use Mindy\Db\Model;
-use Mindy\Db\Relation;
+use Mindy\Orm\Model;
+use Mindy\Orm\Relation;
 
 class ManyToManyField extends RelatedField
 {
@@ -46,7 +46,7 @@ class ManyToManyField extends RelatedField
     public $params = [];
 
     /**
-     * @var \Mindy\Db\Model
+     * @var \Mindy\Orm\Model
      */
     private $_model;
 
@@ -61,7 +61,7 @@ class ManyToManyField extends RelatedField
     private $_columns = [];
 
     /**
-     * @param \Mindy\Db\Model $modelClass
+     * @param \Mindy\Orm\Model $modelClass
      */
     public function __construct($modelClass)
     {
@@ -91,16 +91,16 @@ class ManyToManyField extends RelatedField
         $this->_model = $model;
 
         // TODO ugly, refactoring
-        if (isset($options['through'])) {
-            $this->via = $options['through'];
+        if ($this->through) {
+            $this->via = $this->through;
         } else {
-            $pk = $model->primaryKey();
+            $pk = $model->getPkName();
 
             $this->setTableName($model);
             $column = $model->tableName() . '_id';
             $this->addColumn($column);
             $this->viaTable = [
-                $this->getTableName(), [$column => $pk[0]]
+                $this->getTableName(), [$column => $pk]
             ];
         }
     }

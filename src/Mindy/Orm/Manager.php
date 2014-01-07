@@ -12,15 +12,15 @@
  * @date 04/01/14.01.2014 03:42
  */
 
-namespace Mindy\Db;
+namespace Mindy\Orm;
 
-
+use Mindy\Query\Query;
 use Exception;
 
 class Manager extends Query
 {
     /**
-     * @var \Mindy\Db\Model
+     * @var \Mindy\Orm\Model
      */
     private $_model;
 

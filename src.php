@@ -1,74 +1,29 @@
 <?php
+include __DIR__ . '/src/Mindy/Orm/Traits/Migrations.php';
+include __DIR__ . '/src/Mindy/Orm/Traits/Fields.php';
+include __DIR__ . '/src/Mindy/Orm/Traits/YiiCompatible.php';
 
-// yii2
-include __DIR__ . '/vendor/yii2/framework/yii/Yii.php';
+include __DIR__ . '/src/Mindy/Orm/Validator/Validator.php';
+include __DIR__ . '/src/Mindy/Orm/Validator/MinLengthValidator.php';
+include __DIR__ . '/src/Mindy/Orm/Validator/EmailValidator.php';
 
-include __DIR__ . '/vendor/yii2/framework/yii/base/Arrayable.php';
-include __DIR__ . '/vendor/yii2/framework/yii/base/Object.php';
-include __DIR__ . '/vendor/yii2/framework/yii/base/Component.php';
+include __DIR__ . '/src/Mindy/Orm/Base.php';
+include __DIR__ . '/src/Mindy/Orm/Orm.php';
+include __DIR__ . '/src/Mindy/Orm/Model.php';
+include __DIR__ . '/src/Mindy/Orm/Manager.php';
+include __DIR__ . '/src/Mindy/Orm/Relation.php';
 
-include __DIR__ . '/vendor/yii2/framework/yii/db/Command.php';
-include __DIR__ . '/vendor/yii2/framework/yii/db/Connection.php';
+include __DIR__ . '/src/Mindy/Orm/Fields/Field.php';
+include __DIR__ . '/src/Mindy/Orm/Fields/IntField.php';
+include __DIR__ . '/src/Mindy/Orm/Fields/AutoField.php';
+include __DIR__ . '/src/Mindy/Orm/Fields/CharField.php';
+include __DIR__ . '/src/Mindy/Orm/Fields/BooleanField.php';
+include __DIR__ . '/src/Mindy/Orm/Fields/TextField.php';
+include __DIR__ . '/src/Mindy/Orm/Fields/JsonField.php';
 
-include __DIR__ . '/vendor/yii2/framework/yii/log/Logger.php';
-include __DIR__ . '/vendor/yii2/framework/yii/log/Target.php';
-include __DIR__ . '/vendor/yii2/framework/yii/log/FileTarget.php';
-
-class Application
-{
-    public function getLog()
-    {
-        return new yii\log\Logger([
-            'targets' => [
-                 'file' => [
-                     'class' => 'yii\log\FileTarget',
-                     'levels' => ['trace', 'info'],
-                     'categories' => ['yii\db\*'],
-                 ],
-             ],
-        ]);
-    }
-
-    public function getRuntimePath()
-    {
-        return __DIR__ . '/runtime';
-    }
-}
-
-Yii::$app = new Application();
-
-// Mindy
-include __DIR__ . '/src/Mindy/Helper/Dumper.php';
-
-include __DIR__ . '/src/Mindy/Db/Traits/Migrations.php';
-include __DIR__ . '/src/Mindy/Db/Traits/Fields.php';
-include __DIR__ . '/src/Mindy/Db/Traits/YiiCompatible.php';
-
-include __DIR__ . '/src/Mindy/Db/Validator/Validator.php';
-include __DIR__ . '/src/Mindy/Db/Validator/MinLengthValidator.php';
-include __DIR__ . '/src/Mindy/Db/Validator/EmailValidator.php';
-
-include __DIR__ . '/src/Mindy/Db/Connection.php';
-include __DIR__ . '/src/Mindy/Db/Base.php';
-include __DIR__ . '/src/Mindy/Db/Orm.php';
-include __DIR__ . '/src/Mindy/Db/Query.php';
-include __DIR__ . '/src/Mindy/Db/Model.php';
-include __DIR__ . '/src/Mindy/Db/Manager.php';
-include __DIR__ . '/src/Mindy/Db/Relation.php';
-
-include __DIR__ . '/src/Mindy/Db/Fields/Field.php';
-include __DIR__ . '/src/Mindy/Db/Fields/IntField.php';
-include __DIR__ . '/src/Mindy/Db/Fields/AutoField.php';
-include __DIR__ . '/src/Mindy/Db/Fields/CharField.php';
-include __DIR__ . '/src/Mindy/Db/Fields/BooleanField.php';
-include __DIR__ . '/src/Mindy/Db/Fields/TextField.php';
-include __DIR__ . '/src/Mindy/Db/Fields/JsonField.php';
-
-include __DIR__ . '/src/Mindy/Db/Fields/RelatedField.php';
-include __DIR__ . '/src/Mindy/Db/Fields/ForeignField.php';
-include __DIR__ . '/src/Mindy/Db/Fields/ManyToManyField.php';
-
-use Mindy\Helper\Dumper;
+include __DIR__ . '/src/Mindy/Orm/Fields/RelatedField.php';
+include __DIR__ . '/src/Mindy/Orm/Fields/ForeignField.php';
+include __DIR__ . '/src/Mindy/Orm/Fields/ManyToManyField.php';
 
 function d() {
     $debug = debug_backtrace();
@@ -80,6 +35,10 @@ function d() {
             'line' => $debug[0]['line'],
         )
     );
-    Dumper::dump($data, 10);
+    if(class_exists('Mindy\Helper\Dumper')) {
+        Mindy\Helper\Dumper::dump($data, 10);
+    } else {
+        var_dump($data);
+    }
     die();
 }

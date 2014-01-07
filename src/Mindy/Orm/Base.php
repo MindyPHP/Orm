@@ -11,15 +11,17 @@
  * @date 03/01/14.01.2014 22:10
  */
 
-namespace Mindy\Db;
+namespace Mindy\Orm;
 
 
 use ArrayAccess;
 use Exception;
 
-use Mindy\Db\Traits\Fields;
-use Mindy\Db\Traits\Migrations;
-use Mindy\Db\Traits\YiiCompatible;
+use Mindy\Query\Connection;
+
+use Mindy\Orm\Traits\Fields;
+use Mindy\Orm\Traits\Migrations;
+use Mindy\Orm\Traits\YiiCompatible;
 
 class Base implements ArrayAccess
 {
@@ -31,7 +33,7 @@ class Base implements ArrayAccess
     public $isNewRecord = true;
 
     /**
-     * @var \Mindy\Db\Connection
+     * @var \Mindy\Query\Connection
      */
     private static $_connection;
 
@@ -44,7 +46,7 @@ class Base implements ArrayAccess
     }
 
     /**
-     * @return \Mindy\Db\Connection
+     * @return \Mindy\Query\Connection
      */
     public static function getConnection()
     {
@@ -78,7 +80,7 @@ class Base implements ArrayAccess
 
     /**
      * Returns the schema information of the DB table associated with this AR class.
-     * @return \yii\db\TableSchema the schema information of the DB table associated with this AR class.
+     * @return Mindy\Query\TableSchema the schema information of the DB table associated with this AR class.
      * @throws Exception if the table for the AR class does not exist.
      */
     public static function getTableSchema()
@@ -99,7 +101,7 @@ class Base implements ArrayAccess
      * For example, by creating a record based on the value of a column,
      * you may implement the so-called single-table inheritance mapping.
      * @param array $row row data to be populated into the record.
-     * @return \Mindy\Db\Model the newly created active record
+     * @return \Mindy\Orm\Model the newly created active record
      */
     public static function instantiate($row)
     {
@@ -111,7 +113,7 @@ class Base implements ArrayAccess
      * This method is called by [[ActiveQuery]] to populate the query results
      * into Active Records. It is not meant to be used to create new records.
      * @param array $row attribute values (name => value)
-     * @return \Mindy\Db\Model the newly created active record.
+     * @return \Mindy\Orm\Model the newly created active record.
      */
     public static function create($row)
     {
@@ -220,10 +222,10 @@ class Base implements ArrayAccess
 
             if(is_a($field, $this->foreignField)) {
                 $name .= '_id';
-                /* @var $field \Mindy\Db\Fields\ForeignField */
+                /* @var $field \Mindy\Orm\Fields\ForeignField */
                 $value = $field->getValue()->pk;
             } else {
-                /* @var $field \Mindy\Db\Fields\Field */
+                /* @var $field \Mindy\Orm\Fields\Field */
                 $value = $field->getValue();
             }
 
@@ -283,6 +285,18 @@ class Base implements ArrayAccess
     public static function primaryKey()
     {
         return static::getTableSchema()->primaryKey;
+    }
+
+    // TODO documentation, refactoring
+    public function getPkName()
+    {
+        foreach ($this->getFieldsInit() as $name => $field) {
+            if (is_a($field, $this->autoField)) {
+                return $name;
+            }
+        }
+
+        return null;
     }
 
     public static function createQuery()

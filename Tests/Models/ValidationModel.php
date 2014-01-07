@@ -15,9 +15,9 @@
 namespace Tests\Models;
 
 
-use Mindy\Db\Fields\CharField;
-use Mindy\Db\Model;
-use Mindy\Db\Validator\MinLengthValidator;
+use Mindy\Orm\Fields\CharField;
+use Mindy\Orm\Model;
+use Mindy\Orm\Validator\MinLengthValidator;
 
 class ValidationModel extends Model
 {

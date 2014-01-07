@@ -12,7 +12,7 @@
  * @date 04/01/14.01.2014 02:43
  */
 
-namespace Mindy\Db\Fields;
+namespace Mindy\Orm\Fields;
 
 
 use Exception;

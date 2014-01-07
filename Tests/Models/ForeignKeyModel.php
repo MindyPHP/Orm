@@ -15,8 +15,8 @@
 namespace Tests\Models;
 
 
-use Mindy\Db\Fields\ForeignField;
-use Mindy\Db\Model;
+use Mindy\Orm\Fields\ForeignField;
+use Mindy\Orm\Model;
 
 class ForeignKeyModel extends Model
 {

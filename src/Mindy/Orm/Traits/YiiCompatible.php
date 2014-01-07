@@ -12,7 +12,7 @@
  * @date 04/01/14.01.2014 03:23
  */
 
-namespace Mindy\Db\Traits;
+namespace Mindy\Orm\Traits;
 
 
 trait YiiCompatible

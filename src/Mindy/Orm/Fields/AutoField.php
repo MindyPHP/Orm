@@ -12,13 +12,20 @@
  * @date 03/01/14.01.2014 22:01
  */
 
-namespace Mindy\Db\Fields;
+namespace Mindy\Orm\Fields;
 
 
-class TextField extends Field
+class AutoField extends IntField
 {
+    public $editable = false;
+
+    public function sql()
+    {
+        return trim(sprintf('%s %s', $this->sqlType(), $this->sqlDefault()));
+    }
+
     public function sqlType()
     {
-        return 'text';
+        return 'pk';
     }
 }

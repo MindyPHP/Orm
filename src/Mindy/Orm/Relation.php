@@ -11,12 +11,13 @@
  * @date 03/01/14.01.2014 22:03
  */
 
-namespace Mindy\Db;
+namespace Mindy\Orm;
 
 
+use Mindy\Query\ActiveRelation;
 use Exception;
 
-class Relation extends \yii\db\ActiveRelation
+class Relation extends ActiveRelation
 {
     public function link(Model $model)
     {

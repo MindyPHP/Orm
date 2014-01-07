@@ -15,8 +15,8 @@
 namespace Tests\Models;
 
 
-use Mindy\Db\Fields\CharField;
-use Mindy\Db\Model;
+use Mindy\Orm\Fields\CharField;
+use Mindy\Orm\Model;
 
 class GettersModel extends Model
 {

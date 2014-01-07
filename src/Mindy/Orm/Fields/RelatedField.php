@@ -12,11 +12,11 @@
  * @date 03/01/14.01.2014 22:02
  */
 
-namespace Mindy\Db\Fields;
+namespace Mindy\Orm\Fields;
 
 
-use Mindy\Db\Model;
-use Mindy\Db\Relation;
+use Mindy\Orm\Model;
+use Mindy\Orm\Relation;
 
 abstract class RelatedField extends IntField
 {

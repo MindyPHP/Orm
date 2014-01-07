@@ -1,0 +1,33 @@
+{
+    "name": "mindy/orm",
+    "homepage": "https://github.com/studio107/Mindy_Orm",
+    "version": "1.0.0",
+    "license": "MIT",
+    "autoload": {
+        "psr-0": {
+            "": "src/"
+        }
+    },
+    "require": {
+        "php": ">=5.4",
+        "mindy/core": "dev-master",
+        "mindy/exception": "dev-master",
+        "mindy/query": "dev-master",
+        "mindy/logger": "dev-master",
+        "mindy/helper": "dev-master"
+    },
+    "require-dev": {
+        "satooshi/php-coveralls": "dev-master"
+    },
+    "authors": [
+        {
+            "name": "Maxim Falaleev",
+            "email": "max@studio107.ru",
+            "homepage": "http://studio107.ru",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/studio107/Mindy_Orm/issues?state=open"
+    }
+}

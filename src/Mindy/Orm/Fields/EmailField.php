@@ -12,10 +12,10 @@
  * @date 03/01/14.01.2014 22:00
  */
 
-namespace Mindy\Db\Fields;
+namespace Mindy\Orm\Fields;
 
 
-use Mindy\Db\Validator\EmailValidator;
+use Mindy\Orm\Validator\EmailValidator;
 
 class EmailField extends CharField
 {

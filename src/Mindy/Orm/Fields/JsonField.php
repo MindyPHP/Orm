@@ -12,7 +12,7 @@
  * @date 03/01/14.01.2014 22:02
  */
 
-namespace Mindy\Db\Fields;
+namespace Mindy\Orm\Fields;
 
 
 class JsonField extends TextField

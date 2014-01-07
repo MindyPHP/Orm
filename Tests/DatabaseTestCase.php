@@ -16,8 +16,8 @@ namespace Tests;
 
 
 use Exception;
-use Mindy\Db\Connection;
-use Mindy\Db\Model;
+use Mindy\Query\Connection;
+use Mindy\Orm\Model;
 
 class DatabaseTestCase extends TestCase
 {
@@ -36,7 +36,7 @@ class DatabaseTestCase extends TestCase
 
     public function initModels(array $models)
     {
-        /* @var $model \Mindy\Db\Model */
+        /* @var $model \Mindy\Orm\Model */
         foreach($models as $model) {
             try {
                 $model->createTable()->execute();
@@ -53,7 +53,7 @@ class DatabaseTestCase extends TestCase
 
     public function dropModels(array $models)
     {
-        /* @var $model \Mindy\Db\Model */
+        /* @var $model \Mindy\Orm\Model */
         foreach($models as $model) {
             $model->dropIndexes();
         }

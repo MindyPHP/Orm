@@ -9,13 +9,13 @@
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
- * @date 04/01/14.01.2014 03:14
+ * @date 03/01/14.01.2014 21:52
  */
 
-namespace Mindy\Db;
+namespace Mindy\Orm;
 
 
-class Query extends \yii\db\ActiveQuery
+class Model extends Orm
 {
 
 }

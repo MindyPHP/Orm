@@ -66,7 +66,7 @@ class ValidationTest extends TestCase
 
     public function testCustomValidation()
     {
-        /* @var $nameField \Mindy\Db\Fields\Field */
+        /* @var $nameField \Mindy\Orm\Fields\Field */
         $model = new ValidationModel();
         $this->assertFalse($model->isValid());
         $this->assertEquals([

@@ -1,6 +1,6 @@
 .idea
 *.iml
 
-runtime
-Vendor/*
-Tests/Log
+build
+composer.lock
+vendor
