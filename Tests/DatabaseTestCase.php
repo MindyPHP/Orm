@@ -28,7 +28,7 @@ class DatabaseTestCase extends TestCase
         $connection = new Connection([
             'dsn' => 'mysql:host=localhost;dbname=tmp',
             'username' => 'root',
-            'password' => '210690',
+            'password' => '123456',
             'charset' => 'utf8',
         ]);
         Model::setConnection($connection);

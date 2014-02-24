@@ -284,7 +284,9 @@ class Base implements ArrayAccess
      */
     public static function primaryKey()
     {
-        return static::getTableSchema()->primaryKey;
+        $model = new self;
+        return $model->getPkName();
+        // return static::getTableSchema()->primaryKey;
     }
 
     // TODO documentation, refactoring

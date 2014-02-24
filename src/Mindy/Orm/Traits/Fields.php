@@ -47,6 +47,11 @@ trait Fields
     /**
      * @var array
      */
+    private $_manyFields = [];
+
+    /**
+     * @var array
+     */
     private static $_relations = [];
 
 
@@ -58,8 +63,6 @@ trait Fields
     {
         $needPk = true;
 
-        $m2mFields = [];
-
         foreach ($this->getFields() as $name => $field) {
             /* @var $field \Mindy\Orm\Fields\Field */
             if (is_a($field, $this->autoField)) {
@@ -69,7 +72,7 @@ trait Fields
             if (is_a($field, $this->relatedField)) {
                 /* @var $field \Mindy\Orm\Fields\RelatedField */
                 if (is_a($field, $this->manyToManyField)) {
-                    $m2mFields[$name] = $field;
+                    $this->_manyFields[$name] = $field;
                 } else {
                     $this->_fields[$name] = $field;
                 }
@@ -84,7 +87,7 @@ trait Fields
             ], $this->_fields);
         }
 
-        foreach($m2mFields as $name => $field) {
+        foreach($this->_manyFields as $name => $field) {
             /* @var $field \Mindy\Orm\Fields\ManyToManyField */
             $field->setModel($this);
 
@@ -97,6 +100,11 @@ trait Fields
 
             $this->_fields[$name] = $field;
         }
+    }
+
+    public function getManyFields()
+    {
+        return $this->_manyFields;
     }
 
     /**
