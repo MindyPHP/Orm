@@ -284,7 +284,8 @@ class Base implements ArrayAccess
      */
     public static function primaryKey()
     {
-        $model = new self;
+        $className = get_called_class();
+        $model = new $className();
         return $model->getPkName();
         // return static::getTableSchema()->primaryKey;
     }
@@ -316,8 +317,8 @@ class Base implements ArrayAccess
         } elseif ($q !== null) {
             // query by primary key
             $primaryKey = static::primaryKey();
-            if (isset($primaryKey[0])) {
-                return $query->andWhere([$primaryKey[0] => $q])->one();
+            if ($primaryKey !== null) {
+                return $query->andWhere([$primaryKey => $q])->one();
             } else {
                 throw new Exception(get_called_class() . ' must have a primary key.');
             }

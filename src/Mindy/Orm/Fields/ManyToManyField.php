@@ -73,7 +73,7 @@ class ManyToManyField extends RelatedField
         $column = $modelClass::tableName() . '_id';
         $this->addColumn($column);
 
-        $link = [$pk[0] => $column];
+        $link = [$pk => $column];
         $this->params = [
             'modelClass' => $modelClass,
             'link' => $link,

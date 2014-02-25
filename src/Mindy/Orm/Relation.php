@@ -30,13 +30,13 @@ class Relation extends ActiveRelation
         }
 
         $primaryTableName = $this->primaryModel->tableName();
-        $primaryPk = $this->primaryModel->primaryKey();
+        $primaryPk = $this->primaryModel->pk;
         $tableName = $model->tableName();
-        $pk = $model->primaryKey();
+        $pk = $model->pk;
 
         $command = $this->primaryModel->getConnection()->createCommand()->insert($primaryTableName . '_' . $tableName, [
-            $primaryTableName . '_id' => $primaryPk[0],
-            $tableName . '_id' => $pk[0],
+            $primaryTableName . '_id' => $primaryPk,
+            $tableName . '_id' => $pk,
         ]);
         return $command->execute();
     }
