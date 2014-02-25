@@ -16,6 +16,7 @@ namespace Tests;
 
 
 use Exception;
+use Mindy\Orm\Sync;
 use Mindy\Query\Connection;
 use Mindy\Orm\Model;
 
@@ -36,30 +37,14 @@ class DatabaseTestCase extends TestCase
 
     public function initModels(array $models)
     {
-        /* @var $model \Mindy\Orm\Model */
-        foreach($models as $model) {
-            try {
-                $model->createTable()->execute();
-            } catch(Exception $e) {
-                $model->dropTable()->execute();
-                $model->createTable()->execute();
-            }
-        }
-
-        foreach($models as $model) {
-            $model->createIndexes();
-        }
+        $sync = new Sync($models);
+        $sync->delete();
+        $sync->create();
     }
 
     public function dropModels(array $models)
     {
-        /* @var $model \Mindy\Orm\Model */
-        foreach($models as $model) {
-            $model->dropIndexes();
-        }
-
-        foreach($models as $model) {
-            $model->dropTable();
-        }
+        $sync = new Sync($models);
+        $sync->delete();
     }
 }

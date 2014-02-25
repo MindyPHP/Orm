@@ -14,37 +14,35 @@
 
 namespace Mindy\Orm;
 
+use Mindy\Query\OrmQuery;
 use Mindy\Query\Query;
 use Exception;
 
-class Manager extends Query
+class Manager
 {
     /**
      * @var \Mindy\Orm\Model
      */
     private $_model;
 
-    public function __construct(Model $model)
-    {
-        parent::__construct(['modelClass' => $model->className()]);
-
-        $this->setModel($model);
-    }
-
     /**
-     * @param Model $model
+     * @var \Mindy\Query\OrmQuery
      */
-    public function setModel(Model $model)
+    private $_qs;
+
+    public function __construct(Model $model)
     {
         $this->_model = $model;
     }
 
-    /**
-     * @return Model
-     */
-    public function getModel()
+    public function getQuerySet()
     {
-        return $this->_model;
+        if($this->_qs === null) {
+            $this->_qs = new OrmQuery([
+                'modelClass' => $this->_model->className()
+            ]);
+        }
+        return $this->_qs;
     }
 
     /**
@@ -67,17 +65,36 @@ class Manager extends Query
 
     public function filter($q = null)
     {
+        $qs = $this->getQuerySet();
         if (is_array($q)) {
-            return $this->andWhere($q);
+            return $qs->andWhere($q);
         } elseif ($q !== null) {
             // query by primary key
             $primaryKey = $this->primaryKey();
             if (isset($primaryKey[0])) {
-                return $this->andWhere([$primaryKey[0] => $q]);
+                return $qs->andWhere([$primaryKey[0] => $q]);
             } else {
                 throw new Exception(get_called_class() . ' must have a primary key.');
             }
         }
-        return $this;
+        return $qs;
+    }
+
+    public function asArray()
+    {
+        return $this->getQuerySet()->asArray(true);
+    }
+
+    /**
+     * @return array
+     */
+    public function all()
+    {
+        return $this->getQuerySet()->all();
+    }
+
+    public function count()
+    {
+        return $this->getQuerySet()->count();
     }
 }

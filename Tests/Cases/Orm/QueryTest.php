@@ -42,8 +42,8 @@ class QueryTest extends DatabaseTestCase
 
     public function testFind()
     {
-        $model = SaveUpdateModel::find();
-        $this->assertEquals(3, $model->count());
+        $qs = SaveUpdateModel::objects();
+        $this->assertEquals(3, $qs->count());
         $this->assertEquals([
             [
                 'id' => 1,
@@ -63,13 +63,13 @@ class QueryTest extends DatabaseTestCase
                 'price' => 3,
                 'is_default' => 0
             ]
-        ], $model->asArray()->all());
+        ], $qs->asArray()->all());
     }
 
     public function testFindWhere()
     {
-        $model = SaveUpdateModel::find();
-        $this->assertEquals(2, $model->where(['is_default' => true])->count());
+        $qs = SaveUpdateModel::objects();
+        $this->assertEquals(2, $qs->filter(['is_default' => true])->count());
         $this->assertEquals([
             [
                 'id' => 1,
@@ -83,7 +83,7 @@ class QueryTest extends DatabaseTestCase
                 'price' => 2,
                 'is_default' => 1
             ]
-        ], $model->asArray()->all());
+        ], $qs->asArray()->all());
     }
 
     public function testFindManager()

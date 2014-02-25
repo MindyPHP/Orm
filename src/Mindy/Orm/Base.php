@@ -22,6 +22,8 @@ use Mindy\Query\Connection;
 use Mindy\Orm\Traits\Fields;
 use Mindy\Orm\Traits\Migrations;
 use Mindy\Orm\Traits\YiiCompatible;
+use Mindy\Query\OrmQuery;
+use Mindy\Query\Query;
 
 class Base implements ArrayAccess
 {
@@ -240,11 +242,9 @@ class Base implements ArrayAccess
         // TODO beforeSave
         $values = $this->getChangedValues();
 
-        $keys = $this->primaryKey();
+        $name = $this->primaryKey();
         $condition = [];
-        foreach ($keys as $name) {
-            $condition[$name] = $this->getField($name)->getValue();
-        }
+        $condition[$name] = $this->getField($name)->getValue();
 
         $lock = $this->optimisticLock();
         if ($lock !== null) {
@@ -303,7 +303,9 @@ class Base implements ArrayAccess
 
     public static function createQuery()
     {
-        return new Query(['modelClass' => get_called_class()]);
+        return new OrmQuery([
+            'modelClass' => get_called_class()
+        ]);
     }
 
     public static function find($q = null)

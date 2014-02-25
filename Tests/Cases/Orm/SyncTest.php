@@ -43,10 +43,9 @@ class SyncTest extends DatabaseTestCase
         $sync = new Sync($models);
         $sync->delete();
 
-//        foreach($models as $model) {
-//            var_dump($model->className());
-//            $this->assertFalse($sync->hasTable($model));
-//        }
+        foreach($models as $model) {
+            $this->assertFalse($sync->hasTable($model));
+        }
 
         // Create all tables. If table exists - skip.
         $sync->create();
@@ -56,10 +55,10 @@ class SyncTest extends DatabaseTestCase
         }
 
         // Remove all tables. If table does not exists - skip.
-//        $sync->delete();
+        $sync->delete();
 
-//        foreach($models as $model) {
-//            $this->assertFalse($sync->hasTable($model));
-//        }
+        foreach($models as $model) {
+            $this->assertFalse($sync->hasTable($model));
+        }
     }
 }
