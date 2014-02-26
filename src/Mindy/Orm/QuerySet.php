@@ -8,6 +8,8 @@
 
 namespace Mindy\Orm;
 
+use InvalidArgumentException;
+use Mindy\Exception\Exception;
 use Mindy\Query\Query;
 use Mindy\Exception\InvalidCallException;
 
@@ -427,10 +429,135 @@ class QuerySet extends Query
 
     public function filter(array $q)
     {
-        if (!empty($q)) {
-            return $this->andWhere($q);
+        $separator = '__';
+
+        foreach($q as $name => $value) {
+            if(is_numeric($name)) {
+                throw new InvalidArgumentException('Keys in $q must be a string');
+            }
+
+            if(substr_count($name, $separator) > 1) {
+                // recursion
+                throw new Exception("Not implemented");
+
+            } elseif (strpos($name, $separator) !== false) {
+                list($field, $condition) = explode($separator, $name);
+                switch($condition) {
+                    case 'isnull':
+                    case 'exact':
+                        $this->andWhere([$field => $q]);
+                        break;
+                    case 'in':
+                        $this->andWhere(['in', $field, $value]);
+                        break;
+                    case 'gte':
+                        $this->andWhere("$field >= :$field", [":$field" => $value]);
+                        break;
+                    case 'gt':
+                        $this->andWhere("$field > :$field", [":$field" => $value]);
+                        break;
+                    case 'lte':
+                        $this->andWhere("$field <= :$field", [":$field" => $value]);
+                        break;
+                    case 'lt':
+                        $this->andWhere("$field < :$field", [":$field" => $value]);
+                        break;
+                    case 'icontains':
+                        // TODO ILIKE
+                        // TODO see buildLikeCondition in QueryBuilder. ILIKE? WAT? QueryBuilder dont known about ILIKE
+                        break;
+                    case 'contains':
+                        // TODO LIKE
+                        break;
+                    case 'startswith':
+                        // TODO LIKE something%
+                        break;
+                    case 'istartswith':
+                        // TODO ILIKE something%
+                        // TODO see buildLikeCondition in QueryBuilder. ILIKE? WAT? QueryBuilder dont known about ILIKE
+                        break;
+                    case 'endswith':
+                        // TODO LIKE %something
+                        break;
+                    case 'iendswith':
+                        // TODO ILIKE %something
+                        // TODO see buildLikeCondition in QueryBuilder. ILIKE? WAT? QueryBuilder dont known about ILIKE
+                        break;
+                    case 'range':
+                        if(count($value) != 2) {
+                            throw new InvalidArgumentException('Range condition must be a array of 2 elements. Example: something__range=[1, 2]');
+                        }
+                        $this->andWhere(array_merge(['between', $field], $value));
+                        break;
+                    case 'year':
+                        // TODO BETWEEN
+                        // Entry.objects.filter(pub_date__year=2005)
+                        // SELECT ... WHERE pub_date BETWEEN '2005-01-01' AND '2005-12-31';
+                        break;
+                    case 'month':
+                        // TODO
+                        // Entry.objects.filter(pub_date__month=12)
+                        // SELECT ... WHERE EXTRACT('month' FROM pub_date) = '12';
+                        break;
+                    case 'day':
+                        // TODO
+                        break;
+                    case 'week_day':
+                        // TODO
+                        // Entry.objects.filter(pub_date__week_day=2)
+                        // No equivalent SQL code fragment is included for this lookup because implementation of
+                        // the relevant query varies among different database engines.
+                        break;
+                    case 'hour':
+                        // TODO
+                        // Event.objects.filter(timestamp__hour=23)
+                        // SELECT ... WHERE EXTRACT('hour' FROM timestamp) = '23';
+                        break;
+                    case 'minute':
+                        // TODO
+                        // Event.objects.filter(timestamp__minute=29)
+                        // SELECT ... WHERE EXTRACT('minute' FROM timestamp) = '29';
+                        break;
+                    case 'second':
+                        // TODO
+                        // Event.objects.filter(timestamp__second=31)
+                        // SELECT ... WHERE EXTRACT('second' FROM timestamp) = '31';
+                        break;
+                    case 'search':
+                        // TODO
+                        // Entry.objects.filter(headline__search="+Django -jazz Python")
+                        // SELECT ... WHERE MATCH(tablename, headline) AGAINST (+Django -jazz Python IN BOOLEAN MODE);
+                        break;
+                    case 'regex':
+                        // TODO
+                        // Entry.objects.get(title__regex=r'^(An?|The) +')
+                        // SELECT ... WHERE title REGEXP BINARY '^(An?|The) +'; -- MySQL
+                        // SELECT ... WHERE REGEXP_LIKE(title, '^(an?|the) +', 'c'); -- Oracle
+                        // SELECT ... WHERE title ~ '^(An?|The) +'; -- PostgreSQL
+                        // SELECT ... WHERE title REGEXP '^(An?|The) +'; -- SQLite
+                        break;
+                    case 'iregex':
+                        // TODO
+                        // SELECT ... WHERE title REGEXP '^(an?|the) +'; -- MySQL
+                        // SELECT ... WHERE REGEXP_LIKE(title, '^(an?|the) +', 'i'); -- Oracle
+                        // SELECT ... WHERE title ~* '^(an?|the) +'; -- PostgreSQL
+                        // SELECT ... WHERE title REGEXP '(?i)^(an?|the) +'; -- SQLite
+                        break;
+                    default:
+                        break;
+                }
+
+            } else {
+                $asd = $this->andWhere([$name => $value]);
+            }
         }
+
         return $this;
+    }
+
+    public function filterOld(array $q)
+    {
+        return $this->andWhere($q);
     }
 
     /**

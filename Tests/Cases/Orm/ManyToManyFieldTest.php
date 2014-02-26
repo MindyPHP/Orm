@@ -54,4 +54,99 @@ class ManyToManyFieldTest extends DatabaseTestCase
         $new = ManyModel::objects()->get(['id' => 1]);
         $this->assertEquals(1, count($new->items->all()));
     }
+
+    public function testExact()
+    {
+        $qs = ManyModel::objects()->filterNew(['id' => 2]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals(['id' => 2], $qs->where);
+        $this->assertEquals(0, $qs->count());
+    }
+
+    public function testIsNull()
+    {
+        $qs = ManyModel::objects()->filterNew(['id' => null]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals(['id' => null], $qs->where);
+        $this->assertEquals(0, $qs->count());
+
+        // TODO
+        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE `category` IS NULL', $qs->sql);
+    }
+
+    public function testIn()
+    {
+        $qs = ManyModel::objects()->filterNew(['category__in' => [1, 2, 3, 4, 5]]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals([
+            'in',
+            'category',
+            [1, 2, 3, 4, 5]
+        ], $qs->where);
+    }
+
+    public function testGte()
+    {
+        $model = new ManyModel();
+        $model->save();
+        $this->assertEquals(1, ManyModel::objects()->count());
+
+        $qs = ManyModel::objects()->filterNew(['id__gte' => 1]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals('id >= :id', $qs->where);
+        $this->assertEquals(1, $qs->count());
+    }
+
+    public function testGt()
+    {
+        $model = new ManyModel();
+        $model->save();
+        $this->assertEquals(1, ManyModel::objects()->count());
+
+        $qs = ManyModel::objects()->filterNew(['id__gt' => 1]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals('id > :id', $qs->where);
+        $this->assertEquals(0, $qs->count());
+    }
+
+    public function testLte()
+    {
+        $model = new ManyModel();
+        $model->save();
+        $this->assertEquals(1, ManyModel::objects()->count());
+
+        $qs = ManyModel::objects()->filterNew(['id__lte' => 1]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals('id <= :id', $qs->where);
+        $this->assertEquals(1, $qs->count());
+    }
+
+    public function testLt()
+    {
+        $qs = ManyModel::objects()->filterNew(['id__lt' => 1]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals('id < :id', $qs->where);
+        $this->assertEquals(0, $qs->count());
+    }
+
+    public function testRange()
+    {
+        $model = new ManyModel();
+        $model->save();
+        $this->assertEquals(1, ManyModel::objects()->count());
+
+        $qs = ManyModel::objects()->filterNew(['id__range' => [0, 1]]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals([
+            'between', 'id', 0, 1
+        ], $qs->where);
+        $this->assertEquals(1, $qs->count());
+
+        $qs = ManyModel::objects()->filterNew(['id__range' => [10, 20]]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals([
+            'between', 'id', 10, 20
+        ], $qs->where);
+        $this->assertEquals(0, $qs->count());
+    }
 }
