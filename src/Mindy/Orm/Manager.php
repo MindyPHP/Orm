@@ -63,7 +63,7 @@ class Manager
 
     /**
      * @param array $q
-     * @return $this
+     * @return $this|static
      */
     public function filter(array $q)
     {
@@ -76,20 +76,15 @@ class Manager
      */
     public function get(array $q)
     {
-        return $this->getQuerySet()->filter($q)->get();
-    }
-
-    public function asArray()
-    {
-        return $this->getQuerySet()->asArray(true);
+        return $this->filter($q)->get();
     }
 
     /**
      * @return array
      */
-    public function all()
+    public function all($asArray = false)
     {
-        return $this->getQuerySet()->all();
+        return $this->getQuerySet()->asArray($asArray)->all();
     }
 
     public function count()
