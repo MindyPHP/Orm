@@ -16,6 +16,7 @@ namespace Mindy\Orm;
 
 
 use Exception;
+use Mindy\Query\Connection;
 
 class Orm extends Base
 {
