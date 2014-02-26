@@ -61,9 +61,22 @@ class Manager
         return $this->getModel()->getTableSchema()->primaryKey;
     }
 
-    public function filter($q = null)
+    /**
+     * @param array $q
+     * @return $this
+     */
+    public function filter(array $q)
     {
         return $this->getQuerySet()->filter($q);
+    }
+
+    /**
+     * @param array $q
+     * @return Orm|null
+     */
+    public function get(array $q)
+    {
+        return $this->getQuerySet()->get($q);
     }
 
     public function asArray()

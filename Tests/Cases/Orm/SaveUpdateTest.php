@@ -90,7 +90,7 @@ class SaveUpdateTest extends DatabaseTestCase
         $this->assertEquals('1', $tmp->price);
         $this->assertEquals(true, $tmp->is_default);
 
-        $tmpFind = SaveUpdateModel::objects()->filter(['pk' => 1]);
+        $tmpFind = SaveUpdateModel::objects()->get(['pk' => 1]);
         $this->assertEquals('name 2', $tmpFind->name);
         $this->assertEquals('1', $tmpFind->price);
         $this->assertEquals(true, $tmpFind->is_default);

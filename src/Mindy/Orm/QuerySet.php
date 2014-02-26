@@ -7,9 +7,10 @@
  */
 
 namespace Mindy\Orm;
-use Mindy\Exception\InvalidParamException;
-use Mindy\Query\Query;
+
 use Mindy\Orm\Traits\QuerySetTrait;
+use Mindy\Query\Query;
+
 /**
  * ActiveQuery represents a DB query associated with an Active Record class.
  *
@@ -125,11 +126,8 @@ class QuerySet extends Query
 
     /**
      * Executes query and returns a single row of result.
-     * @param Connection $db the DB connection used to create the DB command.
-     * If null, the DB connection returned by [[modelClass]] will be used.
-     * @return ActiveRecord|array|null a single row of query result. Depending on the setting of [[asArray]],
-     * the query result may be either an array or an ActiveRecord object. Null will be returned
-     * if the query results in nothing.
+     * @param null $db
+     * @return null|Orm
      */
     public function get($db = null)
     {
@@ -415,7 +413,8 @@ class QuerySet extends Query
         }
     }
 
-    public function filter(array $q){
+    public function filter(array $q)
+    {
         if (!empty($q)) {
             return $this->andWhere($q);
         }

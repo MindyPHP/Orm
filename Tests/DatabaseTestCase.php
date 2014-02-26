@@ -28,8 +28,7 @@ class DatabaseTestCase extends TestCase
 
         $connectionSettings = require __DIR__ . '/config_local.php';
 
-        $connection = new Connection($connectionSettings);
-        Model::setConnection($connection);
+        Model::setConnection(new Connection($connectionSettings));
     }
 
     public function initModels(array $models)
