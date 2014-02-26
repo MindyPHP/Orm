@@ -63,7 +63,7 @@ class QueryTest extends DatabaseTestCase
                 'price' => 3,
                 'is_default' => 0
             ]
-        ], $qs->asArray()->all());
+        ], $qs->all(true));
     }
 
     public function testFindWhere()
@@ -83,7 +83,7 @@ class QueryTest extends DatabaseTestCase
                 'price' => 2,
                 'is_default' => 1
             ]
-        ], $qs->asArray()->all());
+        ], $qs->all(true));
     }
 
     public function testFindManager()
@@ -109,7 +109,7 @@ class QueryTest extends DatabaseTestCase
                 'price' => 3,
                 'is_default' => 0
             ]
-        ], $model->asArray()->all());
+        ], $model->all(true));
     }
 
     public function testFindWhereManager()
@@ -129,6 +129,6 @@ class QueryTest extends DatabaseTestCase
                 'price' => 2,
                 'is_default' => 1
             ]
-        ], $model->asArray()->all());
+        ], $model->all(true));
     }
 }
