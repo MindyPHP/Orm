@@ -27,7 +27,7 @@ use Mindy\Query\Query;
 
 class Base implements ArrayAccess
 {
-    use Fields, YiiCompatible;
+    use Fields;
 
     /**
      * @var bool Returns a value indicating whether the current record is new.
