@@ -14,8 +14,6 @@
 
 namespace Mindy\Orm;
 
-use Mindy\Query\OrmQuery;
-use Mindy\Query\Query;
 use Exception;
 
 class Manager
@@ -38,7 +36,7 @@ class Manager
     public function getQuerySet()
     {
         if($this->_qs === null) {
-            $this->_qs = new OrmQuery([
+            $this->_qs = new QuerySet([
                 'modelClass' => $this->_model->className()
             ]);
         }
@@ -65,19 +63,7 @@ class Manager
 
     public function filter($q = null)
     {
-        $qs = $this->getQuerySet();
-        if (is_array($q)) {
-            return $qs->andWhere($q);
-        } elseif ($q !== null) {
-            // query by primary key
-            $primaryKey = $this->primaryKey();
-            if (isset($primaryKey[0])) {
-                return $qs->andWhere([$primaryKey[0] => $q]);
-            } else {
-                throw new Exception(get_called_class() . ' must have a primary key.');
-            }
-        }
-        return $qs;
+        return $this->getQuerySet()->filter($q);
     }
 
     public function asArray()

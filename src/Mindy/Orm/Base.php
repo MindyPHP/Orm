@@ -304,7 +304,7 @@ class Base implements ArrayAccess
 
     public static function createQuery()
     {
-        return new OrmQuery([
+        return new QuerySet([
             'modelClass' => get_called_class()
         ]);
     }

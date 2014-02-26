@@ -14,11 +14,14 @@
 namespace Mindy\Orm;
 
 
-use Mindy\Query\ActiveRelation;
+//use Mindy\Query\ActiveRelation;
 use Exception;
+use Mindy\Orm\Traits\RelationTrait;
 
-class Relation extends ActiveRelation
+class Relation extends QuerySet
 {
+    use RelationTrait;
+
     public function link(Model $model)
     {
         if(!$this->multiple) {
@@ -56,5 +59,21 @@ class Relation extends ActiveRelation
                 'pk' => $model->pk,
             ]);
         return $command->execute();
+    }
+
+    public function viaTable($tableName, $link, $callable = null)
+    {
+        $relation = new Relation([
+            'modelClass' => get_class($this->primaryModel),
+            'from' => [$tableName],
+            'link' => $link,
+            'multiple' => true,
+            'asArray' => true,
+        ]);
+        $this->via = $relation;
+        if ($callable !== null) {
+            call_user_func($callable, $relation);
+        }
+        return $this;
     }
 }

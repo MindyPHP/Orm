@@ -27,9 +27,9 @@ class DatabaseTestCase extends TestCase
         parent::setUp();
 
         $connection = new Connection([
-            'dsn' => 'mysql:host=localhost;dbname=tmp',
+            'dsn' => 'mysql:host=localhost;dbname=mindy_orm',
             'username' => 'root',
-            'password' => '123456',
+            'password' => 'GfhjkmrfJlvbyf',
             'charset' => 'utf8',
         ]);
         Model::setConnection($connection);
