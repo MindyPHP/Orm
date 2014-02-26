@@ -1,7 +1,5 @@
 <?php
-include __DIR__ . '/src/Mindy/Orm/Traits/Migrations.php';
 include __DIR__ . '/src/Mindy/Orm/Traits/Fields.php';
-include __DIR__ . '/src/Mindy/Orm/Traits/YiiCompatible.php';
 
 include __DIR__ . '/src/Mindy/Orm/Validator/Validator.php';
 include __DIR__ . '/src/Mindy/Orm/Validator/MinLengthValidator.php';
