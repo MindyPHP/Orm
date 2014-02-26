@@ -137,7 +137,7 @@ class QuerySet extends Query
             if ($this->asArray) {
                 $model = $row;
             } else {
-                /** @var ActiveRecord $class */
+                /** @var Orm $class */
                 $class = $this->modelClass;
                 $model = $class::create($row);
             }
@@ -154,13 +154,13 @@ class QuerySet extends Query
 
     /**
      * Creates a DB command that can be used to execute this query.
-     * @param Connection $db the DB connection used to create the DB command.
+     * @param \Mindy\Query\Connection $db the DB connection used to create the DB command.
      * If null, the DB connection returned by [[modelClass]] will be used.
-     * @return Command the created DB command instance.
+     * @return \Mindy\Query\Command the created DB command instance.
      */
     public function createCommand($db = null)
     {
-        /** @var ActiveRecord $modelClass */
+        /** @var Orm $modelClass */
         $modelClass = $this->modelClass;
         if ($db === null) {
             $db = $modelClass::getConnection();
