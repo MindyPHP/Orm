@@ -2,9 +2,10 @@
 
 if(is_dir(__DIR__ . '/../vendor')) {
     include(__DIR__ . '/../vendor/autoload.php');
+} else {
+    require __DIR__ . '/../src.php';
 }
 
-require __DIR__ . '/../src.php';
 require __DIR__ . '/TestCase.php';
 require __DIR__ . '/DatabaseTestCase.php';
 
