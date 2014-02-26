@@ -76,7 +76,7 @@ class Manager
      */
     public function get(array $q)
     {
-        return $this->getQuerySet()->get($q);
+        return $this->getQuerySet()->filter($q)->get();
     }
 
     public function asArray()
