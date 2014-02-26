@@ -467,17 +467,17 @@ class QuerySet extends Query
                         // TODO see buildLikeCondition in QueryBuilder. ILIKE? WAT? QueryBuilder dont known about ILIKE
                         break;
                     case 'contains':
-                        // TODO LIKE
+                        $this->andWhere(['like', $field, $value]);
                         break;
                     case 'startswith':
-                        // TODO LIKE something%
+                        $this->andWhere(['like', $field, '%' . $value]);
                         break;
                     case 'istartswith':
                         // TODO ILIKE something%
                         // TODO see buildLikeCondition in QueryBuilder. ILIKE? WAT? QueryBuilder dont known about ILIKE
                         break;
                     case 'endswith':
-                        // TODO LIKE %something
+                        $this->andWhere(['like', $field, $value . '%']);
                         break;
                     case 'iendswith':
                         // TODO ILIKE %something
@@ -548,7 +548,7 @@ class QuerySet extends Query
                 }
 
             } else {
-                $asd = $this->andWhere([$name => $value]);
+                $this->andWhere([$name => $value]);
             }
         }
 

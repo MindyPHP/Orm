@@ -129,6 +129,63 @@ class ManyToManyFieldTest extends DatabaseTestCase
         $this->assertEquals(0, $qs->count());
     }
 
+    public function testContains()
+    {
+        $model = new ManyModel();
+        $model->save();
+        $this->assertEquals(1, ManyModel::objects()->count());
+
+        $qs = ManyModel::objects()->filterNew(['id__contains' => 1]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals([
+            'like',
+            'id',
+            '1'
+        ], $qs->where);
+        $this->assertEquals(1, $qs->count());
+
+        // TODO
+        $this->assertEquals('SELECT * FROM `many_model` WHERE `id` LIKE %1%', $qs->sql);
+    }
+
+    public function testStartswith()
+    {
+        $model = new ManyModel();
+        $model->save();
+        $this->assertEquals(1, ManyModel::objects()->count());
+
+        $qs = ManyModel::objects()->filterNew(['id__startswith' => 1]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals([
+            'like',
+            'id',
+            '%1'
+        ], $qs->where);
+        $this->assertEquals(1, $qs->count());
+
+        // TODO
+        $this->assertEquals('SELECT * FROM `many_model` WHERE `id` LIKE %1', $qs->sql);
+    }
+
+    public function testEndswith()
+    {
+        $model = new ManyModel();
+        $model->save();
+        $this->assertEquals(1, ManyModel::objects()->count());
+
+        $qs = ManyModel::objects()->filterNew(['id__endswith' => 1]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals([
+            'like',
+            'id',
+            '1%'
+        ], $qs->where);
+        $this->assertEquals(1, $qs->count());
+
+        // TODO
+        $this->assertEquals('SELECT * FROM `many_model` WHERE `id` LIKE 1%', $qs->sql);
+    }
+
     public function testRange()
     {
         $model = new ManyModel();
