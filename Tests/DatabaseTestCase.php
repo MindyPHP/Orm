@@ -26,12 +26,9 @@ class DatabaseTestCase extends TestCase
     {
         parent::setUp();
 
-        $connection = new Connection([
-            'dsn' => 'mysql:host=localhost;dbname=mindy_orm',
-            'username' => 'root',
-            'password' => 'GfhjkmrfJlvbyf',
-            'charset' => 'utf8',
-        ]);
+        $connectionSettings = require __DIR__ . '/config_local.php';
+
+        $connection = new Connection($connectionSettings);
         Model::setConnection($connection);
     }
 
