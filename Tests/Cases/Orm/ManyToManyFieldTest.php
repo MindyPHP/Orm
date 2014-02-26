@@ -51,7 +51,7 @@ class ManyToManyFieldTest extends DatabaseTestCase
         $model->items->link($item);
         $this->assertEquals(1, count($model->items->all()));
 
-        $new = ManyModel::find(1);
+        $new = ManyModel::objects()->filter(['pk' => 1]);
         $this->assertEquals(1, count($new->items->all()));
     }
 }

@@ -165,7 +165,7 @@ class QuerySet extends Query
         /** @var ActiveRecord $modelClass */
         $modelClass = $this->modelClass;
         if ($db === null) {
-            $db = $modelClass::getDb();
+            $db = $modelClass::getConnection();
         }
 
         if ($this->sql === null) {
