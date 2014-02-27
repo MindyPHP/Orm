@@ -185,35 +185,6 @@ class Orm extends Base
     }
 
     /**
-     * TODO move to trait
-     * Returns the name of the column that stores the lock version for implementing optimistic locking.
-     *
-     * Optimistic locking allows multiple users to access the same record for edits and avoids
-     * potential conflicts. In case when a user attempts to save the record upon some staled data
-     * (because another user has modified the data), a [[StaleObjectException]] exception will be thrown,
-     * and the update or deletion is skipped.
-     *
-     * Optimistic locking is only supported by [[update()]] and [[delete()]].
-     *
-     * To use Optimistic locking:
-     *
-     * 1. Create a column to store the version number of each row. The column type should be `BIGINT DEFAULT 0`.
-     *    Override this method to return the name of this column.
-     * 2. In the Web form that collects the user input, add a hidden field that stores
-     *    the lock version of the recording being updated.
-     * 3. In the controller action that does the data updating, try to catch the [[StaleObjectException]]
-     *    and implement necessary business logic (e.g. merging the changes, prompting stated data)
-     *    to resolve the conflict.
-     *
-     * @return string the column name that stores the lock version of a table row.
-     * If null is returned (default implemented), optimistic locking will not be supported.
-     */
-    public function optimisticLock()
-    {
-        return null;
-    }
-
-    /**
      * TODO move to manager
      * Updates the whole table using the provided attribute values and conditions.
      * For example, to change the status to be 1 for all customers whose status is 2:
@@ -273,25 +244,13 @@ class Orm extends Base
         $values = $this->getChangedValues();
 
         $name = $this->primaryKey();
-        $condition = [];
-        $condition[$name] = $this->getField($name)->getValue();
-
-        $lock = $this->optimisticLock();
-        if ($lock !== null) {
-            if (!isset($values[$lock])) {
-                $values[$lock] = $this->$lock + 1;
-            }
-            $condition[$lock] = $this->$lock;
-        }
+        $condition = [
+            $name => $this->getField($name)->getValue()
+        ];
 
         // We do not check the return value of updateAll() because it's possible
         // that the UPDATE statement doesn't change anything and thus returns 0.
-        $rows = $this->updateAll($values, $condition);
-
-        if ($lock !== null && !$rows) {
-            throw new Exception('The object being updated is outdated.');
-        }
-        return (bool) $rows;
+        return (bool) $this->updateAll($values, $condition);
     }
 
     /**
@@ -304,17 +263,7 @@ class Orm extends Base
     }
 
     /**
-     * Returns the primary key name(s) for this AR class.
-     * The default implementation will return the primary key(s) as declared
-     * in the DB table that is associated with this AR class.
-     *
-     * If the DB table does not declare any primary key, you should override
-     * this method to return the attributes that you want to use as primary keys
-     * for this AR class.
-     *
-     * Note that an array should be returned even for a table with single primary key.
-     *
-     * @return string[] the primary keys of the associated database table.
+     * @return string|null
      */
     public static function primaryKey()
     {

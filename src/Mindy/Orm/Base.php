@@ -15,12 +15,6 @@ namespace Mindy\Orm;
 
 
 use ArrayAccess;
-use Exception;
-
-use Mindy\Query\Connection;
-
-use Mindy\Orm\Traits\Fields;
-use Mindy\Query\Query;
 
 class Base implements ArrayAccess
 {

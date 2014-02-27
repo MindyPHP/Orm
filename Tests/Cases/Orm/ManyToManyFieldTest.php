@@ -67,30 +67,23 @@ class ManyToManyFieldTest extends DatabaseTestCase
     {
         $qs = ManyModel::objects()->filter(['id' => 2]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals(['id' => 2], $qs->where);
         $this->assertEquals(0, $qs->count());
+        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE (`id`=2)', $qs->countSql());
     }
 
     public function testIsNull()
     {
         $qs = ManyModel::objects()->filter(['id' => null]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals(['id' => null], $qs->where);
         $this->assertEquals(0, $qs->count());
-
-        // TODO
-        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE `id` IS NULL', $qs->sql);
+        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE (`id` IS NULL)', $qs->countSql());
     }
 
     public function testIn()
     {
         $qs = ManyModel::objects()->filter(['category__in' => [1, 2, 3, 4, 5]]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals([
-            'in',
-            'category',
-            [1, 2, 3, 4, 5]
-        ], $qs->where);
+        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE (`category` IN (1, 2, 3, 4, 5))', $qs->countSql());
     }
 
     public function testGte()
@@ -101,11 +94,6 @@ class ManyToManyFieldTest extends DatabaseTestCase
 
         $qs = ManyModel::objects()->filter(['id__gte' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals([
-            'id >= :id',
-            [':id' => 1]
-        ], $qs->where);
-
         $this->assertEquals(1, $qs->count());
     }
 
@@ -117,10 +105,6 @@ class ManyToManyFieldTest extends DatabaseTestCase
 
         $qs = ManyModel::objects()->filter(['id__gt' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals([
-            'id > :id',
-            [':id' => 1]
-        ], $qs->where);
         $this->assertEquals(0, $qs->count());
     }
 
@@ -132,7 +116,6 @@ class ManyToManyFieldTest extends DatabaseTestCase
 
         $qs = ManyModel::objects()->filter(['id__lte' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals('id <= :id', $qs->where);
         $this->assertEquals(1, $qs->count());
     }
 
@@ -154,7 +137,7 @@ class ManyToManyFieldTest extends DatabaseTestCase
         $this->assertEquals(1, $qs->count());
 
         // TODO
-        $this->assertEquals("SELECT COUNT(*) FROM `many_model` WHERE `id` LIKE '%1%'", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `many_model` WHERE (`id` LIKE '%1%')", $qs->countSql());
     }
 
     public function testStartswith()
@@ -165,15 +148,8 @@ class ManyToManyFieldTest extends DatabaseTestCase
 
         $qs = ManyModel::objects()->filter(['id__startswith' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals([
-            'like',
-            'id',
-            '%1'
-        ], $qs->where);
         $this->assertEquals(1, $qs->count());
-
-        // TODO
-        $this->assertEquals('SELECT * FROM `many_model` WHERE `id` LIKE %1', $qs->sql);
+        $this->assertEquals("SELECT COUNT(*) FROM `many_model` WHERE (`id` LIKE '%1')", $qs->countSql());
     }
 
     public function testEndswith()
@@ -184,15 +160,8 @@ class ManyToManyFieldTest extends DatabaseTestCase
 
         $qs = ManyModel::objects()->filter(['id__endswith' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals([
-            'like',
-            'id',
-            '1%'
-        ], $qs->where);
         $this->assertEquals(1, $qs->count());
-
-        // TODO
-        $this->assertEquals('SELECT * FROM `many_model` WHERE `id` LIKE 1%', $qs->sql);
+        $this->assertEquals("SELECT COUNT(*) FROM `many_model` WHERE (`id` LIKE '1%')", $qs->countSql());
     }
 
     public function testRange()
@@ -203,17 +172,13 @@ class ManyToManyFieldTest extends DatabaseTestCase
 
         $qs = ManyModel::objects()->filter(['id__range' => [0, 1]]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals([
-            'between', 'id', 0, 1
-        ], $qs->where);
         $this->assertEquals(1, $qs->count());
+        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE (`id` BETWEEN 0 AND 1)', $qs->countSql());
 
         $qs = ManyModel::objects()->filter(['id__range' => [10, 20]]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals([
-            'between', 'id', 10, 20
-        ], $qs->where);
         $this->assertEquals(0, $qs->count());
+        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE (`id` BETWEEN 10 AND 20)', $qs->countSql());
     }
 
     public function testSql()
@@ -222,7 +187,12 @@ class ManyToManyFieldTest extends DatabaseTestCase
             ->filter(['name' => 'vasya', 'id__lte' => 2])
             ->filter(['name' => 'petya', 'id__gte' => 4]);
 
-        $qs->count();
-        var_dump($qs->sql);
+        $this->assertEquals("SELECT COUNT(*) FROM `many_model` WHERE ((`name`='vasya') AND (id <= 4)) AND ((`name`='petya') AND (id >= 4))", $qs->countSql());
+
+        $qs = ManyModel::objects()
+            ->filter(['name' => 'vasya', 'id__lte' => 2])
+            ->orFilter(['name' => 'petya', 'id__gte' => 4]);
+
+        $this->assertEquals("SELECT COUNT(*) FROM `many_model` WHERE ((`name`='vasya') AND (id <= 4)) OR ((`name`='petya') AND (id >= 4))", $qs->countSql());
     }
 }

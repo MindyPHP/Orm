@@ -75,7 +75,7 @@ class QuerySet extends Query
     public $sql;
 
     /**
-     * Model received from Manager
+     * Model receive
      * @var \Mindy\Orm\Model
      */
     public $model;
@@ -437,7 +437,7 @@ class QuerySet extends Query
         return $this->model->getPkName();
     }
 
-    public function buildCondition(array $query, $method, $queryCondition = [])
+    public function buildCondition(array $query, $method, $queryCondition = [], $queryParams = [])
     {
         foreach($query as $name => $value) {
             if(is_numeric($name)) {
@@ -458,49 +458,55 @@ class QuerySet extends Query
                 switch($condition) {
                     case 'isnull':
                     case 'exact':
-                        $queryCondition = array_merge($queryCondition, [$field => $value]);
+                        $queryCondition[] = [$name => $value];
                         break;
                     case 'in':
-                        $queryCondition = array_merge($queryCondition, ['in', $field, $value]);
+                        $queryCondition['in'] = [$field => $value];
                         break;
                     case 'gte':
-                        $queryCondition = array_merge($queryCondition, ["$field >= :$field", [":$field" => $value]]);
+                        $queryCondition[] = "$field >= :$field";
+                        $queryParams[":$field"] = $value;
                         break;
                     case 'gt':
-                        $queryCondition = array_merge($queryCondition, ["$field > :$field", [":$field" => $value]]);
+                        $queryCondition[] = "$field > :$field";
+                        $queryParams[":$field"] = $value;
                         break;
                     case 'lte':
-                        $queryCondition = array_merge($queryCondition, ["$field <= :$field", [":$field" => $value]]);
+                        $queryCondition[] = "$field <= :$field";
+                        $queryParams[":$field"] = $value;
                         break;
                     case 'lt':
-                        $queryCondition = array_merge($queryCondition, ["$field < :$field", [":$field" => $value]]);
+                        $queryCondition[] = "$field < :$field";
+                        $queryParams[":$field"] = $value;
                         break;
                     case 'icontains':
                         // TODO ILIKE
                         // TODO see buildLikeCondition in QueryBuilder. ILIKE? WAT? QueryBuilder dont known about ILIKE
                         break;
                     case 'contains':
-                        $queryCondition = array_merge($queryCondition, ['like', $field, $value]);
+                        $queryCondition[] = ['like', $field, $value];
                         break;
                     case 'startswith':
-                        $queryCondition = array_merge($queryCondition, ['like', $field, '%' . $value]);
+                        // TODO What is false in query? What is shit? What? Ugly, rewrite
+                        $queryCondition[] = ['like', $field, '%' . $value, false];
                         break;
                     case 'istartswith':
                         // TODO ILIKE something%
                         // TODO see buildLikeCondition in QueryBuilder. ILIKE? WAT? QueryBuilder dont known about ILIKE
                         break;
                     case 'endswith':
-                        $queryCondition = array_merge($queryCondition, ['like', $field, $value . '%']);
+                        $queryCondition[] = ['like', $field, $value . '%', false];
                         break;
                     case 'iendswith':
                         // TODO ILIKE %something
                         // TODO see buildLikeCondition in QueryBuilder. ILIKE? WAT? QueryBuilder dont known about ILIKE
                         break;
                     case 'range':
-                        if(count($value) != 2) {
+                        if(!is_array($value) || count($value) != 2) {
                             throw new InvalidArgumentException('Range condition must be a array of 2 elements. Example: something__range=[1, 2]');
                         }
-                        $queryCondition = array_merge($queryCondition, array_merge(['between', $field], $value));
+                        list($start, $end) = $value;
+                        $queryCondition[] = ['between', $field, $start, $end];
                         break;
                     case 'year':
                         // TODO BETWEEN
@@ -565,23 +571,25 @@ class QuerySet extends Query
                     $name = $this->retreivePrimaryKey();
                 }
 
-                $queryCondition = array_merge($queryCondition, [$name => $value]);
+                $queryCondition[] = [$name => $value];
             }
         }
 
-        $this->$method($queryCondition);
+        var_dump($queryCondition);
+        var_dump($queryParams);
+        $this->$method($queryCondition, $queryParams);
 
         return $this;
     }
 
     public function filter(array $query)
     {
-        return $this->buildCondition($query, 'andWhere');
+        return $this->buildCondition($query, 'andWhere', ['and']);
     }
 
     public function orFilter(array $query)
     {
-        return $this->buildCondition($query, 'orWhere');
+        return $this->buildCondition($query, 'orWhere', ['or']);
     }
 
     /**

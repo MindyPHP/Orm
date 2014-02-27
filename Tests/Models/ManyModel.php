@@ -15,6 +15,7 @@
 namespace Tests\Models;
 
 
+use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Model;
 
@@ -23,6 +24,7 @@ class ManyModel extends Model
     public function getFields()
     {
         return [
+            'name' => new CharField(['null' => true]),
             'items' => new ManyToManyField(CreateModel::className())
         ];
     }
