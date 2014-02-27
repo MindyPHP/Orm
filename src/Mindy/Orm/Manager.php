@@ -37,6 +37,7 @@ class Manager
     {
         if($this->_qs === null) {
             $this->_qs = new QuerySet([
+                'model' => $this->_model,
                 'modelClass' => $this->_model->className()
             ]);
         }
@@ -63,7 +64,7 @@ class Manager
 
     /**
      * @param array $q
-     * @return $this|static
+     * @return \Mindy\Orm\QuerySet
      */
     public function filter(array $q)
     {

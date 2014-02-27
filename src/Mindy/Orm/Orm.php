@@ -21,6 +21,11 @@ use Mindy\Query\Connection;
 class Orm extends Base
 {
     /**
+     * @var array validation errors (attribute name => array of errors)
+     */
+    private $_errors = [];
+
+    /**
      * @var bool Returns a value indicating whether the current record is new.
      */
     public $isNewRecord = true;
@@ -30,6 +35,46 @@ class Orm extends Base
      * @var \Mindy\Query\Connection
      */
     private static $_connection;
+
+    /**
+     * @var string
+     */
+    public $autoField = '\Mindy\Orm\Fields\AutoField';
+
+    /**
+     * @var string
+     */
+    public $relatedField = '\Mindy\Orm\Fields\RelatedField';
+
+    /**
+     * @var string
+     */
+    public $foreignField = '\Mindy\Orm\Fields\ForeignField';
+
+    /**
+     * @var string
+     */
+    public $manyToManyField = '\Mindy\Orm\Fields\ManyToManyField';
+
+    /**
+     * @var array
+     */
+    private $_fields = [];
+
+    /**
+     * @var array
+     */
+    private $_fkFields = [];
+
+    /**
+     * @var array
+     */
+    private $_manyFields = [];
+
+    /**
+     * @var array
+     */
+    private static $_relations = [];
 
     /**
      * TODO move to manager
@@ -300,11 +345,6 @@ class Orm extends Base
         return new Manager(new $className);
     }
 
-    /**
-     * @var array validation errors (attribute name => array of errors)
-     */
-    private $_errors = [];
-
     public function __construct()
     {
         $this->initFields();
@@ -323,7 +363,14 @@ class Orm extends Base
     public function __set($name, $value)
     {
         if ($this->hasField($name)) {
-            $this->getField($name)->setValue($value);
+            $field = $this->getField($name);
+            if(is_a($field, $this->foreignField)) {
+                /** @var $field \Mindy\Orm\Fields\ForeignField */
+                $this->_fkFields[$name . '_' . $field->getForeignPrimaryKey()] = $name;
+            }
+            $field->setValue($value);
+        } else if($this->hasForeignKey($name)) {
+            $this->getForeignKey($name)->setValue($value);
         } else {
             throw new Exception('Setting unknown property: ' . get_class($this) . '::' . $name);
         }
@@ -359,9 +406,29 @@ class Orm extends Base
             } else {
                 return $field->getValue();
             }
+        } else if($this->hasForeignKey($name)) {
+            return $this->getForeignKey($name)->getValue()->getPk();
         }
 
         throw new Exception('Getting unknown property: ' . get_class($this) . '::' . $name);
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    private function hasForeignKey($name)
+    {
+        return array_key_exists($name, $this->_fkFields);
+    }
+
+    /**
+     * @param $name
+     * @return \Mindy\Orm\Fields\ForeignField
+     */
+    private function getForeignKey($name)
+    {
+        return $this->getField($this->_fkFields[$name]);
     }
 
     public function getPk()
@@ -465,42 +532,6 @@ class Orm extends Base
     }
 
     /**
-     * @var string
-     */
-    public $autoField = '\Mindy\Orm\Fields\AutoField';
-
-    /**
-     * @var string
-     */
-    public $relatedField = '\Mindy\Orm\Fields\RelatedField';
-
-    /**
-     * @var string
-     */
-    public $foreignField = '\Mindy\Orm\Fields\ForeignField';
-
-    /**
-     * @var string
-     */
-    public $manyToManyField = '\Mindy\Orm\Fields\ManyToManyField';
-
-    /**
-     * @var array
-     */
-    private $_fields = [];
-
-    /**
-     * @var array
-     */
-    private $_manyFields = [];
-
-    /**
-     * @var array
-     */
-    private static $_relations = [];
-
-
-    /**
      * Initialize fields
      * @void
      */
@@ -517,9 +548,12 @@ class Orm extends Base
             if (is_a($field, $this->relatedField)) {
                 /* @var $field \Mindy\Orm\Fields\RelatedField */
                 if (is_a($field, $this->manyToManyField)) {
+                    /* @var $field \Mindy\Orm\Fields\ManyToManyField */
                     $this->_manyFields[$name] = $field;
                 } else {
+                    /* @var $field \Mindy\Orm\Fields\ForeignField */
                     $this->_fields[$name] = $field;
+                    $this->_fkFields[$name . '_' . $field->getForeignPrimaryKey()] = $name;
                 }
             } else {
                 $this->_fields[$name] = $field;

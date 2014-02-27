@@ -52,6 +52,8 @@ use Mindy\Exception\InvalidCallException;
  */
 class QuerySet extends Query
 {
+    private $_separator = '__';
+
     /**
      * @var string the name of the ActiveRecord class.
      */
@@ -72,8 +74,11 @@ class QuerySet extends Query
      */
     public $sql;
 
-    private $_sql;
-
+    /**
+     * Model received from Manager
+     * @var \Mindy\Orm\Model
+     */
+    public $model;
 
     /**
      * Executes query and returns all results as an array.
@@ -196,10 +201,7 @@ class QuerySet extends Query
 
         $this->select = $select;
         $this->from = $from;
-
-        $command = $db->createCommand($sql, $params);
-        $this->sql = $command->getRawSql();
-        return $command;
+        return $db->createCommand($sql, $params);
     }
 
     /**
@@ -427,21 +429,32 @@ class QuerySet extends Query
         }
     }
 
-    public function generateCondition(array $query, $method = '', array $queryCondition = [])
+    /**
+     * @return mixed|null
+     */
+    public function retreivePrimaryKey()
     {
-        $separator = '__';
+        return $this->model->getPkName();
+    }
 
+    public function buildCondition(array $query, $method, $queryCondition = [])
+    {
         foreach($query as $name => $value) {
             if(is_numeric($name)) {
                 throw new InvalidArgumentException('Keys in $q must be a string');
             }
 
-            if(substr_count($name, $separator) > 1) {
+            if(substr_count($name, $this->_separator) > 1) {
                 // recursion
-                throw new Exception("Not implemented");
+                throw new \Exception("Not implemented");
 
-            } elseif (strpos($name, $separator) !== false) {
-                list($field, $condition) = explode($separator, $name);
+            } elseif (strpos($name, $this->_separator) !== false) {
+                if($name === 'pk') {
+                    $name = $this->retreivePrimaryKey();
+                }
+
+                list($field, $condition) = explode($this->_separator, $name);
+
                 switch($condition) {
                     case 'isnull':
                     case 'exact':
@@ -548,6 +561,10 @@ class QuerySet extends Query
                 }
 
             } else {
+                if($name === 'pk') {
+                    $name = $this->retreivePrimaryKey();
+                }
+
                 $queryCondition = array_merge($queryCondition, [$name => $value]);
             }
         }
@@ -559,12 +576,12 @@ class QuerySet extends Query
 
     public function filter(array $query)
     {
-        return $this->generateCondition($query, 'andWhere');
+        return $this->buildCondition($query, 'andWhere');
     }
 
-    public function orC(array $query)
+    public function orFilter(array $query)
     {
-        return $this->generateCondition($query, 'orWhere');
+        return $this->buildCondition($query, 'orWhere');
     }
 
     /**

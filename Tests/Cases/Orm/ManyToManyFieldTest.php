@@ -33,6 +33,14 @@ class ManyToManyFieldTest extends DatabaseTestCase
         $this->dropModels([new CreateModel, new ManyModel]);
     }
 
+    public function testAllSql()
+    {
+        $qs = ManyModel::objects()->filter(['id' => 1]);
+        $this->assertEquals('SELECT * FROM `many_model` WHERE `id`=1', $qs->getSql());
+        $this->assertEquals('SELECT * FROM `many_model` WHERE `id`=1', $qs->allSql());
+        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE `id`=1', $qs->countSql());
+    }
+
     public function testSimple()
     {
         $model = new ManyModel();
@@ -93,7 +101,11 @@ class ManyToManyFieldTest extends DatabaseTestCase
 
         $qs = ManyModel::objects()->filter(['id__gte' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals('id >= :id', $qs->where);
+        $this->assertEquals([
+            'id >= :id',
+            [':id' => 1]
+        ], $qs->where);
+
         $this->assertEquals(1, $qs->count());
     }
 
@@ -105,7 +117,10 @@ class ManyToManyFieldTest extends DatabaseTestCase
 
         $qs = ManyModel::objects()->filter(['id__gt' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals('id > :id', $qs->where);
+        $this->assertEquals([
+            'id > :id',
+            [':id' => 1]
+        ], $qs->where);
         $this->assertEquals(0, $qs->count());
     }
 
@@ -125,7 +140,6 @@ class ManyToManyFieldTest extends DatabaseTestCase
     {
         $qs = ManyModel::objects()->filter(['id__lt' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals('id < :id', $qs->where);
         $this->assertEquals(0, $qs->count());
     }
 
@@ -137,15 +151,10 @@ class ManyToManyFieldTest extends DatabaseTestCase
 
         $qs = ManyModel::objects()->filter(['id__contains' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals([
-            'like',
-            'id',
-            '1'
-        ], $qs->where);
         $this->assertEquals(1, $qs->count());
 
         // TODO
-        $this->assertEquals("SELECT COUNT(*) FROM `many_model` WHERE `id` LIKE '%1%'", $qs->sql);
+        $this->assertEquals("SELECT COUNT(*) FROM `many_model` WHERE `id` LIKE '%1%'", $qs->countSql());
     }
 
     public function testStartswith()
