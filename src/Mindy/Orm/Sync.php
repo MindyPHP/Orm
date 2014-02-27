@@ -49,8 +49,6 @@ class Sync
                 if(!$this->hasTable($model, $field->getTableName())) {
                     if($field->through === null) {
                         $command->createTable($field->getTableName(), $field->getColumns())->execute();
-                    } else {
-                        $this->createTable($field->through);
                     }
                 }
             }
@@ -70,8 +68,6 @@ class Sync
             /* @var $model \Mindy\Orm\Fields\ManyToManyField */
             if($field->through === null) {
                 $connection->createCommand()->dropTable($field->getTableName())->execute();
-            } else {
-                $this->dropTable($field->through);
             }
         }
         $connection->createCommand()->dropTable($model->tableName())->execute();

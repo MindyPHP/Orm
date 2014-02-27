@@ -14,8 +14,10 @@
 
 namespace Mindy\Orm\Fields;
 
+use Mindy\Helper\Creator;
 use Mindy\Orm\Model;
 use Mindy\Orm\QuerySet;
+use Mindy\Orm\RelatedQuerySet;
 use Mindy\Orm\Relation;
 
 class ManyToManyField extends RelatedField
@@ -68,18 +70,19 @@ class ManyToManyField extends RelatedField
      * @param Model $modelClass
      * @param array $options
      */
-    public function __construct($modelClass, array $options=[])
+    public function __construct($modelClass, array $config=[])
     {
         // TODO ugly, refactoring
-        $this->setOptions($options);
+        if (!empty($config)) {
+            Creator::configure($this, $config);
+        }
         $this->modelClass = $modelClass;
         $this->_relatedModel = new $this->modelClass();
+        $this->_relatedModelPk = $this->_relatedModel->getPkName();
+        $this->_relatedModelColumn =$this->_relatedModel->tableName() . '_' . $this->_relatedModelPk;
 
         if (!$this->through){
-            $this->_relatedModelPk = $this->_relatedModel->getPkName();
-            $this->_relatedModelColumn =$this->_relatedModel->tableName() . '_' . $this->_relatedModelPk;
             $fields = $this->_relatedModel->getFieldsInit();
-
             $this->addColumn($this->_relatedModelColumn, $fields[$this->_relatedModelPk]->sqlType());
         }
     }
@@ -101,7 +104,7 @@ class ManyToManyField extends RelatedField
 
         if ($this->through) {
             $through = $this->through;
-            $this->_tableName = $through::getTableName();
+            $this->_tableName = $through::tableName();
         }else{
             $this->setTableName($model);
             $this->addColumn($this->_modelColumn, $fields[$this->_modelPk]->sqlType());
@@ -115,23 +118,21 @@ class ManyToManyField extends RelatedField
 
     public function getRelation()
     {
-        // TODO: join
-//        $relation = new Relation($this->params);
-//        $relation->primaryModel = $this->getModel();
-//        if ($this->via) {
-//            $relation->via($this->via);
-//        } else {
-//            list($tableName, $link) = $this->viaTable;
-//            $relation->viaTable($tableName, $link);
-//        }
-//        return $relation;
-
-        $qs = new QuerySet([
+        $qs = new RelatedQuerySet([
             'model' => $this->_relatedModel,
-            'modelClass' => $this->modelClass
+            'modelClass' => $this->modelClass,
+            'modelColumn' => $this->_relatedModelColumn,
+
+            'primaryModel' => $this->_model,
+            'primaryModelColumn' => $this->_modelColumn,
+
+            'relatedTable' => $this->getTableName()
         ]);
 
-        $qs->join('INNER JOIN', $this->getTableName(), [$this->getTableName() . '.' . $this->_modelColumn => $this->_model->getPk()]);
+        $qs->join('INNER JOIN',
+            $this->getTableName(),
+            [$this->getTableName() . '.' . $this->_modelColumn => $this->_model->getPk()]
+        );
 
         return $qs;
     }
@@ -161,31 +162,5 @@ class ManyToManyField extends RelatedField
         foreach($options as $name => $value){
             $this->$name = $value;
         }
-    }
-
-    public function link(Model $model)
-    {
-        if ($this->_model->pk === null) {
-            throw new Exception('Unable to link models: the primary key of ' . get_class($this->_model) . ' is null.');
-        }
-
-        $command = $this->_model->getConnection()->createCommand()->insert($this->getTableName(), [
-            $this->_modelColumn => $this->_model->pk,
-            $this->_relatedModelPk => $model->pk,
-        ]);
-        return $command->execute();
-    }
-
-    public function unlink(Model $model)
-    {
-        if ($this->_model->pk === null) {
-            throw new Exception('Unable to link models: the primary key of ' . get_class($this->_model) . ' is null.');
-        }
-
-        $command = $this->_model->getConnection()->createCommand()->delete($this->getTableName(),[
-            $this->_modelColumn => $this->_model->pk,
-            $this->_relatedModelPk => $model->pk,
-        ]);
-        return $command->execute();
     }
 }
