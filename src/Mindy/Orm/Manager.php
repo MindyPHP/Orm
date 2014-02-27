@@ -61,18 +61,13 @@ class Manager
         return $this->getModel()->getTableSchema()->primaryKey;
     }
 
-    public function filterNew(array $q)
-    {
-        return $this->getQuerySet()->filter($q);
-    }
-
     /**
      * @param array $q
      * @return $this|static
      */
     public function filter(array $q)
     {
-        return $this->getQuerySet()->filterOld($q);
+        return $this->getQuerySet()->filter($q);
     }
 
     /**

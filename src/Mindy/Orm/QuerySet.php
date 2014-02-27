@@ -555,11 +555,6 @@ class QuerySet extends Query
         return $this;
     }
 
-    public function filterOld(array $q)
-    {
-        return $this->andWhere($q);
-    }
-
     /**
      * Sets the [[asArray]] property.
      * @param boolean $value whether to return the query results in terms of arrays instead of Active Records.
