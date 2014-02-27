@@ -16,6 +16,7 @@ namespace Tests\Models;
 
 
 use Mindy\Orm\Fields\CharField;
+use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Model;
 
 class CreateModel extends Model
@@ -23,7 +24,7 @@ class CreateModel extends Model
     public function getFields()
     {
         return [
-            'name' => new CharField(['null' => false])
+            'name' => new CharField(['null' => false]),
         ];
     }
 }

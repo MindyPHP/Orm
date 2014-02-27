@@ -16,6 +16,8 @@ namespace Mindy\Orm;
 
 
 use Exception;
+use Mindy\Orm\Fields\Field;
+use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Query\Connection;
 
 class Orm extends Base
@@ -72,11 +74,6 @@ class Orm extends Base
     private $_manyFields = [];
 
     /**
-     * @var array
-     */
-    private static $_relations = [];
-
-    /**
      * TODO move to manager
      * @param Connection $connection
      */
@@ -97,7 +94,7 @@ class Orm extends Base
     /**
      * TODO move to manager
      * Returns the schema information of the DB table associated with this AR class.
-     * @return Mindy\Query\TableSchema the schema information of the DB table associated with this AR class.
+     * @return \Mindy\Query\TableSchema the schema information of the DB table associated with this AR class.
      * @throws Exception if the table for the AR class does not exist.
      */
     public static function getTableSchema()
@@ -371,6 +368,11 @@ class Orm extends Base
             $field->setValue($value);
         } else if($this->hasForeignKey($name)) {
             $this->getForeignKey($name)->setValue($value);
+        } else if(false) {
+            // TODO add support for m2m setter. Example:
+            /**
+             * $model->items = []; override all related records.
+             */
         } else {
             throw new Exception('Setting unknown property: ' . get_class($this) . '::' . $name);
         }

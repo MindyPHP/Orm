@@ -143,4 +143,12 @@ class ManyToManyField extends RelatedField
     {
         return $this->_columns;
     }
+
+    public function getOptions()
+    {
+        // TODO
+        return [
+            'through' => $this->through
+        ];
+    }
 }
