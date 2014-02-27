@@ -71,7 +71,7 @@ class ManyToManyFieldTest extends DatabaseTestCase
         $this->assertEquals(0, $qs->count());
 
         // TODO
-        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE `category` IS NULL', $qs->sql);
+        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE `id` IS NULL', $qs->sql);
     }
 
     public function testIn()
@@ -145,7 +145,7 @@ class ManyToManyFieldTest extends DatabaseTestCase
         $this->assertEquals(1, $qs->count());
 
         // TODO
-        $this->assertEquals('SELECT * FROM `many_model` WHERE `id` LIKE %1%', $qs->sql);
+        $this->assertEquals("SELECT COUNT(*) FROM `many_model` WHERE `id` LIKE '%1%'", $qs->sql);
     }
 
     public function testStartswith()
@@ -205,5 +205,15 @@ class ManyToManyFieldTest extends DatabaseTestCase
             'between', 'id', 10, 20
         ], $qs->where);
         $this->assertEquals(0, $qs->count());
+    }
+
+    public function testSql()
+    {
+        $qs = ManyModel::objects()
+            ->filter(['name' => 'vasya', 'id__lte' => 2])
+            ->filter(['name' => 'petya', 'id__gte' => 4]);
+
+        $qs->count();
+        var_dump($qs->sql);
     }
 }

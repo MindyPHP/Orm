@@ -68,7 +68,7 @@ class QuerySet extends Query
 
     /**
      * @var string the SQL statement to be executed for retrieving AR records.
-     * This is set by [[ActiveRecord::findBySql()]].
+     * This is set by [[QuerySet::createCommand()]].
      */
     public $sql;
 
@@ -180,26 +180,24 @@ class QuerySet extends Query
             $db = $modelClass::getConnection();
         }
 
-        if ($this->sql === null) {
-            $select = $this->select;
-            $from = $this->from;
+        $select = $this->select;
+        $from = $this->from;
 
-            if ($this->from === null) {
-                $tableName = $modelClass::tableName();
-                if ($this->select === null && !empty($this->join)) {
-                    $this->select = ["$tableName.*"];
-                }
-                $this->from = [$tableName];
+        if ($this->from === null) {
+            $tableName = $modelClass::tableName();
+            if ($this->select === null && !empty($this->join)) {
+                $this->select = ["$tableName.*"];
             }
-            list ($sql, $params) = $db->getQueryBuilder()->build($this);
-
-            $this->select = $select;
-            $this->from = $from;
-        } else {
-            $sql = $this->sql;
-            $params = $this->params;
+            $this->from = [$tableName];
         }
-        return $db->createCommand($sql, $params);
+        list ($sql, $params) = $db->getQueryBuilder()->build($this);
+
+        $this->select = $select;
+        $this->from = $from;
+
+        $command = $db->createCommand($sql, $params);
+        $this->sql = $command->getRawSql();
+        return $command;
     }
 
     /**
