@@ -36,14 +36,6 @@ class ForeignField extends RelatedField
         } else {
             $this->modelClass = $modelClass;
         }
-
-        $link = [];
-        $relation = new Relation([
-            'modelClass' => $modelClass,
-            'primaryModel' => $this,
-            'link' => $link,
-            'multiple' => false,
-        ]);
     }
 
     public function setValue($value)
