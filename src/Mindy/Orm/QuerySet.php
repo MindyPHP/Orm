@@ -72,6 +72,8 @@ class QuerySet extends Query
      */
     public $sql;
 
+    private $_sql;
+
 
     /**
      * Executes query and returns all results as an array.
@@ -425,11 +427,11 @@ class QuerySet extends Query
         }
     }
 
-    public function filter(array $q)
+    public function generateCondition(array $query, $method = '', array $queryCondition = [])
     {
         $separator = '__';
 
-        foreach($q as $name => $value) {
+        foreach($query as $name => $value) {
             if(is_numeric($name)) {
                 throw new InvalidArgumentException('Keys in $q must be a string');
             }
@@ -443,39 +445,39 @@ class QuerySet extends Query
                 switch($condition) {
                     case 'isnull':
                     case 'exact':
-                        $this->andWhere([$field => $q]);
+                        $queryCondition = array_merge($queryCondition, [$field => $value]);
                         break;
                     case 'in':
-                        $this->andWhere(['in', $field, $value]);
+                        $queryCondition = array_merge($queryCondition, ['in', $field, $value]);
                         break;
                     case 'gte':
-                        $this->andWhere("$field >= :$field", [":$field" => $value]);
+                        $queryCondition = array_merge($queryCondition, ["$field >= :$field", [":$field" => $value]]);
                         break;
                     case 'gt':
-                        $this->andWhere("$field > :$field", [":$field" => $value]);
+                        $queryCondition = array_merge($queryCondition, ["$field > :$field", [":$field" => $value]]);
                         break;
                     case 'lte':
-                        $this->andWhere("$field <= :$field", [":$field" => $value]);
+                        $queryCondition = array_merge($queryCondition, ["$field <= :$field", [":$field" => $value]]);
                         break;
                     case 'lt':
-                        $this->andWhere("$field < :$field", [":$field" => $value]);
+                        $queryCondition = array_merge($queryCondition, ["$field < :$field", [":$field" => $value]]);
                         break;
                     case 'icontains':
                         // TODO ILIKE
                         // TODO see buildLikeCondition in QueryBuilder. ILIKE? WAT? QueryBuilder dont known about ILIKE
                         break;
                     case 'contains':
-                        $this->andWhere(['like', $field, $value]);
+                        $queryCondition = array_merge($queryCondition, ['like', $field, $value]);
                         break;
                     case 'startswith':
-                        $this->andWhere(['like', $field, '%' . $value]);
+                        $queryCondition = array_merge($queryCondition, ['like', $field, '%' . $value]);
                         break;
                     case 'istartswith':
                         // TODO ILIKE something%
                         // TODO see buildLikeCondition in QueryBuilder. ILIKE? WAT? QueryBuilder dont known about ILIKE
                         break;
                     case 'endswith':
-                        $this->andWhere(['like', $field, $value . '%']);
+                        $queryCondition = array_merge($queryCondition, ['like', $field, $value . '%']);
                         break;
                     case 'iendswith':
                         // TODO ILIKE %something
@@ -485,7 +487,7 @@ class QuerySet extends Query
                         if(count($value) != 2) {
                             throw new InvalidArgumentException('Range condition must be a array of 2 elements. Example: something__range=[1, 2]');
                         }
-                        $this->andWhere(array_merge(['between', $field], $value));
+                        $queryCondition = array_merge($queryCondition, array_merge(['between', $field], $value));
                         break;
                     case 'year':
                         // TODO BETWEEN
@@ -546,11 +548,23 @@ class QuerySet extends Query
                 }
 
             } else {
-                $this->andWhere([$name => $value]);
+                $queryCondition = array_merge($queryCondition, [$name => $value]);
             }
         }
 
+        $this->$method($queryCondition);
+
         return $this;
+    }
+
+    public function filter(array $query)
+    {
+        return $this->generateCondition($query, 'andWhere');
+    }
+
+    public function orC(array $query)
+    {
+        return $this->generateCondition($query, 'orWhere');
     }
 
     /**
