@@ -16,7 +16,6 @@ namespace Mindy\Orm\Fields;
 
 use Mindy\Helper\Creator;
 use Mindy\Orm\Model;
-use Mindy\Orm\QuerySet;
 use Mindy\Orm\RelatedQuerySet;
 use Mindy\Orm\Relation;
 
@@ -116,7 +115,7 @@ class ManyToManyField extends RelatedField
         return $this->_model;
     }
 
-    public function getRelation()
+    public function getQuerySet()
     {
         $qs = new RelatedQuerySet([
             'model' => $this->_relatedModel,
