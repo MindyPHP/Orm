@@ -14,10 +14,6 @@
 
 namespace Mindy\Orm\Fields;
 
-
-use Mindy\Orm\Model;
-use Mindy\Orm\Relation;
-
 abstract class RelatedField extends IntField
 {
     /**
