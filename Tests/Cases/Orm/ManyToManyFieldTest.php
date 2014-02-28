@@ -36,9 +36,9 @@ class ManyToManyFieldTest extends DatabaseTestCase
     public function testAllSql()
     {
         $qs = ManyModel::objects()->filter(['id' => 1]);
-        $this->assertEquals('SELECT * FROM `many_model` WHERE `id`=1', $qs->getSql());
-        $this->assertEquals('SELECT * FROM `many_model` WHERE `id`=1', $qs->allSql());
-        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE `id`=1', $qs->countSql());
+        $this->assertEquals('SELECT * FROM `many_model` WHERE (`id`=1)', $qs->getSql());
+        $this->assertEquals('SELECT * FROM `many_model` WHERE (`id`=1)', $qs->allSql());
+        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE (`id`=1)', $qs->countSql());
     }
 
     public function testSimple()

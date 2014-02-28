@@ -575,8 +575,6 @@ class QuerySet extends Query
             }
         }
 
-        var_dump($queryCondition);
-        var_dump($queryParams);
         $this->$method($queryCondition, $queryParams);
 
         return $this;
@@ -589,7 +587,7 @@ class QuerySet extends Query
 
     public function orFilter(array $query)
     {
-        return $this->buildCondition($query, 'orWhere', ['or']);
+        return $this->buildCondition($query, 'orWhere', ['and']);
     }
 
     /**
