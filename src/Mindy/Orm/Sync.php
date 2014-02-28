@@ -28,14 +28,11 @@ class Sync
     }
 
     /**
-     * @param $model
+     * @param $model \Mindy\Orm\Model
      */
-    public function createTable($model)
+    public function createTable(Model $model)
     {
-        /* @var $model \Mindy\Orm\Orm */
-        /* @var $field \Mindy\Orm\Fields\Field */
         $columns = [];
-        /* @var $command \yii\db\Command */
         $command = $model->getConnection()->createCommand();
         foreach ($model->getFieldsInit() as $name => $field) {
             if ($field->sqlType() !== false) {
@@ -58,70 +55,74 @@ class Sync
     }
 
     /**
-     * @param $model
+     * @param $model \Mindy\Orm\Model
      */
-    public function dropTable($model)
+    public function dropTable(Model $model)
     {
         $connection = $model->getConnection();
-        /* @var $model \Mindy\Orm\Orm */
+        $command = $connection->createCommand();
+
+        $command->checkIntegrity(false)->execute();
+
         foreach($model->getManyFields() as $field) {
-            /* @var $model \Mindy\Orm\Fields\ManyToManyField */
             if($field->through === null) {
-                $connection->createCommand()->dropTable($field->getTableName())->execute();
+                $command->dropTable($field->getTableName())->execute();
             }
         }
-        $connection->createCommand()->dropTable($model->tableName())->execute();
+        $command->dropTable($model->tableName())->execute();
+
+        $command->checkIntegrity(true)->execute();
     }
 
     /**
-     * TODO
+     * @param $model \Mindy\Orm\Model
      */
-    public function createIndexes($model)
+    public function createIndexes(Model $model)
     {
-//        $command = $model->getDb()->createCommand();
-//
-//        $command->checkIntegrity(false)->execute();
-//
-//        foreach($model->getFields() as $name => $field) {
-//            if(is_a($field, 'ForeignField')) {
-//                /* @var $modelClass Orm */
-//                /* @var $field ForeignField */
-//                $modelClass = $field->relation->modelClass;
-//                foreach($field->relation->link as $currentColumn => $fkColumn) {
-//                    $command->addForeignKey(
-//                        "fk_{$name}",
-//                        $model->tableName(), [$currentColumn],
-//                        $modelClass::tableName(), [$fkColumn],
-//                        $delete = $field->getOnDelete(),
-//                        $update = $field->getOnUpdate()
-//                    );
-//                    $command->execute();
-//                }
-//            }
-//        }
-//
-//        $command->checkIntegrity(true)->execute();
+        $command = $model->getConnection()->createCommand();
+
+        $command->checkIntegrity(false)->execute();
+
+        foreach($model->getFields() as $name => $field) {
+            if(is_a($field, '\Mindy\Orm\Fields\ForeignField')) {
+                /* @var $modelClass \Mindy\Orm\Model */
+                /* @var $field \Mindy\Orm\Fields\ForeignField */
+                $modelClass = $field->modelClass;
+                $fkModel = new $modelClass();
+                $command->addForeignKey(
+                    "fk_{$name}",
+                    $model->tableName(), [$name . '_id'],
+                    $modelClass::tableName(), [$fkModel->getPkName()],
+                    $delete = $field->getOnDelete(),
+                    $update = $field->getOnUpdate()
+                );
+                $command->execute();
+            }
+        }
+
+        $command->checkIntegrity(true)->execute();
     }
 
     /**
-     * TODO
+     * @param $model \Mindy\Orm\Model
      */
-    public function dropIndexes()
+    public function dropIndexes(Model $model)
     {
-//        $command = self::$db->createCommand();
-//
-//        $command->checkIntegrity(false)->execute();
-//
-//        foreach($this->getFields() as $name => $field) {
-//            if(is_a($field, 'ForeignField')) {
-//                /* @var $modelClass Orm */
-//                /* @var $field ForeignField */
-//                // $modelClass = $field->relation->modelClass;
-//                $command->dropForeignKey("fk_{$name}", self::tableName());
-//            }
-//        }
-//
-//        $command->checkIntegrity(true)->execute();
+        $connection = $model->getConnection();
+        $command = $connection->createCommand();
+
+        $command->checkIntegrity(false)->execute();
+
+        foreach($model->getFields() as $name => $field) {
+            if(is_a($field, '\Mindy\Orm\Fields\ForeignField')) {
+                /* @var $modelClass Orm */
+                /* @var $field \Mindy\Orm\Fields\ForeignField */
+                // $modelClass = $field->relation->modelClass;
+                $command->dropForeignKey("fk_{$name}", $model::tableName());
+            }
+        }
+
+        $command->checkIntegrity(true)->execute();
     }
 
     public function create()
@@ -147,6 +148,7 @@ class Sync
     {
         foreach ($this->_models as $model) {
             if($this->hasTable($model)) {
+                $this->dropIndexes($model);
                 $this->dropTable($model);
             }
         }
@@ -156,7 +158,8 @@ class Sync
 
     /**
      * Check table in database.
-     * @param $model
+     * @param $model \Mindy\Orm\Model
+     * @param null $tableName
      * @return bool
      */
     public function hasTable($model, $tableName = null)

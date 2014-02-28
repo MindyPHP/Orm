@@ -32,10 +32,10 @@ class SyncTest extends DatabaseTestCase
         $many = new ManyModel();
         $this->assertEquals(3, count($many->getFieldsInit()));
         $models = [
-//            new PkModel(),
-//            new ModelFields(),
-//            new Simple(),
-//            new ForeignKeyModel(),
+            new PkModel(),
+            new ModelFields(),
+            new Simple(),
+            new ForeignKeyModel(),
             new CreateModel(),
             $many,
         ];

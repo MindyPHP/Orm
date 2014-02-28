@@ -532,6 +532,9 @@ class Orm extends Base
         }
     }
 
+    /**
+     * @return \Mindy\Orm\Fields\ManyToManyField[]
+     */
     public function getManyFields()
     {
         return $this->_manyFields;
@@ -539,6 +542,7 @@ class Orm extends Base
 
     /**
      * Return initialized fields
+     * @return \Mindy\Orm\Fields\Field[]
      */
     public function getFieldsInit()
     {
