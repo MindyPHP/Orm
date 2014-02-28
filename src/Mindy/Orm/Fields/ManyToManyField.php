@@ -14,8 +14,10 @@
 
 namespace Mindy\Orm\Fields;
 
-
+use Mindy\Helper\Creator;
 use Mindy\Orm\Model;
+use Mindy\Orm\QuerySet;
+use Mindy\Orm\RelatedQuerySet;
 use Mindy\Orm\Relation;
 
 class ManyToManyField extends RelatedField
@@ -26,29 +28,33 @@ class ManyToManyField extends RelatedField
     public $through;
 
     /**
+     * Related model class
      * @var string
      */
     public $modelClass;
 
     /**
-     * @var string
+     * Main model
+     * @var \Mindy\Orm\Model
      */
-    public $via;
+    private $_model;
 
     /**
-     * @var array
+     * Related model
+     * @var \Mindy\Orm\Model
      */
-    public $viaTable;
+    private $_relatedModel;
+
+    private $_modelPk;
+    private $_relatedModelPk;
+
+    private $_modelColumn;
+    private $_relatedModelColumn;
 
     /**
      * @var array
      */
     public $params = [];
-
-    /**
-     * @var \Mindy\Orm\Model
-     */
-    private $_model;
 
     /**
      * @var string
@@ -61,24 +67,24 @@ class ManyToManyField extends RelatedField
     private $_columns = [];
 
     /**
-     * @param \Mindy\Orm\Model $modelClass
+     * @param Model $modelClass
+     * @param array $options
      */
-    public function __construct($modelClass)
+    public function __construct($modelClass, array $config=[])
     {
         // TODO ugly, refactoring
+        if (!empty($config)) {
+            Creator::configure($this, $config);
+        }
         $this->modelClass = $modelClass;
+        $this->_relatedModel = new $this->modelClass();
+        $this->_relatedModelPk = $this->_relatedModel->getPkName();
+        $this->_relatedModelColumn =$this->_relatedModel->tableName() . '_' . $this->_relatedModelPk;
 
-        $pk = $modelClass::primaryKey();
-
-        $column = $modelClass::tableName() . '_id';
-        $this->addColumn($column);
-
-        $link = [$pk => $column];
-        $this->params = [
-            'modelClass' => $modelClass,
-            'link' => $link,
-            'multiple' => true,
-        ];
+        if (!$this->through){
+            $fields = $this->_relatedModel->getFieldsInit();
+            $this->addColumn($this->_relatedModelColumn, $fields[$this->_relatedModelPk]->sqlType());
+        }
     }
 
     public function sqlType()
@@ -91,17 +97,17 @@ class ManyToManyField extends RelatedField
         $this->_model = $model;
 
         // TODO ugly, refactoring
-        if ($this->through) {
-            $this->via = $this->through;
-        } else {
-            $pk = $model->getPkName();
 
+        $this->_modelPk = $model->getPkName();
+        $this->_modelColumn = $model->tableName() . '_' . $this->_modelPk;
+        $fields = $model->getFieldsInit();
+
+        if ($this->through) {
+            $through = $this->through;
+            $this->_tableName = $through::tableName();
+        }else{
             $this->setTableName($model);
-            $column = $model->tableName() . '_id';
-            $this->addColumn($column);
-            $this->viaTable = [
-                $this->getTableName(), [$column => $pk]
-            ];
+            $this->addColumn($this->_modelColumn, $fields[$this->_modelPk]->sqlType());
         }
     }
 
@@ -112,21 +118,30 @@ class ManyToManyField extends RelatedField
 
     public function getRelation()
     {
-        $relation = new Relation($this->params);
-        $relation->primaryModel = $this->getModel();
-        if ($this->via) {
-            $relation->via($this->via);
-        } else {
-            list($tableName, $link) = $this->viaTable;
-            $relation->viaTable($tableName, $link);
-        }
-        return $relation;
+        $qs = new RelatedQuerySet([
+            'model' => $this->_relatedModel,
+            'modelClass' => $this->modelClass,
+            'modelColumn' => $this->_relatedModelColumn,
+
+            'primaryModel' => $this->_model,
+            'primaryModelColumn' => $this->_modelColumn,
+
+            'relatedTable' => $this->getTableName()
+        ]);
+
+        $qs->join('INNER JOIN',
+            $this->getTableName(),
+            [$this->getTableName() . '.' . $this->_modelColumn => $this->_model->getPk()]
+        );
+
+        return $qs;
     }
 
     public function setTableName(Model $model)
     {
-        $modelClass = $this->modelClass;
-        $this->_tableName = $model->tableName() . '_' . $modelClass::tableName();
+        $tableName = [$model->tableName(), $this->_relatedModel->tableName()];
+        sort($tableName);
+        $this->_tableName = implode('_', $tableName);
     }
 
     public function getTableName()
@@ -134,9 +149,9 @@ class ManyToManyField extends RelatedField
         return $this->_tableName;
     }
 
-    public function addColumn($column)
+    public function addColumn($column, $type=null)
     {
-        $this->_columns[$column] = 'int';
+        $this->_columns[$column] = (empty($type) || $type == 'pk') ? 'int' : $type;
     }
 
     public function getColumns()
@@ -144,11 +159,10 @@ class ManyToManyField extends RelatedField
         return $this->_columns;
     }
 
-    public function getOptions()
-    {
-        // TODO
-        return [
-            'through' => $this->through
-        ];
+    protected function setOptions(array $options){
+        // TODO: safe check / remove on stable
+        foreach($options as $name => $value){
+            $this->$name = $value;
+        }
     }
 }
