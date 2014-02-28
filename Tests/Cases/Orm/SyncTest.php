@@ -30,7 +30,7 @@ class SyncTest extends DatabaseTestCase
     public function testPk()
     {
         $many = new ManyModel();
-        $this->assertEquals(2, count($many->getFieldsInit()));
+        $this->assertEquals(3, count($many->getFieldsInit()));
         $models = [
 //            new PkModel(),
 //            new ModelFields(),
