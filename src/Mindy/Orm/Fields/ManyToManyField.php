@@ -139,7 +139,9 @@ class ManyToManyField extends RelatedField
 
     public function setTableName(Model $model)
     {
-        $this->_tableName = $model->tableName() . '_' . $this->_relatedModel->tableName();
+        $tableName = [$model->tableName(), $this->_relatedModel->tableName()];
+        sort($tableName);
+        $this->_tableName = implode('_', $tableName);
     }
 
     public function getTableName()

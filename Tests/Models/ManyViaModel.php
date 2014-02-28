@@ -23,7 +23,7 @@ class ManyViaModel extends Model
     public function getFields()
     {
         return [
-            'items' => new ManyToManyField(CreateModel::className(), ['through' => ViaManyModel::className()])
+            'items' => new ManyToManyField(CreateModel::className())
         ];
     }
 }
