@@ -10,7 +10,10 @@
 namespace Mindy\Orm;
 
 
-class RelatedQuerySet extends QuerySet{
+use Mindy\Exception\Exception;
+
+class RelatedQuerySet extends QuerySet
+{
 
     /**
      * Link table name
@@ -35,27 +38,33 @@ class RelatedQuerySet extends QuerySet{
 
     public function link(Model $model)
     {
-        if ($this->primaryModel->pk === null) {
-            throw new Exception('Unable to link models: the primary key of ' . get_class($this->primaryModel) . ' is null.');
-        }
-
-        $command = $this->primaryModel->getConnection()->createCommand()->insert($this->relatedTable, [
-            $this->primaryModelColumn => $this->primaryModel->pk,
-            $this->modelColumn => $model->pk,
-        ]);
-        return $command->execute();
+        return $this->linkUnlinkProcess($model, true);
     }
 
     public function unlink(Model $model)
     {
+        return $this->linkUnlinkProcess($model, false);
+    }
+
+    private function linkUnlinkProcess(Model $model, $link = true)
+    {
         if ($this->primaryModel->pk === null) {
-            throw new Exception('Unable to link models: the primary key of ' . get_class($this->primaryModel) . ' is null.');
+            throw new Exception('Unable to unlink models: the primary key of ' . get_class($this->primaryModel) . ' is null.');
         }
 
-        $command = $this->primaryModel->getConnection()->createCommand()->delete($this->relatedTable,[
+        $method = $link ? 'insert' : 'delete';
+
+        if ($this->primaryModel->pk === null) {
+            throw new Exception('Unable to ' . ($link ? 'link' : 'unlink') . ' models: the primary key of ' . get_class($this->primaryModel) . ' is null.');
+        }
+
+        $db = $this->primaryModel->getConnection();
+        /** @var $command \Mindy\Query\Command */
+        $command = $db->createCommand()->$method($this->relatedTable, [
             $this->primaryModelColumn => $this->primaryModel->pk,
             $this->modelColumn => $model->pk,
         ]);
+
         return $command->execute();
     }
 }

@@ -41,6 +41,7 @@ class ForeignField extends RelatedField
     public function setValue($value)
     {
         if(is_a($value, $this->modelClass) === false) {
+            /** @var $modelClass \Mindy\Orm\Model */
             $modelClass = $this->modelClass;
             $value = $modelClass::objects()->filter(['pk' => $value])->get();
         }
@@ -61,6 +62,7 @@ class ForeignField extends RelatedField
     public function getForeignPrimaryKey()
     {
         $modelClass = $this->modelClass;
+        /** @var $modelClass \Mindy\Orm\Model */
         return $modelClass::primaryKey();
     }
 }
