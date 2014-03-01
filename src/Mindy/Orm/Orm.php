@@ -237,7 +237,10 @@ class Orm extends Base
             if(is_a($field, $this->foreignField)) {
                 $name .= '_id';
                 /* @var $field \Mindy\Orm\Fields\ForeignField */
-                $value = $field->getValue()->pk;
+                $value = $field->getValue();
+                if(is_a($field->getValue(), '\Mindy\Orm\Model')) {
+                    $value = $value->pk;
+                }
             } else {
                 /* @var $field \Mindy\Orm\Fields\Field */
                 $value = $field->getValue();

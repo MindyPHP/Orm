@@ -38,7 +38,7 @@ class HasManyFieldTest extends DatabaseTestCase
         $hasManyModel = new HasManyModel();
         $hasManyModel->save();
 
-        $this->assertEquals('SELECT COUNT(*) FROM `fk_model`', $hasManyModel->many->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `fk_model` WHERE (`id`='1')", $hasManyModel->many->countSql());
         $this->assertEquals(0, $hasManyModel->many->count());
 
         $fkModelOne = new FkModel();
@@ -56,6 +56,5 @@ class HasManyFieldTest extends DatabaseTestCase
         $fkModelTwo->save();
 
         $this->assertEquals(2, $hasManyModel->many->count());
-
     }
 }
