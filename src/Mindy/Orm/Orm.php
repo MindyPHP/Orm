@@ -59,6 +59,11 @@ class Orm extends Base
     public $manyToManyField = '\Mindy\Orm\Fields\ManyToManyField';
 
     /**
+     * @var string
+     */
+    public $hasManyField = '\Mindy\Orm\Fields\HasManyField';
+
+    /**
      * @var array
      */
     private $_fields = [];
@@ -72,6 +77,12 @@ class Orm extends Base
      * @var array
      */
     private $_manyFields = [];
+
+    /**
+     * @var array
+     */
+    private $_hasManyFields = [];
+
 
     /**
      * TODO move to manager
@@ -207,14 +218,14 @@ class Orm extends Base
     }
 
     /**
-     * TODO move to trait
+     * TODO move to trait ? Used in save method !
      * @return array
      */
     protected function getChangedValues()
     {
         $values = [];
         foreach($this->getFieldsInit() as $name => $field) {
-            if(is_a($field, $this->manyToManyField)) {
+            if(is_a($field, $this->manyToManyField) || is_a($field, $this->hasManyField)) {
                 continue;
             }
 
@@ -347,9 +358,13 @@ class Orm extends Base
             $field = $this->getField($name);
             if (is_a($field, $this->relatedField)) {
                 if (is_a($field, $this->foreignField)) {
+                    /* @var mixed */
                     return $field->getValue();
                 } else if (is_a($field, $this->manyToManyField)) {
                     /* @var $field \Mindy\Orm\Fields\ManyToManyField */
+                    return $field->getQuerySet();
+                } else if (is_a($field, $this->hasManyField)) {
+                    /* @var $field \Mindy\Orm\Fields\HasManyField */
                     return $field->getQuerySet();
                 } else {
                     throw new Exception("Unknown field type " . $name . " in " . get_class($this));
@@ -501,7 +516,10 @@ class Orm extends Base
                 if (is_a($field, $this->manyToManyField)) {
                     /* @var $field \Mindy\Orm\Fields\ManyToManyField */
                     $this->_manyFields[$name] = $field;
-                } else {
+                } else if (is_a($field, $this->hasManyField)){
+                    /* @var $field \Mindy\Orm\Fields\HasManyField */
+                    $this->_hasManyFields[$name] = $field;
+                } else if (is_a($field, $this->foreignField)){
                     /* @var $field \Mindy\Orm\Fields\ForeignField */
                     $this->_fields[$name] = $field;
                     $this->_fkFields[$name . '_' . $field->getForeignPrimaryKey()] = $name;
@@ -520,14 +538,12 @@ class Orm extends Base
         foreach($this->_manyFields as $name => $field) {
             /* @var $field \Mindy\Orm\Fields\ManyToManyField */
             $field->setModel($this);
+            $this->_fields[$name] = $field;
+        }
 
-            // @TODO
-            /* @var $newField \Mindy\Orm\Fields\ManyToManyField */
-//                    $newField = new $this->manyToManyField(static::className());
-//                    $newField->setModel($this);
-//                    self::$_relations[$field->relatedName] = $newField->getRelation();
-//                    $this->_fields[$name] = $newField;
-
+        foreach($this->_hasManyFields as $name => $field) {
+            /* @var $field \Mindy\Orm\Fields\HasManyField */
+            $field->setModel($this);
             $this->_fields[$name] = $field;
         }
     }
@@ -538,6 +554,14 @@ class Orm extends Base
     public function getManyFields()
     {
         return $this->_manyFields;
+    }
+
+    /**
+     * @return \Mindy\Orm\Fields\HasManyField[]
+     */
+    public function getHasManyFields()
+    {
+        return $this->_hasManyFields;
     }
 
     /**
