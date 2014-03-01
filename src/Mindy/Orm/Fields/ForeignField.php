@@ -27,14 +27,10 @@ class ForeignField extends RelatedField
 
     public $modelClass;
 
-    public function __construct($modelClass, array $options = [])
+    public function init()
     {
-        parent::__construct($options);
-
-        if(is_subclass_of($modelClass, '\Mindy\Orm\Model') === false) {
+        if(is_subclass_of($this->modelClass, '\Mindy\Orm\Model') === false) {
             throw new InvalidArgumentException('$modelClass must be a \Mindy\Orm\Model instance');
-        } else {
-            $this->modelClass = $modelClass;
         }
     }
 

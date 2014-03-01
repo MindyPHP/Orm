@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -24,9 +24,14 @@ class FkModel extends Model
     public function getFields()
     {
         return [
-            'fk' => new ForeignField(HasManyModel::className(), [
-                    'null' => true
-                ])
+//            'fk' => new ForeignField(HasManyModel::className(), [
+//                    'null' => true
+//                ])
+            'fk' => [
+                'class' => ForeignField::className(),
+                'modelClass' => HasManyModel::className(),
+                'null' => true
+            ]
         ];
     }
 }
@@ -37,9 +42,14 @@ class HasManyModel extends Model
     public function getFields()
     {
         return [
-            'many' => new HasManyField(FkModel::className(), [
+//            'many' => new HasManyField(FkModel::className(), [
+//                    'null' => true
+//                ])
+            'many' => [
+                'class' => HasManyField::className(),
+                'modelClass' => FkModel::className(),
                 'null' => true
-            ])
+            ]
         ];
     }
 }

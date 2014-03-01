@@ -28,7 +28,12 @@ class GettersModel extends Model
     public function getFields()
     {
         return [
-            'name' => new CharField(['null' => false, 'default' => 'example'])
+            // 'name' => new CharField(['null' => false, 'default' => 'example'])
+            'name' => [
+                'class' => CharField::className(),
+                'null' => false,
+                'default' => 'example'
+            ]
         ];
     }
 }

@@ -25,9 +25,9 @@ class SaveUpdateModel extends Model
     public function getFields()
     {
         return [
-            'name' => new CharField(),
-            'price' => new IntField(),
-            'is_default' => new BooleanField(['default' => true])
+            'name' => ['class' => CharField::className()],
+            'price' => ['class' => IntField::className()],
+            'is_default' => ['class' => BooleanField::className(), 'default' => true]
         ];
     }
 }

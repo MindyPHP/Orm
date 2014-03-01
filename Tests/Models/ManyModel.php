@@ -24,8 +24,16 @@ class ManyModel extends Model
     public function getFields()
     {
         return [
-            'name' => new CharField(['null' => true]),
-            'items' => new ManyToManyField(CreateModel::className())
+            // 'name' => new CharField(['null' => true]),
+            'name' => [
+                'class' => CharField::className(),
+                'null' => true
+            ],
+            // 'items' => new ManyToManyField(CreateModel::className())
+            'items' => [
+                'class' => ManyToManyField::className(),
+                'modelClass' => CreateModel::className()
+            ]
         ];
     }
 }

@@ -24,11 +24,17 @@ class ClassValidationModel extends Model
     public function getFields()
     {
         return [
-            'name' => new CharField([
-                    'validators' => [
-                        new MinLengthValidator(6),
-                    ]
-                ]),
+//            'name' => new CharField([
+//                    'validators' => [
+//                        new MinLengthValidator(6),
+//                    ]
+//                ]),
+            'name' => [
+                'class' => CharField::className(),
+                'validators' => [
+                    new MinLengthValidator(6)
+                ]
+            ],
         ];
     }
 }

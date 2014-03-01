@@ -23,9 +23,14 @@ class ForeignKeyModel extends Model
     public function getFields()
     {
         return [
-            'something' => new ForeignField(CreateModel::className(), [
-                    'null' => true
-                ])
+//            'something' => new ForeignField(CreateModel::className(), [
+//                    'null' => true
+//                ])
+            'something' => [
+                'class' => ForeignField::className(),
+                'modelClass' => CreateModel::className(),
+                'null' => true
+            ],
         ];
     }
 }

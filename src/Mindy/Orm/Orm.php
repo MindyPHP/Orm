@@ -16,12 +16,17 @@ namespace Mindy\Orm;
 
 
 use Exception;
+use Mindy\Helper\Creator;
 use Mindy\Orm\Fields\Field;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Query\Connection;
 
 class Orm extends Base
 {
+    /**
+     * @var bool if true, model created without initialized fields
+     */
+    public $autoInitFields = true;
     /**
      * @var array validation errors (attribute name => array of errors)
      */
@@ -302,9 +307,15 @@ class Orm extends Base
         return new Manager(new $className);
     }
 
-    public function __construct()
+    /**
+     * @param array $config
+     */
+    public function __construct(array $config = [])
     {
-        $this->initFields();
+        Creator::configure($this, $config);
+        if($this->autoInitFields) {
+            $this->initFields();
+        }
     }
 
     /**
@@ -360,11 +371,8 @@ class Orm extends Base
                 if (is_a($field, $this->foreignField)) {
                     /* @var mixed */
                     return $field->getValue();
-                } else if (is_a($field, $this->manyToManyField)) {
-                    /* @var $field \Mindy\Orm\Fields\ManyToManyField */
-                    return $field->getQuerySet();
-                } else if (is_a($field, $this->hasManyField)) {
-                    /* @var $field \Mindy\Orm\Fields\HasManyField */
+                } else if (is_a($field, $this->manyToManyField) || is_a($field, $this->hasManyField)) {
+                    /* @var $field \Mindy\Orm\Fields\ManyToManyField|\Mindy\Orm\Fields\HasManyField */
                     return $field->getQuerySet();
                 } else {
                     throw new Exception("Unknown field type " . $name . " in " . get_class($this));
@@ -505,7 +513,8 @@ class Orm extends Base
     {
         $needPk = true;
 
-        foreach ($this->getFields() as $name => $field) {
+        foreach ($this->getFields() as $name => $config) {
+            $field = Creator::createObject($config);
             /* @var $field \Mindy\Orm\Fields\Field */
             if (is_a($field, $this->autoField)) {
                 $needPk = false;

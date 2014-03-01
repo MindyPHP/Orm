@@ -16,6 +16,7 @@ namespace Mindy\Orm\Fields;
 
 
 use Closure;
+use Mindy\Helper\Creator;
 
 abstract class Field
 {
@@ -39,11 +40,24 @@ abstract class Field
 
     private $_errors = [];
 
-    public function __construct(array $options = [])
+    /**
+     * @return string the fully qualified name of this class.
+     */
+    public static function className()
     {
-        foreach ($options as $name => $value) {
-            $this->$name = $value;
-        }
+        return get_called_class();
+    }
+
+    public function __construct(array $config = [])
+    {
+        Creator::configure($this, $config);
+
+        $this->init();
+    }
+
+    public function init()
+    {
+
     }
 
     public function clearErrors()

@@ -24,8 +24,8 @@ class ViaManyModel extends Model
     public function getFields()
     {
         return [
-            'many_via_model' => new ForeignField(ManyViaModel::className()),
-            'create_model' => new ForeignField(CreateModel::className())
+            'many_via_model' => ['class' => ForeignField::className(), 'modelClass' => ManyViaModel::className()],
+            'create_model' => ['class' => ForeignField::className(), 'modelClass' => CreateModel::className()]
         ];
     }
 }

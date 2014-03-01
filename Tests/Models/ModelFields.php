@@ -23,7 +23,7 @@ class ModelFields extends Model
     public function getFields()
     {
         return [
-            'name' => new CharField()
+            'name' => ['class' => CharField::className()]
         ];
     }
 }

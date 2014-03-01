@@ -69,13 +69,8 @@ class ManyToManyField extends RelatedField
      * @param Model $modelClass
      * @param array $options
      */
-    public function __construct($modelClass, array $config=[])
+    public function init()
     {
-        // TODO ugly, refactoring
-        if (!empty($config)) {
-            Creator::configure($this, $config);
-        }
-        $this->modelClass = $modelClass;
         $this->_relatedModel = new $this->modelClass();
         $this->_relatedModelPk = $this->_relatedModel->getPkName();
         $this->_relatedModelColumn =$this->_relatedModel->tableName() . '_' . $this->_relatedModelPk;

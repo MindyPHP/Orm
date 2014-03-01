@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -24,18 +24,19 @@ class ValidationModel extends Model
     public function getFields()
     {
         return [
-            'name' => new CharField([
-                    'validators' => [
-                        new MinLengthValidator(6),
-                        function ($value) {
-                            if (mb_strlen($value, 'UTF-8') > 10) {
-                                return "Maximum name field is 10";
-                            }
-
-                            return true;
+            'name' => [
+                'class' => CharField::className(),
+                'validators' => [
+                    new MinLengthValidator(6),
+                    function ($value) {
+                        if (mb_strlen($value, 'UTF-8') > 10) {
+                            return "Maximum name field is 10";
                         }
-                    ]
-                ]),
+
+                        return true;
+                    }
+                ]
+            ],
         ];
     }
 }

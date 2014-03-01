@@ -13,7 +13,8 @@ use Mindy\Helper\Creator;
 use Mindy\Orm\Model;
 use Mindy\Orm\QuerySet;
 
-class HasManyField extends RelatedField{
+class HasManyField extends RelatedField
+{
 
     protected $_relatedModel;
     protected $_model;
@@ -21,23 +22,22 @@ class HasManyField extends RelatedField{
     public $from = 'pk';
     public $to;
 
-    public function __construct($modelClass, array $config=[])
-    {
-        // TODO ugly, refactoring
-        if (!empty($config)) {
-            Creator::configure($this, $config);
-        }
+    public $modelClass;
 
-        $this->modelClass = $modelClass;
-        $this->_relatedModel = new $this->modelClass();
+    public function init()
+    {
+        $this->_relatedModel = new $this->modelClass([
+            'autoInitFields' => false
+        ]);
     }
 
     public function setModel(Model $model)
     {
         $this->_model = $model;
 
-        if (!$this->to)
+        if (!$this->to) {
             $this->foreignKey = $this->_model->tableName() . '_' . $this->_model->getPkName();
+        }
     }
 
     public function sqlType()
@@ -45,14 +45,15 @@ class HasManyField extends RelatedField{
         return false;
     }
 
-    public function getQuerySet(){
+    public function getQuerySet()
+    {
         $qs = new QuerySet([
             'model' => $this->_relatedModel,
             'modelClass' => $this->modelClass
         ]);
 
-        $qs->filter([$this->to => $this->_model->{$this->from}]);
-
-        return $qs;
+        return $qs->filter([
+            $this->to => $this->_model->{$this->from}
+        ]);
     }
 }

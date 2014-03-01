@@ -28,7 +28,7 @@ class SettersModel extends Model
     public function getFields()
     {
         return [
-            'name' => new CharField(['null' => false])
+            'name' => ['class' => CharField::className(), 'null' => false]
         ];
     }
 }

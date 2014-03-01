@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -17,24 +17,35 @@ namespace Tests\Models;
 
 use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Model;
-use Mindy\Orm\Validator\MinLengthValidator;
 
 class ClosureValidationModel extends Model
 {
     public function getFields()
     {
         return [
-            'name' => new CharField([
-                    'validators' => [
-                        function ($value) {
-                            if (mb_strlen($value, 'UTF-8') < 6) {
-                                return "Minimal length < 6";
-                            }
-
-                            return true;
+//            'name' => new CharField([
+//                    'validators' => [
+//                        function ($value) {
+//                            if (mb_strlen($value, 'UTF-8') < 6) {
+//                                return "Minimal length < 6";
+//                            }
+//
+//                            return true;
+//                        }
+//                    ]
+//                ]),
+            'name' => [
+                'class' => CharField::className(),
+                'validators' => [
+                    function ($value) {
+                        if (mb_strlen($value, 'UTF-8') < 6) {
+                            return "Minimal length < 6";
                         }
-                    ]
-                ]),
+
+                        return true;
+                    }
+                ]
+            ],
         ];
     }
 }

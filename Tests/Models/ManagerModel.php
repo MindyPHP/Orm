@@ -21,7 +21,7 @@ class ManagerModel extends Model
 {
     function getFields(){
         return [
-            'name' => new CharField(['length' => 255])
+            'name' => ['class' => CharField::className(), 'length' => 255]
         ];
     }
 }

@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -23,7 +23,11 @@ class ManyViaModel extends Model
     public function getFields()
     {
         return [
-            'items' => new ManyToManyField(CreateModel::className())
+            // 'items' => new ManyToManyField(CreateModel::className())
+            'items' => [
+                'class' => ManyToManyField::className(),
+                'modelClass' => CreateModel::className()
+            ]
         ];
     }
 }
