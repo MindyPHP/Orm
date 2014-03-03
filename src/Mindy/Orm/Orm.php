@@ -560,6 +560,11 @@ class Orm extends Base
         }
     }
 
+    public function hasManyToManyField($name)
+    {
+        return array_key_exists($name, $this->_manyFields);
+    }
+
     /**
      * @return \Mindy\Orm\Fields\ManyToManyField[]
      */

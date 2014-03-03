@@ -17,7 +17,8 @@ namespace Mindy\Orm;
 use Mindy\Exception\Exception;
 use Mindy\Helper\Creator;
 
-class ManyToManyManager extends RelatedManager{
+class ManyToManyManager extends RelatedManager
+{
     /**
      * Link table name
      * @var string
@@ -45,10 +46,11 @@ class ManyToManyManager extends RelatedManager{
         $this->_model = $model;
     }
 
-    public function getQuerySet(){
-        if($this->_qs === null) {
+    public function getQuerySet()
+    {
+        if ($this->_qs === null) {
             $qs = parent::getQuerySet();
-            $qs->join('INNER JOIN',
+            $qs->join('LEFT JOIN',
                 $this->relatedTable,
                 [$this->relatedTable . '.' . $this->primaryModelColumn => $this->primaryModel->getPk()]
             );
@@ -67,7 +69,8 @@ class ManyToManyManager extends RelatedManager{
         return $this->linkUnlinkProcess($model, false);
     }
 
-    public function clean(){
+    public function clean()
+    {
         if ($this->primaryModel->pk === null) {
             throw new Exception('Unable to clean models: the primary key of ' . get_class($this->primaryModel) . ' is null.');
         }

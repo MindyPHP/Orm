@@ -166,17 +166,22 @@ class QuerySet extends Query
         return $this->model->getPkName();
     }
 
-    public function buildCondition(array $query, $method, $queryCondition = [], $queryParams = [])
+    protected function parseLookup(array $query, array $queryCondition = [], array $queryParams = [])
     {
+        // $user = User::objects()->get(['pk' => 1]);
+        // $pages = Page::object()->filter(['user__in' => [$user]])->all();
+
+        $tmpCondition = [];
         foreach($query as $name => $value) {
             if(is_numeric($name)) {
                 throw new InvalidArgumentException('Keys in $q must be a string');
             }
 
             if(substr_count($name, $this->_separator) > 1) {
-                // recursion
-                throw new \Exception("Not implemented");
-
+                $raw = explode($this->_separator, $name);
+                $relatedField = array_shift($raw);
+                list($tmpCondition, $params) = $this->parseLookup([implode($this->_separator, $raw) => $value], $tmpCondition, $queryParams);
+                d($tmpCondition);
             } elseif (strpos($name, $this->_separator) !== false) {
                 if($name === 'pk') {
                     $name = $this->retreivePrimaryKey();
@@ -184,28 +189,33 @@ class QuerySet extends Query
 
                 list($field, $condition) = explode($this->_separator, $name);
 
+                if($this->model->hasManyToManyField($field)) {
+                    $qs = $this->model->{$field}->getQuerySet();
+                    $this->join = array_merge($qs->join, $this->join ? $this->join : []);
+                }
+
                 switch($condition) {
                     case 'isnull':
                     case 'exact':
-                        $queryCondition[] = [$name => $value];
+                        $tmpCondition[] = [$field => $value];
                         break;
                     case 'in':
-                        $queryCondition['in'] = [$field => $value];
+                        $tmpCondition['in'] = [$field => $value];
                         break;
                     case 'gte':
-                        $queryCondition[] = "$field >= :$field";
+                        $tmpCondition[] = "$field >= :$field";
                         $queryParams[":$field"] = $value;
                         break;
                     case 'gt':
-                        $queryCondition[] = "$field > :$field";
+                        $tmpCondition[] = "$field > :$field";
                         $queryParams[":$field"] = $value;
                         break;
                     case 'lte':
-                        $queryCondition[] = "$field <= :$field";
+                        $tmpCondition[] = "$field <= :$field";
                         $queryParams[":$field"] = $value;
                         break;
                     case 'lt':
-                        $queryCondition[] = "$field < :$field";
+                        $tmpCondition[] = "$field < :$field";
                         $queryParams[":$field"] = $value;
                         break;
                     case 'icontains':
@@ -213,18 +223,18 @@ class QuerySet extends Query
                         // TODO see buildLikeCondition in QueryBuilder. ILIKE? WAT? QueryBuilder dont known about ILIKE
                         break;
                     case 'contains':
-                        $queryCondition[] = ['like', $field, $value];
+                        $tmpCondition[] = ['like', $field, $value];
                         break;
                     case 'startswith':
                         // TODO What is false in query? What is shit? What? Ugly, rewrite
-                        $queryCondition[] = ['like', $field, '%' . $value, false];
+                        $tmpCondition[] = ['like', $field, '%' . $value, false];
                         break;
                     case 'istartswith':
                         // TODO ILIKE something%
                         // TODO see buildLikeCondition in QueryBuilder. ILIKE? WAT? QueryBuilder dont known about ILIKE
                         break;
                     case 'endswith':
-                        $queryCondition[] = ['like', $field, $value . '%', false];
+                        $tmpCondition[] = ['like', $field, $value . '%', false];
                         break;
                     case 'iendswith':
                         // TODO ILIKE %something
@@ -235,7 +245,7 @@ class QuerySet extends Query
                             throw new InvalidArgumentException('Range condition must be a array of 2 elements. Example: something__range=[1, 2]');
                         }
                         list($start, $end) = $value;
-                        $queryCondition[] = ['between', $field, $start, $end];
+                        $tmpCondition[] = ['between', $field, $start, $end];
                         break;
                     case 'year':
                         // TODO BETWEEN
@@ -300,11 +310,17 @@ class QuerySet extends Query
                     $name = $this->retreivePrimaryKey();
                 }
 
-                $queryCondition[] = [$name => $value];
+                $tmpCondition[] = [$name => $value];
             }
         }
+        $queryCondition = $tmpCondition;
+        return [$queryCondition, $queryParams];
+    }
 
-        $this->$method($queryCondition, $queryParams);
+    public function buildCondition(array $query, $method, $queryCondition = [])
+    {
+        list($condition, $params) = $this->parseLookup($query);
+        $this->$method(array_merge($queryCondition, $condition), $params);
 
         return $this;
     }
