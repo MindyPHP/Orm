@@ -1,4 +1,2 @@
-Mindy ORM
+Mindy ORM. Not complete at this moment.
 =========
-
-## Not complete at this moment
