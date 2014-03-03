@@ -18,8 +18,33 @@ namespace Mindy\Orm;
 class LookupBuilder
 {
     public $query = [];
-    public $conditions = [];
-    public $defaultCondition = 'exact';
+    public $defaultLookup = 'exact';
+    private $lookups = [
+        'isnull',
+        'lte',
+        'lt',
+        'gte',
+        'gt',
+        'exact',
+        'contains',
+        'icontains',
+        'startswith',
+        'istartswith',
+        'endswith',
+        'iendswith',
+        'in',
+        'range',
+        'year',
+        'month',
+        'date',
+        'week_day',
+        'hour',
+        'minute',
+        'second',
+        'search',
+        'regex',
+        'iregex'
+    ];
 
     protected $separator = '__';
 
@@ -30,40 +55,31 @@ class LookupBuilder
 
     public function parse()
     {
+        $conditions = [];
         foreach ($this->query as $lookup => $params) {
-            $this->conditions[] = $this->parseLookup($lookup, $params);
+            $conditions[] = $this->parseLookup($lookup, $params);
         }
-
-        return $this->process();
+        return $conditions;
     }
 
-    protected function process()
+    protected function parseLookup($lookup, $params, array $prefix = [])
     {
-        $qs = null;
-        foreach ($this->conditions as $data) {
-            list($prefix, $field, $condition, $params) = $data;
-            $this->buildQuery($prefix, $field, $condition, $params);
-        }
-        return $qs;
-    }
-
-    public function buildQuery($prefix, $field, $condition, $params)
-    {
-
-    }
-
-    protected function parseLookup($lookup, array $params = [], array $prefix = [])
-    {
-        if (substr_count($lookup, $this->separator) >= 2) {
-            $raw = explode($this->separator, $lookup);
-            $prefix[] = array_shift($raw);
+        $raw = explode($this->separator, $lookup);
+        $first = array_shift($raw);
+        if (substr_count($lookup, $this->separator) >= 2 && !in_array($first, $this->lookups)) {
+            $prefix[] = $first;
             return $this->parseLookup(implode($this->separator, $raw), $params, $prefix);
         } else {
             if (substr_count($lookup, $this->separator) == 0) {
                 $field = $lookup;
-                $condition = $this->defaultCondition;
+                $condition = $this->defaultLookup;
             } else {
                 list($field, $condition) = explode($this->separator, $lookup);
+                if(!in_array($condition, $this->lookups)) {
+                    $prefix[] = $field;
+                    $field = $condition;
+                    $condition = $this->defaultLookup;
+                }
             }
             return [$prefix, $field, $condition, $params];
         }

@@ -21,11 +21,10 @@ use Tests\DatabaseTestCase;
 
 class LookupTest extends DatabaseTestCase
 {
-    public function testPk()
+    public function testIn()
     {
         $query = ['items__user__pages__pk__in' => [1, 2, 3]];
         $lookup = new LookupBuilder($query);
-        $lookup->parse();
         $this->assertEquals([
             [
                 ['items', 'user', 'pages'],
@@ -33,6 +32,20 @@ class LookupTest extends DatabaseTestCase
                 'in',
                 [1, 2, 3]
             ]
-        ], $lookup->conditions);
+        ], $lookup->parse());
+    }
+
+    public function testSimple()
+    {
+        $query = ['items__user__pages__pk' => 1];
+        $lookup = new LookupBuilder($query);
+        $this->assertEquals([
+            [
+                ['items', 'user', 'pages'],
+                'pk',
+                'exact',
+                1
+            ]
+        ], $lookup->parse());
     }
 }
