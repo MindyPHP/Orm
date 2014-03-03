@@ -16,6 +16,7 @@ namespace Mindy\Orm\Fields;
 
 use Mindy\Orm\ManyToManyManager;
 use Mindy\Orm\Model;
+use Exception;
 
 class ManyToManyField extends RelatedField
 {
@@ -220,5 +221,29 @@ class ManyToManyField extends RelatedField
     public function sqlType()
     {
         return false;
+    }
+
+    /**
+     * @param array $value
+     * @throws \Exception
+     */
+    public function setValue($value){
+        if (!is_array($value)){
+            throw new Exception("ManyToMany field can set only arrays of Models or existing primary keys");
+        }
+        $class = $this->modelClass;
+        $manager = $this->getManager();
+        $manager->clean();
+        foreach($value as $model){
+            $linkModel = $model;
+            if (!is_a($linkModel, $this->modelClass)){
+                $linkModel = $class::objects()->get(['pk' => $linkModel]);
+            }
+            if (is_a($linkModel, $this->modelClass)){
+                $manager->link($linkModel);
+            }else{
+                throw new Exception("ManyToMany field can set only arrays of Models or existing primary keys");
+            }
+        }
     }
 }

@@ -16,6 +16,7 @@ namespace Mindy\Orm\Fields;
 
 use Mindy\Orm\HasManyManager;
 use Mindy\Orm\Model;
+use Exception;
 
 class HasManyField extends RelatedField
 {
@@ -104,5 +105,9 @@ class HasManyField extends RelatedField
             $this->from = $this->getModel()->getPkName();
         }
         return $this->from;
+    }
+
+    public function setValue($value){
+        throw new Exception("Has many field can't set values. You can do it through ForeignKey.");
     }
 }

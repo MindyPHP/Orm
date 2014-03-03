@@ -67,6 +67,20 @@ class ManyToManyManager extends RelatedManager{
         return $this->linkUnlinkProcess($model, false);
     }
 
+    public function clean(){
+        if ($this->primaryModel->pk === null) {
+            throw new Exception('Unable to clean models: the primary key of ' . get_class($this->primaryModel) . ' is null.');
+        }
+
+        $db = $this->primaryModel->getConnection();
+        /** @var $command \Mindy\Query\Command */
+        $command = $db->createCommand()->delete($this->relatedTable, [
+            $this->primaryModelColumn => $this->primaryModel->pk,
+        ]);
+
+        return $command->execute();
+    }
+
     protected function linkUnlinkProcess(Model $model, $link = true)
     {
         if ($this->primaryModel->pk === null) {
