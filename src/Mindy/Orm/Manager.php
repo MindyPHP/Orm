@@ -24,7 +24,7 @@ class Manager
     private $_model;
 
     /**
-     * @var \Mindy\Query\OrmQuery
+     * @var \Mindy\Orm\QuerySet
      */
     private $_qs;
 
@@ -33,6 +33,16 @@ class Manager
         $this->_model = $model;
     }
 
+    /**
+     * @return \Mindy\Orm\Model
+     */
+    public function getModel(){
+        return $this->_model;
+    }
+
+    /**
+     * @return \Mindy\Orm\QuerySet
+     */
     public function getQuerySet()
     {
         if($this->_qs === null) {
@@ -88,6 +98,9 @@ class Manager
         return $this->getQuerySet()->asArray($asArray)->all();
     }
 
+    /**
+     * @return mixed
+     */
     public function count()
     {
         return $this->getQuerySet()->count();
