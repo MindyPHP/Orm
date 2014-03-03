@@ -376,7 +376,7 @@ class Orm extends Base
                     return $field->getValue();
                 } else if (is_a($field, $this->manyToManyField) || is_a($field, $this->hasManyField)) {
                     /* @var $field \Mindy\Orm\Fields\ManyToManyField|\Mindy\Orm\Fields\HasManyField */
-                    return $field->getQuerySet();
+                    return $field->getManager();
                 } else {
                     throw new Exception("Unknown field type " . $name . " in " . get_class($this));
                 }

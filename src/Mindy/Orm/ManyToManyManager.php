@@ -1,23 +1,26 @@
 <?php
 /**
- * Created by JetBrains PhpStorm.
- * User: new
- * Date: 2/27/14
- * Time: 7:40 PM
- * To change this template use File | Settings | File Templates.
+ *
+ *
+ * All rights reserved.
+ *
+ * @author Falaleev Maxim
+ * @email max@studio107.ru
+ * @version 1.0
+ * @company Studio107
+ * @site http://studio107.ru
+ * @date 04/01/14.01.2014 03:42
  */
 
 namespace Mindy\Orm;
 
-
 use Mindy\Exception\Exception;
+use Mindy\Helper\Creator;
 
-class RelatedQuerySet extends QuerySet
-{
-
+class ManyToManyManager extends RelatedManager{
     /**
      * Link table name
-     * @var \Mindy\Orm\Model
+     * @var string
      */
     public $relatedTable;
     /**
@@ -36,6 +39,24 @@ class RelatedQuerySet extends QuerySet
      */
     public $modelColumn;
 
+    public function __construct(Model $model, array $config = [])
+    {
+        Creator::configure($this, $config);
+        $this->_model = $model;
+    }
+
+    public function getQuerySet(){
+        if($this->_qs === null) {
+            $qs = parent::getQuerySet();
+            $qs->join('INNER JOIN',
+                $this->relatedTable,
+                [$this->relatedTable . '.' . $this->primaryModelColumn => $this->primaryModel->getPk()]
+            );
+            $this->_qs = $qs;
+        }
+        return $this->_qs;
+    }
+
     public function link(Model $model)
     {
         return $this->linkUnlinkProcess($model, true);
@@ -46,7 +67,7 @@ class RelatedQuerySet extends QuerySet
         return $this->linkUnlinkProcess($model, false);
     }
 
-    private function linkUnlinkProcess(Model $model, $link = true)
+    protected function linkUnlinkProcess(Model $model, $link = true)
     {
         if ($this->primaryModel->pk === null) {
             throw new Exception('Unable to unlink models: the primary key of ' . get_class($this->primaryModel) . ' is null.');

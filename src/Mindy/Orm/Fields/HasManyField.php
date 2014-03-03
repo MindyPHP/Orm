@@ -1,9 +1,21 @@
 <?php
+/**
+ *
+ *
+ * All rights reserved.
+ *
+ * @author Falaleev Maxim
+ * @email max@studio107.ru
+ * @version 1.0
+ * @company Studio107
+ * @site http://studio107.ru
+ * @date 04/01/14.01.2014 03:42
+ */
 
 namespace Mindy\Orm\Fields;
 
+use Mindy\Orm\HasManyManager;
 use Mindy\Orm\Model;
-use Mindy\Orm\QuerySet;
 
 class HasManyField extends RelatedField
 {
@@ -56,16 +68,15 @@ class HasManyField extends RelatedField
         return false;
     }
 
-    public function getQuerySet()
+    public function getManager()
     {
-        $qs = new QuerySet([
-            'model' => $this->getRelatedModel(),
-            'modelClass' => $this->modelClass
+        $manager = new HasManyManager($this->getRelatedModel(), [
+            'primaryModel' => $this->getModel(),
+            'from' => $this->from(),
+            'to' => $this->to()
         ]);
 
-        return $qs->filter([
-            $this->to() => $this->getModel()->{$this->from()}
-        ]);
+        return $manager;
     }
 
     public function to()

@@ -14,19 +14,17 @@
 
 namespace Mindy\Orm;
 
-use Exception;
-
 class Manager
 {
     /**
      * @var \Mindy\Orm\Model
      */
-    private $_model;
+    protected $_model;
 
     /**
      * @var \Mindy\Orm\QuerySet
      */
-    private $_qs;
+    protected $_qs;
 
     public function __construct(Model $model)
     {
@@ -47,8 +45,8 @@ class Manager
     {
         if($this->_qs === null) {
             $this->_qs = new QuerySet([
-                'model' => $this->_model,
-                'modelClass' => $this->_model->className()
+                'model' => $this->getModel(),
+                'modelClass' => $this->getModel()->className()
             ]);
         }
         return $this->_qs;
@@ -104,5 +102,31 @@ class Manager
     public function count()
     {
         return $this->getQuerySet()->count();
+    }
+
+    /**
+     * @param array $q
+     * @return string
+     */
+    public function getSql(array $q)
+    {
+        return $this->filter($q)->getSql();
+    }
+
+    /**
+     * @param bool $asArray
+     * @return string
+     */
+    public function allSql($asArray = false)
+    {
+        return $this->getQuerySet()->asArray($asArray)->allSql();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function countSql()
+    {
+        return $this->getQuerySet()->countSql();
     }
 }

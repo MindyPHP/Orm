@@ -38,7 +38,7 @@ class ManyToManyFieldViaTest extends DatabaseTestCase
     {
         $model = new ManyViaModel();
         $this->assertNull($model->pk);
-        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $model->items);
+        $this->assertInstanceOf('\Mindy\Orm\ManyToManyManager', $model->items);
         $this->assertEquals(0, $model->items->count());
         $this->assertEquals([], $model->items->all());
 

@@ -14,10 +14,8 @@
 
 namespace Mindy\Orm\Fields;
 
-use Mindy\Helper\Creator;
+use Mindy\Orm\ManyToManyManager;
 use Mindy\Orm\Model;
-use Mindy\Orm\RelatedQuerySet;
-use Mindy\Orm\Relation;
 
 class ManyToManyField extends RelatedField
 {
@@ -158,27 +156,19 @@ class ManyToManyField extends RelatedField
 
 
     /**
-     * @return \Mindy\Orm\RelatedQuerySet QuerySet of related objects
+     * @return \Mindy\Orm\ManyToManyManager QuerySet of related objects
      */
-    public function getQuerySet()
+    public function getManager()
     {
-        $qs = new RelatedQuerySet([
-            'model' => $this->getRelatedModel(),
-            'modelClass' => $this->modelClass,
+        $manager = new ManyToManyManager($this->getRelatedModel(), [
             'modelColumn' => $this->getRelatedModelColumn(),
-
-            'primaryModel' => $this->getModel(),
             'primaryModelColumn' => $this->getModelColumn(),
 
+            'primaryModel' => $this->getModel(),
             'relatedTable' => $this->getTableName()
         ]);
 
-        $qs->join('INNER JOIN',
-            $this->getTableName(),
-            [$this->getTableName() . '.' . $this->getModelColumn() => $this->getModel()->getPk()]
-        );
-
-        return $qs;
+        return $manager;
     }
 
     /**

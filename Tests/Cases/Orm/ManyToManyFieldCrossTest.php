@@ -17,8 +17,6 @@ namespace Tests\Orm;
 
 use Tests\DatabaseTestCase;
 use Tests\Models\CrossManyModel;
-use Tests\Models\HasManyModel;
-use Tests\Models\FkModel;
 use Tests\Models\ManyCrossModel;
 
 class ManyToManyFieldCrossTest extends DatabaseTestCase
@@ -40,7 +38,7 @@ class ManyToManyFieldCrossTest extends DatabaseTestCase
         $manyModel = new ManyCrossModel();
         $manyModel->save();
 
-        $this->assertInstanceOf('\Mindy\Orm\RelatedQuerySet', $manyModel->cross_models);
+        $this->assertInstanceOf('\Mindy\Orm\ManyToManyManager', $manyModel->cross_models);
         $this->assertEquals(0, $manyModel->cross_models->count());
 
         $crossModel = new CrossManyModel();
