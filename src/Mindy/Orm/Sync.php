@@ -66,7 +66,9 @@ class Sync
 
         foreach($model->getManyFields() as $field) {
             if($field->through === null) {
-                $command->dropTable($field->getTableName())->execute();
+                if ($this->hasTable($model, $field->getTableName())){
+                    $command->dropTable($field->getTableName())->execute();
+                }
             }
         }
         $command->dropTable($model->tableName())->execute();

@@ -11,6 +11,10 @@ class HasManyField extends RelatedField
      * @var \Mindy\Orm\Model
      */
     protected $_relatedModel;
+
+    /**
+     * @var \Mindy\Orm\Model
+     */
     protected $_model;
 
     public $from;
@@ -20,32 +24,31 @@ class HasManyField extends RelatedField
 
     public function init()
     {
-        $this->_relatedModel = new $this->modelClass([
-            'autoInitFields' => false
-        ]);
 
-        $hasPrimaryKey = false;
-        foreach($this->_relatedModel->getFields() as $name => $config) {
-            if(is_subclass_of('\Mindy\Orm\Field\AutoField', $config['class'])) {
-                $hasPrimaryKey = true;
-                $this->from = $name;
-                break;
-            }
-        }
-
-        if(!$hasPrimaryKey) {
-            $this->from = 'id';
-        }
     }
 
+    /**
+     * @param \Mindy\Orm\Model $model
+     */
     public function setModel(Model $model)
     {
         $this->_model = $model;
+    }
 
-        if (!$this->to) {
-            // $this->foreignKey = $this->_model->tableName() . '_' . $this->_model->getPkName();
-            $this->to = $this->_model->getPkName();
+    public function getModel()
+    {
+        return $this->_model;
+    }
+
+    /**
+     * @return \Mindy\Orm\Model
+     */
+    public function getRelatedModel()
+    {
+        if (!$this->_relatedModel) {
+            $this->_relatedModel = new $this->modelClass();
         }
+        return $this->_relatedModel;
     }
 
     public function sqlType()
@@ -56,12 +59,28 @@ class HasManyField extends RelatedField
     public function getQuerySet()
     {
         $qs = new QuerySet([
-            'model' => $this->_relatedModel,
+            'model' => $this->getRelatedModel(),
             'modelClass' => $this->modelClass
         ]);
 
         return $qs->filter([
-            $this->to => $this->_model->{$this->from}
+            $this->to() => $this->getModel()->{$this->from()}
         ]);
+    }
+
+    public function to()
+    {
+        if (!$this->to) {
+            $this->to = $this->getModel()->tableName() . '_' . $this->getModel()->getPkName();
+        }
+        return $this->to;
+    }
+
+    public function from()
+    {
+        if (!$this->from) {
+            $this->from = $this->getModel()->getPkName();
+        }
+        return $this->from;
     }
 }

@@ -44,10 +44,28 @@ class ManyToManyField extends RelatedField
      */
     private $_relatedModel;
 
+    /**
+     * Primary key name
+     * @var string
+     */
     private $_modelPk;
+
+    /**
+     * Primary key name of the related model
+     * @var string
+     */
     private $_relatedModelPk;
 
+    /**
+     * Model column in "link" table
+     * @var string
+     */
     private $_modelColumn;
+
+    /**
+     * Related model column in "link" table
+     * @var string
+     */
     private $_relatedModelColumn;
 
     /**
@@ -66,43 +84,16 @@ class ManyToManyField extends RelatedField
     private $_columns = [];
 
     /**
-     * @param Model $modelClass
-     * @param array $options
+     * Initialization
      */
     public function init()
     {
-        $this->_relatedModel = new $this->modelClass();
-        $this->_relatedModelPk = $this->_relatedModel->getPkName();
-        $this->_relatedModelColumn =$this->_relatedModel->tableName() . '_' . $this->_relatedModelPk;
 
-        if (!$this->through){
-            $fields = $this->_relatedModel->getFieldsInit();
-            $this->addColumn($this->_relatedModelColumn, $fields[$this->_relatedModelPk]->sqlType());
-        }
-    }
-
-    public function sqlType()
-    {
-        return false;
     }
 
     public function setModel(Model $model)
     {
         $this->_model = $model;
-
-        // TODO ugly, refactoring
-
-        $this->_modelPk = $model->getPkName();
-        $this->_modelColumn = $model->tableName() . '_' . $this->_modelPk;
-        $fields = $model->getFieldsInit();
-
-        if ($this->through) {
-            $through = $this->through;
-            $this->_tableName = $through::tableName();
-        }else{
-            $this->setTableName($model);
-            $this->addColumn($this->_modelColumn, $fields[$this->_modelPk]->sqlType());
-        }
     }
 
     public function getModel()
@@ -110,53 +101,134 @@ class ManyToManyField extends RelatedField
         return $this->_model;
     }
 
+    /**
+     * @return \Mindy\Orm\Model
+     */
+    public function getRelatedModel()
+    {
+        if (!$this->_relatedModel) {
+            $this->_relatedModel = new $this->modelClass();
+        }
+        return $this->_relatedModel;
+    }
+
+    /**
+     * @return string PK name of related model
+     */
+    public function getRelatedModelPk()
+    {
+        if (!$this->_relatedModelPk) {
+            $this->_relatedModelPk = $this->getRelatedModel()->getPkName();
+        }
+        return $this->_relatedModelPk;
+    }
+
+    /**
+     * @return string Related model column in "link" table
+     */
+    public function getRelatedModelColumn()
+    {
+        if (!$this->_relatedModelColumn) {
+            $this->_relatedModelColumn = $this->getRelatedModel()->tableName() . '_' . $this->getRelatedModelPk();
+        }
+        return $this->_relatedModelColumn;
+    }
+
+    /**
+     * @return string PK name of model
+     */
+    public function getModelPk()
+    {
+        if (!$this->_modelPk) {
+            $this->_modelPk = $this->getModel()->getPkName();
+        }
+        return $this->_modelPk;
+    }
+
+    /**
+     * @return string Model column in "link" table
+     */
+    public function getModelColumn()
+    {
+        if (!$this->_modelColumn) {
+            $this->_modelColumn = $this->getModel()->tableName() . '_' . $this->getModelPk();
+        }
+        return $this->_modelColumn;
+    }
+
+
+    /**
+     * @return \Mindy\Orm\RelatedQuerySet QuerySet of related objects
+     */
     public function getQuerySet()
     {
         $qs = new RelatedQuerySet([
-            'model' => $this->_relatedModel,
+            'model' => $this->getRelatedModel(),
             'modelClass' => $this->modelClass,
-            'modelColumn' => $this->_relatedModelColumn,
+            'modelColumn' => $this->getRelatedModelColumn(),
 
-            'primaryModel' => $this->_model,
-            'primaryModelColumn' => $this->_modelColumn,
+            'primaryModel' => $this->getModel(),
+            'primaryModelColumn' => $this->getModelColumn(),
 
             'relatedTable' => $this->getTableName()
         ]);
 
         $qs->join('INNER JOIN',
             $this->getTableName(),
-            [$this->getTableName() . '.' . $this->_modelColumn => $this->_model->getPk()]
+            [$this->getTableName() . '.' . $this->getModelColumn() => $this->getModel()->getPk()]
         );
 
         return $qs;
     }
 
-    public function setTableName(Model $model)
-    {
-        $tableName = [$model->tableName(), $this->_relatedModel->tableName()];
-        sort($tableName);
-        $this->_tableName = implode('_', $tableName);
-    }
-
+    /**
+     * Table name of the "link" table
+     * @return string
+     */
     public function getTableName()
     {
+        if (!$this->_tableName) {
+            if (!$this->through) {
+                $parts = [$this->getModel()->tableName(), $this->getRelatedModel()->tableName()];
+                sort($parts);
+                $this->_tableName = implode('_', $parts);
+            } else {
+                $through = $this->through;
+                $this->_tableName = $through::tableName();
+            }
+        }
         return $this->_tableName;
     }
 
-    public function addColumn($column, $type=null)
+    /**
+     * @param string $column Column name in "link" table
+     * @param null|string $type Type of the column ('int' by default)
+     */
+    public function addColumn($column, $type = null)
     {
         $this->_columns[$column] = (empty($type) || $type == 'pk') ? 'int' : $type;
     }
 
+    /**
+     * @return array "link" table columns
+     */
     public function getColumns()
     {
+        if (!$this->through) {
+            $fields = $this->getRelatedModel()->getFieldsInit();
+            $this->addColumn($this->getRelatedModelColumn(), $fields[$this->getRelatedModelPk()]->sqlType());
+
+            $fields = $this->getModel()->getFieldsInit();
+            $this->addColumn($this->getModelColumn(), $fields[$this->getModelPk()]->sqlType());
+        }
         return $this->_columns;
     }
 
-    protected function setOptions(array $options){
-        // TODO: safe check / remove on stable
-        foreach($options as $name => $value){
-            $this->$name = $value;
-        }
+    /**
+     * @return bool|string
+     */
+    public function sqlType()
+    {
+        return false;
     }
 }

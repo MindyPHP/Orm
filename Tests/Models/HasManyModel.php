@@ -27,7 +27,7 @@ class FkModel extends Model
 //            'fk' => new ForeignField(HasManyModel::className(), [
 //                    'null' => true
 //                ])
-            'fk' => [
+            'has_many_model' => [
                 'class' => ForeignField::className(),
                 'modelClass' => HasManyModel::className(),
                 'null' => true

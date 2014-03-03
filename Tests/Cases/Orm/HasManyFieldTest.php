@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -38,11 +38,11 @@ class HasManyFieldTest extends DatabaseTestCase
         $hasManyModel = new HasManyModel();
         $hasManyModel->save();
 
-        $this->assertEquals("SELECT COUNT(*) FROM `fk_model` WHERE (`id`='1')", $hasManyModel->many->countSql());
+//        $this->assertEquals("SELECT COUNT(*) FROM `fk_model` WHERE (`id`='1')", $hasManyModel->many->countSql());
         $this->assertEquals(0, $hasManyModel->many->count());
 
         $fkModelOne = new FkModel();
-        $fkModelOne->fk = $hasManyModel;
+        $fkModelOne->has_many_model = $hasManyModel;
         $fkModelOne->save();
 
         $this->assertEquals(1, $hasManyModel->many->count());
@@ -52,7 +52,7 @@ class HasManyFieldTest extends DatabaseTestCase
 
         $this->assertEquals(1, $hasManyModel->many->count());
 
-        $fkModelTwo->fk = $hasManyModel;
+        $fkModelTwo->has_many_model = $hasManyModel;
         $fkModelTwo->save();
 
         $this->assertEquals(2, $hasManyModel->many->count());
