@@ -29,7 +29,18 @@ class HasManyField extends RelatedField
      */
     protected $_model;
 
+    /**
+     * TODO: Write normal doc
+     * Explain by example: model User has many models Pages
+     * User->id <- from
+     * Pages->user_id <- to
+     * @var string
+     */
     public $from;
+
+    /**
+     * @var string
+     */
     public $to;
 
     public $modelClass;
