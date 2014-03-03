@@ -15,6 +15,8 @@
 namespace Mindy\Orm;
 
 
+use Mindy\Exception\Exception;
+
 class LookupBuilder
 {
     public $query = [];
@@ -80,6 +82,9 @@ class LookupBuilder
                     $field = $condition;
                     $condition = $this->defaultLookup;
                 }
+            }
+            if(!in_array($condition, $this->lookups)) {
+                throw new Exception("Unknown lookup operator: $condition");
             }
             return [$prefix, $field, $condition, $params];
         }

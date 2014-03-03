@@ -50,7 +50,7 @@ class ManyToManyManager extends RelatedManager
     {
         if ($this->_qs === null) {
             $qs = parent::getQuerySet();
-            $qs->join('LEFT JOIN',
+            $qs->join('JOIN',
                 $this->relatedTable,
                 [$this->relatedTable . '.' . $this->primaryModelColumn => $this->primaryModel->getPk()]
             );

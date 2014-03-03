@@ -166,155 +166,111 @@ class QuerySet extends Query
         return $this->model->getPkName();
     }
 
+    protected function getChainedQuerySet(array $prefix)
+    {
+        $qs = null;
+        if(count($prefix) > 0) {
+            foreach($prefix as $chain) {
+                if($qs === null) {
+                    $qs = $this->$chain;
+                } else {
+                    $qs = $qs->$chain;
+                }
+            }
+        } else {
+            $qs = $this;
+        }
+
+        return $qs;
+    }
+
     protected function parseLookup(array $query, array $queryCondition = [], array $queryParams = [])
     {
         // $user = User::objects()->get(['pk' => 1]);
         // $pages = Page::object()->filter(['user__in' => [$user]])->all();
 
-        $tmpCondition = [];
-        foreach($query as $name => $value) {
-            if(is_numeric($name)) {
-                throw new InvalidArgumentException('Keys in $q must be a string');
+        $lookup = new LookupBuilder($query);
+        foreach($lookup->parse() as $data) {
+            list($prefix, $field, $condition, $params) = $data;
+
+            $qs = $this->getChainedQuerySet($prefix);
+
+            if($field === 'pk') {
+                $field = $this->retreivePrimaryKey();
             }
 
-            if(substr_count($name, $this->_separator) > 1) {
-                $raw = explode($this->_separator, $name);
-                $relatedField = array_shift($raw);
-                list($tmpCondition, $params) = $this->parseLookup([implode($this->_separator, $raw) => $value], $tmpCondition, $queryParams);
-                d($tmpCondition);
-            } elseif (strpos($name, $this->_separator) !== false) {
-                if($name === 'pk') {
-                    $name = $this->retreivePrimaryKey();
-                }
-
-                list($field, $condition) = explode($this->_separator, $name);
-
-                if($this->model->hasManyToManyField($field)) {
-                    $qs = $this->model->{$field}->getQuerySet();
-                    $this->join = array_merge($qs->join, $this->join ? $this->join : []);
-                }
-
-                switch($condition) {
-                    case 'isnull':
-                    case 'exact':
-                        $tmpCondition[] = [$field => $value];
-                        break;
-                    case 'in':
-                        $tmpCondition['in'] = [$field => $value];
-                        break;
-                    case 'gte':
-                        $tmpCondition[] = "$field >= :$field";
-                        $queryParams[":$field"] = $value;
-                        break;
-                    case 'gt':
-                        $tmpCondition[] = "$field > :$field";
-                        $queryParams[":$field"] = $value;
-                        break;
-                    case 'lte':
-                        $tmpCondition[] = "$field <= :$field";
-                        $queryParams[":$field"] = $value;
-                        break;
-                    case 'lt':
-                        $tmpCondition[] = "$field < :$field";
-                        $queryParams[":$field"] = $value;
-                        break;
-                    case 'icontains':
-                        // TODO ILIKE
-                        // TODO see buildLikeCondition in QueryBuilder. ILIKE? WAT? QueryBuilder dont known about ILIKE
-                        break;
-                    case 'contains':
-                        $tmpCondition[] = ['like', $field, $value];
-                        break;
-                    case 'startswith':
-                        // TODO What is false in query? What is shit? What? Ugly, rewrite
-                        $tmpCondition[] = ['like', $field, '%' . $value, false];
-                        break;
-                    case 'istartswith':
-                        // TODO ILIKE something%
-                        // TODO see buildLikeCondition in QueryBuilder. ILIKE? WAT? QueryBuilder dont known about ILIKE
-                        break;
-                    case 'endswith':
-                        $tmpCondition[] = ['like', $field, $value . '%', false];
-                        break;
-                    case 'iendswith':
-                        // TODO ILIKE %something
-                        // TODO see buildLikeCondition in QueryBuilder. ILIKE? WAT? QueryBuilder dont known about ILIKE
-                        break;
-                    case 'range':
-                        if(!is_array($value) || count($value) != 2) {
-                            throw new InvalidArgumentException('Range condition must be a array of 2 elements. Example: something__range=[1, 2]');
-                        }
-                        list($start, $end) = $value;
-                        $tmpCondition[] = ['between', $field, $start, $end];
-                        break;
-                    case 'year':
-                        // TODO BETWEEN
-                        // Entry.objects.filter(pub_date__year=2005)
-                        // SELECT ... WHERE pub_date BETWEEN '2005-01-01' AND '2005-12-31';
-                        break;
-                    case 'month':
-                        // TODO
-                        // Entry.objects.filter(pub_date__month=12)
-                        // SELECT ... WHERE EXTRACT('month' FROM pub_date) = '12';
-                        break;
-                    case 'day':
-                        // TODO
-                        break;
-                    case 'week_day':
-                        // TODO
-                        // Entry.objects.filter(pub_date__week_day=2)
-                        // No equivalent SQL code fragment is included for this lookup because implementation of
-                        // the relevant query varies among different database engines.
-                        break;
-                    case 'hour':
-                        // TODO
-                        // Event.objects.filter(timestamp__hour=23)
-                        // SELECT ... WHERE EXTRACT('hour' FROM timestamp) = '23';
-                        break;
-                    case 'minute':
-                        // TODO
-                        // Event.objects.filter(timestamp__minute=29)
-                        // SELECT ... WHERE EXTRACT('minute' FROM timestamp) = '29';
-                        break;
-                    case 'second':
-                        // TODO
-                        // Event.objects.filter(timestamp__second=31)
-                        // SELECT ... WHERE EXTRACT('second' FROM timestamp) = '31';
-                        break;
-                    case 'search':
-                        // TODO
-                        // Entry.objects.filter(headline__search="+Django -jazz Python")
-                        // SELECT ... WHERE MATCH(tablename, headline) AGAINST (+Django -jazz Python IN BOOLEAN MODE);
-                        break;
-                    case 'regex':
-                        // TODO
-                        // Entry.objects.get(title__regex=r'^(An?|The) +')
-                        // SELECT ... WHERE title REGEXP BINARY '^(An?|The) +'; -- MySQL
-                        // SELECT ... WHERE REGEXP_LIKE(title, '^(an?|the) +', 'c'); -- Oracle
-                        // SELECT ... WHERE title ~ '^(An?|The) +'; -- PostgreSQL
-                        // SELECT ... WHERE title REGEXP '^(An?|The) +'; -- SQLite
-                        break;
-                    case 'iregex':
-                        // TODO
-                        // SELECT ... WHERE title REGEXP '^(an?|the) +'; -- MySQL
-                        // SELECT ... WHERE REGEXP_LIKE(title, '^(an?|the) +', 'i'); -- Oracle
-                        // SELECT ... WHERE title ~* '^(an?|the) +'; -- PostgreSQL
-                        // SELECT ... WHERE title REGEXP '(?i)^(an?|the) +'; -- SQLite
-                        break;
-                    default:
-                        break;
-                }
-
-            } else {
-                if($name === 'pk') {
-                    $name = $this->retreivePrimaryKey();
-                }
-
-                $tmpCondition[] = [$name => $value];
-            }
+            $method = 'build' . ucfirst($condition);
+            $qs->$method($field, $params);
         }
-        $queryCondition = $tmpCondition;
+
         return [$queryCondition, $queryParams];
+    }
+
+    public function buildExact($field, $value)
+    {
+        $this->where = array_merge($this->where ? $this->where : [], [$field => $value]);
+        return $this;
+    }
+
+    public function buildIn($field, $value)
+    {
+        return $this->andWhere(['in', $field, $value]);
+    }
+
+    public function buildGte($field, $value)
+    {
+        return $this->andWhere(['and', $field . ' <= :' . $field], [':' . $field => $value]);
+    }
+
+    public function buildGt($field, $value)
+    {
+        return $this->andWhere(['and', $field . ' > :' . $field], [':' . $field => $value]);
+    }
+
+    public function buildLte($field, $value)
+    {
+        return $this->andWhere(['and', $field . ' <= :' . $field], [':' . $field => $value]);
+    }
+
+    public function buildLt($field, $value)
+    {
+        return $this->andWhere(['and', $field . ' < :' . $field], [':' . $field => $value]);
+    }
+
+    public function buildContains($field, $value)
+    {
+        return $this->andWhere(['like', $field, $value]);
+    }
+
+    public function buildIcontains($field, $value)
+    {
+        return $this->andWhere(['ilike', $field, $value]);
+    }
+
+    public function buildStartswith($field, $value)
+    {
+        return $this->andWhere(['like', $field, '%' . $value, false]);
+    }
+
+    public function buildIStartswith($field, $value)
+    {
+        return $this->andWhere(['ilike', $field, '%' . $value, false]);
+    }
+
+    public function buildEndswith($field, $value)
+    {
+        return $this->andWhere(['like', $field, $value . '%', false]);
+    }
+
+    public function buildIendswith($field, $value)
+    {
+        return $this->andWhere(['ilike', $field, $value . '%', false]);
+    }
+
+    public function buildRange($field, $value)
+    {
+        list($start, $end) = $value;
+        return $this->andWhere(['between', $field, $start, $end]);
     }
 
     public function buildCondition(array $query, $method, $queryCondition = [])
