@@ -46,27 +46,29 @@ class ManyToManyManager extends RelatedManager
         $this->_model = $model;
     }
 
+    protected function escape($value){
+        return '`' . $value .'`';
+    }
+
+    // TODO: ugly, refactor me
+    public function makeOnJoin(){
+        $from = $this->escape($this->relatedTable) . '.' . $this->escape($this->modelColumn);
+        $to = $this->escape($this->getModel()->tableName()) . '.' . $this->escape($this->getModel()->getPkName());
+        return $from . '=' . $to;
+    }
+
     public function getQuerySet()
     {
         if ($this->_qs === null) {
             $qs = parent::getQuerySet();
             $qs->join('JOIN',
                 $this->relatedTable,
-                [$this->relatedTable . '.' . $this->primaryModelColumn => $this->primaryModel->getPk()]
+                $this->makeOnJoin()
             );
+            $qs = $qs->filter([$this->relatedTable . '.' . $this->primaryModelColumn => $this->primaryModel->getPk()]);
             $this->_qs = $qs;
         }
         return $this->_qs;
-    }
-
-    public function link(Model $model)
-    {
-        return $this->linkUnlinkProcess($model, true);
-    }
-
-    public function unlink(Model $model)
-    {
-        return $this->linkUnlinkProcess($model, false);
     }
 
     public function clean()
@@ -82,6 +84,16 @@ class ManyToManyManager extends RelatedManager
         ]);
 
         return $command->execute();
+    }
+
+    public function link(Model $model)
+    {
+        return $this->linkUnlinkProcess($model, true);
+    }
+
+    public function unlink(Model $model)
+    {
+        return $this->linkUnlinkProcess($model, false);
     }
 
     protected function linkUnlinkProcess(Model $model, $link = true)
