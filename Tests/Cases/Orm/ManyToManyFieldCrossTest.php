@@ -16,8 +16,11 @@ namespace Tests\Orm;
 
 
 use Tests\DatabaseTestCase;
+use Tests\Models\Category;
 use Tests\Models\CrossManyModel;
 use Tests\Models\ManyCrossModel;
+use Tests\Models\Product;
+use Tests\Models\ProductList;
 
 class ManyToManyFieldCrossTest extends DatabaseTestCase
 {
@@ -25,30 +28,51 @@ class ManyToManyFieldCrossTest extends DatabaseTestCase
     {
         parent::setUp();
 
-        $this->initModels([new CrossManyModel, new ManyCrossModel]);
+        $this->initModels([new Category(), new Product(), new ProductList()]);
     }
 
     public function tearDown()
     {
-        $this->dropModels([new CrossManyModel, new ManyCrossModel]);
+        $this->dropModels([new Category(), new Product(), new ProductList()]);
     }
 
     public function testSimple()
     {
-        $manyModel = new ManyCrossModel();
-        $manyModel->save();
+        $category = new Category();
+        $category->name = 'Toys';
+        $category->save();
 
-        $this->assertInstanceOf('\Mindy\Orm\ManyToManyManager', $manyModel->cross_models);
-        $this->assertEquals(0, $manyModel->cross_models->count());
+        $product_bear = new Product();
+        $product_bear->category = $category;
+        $product_bear->name = 'Bear';
+        $product_bear->price = 100;
+        $product_bear->description = 'Funny white bear';
+        $product_bear->save();
 
-        $crossModel = new CrossManyModel();
-        $crossModel->save();
+        $product_rabbit = new Product();
+        $product_rabbit->category = $category;
+        $product_rabbit->name = 'Rabbit';
+        $product_rabbit->price = 110;
+        $product_rabbit->description = 'Rabbit with carrot';
+        $product_rabbit->save();
 
-        $this->assertEquals(0, $crossModel->many_models->count());
+        $this->assertInstanceOf('\Mindy\Orm\ManyToManyManager', $product_rabbit->lists);
+        $this->assertEquals(0, $product_rabbit->lists->count());
 
-        $crossModel->many_models->link($manyModel);
+        $best_sellers = new ProductList();
+        $best_sellers->name = 'Best sellers';
+        $best_sellers->save();
 
-        $this->assertEquals(1, $crossModel->many_models->count());
-        $this->assertEquals(1, $manyModel->cross_models->count());
+        $this->assertEquals(0, $best_sellers->products->count());
+
+        $best_sellers->products->link($product_rabbit);
+
+        $this->assertEquals(1, $best_sellers->products->count());
+        $this->assertEquals(1, $product_rabbit->lists->count());
+
+        $product_bear->lists->link($best_sellers);
+
+        $this->assertEquals(2, $best_sellers->products->count());
+        $this->assertEquals(1, $product_bear->lists->count());
     }
 }

@@ -23,7 +23,7 @@ use Mindy\Orm\Model;
  * Class Order
  * @package Tests\Models
  * @property \Tests\Models\Customer customer
- * @property \Tests\Models\Product[] products
+ * @property \Mindy\Orm\ManyToManyManager products
  */
 class Order extends Model
 {

@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -14,25 +14,24 @@
 
 namespace Tests\Models;
 
-
 use Mindy\Orm\Fields\CharField;
-use Mindy\Orm\Fields\HasManyField;
+use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Model;
 
 /**
- * Class Category
+ * Class ProductList
  * @package Tests\Models
  * @property string name
- * @property \Mindy\Orm\HasManyManager products
+ * @property \Mindy\Orm\ManyToManyManager products
  */
-class Category extends Model
+class ProductList extends Model
 {
     public function getFields()
     {
         return [
             'name' => ['class' => CharField::className()],
             'products' => [
-                'class' => HasManyField::className(),
+                'class' => ManyToManyField::className(),
                 'modelClass' => Product::className()
             ]
         ];

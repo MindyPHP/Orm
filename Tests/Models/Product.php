@@ -17,6 +17,7 @@ namespace Tests\Models;
 
 use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Fields\ForeignField;
+use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Fields\TextField;
 use Mindy\Orm\Model;
 
@@ -27,6 +28,7 @@ use Mindy\Orm\Model;
  * @property string price
  * @property string description
  * @property \Tests\Models\Category category
+ * @property \Mindy\Orm\ManyToManyManager lists
  */
 class Product extends Model
 {
@@ -40,6 +42,10 @@ class Product extends Model
                 'class' => ForeignField::className(),
                 'modelClass' => Category::className()
             ],
+            'lists' => [
+                'class' => ManyToManyField::className(),
+                'modelClass' => ProductList::className()
+            ]
         ];
     }
 }
