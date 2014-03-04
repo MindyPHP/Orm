@@ -17,8 +17,6 @@ namespace Tests\Orm;
 
 use Tests\DatabaseTestCase;
 use Tests\Models\Category;
-use Tests\Models\CrossManyModel;
-use Tests\Models\ManyCrossModel;
 use Tests\Models\Product;
 use Tests\Models\ProductList;
 
