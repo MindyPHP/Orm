@@ -18,6 +18,12 @@ namespace Tests\Models;
 use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Model;
 
+/**
+ * Class User
+ * @package Tests\Models
+ * @property string username
+ * @property string password
+ */
 class User extends Model
 {
     public function getFields()

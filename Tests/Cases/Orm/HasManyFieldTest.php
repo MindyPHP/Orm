@@ -16,8 +16,10 @@ namespace Tests\Orm;
 
 
 use Tests\DatabaseTestCase;
+use Tests\Models\Category;
 use Tests\Models\HasManyModel;
 use Tests\Models\FkModel;
+use Tests\Models\Product;
 
 class HasManyFieldTest extends DatabaseTestCase
 {
@@ -25,36 +27,48 @@ class HasManyFieldTest extends DatabaseTestCase
     {
         parent::setUp();
 
-        $this->initModels([new FkModel, new HasManyModel]);
+        $this->initModels([new Product(), new Category()]);
     }
 
     public function tearDown()
     {
-        $this->dropModels([new FkModel, new HasManyModel]);
+        $this->dropModels([new Product(), new Category()]);
     }
 
     public function testSimple()
     {
-        $hasManyModel = new HasManyModel();
-        $hasManyModel->save();
+        $category_toys = new Category();
+        $category_toys->name = 'Toys';
+        $category_toys->save();
 
-        $this->assertEquals("SELECT COUNT(*) FROM `fk_model` WHERE (`has_many_model_id`='1')", $hasManyModel->many->countSql());
-        $this->assertEquals(0, $hasManyModel->many->count());
+        $category_animals = new Category();
+        $category_animals->name = 'Animals';
+        $category_animals->save();
 
-        $fkModelOne = new FkModel();
-        $fkModelOne->has_many_model = $hasManyModel;
-        $fkModelOne->save();
+        $this->assertEquals("SELECT COUNT(*) FROM `product` WHERE (`category_id`='1')", $category_toys->products->countSql());
+        $this->assertEquals(0, $category_toys->products->count());
 
-        $this->assertEquals(1, $hasManyModel->many->count());
+        $product_bear = new Product();
+        $product_bear->category = $category_toys;
+        $product_bear->name = 'Bear';
+        $product_bear->price = 100;
+        $product_bear->description = 'Funny white bear';
+        $product_bear->save();
 
-        $fkModelTwo = new FkModel();
-        $fkModelTwo->save();
+        $this->assertEquals(1, $category_toys->products->count());
 
-        $this->assertEquals(1, $hasManyModel->many->count());
+        $product_rabbit = new Product();
+        $product_rabbit->category = $category_animals;
+        $product_rabbit->name = 'Rabbit';
+        $product_rabbit->price = 110;
+        $product_rabbit->description = 'Rabbit with carrot';
+        $product_rabbit->save();
 
-        $fkModelTwo->has_many_model = $hasManyModel;
-        $fkModelTwo->save();
+        $this->assertEquals(1, $category_toys->products->count());
 
-        $this->assertEquals(2, $hasManyModel->many->count());
+        $product_rabbit->category = $category_toys;
+        $product_rabbit->save();
+
+        $this->assertEquals(2, $category_toys->products->count());
     }
 }

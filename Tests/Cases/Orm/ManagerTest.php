@@ -16,7 +16,7 @@ namespace Tests\Orm;
 
 
 use Tests\DatabaseTestCase;
-use Tests\Models\ManagerModel;
+use Tests\Models\Category;
 
 class ManagerTest extends DatabaseTestCase
 {
@@ -24,25 +24,25 @@ class ManagerTest extends DatabaseTestCase
     {
         parent::setUp();
 
-        $this->initModels([new ManagerModel]);
+        $this->initModels([new Category]);
     }
 
     public function tearDown()
     {
-        $this->dropModels([new ManagerModel]);
+        $this->dropModels([new Category]);
     }
 
     public function testAll()
     {
-        $model_one = new ManagerModel();
+        $model_one = new Category();
         $model_one->name = 'one';
         $model_one->save();
 
-        $model_two = new ManagerModel();
+        $model_two = new Category();
         $model_two->name = 'two';
         $model_two->save();
 
-        $this->assertEquals(2, count(ManagerModel::objects()->all()));
+        $this->assertEquals(2, count(Category::objects()->all()));
     }
 
 //    public function testGet()

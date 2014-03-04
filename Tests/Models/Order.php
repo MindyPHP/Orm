@@ -19,6 +19,12 @@ use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Model;
 
+/**
+ * Class Order
+ * @package Tests\Models
+ * @property \Tests\Models\Customer customer
+ * @property \Tests\Models\Product[] products
+ */
 class Order extends Model
 {
     public function getFields()

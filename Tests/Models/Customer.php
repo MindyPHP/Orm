@@ -19,6 +19,12 @@ use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\TextField;
 use Mindy\Orm\Model;
 
+/**
+ * Class Customer
+ * @package Tests\Models
+ * @property \Tests\Models\User user
+ * @property string address
+ */
 class Customer extends Model
 {
     public function getFields()

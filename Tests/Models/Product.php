@@ -20,6 +20,14 @@ use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\TextField;
 use Mindy\Orm\Model;
 
+/**
+ * Class Product
+ * @package Tests\Models
+ * @property string name
+ * @property string price
+ * @property string description
+ * @property \Tests\Models\Category category
+ */
 class Product extends Model
 {
     public function getFields()

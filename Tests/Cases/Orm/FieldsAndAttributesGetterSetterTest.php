@@ -3,8 +3,8 @@
 namespace Tests\Orm;
 
 use Tests\DatabaseTestCase;
-use Tests\Models\CreateModel;
-use Tests\Models\ForeignKeyModel;
+use Tests\Models\Category;
+use Tests\Models\Product;
 
 class FieldsAndAttributesGetterSetterTest extends DatabaseTestCase
 {
@@ -13,15 +13,16 @@ class FieldsAndAttributesGetterSetterTest extends DatabaseTestCase
         parent::setUp();
 
         $this->initModels([
-            new ForeignKeyModel(),
-            new CreateModel()
+            new Product(),
+            new Category()
         ]);
     }
 
     public function tearDown()
     {
         $this->dropModels([
-            new ForeignKeyModel()
+            new Product(),
+            new Category()
         ]);
 
         parent::tearDown();
@@ -29,33 +30,40 @@ class FieldsAndAttributesGetterSetterTest extends DatabaseTestCase
 
     public function testGetter()
     {
-        $create = new CreateModel();
-        $create->name = 'test';
-        $create->save();
+        $category = new Category();
+        $category->name = 'Toys';
+        $category->save();
 
-        $model = new ForeignKeyModel();
-        $this->assertNull($model->something);
+        $product = new Product();
+        $product->name = 'Bear';
+        $product->price = 100;
+        $product->description = 'Funny white bear';
 
-        $model->something = $create;
-        $model->save();
+        $this->assertNull($product->category);
 
-        $this->assertInstanceOf('\Tests\Models\CreateModel', $model->something);
-        $this->assertTrue(is_numeric($model->something_id));
+        $product->category = $category;
+        $product->save();
+
+        $this->assertInstanceOf('\Tests\Models\Category', $product->category);
+        $this->assertTrue(is_numeric($product->category_id));
     }
 
     public function testSetter()
     {
-        $create = new CreateModel();
-        $create->name = 'test';
-        $create->save();
+        $category = new Category();
+        $category->name = 'Toys';
+        $category->save();
 
-        $model = new ForeignKeyModel();
-        $this->assertNull($model->something);
+        $product = new Product();
+        $product->name = 'Bear';
+        $product->price = 100;
+        $product->description = 'Funny white bear';
+        $this->assertNull($product->category);
 
-        $model->something_id = $create->getPk();
-        $model->save();
+        $product->category_id = $category->getPk();
+        $product->save();
 
-        $this->assertInstanceOf('\Tests\Models\CreateModel', $model->something);
-        $this->assertTrue(is_numeric($model->something_id));
+        $this->assertInstanceOf('\Tests\Models\Category', $product->category);
+        $this->assertTrue(is_numeric($product->category_id));
     }
 }

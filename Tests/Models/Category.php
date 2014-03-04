@@ -19,6 +19,12 @@ use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Model;
 
+/**
+ * Class Category
+ * @package Tests\Models
+ * @property string name
+ * @property \Tests\Models\Product[] products
+ */
 class Category extends Model
 {
     public function getFields()
