@@ -20,6 +20,7 @@ use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Fields\TextField;
 use Mindy\Orm\Model;
+use Mindy\Orm\Validator\MaxLengthValidator;
 
 /**
  * Class Product
@@ -32,10 +33,24 @@ use Mindy\Orm\Model;
  */
 class Product extends Model
 {
+    public $type = 'SIMPLE';
+
     public function getFields()
     {
         return [
-            'name' => ['class' => CharField::className()],
+            'name' => [
+                'class' => CharField::className(),
+                'default' => 'Product',
+                'validators' => [
+                    function ($value) {
+                        if (mb_strlen($value, 'UTF-8') < 3) {
+                            return "Minimal length < 3";
+                        }
+
+                        return true;
+                    },
+                ]
+            ],
             'price' => ['class' => CharField::className()],
             'description' => ['class' => TextField::className()],
             'category' => [

@@ -15,8 +15,8 @@
 namespace Tests\Orm;
 
 
-use Tests\Models\ForeignKeyModel;
 use Tests\DatabaseTestCase;
+use Tests\Models\Product;
 
 class RelationTest extends DatabaseTestCase
 {
@@ -24,26 +24,26 @@ class RelationTest extends DatabaseTestCase
     {
         parent::setUp();
 
-        $this->initModels([new ForeignKeyModel]);
+        $this->initModels([new Product]);
     }
 
     public function tearDown()
     {
-        $this->dropModels([new ForeignKeyModel]);
+        $this->dropModels([new Product]);
     }
 
     public function testInit()
     {
-        $model = new ForeignKeyModel();
+        $model = new Product();
         $schema = $model->getTableSchema();
         $this->assertTrue(isset($schema->columns['id']));
-        $this->assertTrue(isset($schema->columns['something_id']));
+        $this->assertTrue(isset($schema->columns['category_id']));
     }
 
     public function testForeignKey()
     {
-        $model = new ForeignKeyModel();
-        $fk = $model->getField('something');
+        $model = new Product();
+        $fk = $model->getField('category');
         $this->assertInstanceOf($model->foreignField, $fk);
         $this->assertNull($fk->getValue());
     }

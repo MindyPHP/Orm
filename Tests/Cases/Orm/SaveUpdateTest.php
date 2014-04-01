@@ -16,7 +16,7 @@ namespace Tests\Orm;
 
 
 use Tests\DatabaseTestCase;
-use Tests\Models\SaveUpdateModel;
+use Tests\Models\User;
 
 class SaveUpdateTest extends DatabaseTestCase
 {
@@ -24,75 +24,55 @@ class SaveUpdateTest extends DatabaseTestCase
     {
         parent::setUp();
 
-        $this->initModels([new SaveUpdateModel]);
+        $this->initModels([new User]);
     }
 
     public function tearDown()
     {
-        $this->dropModels([new SaveUpdateModel]);
+        $this->dropModels([new User]);
     }
 
     public function testSave()
     {
-        $model = new SaveUpdateModel();
-        $model->name = 'example';
-        $model->price = 123;
-        $model->is_default = true;
-        $this->assertEquals(0, SaveUpdateModel::objects()->count());
+        $model = new User();
+        $model->username = 'Anton';
+        $model->password = 'VeryGoodP@ssword';
+        $this->assertEquals(0, User::objects()->count());
         $this->assertTrue($model->isNewRecord);
 
         $this->assertTrue($model->isValid());
         $this->assertNull($model->pk);
-        $this->assertEquals('example', $model->name);
-        $this->assertEquals(123, $model->price);
-        $this->assertEquals(true, $model->is_default);
+        $this->assertEquals('Anton', $model->username);
+        $this->assertEquals('VeryGoodP@ssword', $model->password);
 
         $saved = $model->save();
         $this->assertTrue($saved);
-        $this->assertEquals(1, SaveUpdateModel::objects()->count());
+        $this->assertEquals(1, User::objects()->count());
         $this->assertFalse($model->isNewRecord);
         $this->assertEquals(1, $model->pk);
-        $this->assertEquals('example', $model->name);
-        $this->assertEquals(123, $model->price);
-        $this->assertEquals(true, $model->is_default);
+        $this->assertEquals('Anton', $model->username);
+        $this->assertEquals('VeryGoodP@ssword', $model->password);
     }
 
     public function testUpdate()
     {
-        $tmp = new SaveUpdateModel();
-        $tmp->name = 'name 1';
-        $tmp->price = 1;
-        $tmp->is_default = true;
-
-        $this->assertEquals(0, SaveUpdateModel::objects()->count());
-        $this->assertTrue($tmp->isNewRecord);
-
-        $this->assertEquals('name 1', $tmp->name);
-        $this->assertEquals('1', $tmp->price);
-        $this->assertEquals(true, $tmp->is_default);
-
-        $saved = $tmp->save();
+        $model = new User();
+        $model->username = 'Anton';
+        $model->password = 'VeryGoodP@ssword';
+        $saved = $model->save();
         $this->assertTrue($saved);
-        $this->assertEquals(1, SaveUpdateModel::objects()->count());
-        $this->assertFalse($tmp->isNewRecord);
 
-        $this->assertEquals('name 1', $tmp->name);
-        $this->assertEquals('1', $tmp->price);
-        $this->assertEquals(true, $tmp->is_default);
-
-        $tmp->name = 'name 2';
-        $saved = $tmp->save();
+        $model->username = 'Max';
+        $saved = $model->save();
         $this->assertTrue($saved);
-        $this->assertEquals(1, SaveUpdateModel::objects()->count());
-        $this->assertFalse($tmp->isNewRecord);
+        $this->assertEquals(1, User::objects()->count());
+        $this->assertFalse($model->isNewRecord);
 
-        $this->assertEquals('name 2', $tmp->name);
-        $this->assertEquals('1', $tmp->price);
-        $this->assertEquals(true, $tmp->is_default);
+        $this->assertEquals('Max', $model->username);
+        $this->assertEquals('VeryGoodP@ssword', $model->password);
 
-        $tmpFind = SaveUpdateModel::objects()->get(['id' => 1]);
-        $this->assertEquals('name 2', $tmpFind->name);
-        $this->assertEquals('1', $tmpFind->price);
-        $this->assertEquals(true, $tmpFind->is_default);
+        $tmpFind = User::objects()->get(['id' => 1]);
+        $this->assertEquals('Max', $tmpFind->username);
+        $this->assertEquals('VeryGoodP@ssword', $tmpFind->password);
     }
 }

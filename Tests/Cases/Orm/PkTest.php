@@ -16,19 +16,19 @@ namespace Tests\Orm;
 
 
 use Tests\DatabaseTestCase;
-use Tests\Models\PkModel;
+use Tests\Models\Category;
 
 
 class PkTest extends DatabaseTestCase
 {
     public function testPk()
     {
-        $model = new PkModel();
-        $fields = $model->getFieldsInit();
+        $category = new Category();
+        $fields = $category->getFieldsInit();
 
-        $this->assertInstanceOf($model->autoField, $fields['id']);
+        $this->assertInstanceOf($category->autoField, $fields['id']);
         $this->assertNull($fields['id']->value);
-        $this->assertNull($model->id);
-        $this->assertNull($model->pk);
+        $this->assertNull($category->id);
+        $this->assertNull($category->pk);
     }
 }

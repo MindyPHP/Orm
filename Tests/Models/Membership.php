@@ -1,15 +1,15 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
- * @date 27/02/14.02.2014 15:07
+ * @date 04/01/14.01.2014 21:19
  */
 
 namespace Tests\Models;
@@ -18,23 +18,13 @@ namespace Tests\Models;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Model;
 
-class RelationModel extends Model
+class Membership extends Model
 {
     public function getFields()
     {
         return [
-            'fk' => new ForeignField(CreateModel::className(), [
-                    'null' => true
-                ])
+            'group' => ['class' => ForeignField::className(), 'modelClass' => Group::className()],
+            'user' => ['class' => ForeignField::className(), 'modelClass' => User::className()]
         ];
-    }
-}
-
-
-class RelationFkModel extends Model
-{
-    public function getFields()
-    {
-        return [];
     }
 }

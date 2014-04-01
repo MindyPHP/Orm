@@ -3,7 +3,6 @@
 namespace Tests\Orm;
 
 use Tests\DatabaseTestCase;
-use Tests\Models\CreateModel;
 
 class CreateSqlTest extends DatabaseTestCase
 {

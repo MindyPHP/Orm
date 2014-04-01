@@ -17,27 +17,24 @@ namespace Tests\Orm;
 
 use Mindy\Orm\Sync;
 use Tests\DatabaseTestCase;
-use Tests\Models\CreateModel;
-use Tests\Models\ForeignKeyModel;
-use Tests\Models\ManyModel;
-use Tests\Models\ModelFields;
-use Tests\Models\PkModel;
-use Tests\Models\Simple;
+use Tests\Models\Category;
+use Tests\Models\Product;
+use Tests\Models\ProductList;
+use Tests\Models\User;
 
 
 class SyncTest extends DatabaseTestCase
 {
     public function testPk()
     {
-        $many = new ManyModel();
-        $this->assertEquals(3, count($many->getFieldsInit()));
+        $product = new Product();
+        $this->assertEquals(6, count($product->getFieldsInit()));
+
         $models = [
-            new PkModel(),
-            new ModelFields(),
-            new Simple(),
-            new ForeignKeyModel(),
-            new CreateModel(),
-            $many,
+            new ProductList(),
+            new Category(),
+            new User(),
+            $product,
         ];
 
         $sync = new Sync($models);

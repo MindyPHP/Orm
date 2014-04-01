@@ -16,9 +16,9 @@ namespace Tests\Orm;
 
 
 use Tests\DatabaseTestCase;
-use Tests\Models\CreateModel;
-use Tests\Models\ManyViaModel;
-use Tests\Models\ViaManyModel;
+use Tests\Models\User;
+use Tests\Models\Group;
+use Tests\Models\Membership;
 
 class ManyToManyFieldViaTest extends DatabaseTestCase
 {
@@ -26,36 +26,40 @@ class ManyToManyFieldViaTest extends DatabaseTestCase
     {
         parent::setUp();
 
-        $this->initModels([new CreateModel, new ManyViaModel, new ViaManyModel]);
+        $this->initModels([new User, new Group, new Membership]);
     }
 
     public function tearDown()
     {
-        $this->dropModels([new CreateModel, new ManyViaModel, new ViaManyModel]);
+        $this->dropModels([new User, new Group, new Membership]);
     }
 
     public function testSimple()
     {
-        $model = new ManyViaModel();
-        $this->assertNull($model->pk);
-        $this->assertInstanceOf('\Mindy\Orm\ManyToManyManager', $model->items);
-        $this->assertEquals(0, $model->items->count());
-        $this->assertEquals([], $model->items->all());
+        $group = new Group();
+        $group->name = 'Administrators';
+        $this->assertNull($group->pk);
+        $this->assertInstanceOf('\Mindy\Orm\ManyToManyManager', $group->users);
+        $this->assertEquals(0, $group->users->count());
+        $this->assertEquals([], $group->users->all());
 
-        $this->assertTrue($model->save());
-        $this->assertEquals(1, $model->pk);
+        $this->assertTrue($group->save());
+        $this->assertEquals(1, $group->pk);
 
-        $item = new CreateModel();
-        $item->name = 'qwe';
-        $this->assertTrue($item->save());
+        $user = new User();
+        $user->username = 'Anton';
+        $user->password = 'VeryGoodP@ssword';
+        $this->assertTrue($user->save());
 
-        $this->assertEquals(0, count($model->items->all()));
+        $this->assertEquals(0, count($group->users->all()));
 
-        $model->items->link($item);
-        $this->assertEquals(1, count($model->items->all()));
+        $group->users->link($user);
+        $this->assertEquals(1, count($group->users->all()));
 
-        $new = ManyViaModel::objects()->get(['id' => 1]);
+        $new = Group::objects()->get(['id' => 1]);
+        $this->assertEquals(1, count($new->users->all()));
 
-        $this->assertEquals(1, count($new->items->all()));
+        $memberships = Membership::objects()->filter(['group_id' => 1, 'user_id' => 1])->all();
+        $this->assertEquals(1, count($memberships));
     }
 }

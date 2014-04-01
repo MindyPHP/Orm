@@ -2,8 +2,8 @@
 
 namespace Tests\Orm;
 
-use Tests\Models\Simple;
-use Tests\Models\SimpleLongName;
+use Tests\Models\Product;
+use Tests\Models\ProductList;
 use Tests\TestCase;
 use WithoutNamespace;
 
@@ -12,12 +12,12 @@ class TableNameTest extends TestCase
 {
     public function testTableName()
     {
-        $this->assertEquals('simple', Simple::tableName());
+        $this->assertEquals('product', Product::tableName());
     }
 
     public function testLongTableName()
     {
-        $this->assertEquals('simple_long_name', SimpleLongName::tableName());
+        $this->assertEquals('product_list', ProductList::tableName());
     }
 
     public function testWithoutNamespace()

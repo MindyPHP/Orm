@@ -15,21 +15,21 @@
 namespace Tests\Orm;
 
 
-use Tests\Models\GettersModel;
-use Tests\Models\SettersModel;
+use Tests\Models\Product;
 use Tests\TestCase;
+
 
 class SettersGettersTest extends TestCase
 {
     public function testSetters()
     {
-        $model = new SettersModel();
+        $model = new Product();
         $model->name = 'example';
         $this->assertEquals('example', $model->name);
 
-        $this->assertEquals('test', $model->test);
-        $model->test = '123';
-        $this->assertEquals('123', $model->test);
+        $this->assertEquals('SIMPLE', $model->type);
+        $model->type = '123';
+        $this->assertEquals('123', $model->type);
     }
 
     /**
@@ -37,17 +37,17 @@ class SettersGettersTest extends TestCase
      */
     public function testSettersException()
     {
-        $model = new SettersModel();
-        $model->qwe = 'example';
+        $model = new Product();
+        $model->this_property_does_not_exists = 'example';
     }
 
     public function testGetters()
     {
-        $model = new GettersModel();
-        $this->assertEquals('test', $model->test);
+        $model = new Product();
+        $this->assertEquals('SIMPLE', $model->type);
 
         // test default field value
-        $this->assertEquals('example', $model->name);
+        $this->assertEquals('Product', $model->name);
 
         $model->name = '123';
         $this->assertEquals('123', $model->name);

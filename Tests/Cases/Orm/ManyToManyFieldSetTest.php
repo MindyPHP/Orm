@@ -16,8 +16,9 @@ namespace Tests\Orm;
 
 
 use Tests\DatabaseTestCase;
-use Tests\Models\CreateModel;
-use Tests\Models\ManyModel;
+use Tests\Models\Category;
+use Tests\Models\Product;
+use Tests\Models\ProductList;
 
 class ManyToManyFieldSetTest extends DatabaseTestCase
 {
@@ -25,39 +26,48 @@ class ManyToManyFieldSetTest extends DatabaseTestCase
     {
         parent::setUp();
 
-        $this->initModels([new CreateModel, new ManyModel]);
+        $this->initModels([new Category, new ProductList, new Product]);
     }
 
     public function tearDown()
     {
-        $this->dropModels([new CreateModel, new ManyModel]);
+        $this->dropModels([new Category, new ProductList, new Product]);
     }
 
     public function testSimple()
     {
-        $model = new ManyModel();
-        $model->save();
+        $category = new Category();
+        $category->name = 'Toys';
+        $category->save();
 
-        $item = new CreateModel();
-        $item->name = 'qwe';
-        $item->save();
+        $product = new Product();
+        $product->name = 'Bear';
+        $product->price = 100;
+        $product->description = 'Funny white bear';
+        $product->category = $category;
 
-        $pk = $item->pk;
+        $product->save();
+
+        $list = new ProductList();
+        $list->name = 'Toys';
+        $list->save();
+
+        $pk = $list->pk;
 
         // Test array of Models
-        $model->items = [$item];
-        $this->assertEquals(1, $model->items->count());
+        $product->lists = [$list];
+        $this->assertEquals(1, $product->lists->count());
 
         // Test empty array
-        $model->items = [];
-        $this->assertEquals(0, $model->items->count());
+        $product->lists = [];
+        $this->assertEquals(0, $product->lists->count());
 
         // Test array of pk
-        $model->items = [$pk];
-        $this->assertEquals(1, $model->items->count());
+        $product->lists = [$pk];
+        $this->assertEquals(1, $product->lists->count());
 
         // Test clean()
-        $model->items->clean();
-        $this->assertEquals(0, $model->items->count());
+        $product->lists->clean();
+        $this->assertEquals(0, $product->lists->count());
     }
 }

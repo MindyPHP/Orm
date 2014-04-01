@@ -15,49 +15,48 @@
 namespace Tests\Orm;
 
 
-use Tests\Models\ClassValidationModel;
-use Tests\Models\ClosureValidationModel;
-use Tests\Models\ValidationModel;
+use Tests\Models\Product;
+use Tests\Models\User;
 use Tests\TestCase;
 
 class ValidationTest extends TestCase
 {
     public function testClass()
     {
-        $model = new ClassValidationModel();
+        $model = new User();
         $this->assertFalse($model->isValid());
         $this->assertTrue($model->hasErrors());
-        $this->assertTrue($model->hasErrors('name'));
+        $this->assertTrue($model->hasErrors('username'));
         $this->assertEquals([
-            'name' => [
+            'username' => [
                 'NULL is not a string',
-                'Minimal length < 6'
+                'Minimal length < 3'
             ]
         ], $model->getErrors());
 
         $this->assertEquals([
             'NULL is not a string',
-            'Minimal length < 6'
-        ], $model->getErrors('name'));
+            'Minimal length < 3'
+        ], $model->getErrors('username'));
 
-        $model->clearErrors('name');
+        $model->clearErrors('username');
         $this->assertEquals([], $model->getErrors());
     }
 
     public function testClosure()
     {
-        $model = new ClosureValidationModel();
+        $model = new Product();
         $this->assertFalse($model->isValid());
         $this->assertTrue($model->hasErrors());
         $this->assertTrue($model->hasErrors('name'));
         $this->assertEquals([
             'name' => [
-                'Minimal length < 6'
+                'Minimal length < 3'
             ]
         ], $model->getErrors());
 
         $this->assertEquals([
-            'Minimal length < 6'
+            'Minimal length < 3'
         ], $model->getErrors('name'));
 
         $model->clearErrors('name');
@@ -67,46 +66,46 @@ class ValidationTest extends TestCase
     public function testCustomValidation()
     {
         /* @var $nameField \Mindy\Orm\Fields\Field */
-        $model = new ValidationModel();
+        $model = new User();
         $this->assertFalse($model->isValid());
         $this->assertEquals([
-            'name' => [
+            'username' => [
                 'NULL is not a string',
-                'Minimal length < 6'
+                'Minimal length < 3'
             ]
         ], $model->getErrors());
 
-        $nameField = $model->getField('name');
+        $nameField = $model->getField('username');
         $this->assertEquals([
             'NULL is not a string',
-            'Minimal length < 6'
+            'Minimal length < 3'
         ], $nameField->getErrors());
         $this->assertFalse($nameField->isValid());
         $this->assertEquals([
             'NULL is not a string',
-            'Minimal length < 6'
+            'Minimal length < 3'
         ], $nameField->getErrors(true));
 
-        $model->name = 'hello';
-        $this->assertEquals('hello', $model->name);
+        $model->username = 'hi';
+        $this->assertEquals('hi', $model->username);
         $this->assertFalse($nameField->isValid());
-        $this->assertEquals(['Minimal length < 6'], $nameField->getErrors());
+        $this->assertEquals(['Minimal length < 3'], $nameField->getErrors());
 
-        $model->name = '01234689_10';
+        $model->username = 'This is very long name for bad validation example';
         $nameField->isValid();
-        $this->assertEquals(['Maximum name field is 10'], $nameField->getErrors());
+        $this->assertEquals(['Maximum length > 20'], $nameField->getErrors());
 
         $this->assertEquals([
-            'name' => [
+            'username' => [
                 'NULL is not a string',
-                'Minimal length < 6'
+                'Minimal length < 3'
             ],
         ], $model->getErrors());
 
         $model->isValid();
         $this->assertEquals([
-            'name' => [
-                'Maximum name field is 10'
+            'username' => [
+                'Maximum length > 20'
             ]
         ], $model->getErrors());
     }

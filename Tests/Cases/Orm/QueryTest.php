@@ -14,9 +14,8 @@
 
 namespace Tests\Orm;
 
-
 use Tests\DatabaseTestCase;
-use Tests\Models\SaveUpdateModel;
+use Tests\Models\User;
 
 class QueryTest extends DatabaseTestCase
 {
@@ -24,15 +23,14 @@ class QueryTest extends DatabaseTestCase
     {
         parent::setUp();
 
-        $this->initModels([new SaveUpdateModel]);
+        $this->initModels([new User]);
 
         $this->items = [
-            ['name' => 'name 1', 'price' => 1, 'is_default' => true],
-            ['name' => 'name 2', 'price' => 2, 'is_default' => true],
-            ['name' => 'name 3', 'price' => 3, 'is_default' => false],
+            ['username' => 'Anton', 'password' => 'VeryGoodPassWord'],
+            ['username' => 'Max', 'password' => 'The6estP@$$w0rd'],
         ];
         foreach($this->items as $item) {
-            $tmp = new SaveUpdateModel();
+            $tmp = new User();
             foreach($item as $name => $value) {
                 $tmp->$name = $value;
             }
@@ -42,93 +40,32 @@ class QueryTest extends DatabaseTestCase
 
     public function testFind()
     {
-        $qs = SaveUpdateModel::objects();
-        $this->assertEquals(3, $qs->count());
+        $qs = User::objects();
+        $this->assertEquals(2, $qs->count());
         $this->assertEquals([
             [
                 'id' => 1,
-                'name' => 'name 1',
-                'price' => 1,
-                'is_default' => 1
+                'username' => 'Anton',
+                'password' => 'VeryGoodPassWord'
             ],
             [
                 'id' => 2,
-                'name' => 'name 2',
-                'price' => 2,
-                'is_default' => 1
-            ],
-            [
-                'id' => 3,
-                'name' => 'name 3',
-                'price' => 3,
-                'is_default' => 0
+                'username' => 'Max',
+                'password' => 'The6estP@$$w0rd'
             ]
         ], $qs->all(true));
     }
 
     public function testFindWhere()
     {
-        $qs = SaveUpdateModel::objects();
-        $this->assertEquals(2, $qs->filter(['is_default' => true])->count());
+        $qs = User::objects();
+        $this->assertEquals(1, $qs->filter(['username' => 'Max'])->count());
         $this->assertEquals([
             [
-                'id' => 1,
-                'name' => 'name 1',
-                'price' => 1,
-                'is_default' => 1
-            ],
-            [
                 'id' => 2,
-                'name' => 'name 2',
-                'price' => 2,
-                'is_default' => 1
+                'username' => 'Max',
+                'password' => 'The6estP@$$w0rd'
             ]
         ], $qs->all(true));
-    }
-
-    public function testFindManager()
-    {
-        $model = SaveUpdateModel::objects();
-        $this->assertEquals(3, $model->count());
-        $this->assertEquals([
-            [
-                'id' => 1,
-                'name' => 'name 1',
-                'price' => 1,
-                'is_default' => 1
-            ],
-            [
-                'id' => 2,
-                'name' => 'name 2',
-                'price' => 2,
-                'is_default' => 1
-            ],
-            [
-                'id' => 3,
-                'name' => 'name 3',
-                'price' => 3,
-                'is_default' => 0
-            ]
-        ], $model->all(true));
-    }
-
-    public function testFindWhereManager()
-    {
-        $model = SaveUpdateModel::objects();
-        $this->assertEquals(2, $model->filter(['is_default' => true])->count());
-        $this->assertEquals([
-            [
-                'id' => 1,
-                'name' => 'name 1',
-                'price' => 1,
-                'is_default' => 1
-            ],
-            [
-                'id' => 2,
-                'name' => 'name 2',
-                'price' => 2,
-                'is_default' => 1
-            ]
-        ], $model->all(true));
     }
 }

@@ -9,7 +9,7 @@
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
- * @date 04/01/14.01.2014 21:19
+ * @date 04/03/14.03.2014 01:15
  */
 
 namespace Tests\Models;
@@ -19,20 +19,22 @@ use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Model;
 
-class ManyModel extends Model
+/**
+ * Class Group
+ * @package Tests\Models
+ * @property string name
+ * @property \Mindy\Orm\ManyToManyManager users
+ */
+class Group extends Model
 {
     public function getFields()
     {
         return [
-            // 'name' => new CharField(['null' => true]),
-            'name' => [
-                'class' => CharField::className(),
-                'null' => true
-            ],
-            // 'items' => new ManyToManyField(CreateModel::className())
-            'items' => [
+            'name' => ['class' => CharField::className()],
+            'users' => [
                 'class' => ManyToManyField::className(),
-                'modelClass' => CreateModel::className()
+                'modelClass' => User::className(),
+                'through' => Membership::className()
             ]
         ];
     }

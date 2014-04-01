@@ -17,6 +17,8 @@ namespace Tests\Models;
 
 use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Model;
+use Mindy\Orm\Validator\MaxLengthValidator;
+use Mindy\Orm\Validator\MinLengthValidator;
 
 /**
  * Class User
@@ -29,7 +31,13 @@ class User extends Model
     public function getFields()
     {
         return [
-            'username' => ['class' => CharField::className()],
+            'username' => [
+                'class' => CharField::className(),
+                'validators' => [
+                    new MinLengthValidator(3),
+                    new MaxLengthValidator(20),
+                ]
+            ],
             'password' => ['class' => CharField::className()]
         ];
     }

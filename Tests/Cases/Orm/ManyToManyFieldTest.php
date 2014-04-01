@@ -16,8 +16,9 @@ namespace Tests\Orm;
 
 
 use Tests\DatabaseTestCase;
-use Tests\Models\CreateModel;
-use Tests\Models\ManyModel;
+use Tests\Models\Category;
+use Tests\Models\Product;
+use Tests\Models\ProductList;
 
 class ManyToManyFieldTest extends DatabaseTestCase
 {
@@ -25,173 +26,151 @@ class ManyToManyFieldTest extends DatabaseTestCase
     {
         parent::setUp();
 
-        $this->initModels([new CreateModel, new ManyModel]);
+        $this->initModels([new Category, new ProductList, new Product]);
     }
 
     public function tearDown()
     {
-        $this->dropModels([new CreateModel, new ManyModel]);
+        $this->dropModels([new Category, new ProductList, new Product]);
     }
 
     public function testAllSql()
     {
-        $qs = ManyModel::objects()->filter(['id' => 1]);
-        $this->assertEquals('SELECT * FROM `many_model` WHERE (`id`=1)', $qs->getSql());
-        $this->assertEquals('SELECT * FROM `many_model` WHERE (`id`=1)', $qs->allSql());
-        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE (`id`=1)', $qs->countSql());
+        $qs = Product::objects()->filter(['id' => 1]);
+        $this->assertEquals('SELECT * FROM `product` WHERE (`id`=1)', $qs->getSql());
+        $this->assertEquals('SELECT * FROM `product` WHERE (`id`=1)', $qs->allSql());
+        $this->assertEquals('SELECT COUNT(*) FROM `product` WHERE (`id`=1)', $qs->countSql());
     }
 
     public function testSimple()
     {
-        $model = new ManyModel();
-        $this->assertNull($model->pk);
-        $this->assertEquals(0, $model->items->count());
-        $this->assertEquals([], $model->items->all());
+        $category = new Category();
+        $category->name = 'Toys';
+        $category->save();
 
-        $this->assertTrue($model->save());
-        $this->assertEquals(1, $model->pk);
+        $product = new Product();
+        $product->name = 'Bear';
+        $product->price = 100;
+        $product->description = 'Funny white bear';
+        $product->category = $category;
 
-        $item = new CreateModel();
-        $item->name = 'qwe';
-        $this->assertTrue($item->save());
+        $this->assertNull($product->pk);
+        $this->assertEquals(0, $product->lists->count());
+        $this->assertEquals([], $product->lists->all());
 
-        $model->items->link($item);
-        $this->assertEquals(1, count($model->items->all()));
+        $this->assertTrue($product->save());
+        $this->assertEquals(1, $product->pk);
 
-        $new = ManyModel::objects()->get(['id' => 1]);
-        $this->assertEquals(1, count($new->items->all()));
+        $list = new ProductList();
+        $list->name = 'qwe';
+        $this->assertTrue($list->save());
+
+        $list->products->link($product);
+        $this->assertEquals(1, count($product->lists->all()));
+
+        $new = Product::objects()->get(['id' => 1]);
+        $this->assertEquals(1, count($new->lists->all()));
     }
 
     public function testExact()
     {
-        $qs = ManyModel::objects()->filter(['id' => 2]);
+        $qs = Product::objects()->filter(['id' => 2]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
         $this->assertEquals(0, $qs->count());
-        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE (`id`=2)', $qs->countSql());
+        $this->assertEquals('SELECT COUNT(*) FROM `product` WHERE (`id`=2)', $qs->countSql());
     }
 
     public function testIsNull()
     {
-        $qs = ManyModel::objects()->filter(['id' => null]);
+        $qs = Product::objects()->filter(['id' => null]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
         $this->assertEquals(0, $qs->count());
-        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE (`id` IS NULL)', $qs->countSql());
+        $this->assertEquals('SELECT COUNT(*) FROM `product` WHERE (`id` IS NULL)', $qs->countSql());
     }
 
     public function testIn()
     {
-        $qs = ManyModel::objects()->filter(['category__in' => [1, 2, 3, 4, 5]]);
+        $qs = Product::objects()->filter(['category__in' => [1, 2, 3, 4, 5]]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE (`category` IN (1, 2, 3, 4, 5))', $qs->countSql());
+        $this->assertEquals('SELECT COUNT(*) FROM `product` WHERE (`category` IN (1, 2, 3, 4, 5))', $qs->countSql());
     }
 
     public function testGte()
     {
-        $model = new ManyModel();
-        $model->save();
-        $this->assertEquals(1, ManyModel::objects()->count());
-
-        $qs = ManyModel::objects()->filter(['id__gte' => 1]);
+        $qs = Product::objects()->filter(['id__gte' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals(1, $qs->count());
+        $this->assertEquals('SELECT COUNT(*) FROM `product` WHERE ((`id` >= 1))', $qs->countSql());
     }
 
     public function testGt()
     {
-        $model = new ManyModel();
-        $model->save();
-        $this->assertEquals(1, ManyModel::objects()->count());
-
-        $qs = ManyModel::objects()->filter(['id__gt' => 1]);
+        $qs = Product::objects()->filter(['id__gt' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals(0, $qs->count());
+        $this->assertEquals('SELECT COUNT(*) FROM `product` WHERE ((`id` > 1))', $qs->countSql());
     }
 
     public function testLte()
     {
-        $model = new ManyModel();
-        $model->save();
-        $this->assertEquals(1, ManyModel::objects()->count());
-
-        $qs = ManyModel::objects()->filter(['id__lte' => 1]);
+        $qs = Product::objects()->filter(['id__lte' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals(1, $qs->count());
+        $this->assertEquals('SELECT COUNT(*) FROM `product` WHERE ((`id` <= 1))', $qs->countSql());
     }
 
     public function testLt()
     {
-        $qs = ManyModel::objects()->filter(['id__lt' => 1]);
+        $qs = Product::objects()->filter(['id__lt' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals(0, $qs->count());
+        $this->assertEquals('SELECT COUNT(*) FROM `product` WHERE ((`id` < 1))', $qs->countSql());
     }
 
     public function testContains()
     {
-        $model = new ManyModel();
-        $model->save();
-        $this->assertEquals(1, ManyModel::objects()->count());
-
-        $qs = ManyModel::objects()->filter(['id__contains' => 1]);
+        $qs = Product::objects()->filter(['id__contains' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals(1, $qs->count());
-
-        // TODO
-        $this->assertEquals("SELECT COUNT(*) FROM `many_model` WHERE (`id` LIKE '%1%')", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `product` WHERE (`id` LIKE '%1%')", $qs->countSql());
     }
 
     public function testStartswith()
     {
-        $model = new ManyModel();
-        $model->save();
-        $this->assertEquals(1, ManyModel::objects()->count());
-
-        $qs = ManyModel::objects()->filter(['id__startswith' => 1]);
+        $qs = Product::objects()->filter(['id__startswith' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals(1, $qs->count());
-        $this->assertEquals("SELECT COUNT(*) FROM `many_model` WHERE (`id` LIKE '%1')", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `product` WHERE (`id` LIKE '%1')", $qs->countSql());
     }
 
     public function testEndswith()
     {
-        $model = new ManyModel();
-        $model->save();
-        $this->assertEquals(1, ManyModel::objects()->count());
-
-        $qs = ManyModel::objects()->filter(['id__endswith' => 1]);
+        $qs = Product::objects()->filter(['id__endswith' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals(1, $qs->count());
-        $this->assertEquals("SELECT COUNT(*) FROM `many_model` WHERE (`id` LIKE '1%')", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `product` WHERE (`id` LIKE '1%')", $qs->countSql());
     }
 
     public function testRange()
     {
-        $model = new ManyModel();
-        $model->save();
-        $this->assertEquals(1, ManyModel::objects()->count());
-
-        $qs = ManyModel::objects()->filter(['id__range' => [0, 1]]);
+        $qs = Product::objects()->filter(['id__range' => [0, 1]]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals(1, $qs->count());
-        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE (`id` BETWEEN 0 AND 1)', $qs->countSql());
+        $this->assertEquals('SELECT COUNT(*) FROM `product` WHERE (`id` BETWEEN 0 AND 1)', $qs->countSql());
 
-        $qs = ManyModel::objects()->filter(['id__range' => [10, 20]]);
+        $qs = Product::objects()->filter(['id__range' => [10, 20]]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals(0, $qs->count());
-        $this->assertEquals('SELECT COUNT(*) FROM `many_model` WHERE (`id` BETWEEN 10 AND 20)', $qs->countSql());
+        $this->assertEquals('SELECT COUNT(*) FROM `product` WHERE (`id` BETWEEN 10 AND 20)', $qs->countSql());
     }
 
     public function testSql()
     {
-        $qs = ManyModel::objects()
+        $qs = Product::objects()
             ->filter(['name' => 'vasya', 'id__lte' => 7])
             ->filter(['name' => 'petya', 'id__gte' => 3]);
 
-        $this->assertEquals("SELECT COUNT(*) FROM `many_model` WHERE ((`name`='vasya') AND ((`id` <= 7))) AND ((`name`='petya') AND ((`id` >= 3)))", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `product` WHERE ((`name`='vasya') AND ((`id` <= 7))) AND ((`name`='petya') AND ((`id` >= 3)))", $qs->countSql());
 
-        $qs = ManyModel::objects()
+        $qs = Product::objects()
             ->filter(['name' => 'vasya', 'id__lte' => 2])
             ->orFilter(['name' => 'petya', 'id__gte' => 4]);
 
-        $this->assertEquals("SELECT COUNT(*) FROM `many_model` WHERE ((`name`='vasya') AND ((`id` <= 2))) OR ((`name`='petya') AND ((`id` >= 4)))", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `product` WHERE ((`name`='vasya') AND ((`id` <= 2))) OR ((`name`='petya') AND ((`id` >= 4)))", $qs->countSql());
+    }
+
+    public function testRecursiveFilters(){
+
     }
 }

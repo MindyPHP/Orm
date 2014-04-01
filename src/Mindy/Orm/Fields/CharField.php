@@ -23,4 +23,9 @@ class CharField extends Field
     {
         return 'string(' . (int)$this->length . ')';
     }
+
+    public function sqlDefault()
+    {
+        return $this->default === null ? '' : "DEFAULT '{$this->default}'";
+    }
 }
