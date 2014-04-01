@@ -53,6 +53,7 @@ class ManyToManyFieldViaTest extends DatabaseTestCase
 
         $this->assertEquals(0, count($group->users->all()));
 
+
         $group->users->link($user);
         $this->assertEquals(1, count($group->users->all()));
 
