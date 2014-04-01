@@ -280,7 +280,7 @@ class QuerySet extends Query
     public function buildRange($field, $value)
     {
         list($start, $end) = $value;
-        return ['between', $field, $start, $end];
+        return [['between', $field, $start, $end],[]];
     }
 
     public function buildCondition(array $query, $method, $queryCondition = [])
