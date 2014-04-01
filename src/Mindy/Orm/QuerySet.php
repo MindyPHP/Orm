@@ -80,6 +80,8 @@ class QuerySet extends Query
      */
     public $model;
 
+    private $_params_count = 0;
+
     /**
      * Executes query and returns all results as an array.
      * @param Connection $db the DB connection used to create the DB command.
@@ -190,6 +192,9 @@ class QuerySet extends Query
         // $pages = Page::object()->filter(['user__in' => [$user]])->all();
 
         $lookup = new LookupBuilder($query);
+        $lookup_query = [];
+        $lookup_params = [];
+
         foreach($lookup->parse() as $data) {
             list($prefix, $field, $condition, $params) = $data;
 
@@ -200,77 +205,82 @@ class QuerySet extends Query
             }
 
             $method = 'build' . ucfirst($condition);
-            $qs->$method($field, $params);
+            list($query, $params) = $qs->$method($field, $params);
+            $lookup_params = array_merge($lookup_params, $params);
+            $lookup_query[] = $query;
         }
 
-        return [$queryCondition, $queryParams];
+        return [$lookup_query, $lookup_params];
     }
 
     public function buildExact($field, $value)
     {
-        $this->where = array_merge($this->where ? $this->where : [], [$field => $value]);
-        return $this;
+        return [[$field => $value],[]];
     }
 
     public function buildIn($field, $value)
     {
-        return $this->andWhere(['in', $field, $value]);
+        return [['in', $field, $value], []];
     }
 
     public function buildGte($field, $value)
     {
-        return $this->andWhere(['and', $field . ' <= :' . $field], [':' . $field => $value]);
+        $paramName = $this->generateParamName($field);
+        return [['and', $this->quoteColumnName($field) . ' >= :' . $paramName], [':' . $paramName => $value]];
     }
 
     public function buildGt($field, $value)
     {
-        return $this->andWhere(['and', $field . ' > :' . $field], [':' . $field => $value]);
+        $paramName = $this->generateParamName($field);
+        return [['and', $this->quoteColumnName($field) . ' > :' . $paramName], [':' . $paramName => $value]];
     }
 
     public function buildLte($field, $value)
     {
-        return $this->andWhere(['and', $field . ' <= :' . $field], [':' . $field => $value]);
+        $paramName = $this->generateParamName($field);
+        return [['and', $this->quoteColumnName($field) . ' <= :' . $paramName], [':' . $paramName => $value]];
     }
 
     public function buildLt($field, $value)
     {
-        return $this->andWhere(['and', $field . ' < :' . $field], [':' . $field => $value]);
+        $paramName = $this->generateParamName($field);
+        return [['and', $this->quoteColumnName($field) . ' < :' . $paramName], [':' . $paramName => $value]];
     }
 
     public function buildContains($field, $value)
     {
-        return $this->andWhere(['like', $field, $value]);
+        return [['like', $field, $value],[]];
     }
 
     public function buildIcontains($field, $value)
     {
-        return $this->andWhere(['ilike', $field, $value]);
+        return [['ilike', $field, $value],[]];
     }
 
     public function buildStartswith($field, $value)
     {
-        return $this->andWhere(['like', $field, '%' . $value, false]);
+        return [['like', $field, '%' . $value, false],[]];
     }
 
     public function buildIStartswith($field, $value)
     {
-        return $this->andWhere(['ilike', $field, '%' . $value, false]);
+        return [['ilike', $field, '%' . $value, false],[]];
     }
 
     public function buildEndswith($field, $value)
     {
-        return $this->andWhere(['like', $field, $value . '%', false]);
+        return [['like', $field, $value . '%', false],[]];
     }
 
     public function buildIendswith($field, $value)
     {
-        return $this->andWhere(['ilike', $field, $value . '%', false]);
+        return [['ilike', $field, $value . '%', false],[]];
     }
 
     public function buildRange($field, $value)
     {
         list($start, $end) = $value;
-        return $this->andWhere(['between', $field, $start, $end]);
+        return ['between', $field, $start, $end];
     }
 
     public function buildCondition(array $query, $method, $queryCondition = [])
@@ -345,4 +355,20 @@ class QuerySet extends Query
         return $models;
     }
 
+    /**
+     * Converts name => `name`, user.name => `user`.`name`
+     * @param string $name Column name
+     * @param object|null $db Connection
+     * @return string Quoted column name
+     */
+    public function quoteColumnName($name, $db = null){
+        if (!$db)
+            $db = $this->getDb();
+        return $db->quoteColumnName($name);
+    }
+
+    public function generateParamName($fieldName){
+        $this->_params_count += 1;
+        return $fieldName . $this->_params_count;
+    }
 }
