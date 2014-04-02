@@ -347,7 +347,9 @@ class QuerySet extends Query
                 $field = $this->retreivePrimaryKey();
             }
 
-            $field = "{$alias}.{$field}";
+            if ($alias) {
+                $field = "{$alias}.{$field}";
+            }
 
             $method = 'build' . ucfirst($condition);
 

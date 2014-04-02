@@ -134,14 +134,14 @@ class ManyToManyFieldTest extends DatabaseTestCase
     {
         $qs = Product::objects()->filter(['id__startswith' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals("SELECT COUNT(*) FROM `product` WHERE (`id` LIKE '%1')", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `product` WHERE (`id` LIKE '1%')", $qs->countSql());
     }
 
     public function testEndswith()
     {
         $qs = Product::objects()->filter(['id__endswith' => 1]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals("SELECT COUNT(*) FROM `product` WHERE (`id` LIKE '1%')", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `product` WHERE (`id` LIKE '%1')", $qs->countSql());
     }
 
     public function testRange()
