@@ -16,6 +16,8 @@ namespace Tests\Models;
 
 
 use Mindy\Orm\Fields\CharField;
+use Mindy\Orm\Fields\HasManyField;
+use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Model;
 use Mindy\Orm\Validator\MaxLengthValidator;
 use Mindy\Orm\Validator\MinLengthValidator;
@@ -38,7 +40,16 @@ class User extends Model
                     new MaxLengthValidator(20),
                 ]
             ],
-            'password' => ['class' => CharField::className()]
+            'password' => ['class' => CharField::className()],
+            'groups' => [
+                'class' => ManyToManyField::className(),
+                'modelClass' => Group::className(),
+                'through' => Membership::className()
+            ],
+            'addresses' => [
+                'class' => HasManyField::className(),
+                'modelClass' => Customer::className()
+            ]
         ];
     }
 }

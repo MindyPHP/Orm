@@ -110,4 +110,15 @@ class HasManyField extends RelatedField
     public function setValue($value){
         throw new Exception("Has many field can't set values. You can do it through ForeignKey.");
     }
+
+    public function getJoin(){
+        return array($this->getRelatedModel(), array(
+            array(
+                'table' => $this->getRelatedModel()->tableName(),
+                'from' => $this->from(),
+                'to' => $this->to(),
+                'group' => true
+            )
+        ));
+    }
 }

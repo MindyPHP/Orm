@@ -14,10 +14,16 @@
 
 namespace Mindy\Orm\Fields;
 
+use \Mindy\Exception\Exception;
+
 abstract class RelatedField extends IntField
 {
     /**
      * @var string
      */
     public $relatedName;
+
+    public function getJoin(){
+        throw new Exception('Not implemented');
+    }
 }

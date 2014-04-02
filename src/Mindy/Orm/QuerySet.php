@@ -82,6 +82,13 @@ class QuerySet extends Query
 
     private $_params_count = 0;
 
+    private $_chains = array();
+    private $_chained_has_many = false;
+    private $_aliases_count = 0;
+
+    public $tableAlias = 't1';
+
+
     /**
      * Executes query and returns all results as an array.
      * @param Connection $db the DB connection used to create the DB command.
@@ -128,6 +135,34 @@ class QuerySet extends Query
         }
     }
 
+    /**
+     * @param string $q
+     * @param null $db
+     * @return int
+     */
+    public function count($q = null, $db = null)
+    {
+        if (!$q){
+            if ($this->_chained_has_many){
+                $q = 'DISTINCT ' . $this->quoteColumnName($this->tableAlias . '.'. $this->retreivePrimaryKey());
+            }else{
+                $q = '*';
+            }
+        }
+        return parent::count($q, $db);
+    }
+
+    public function countSql($q = null, $db = null)
+    {
+        if (!$q){
+            if ($this->_chained_has_many){
+                $q = 'DISTINCT ' . $this->quoteColumnName($this->tableAlias . '.'. $this->retreivePrimaryKey());
+            }else{
+                $q = '*';
+            }
+        }
+        return parent::countSql($q, $db);
+    }
     /**
      * Creates a DB command that can be used to execute this query.
      * @param \Mindy\Query\Connection $db the DB connection used to create the DB command.
@@ -186,11 +221,119 @@ class QuerySet extends Query
         return $qs;
     }
 
+    protected function addChain($key_chain, $table, $alias, $model)
+    {
+        if (is_array($key_chain))
+            $key_chain = $this->prefixToKey($key_chain);
+
+        $this->_chains[$key_chain] = array(
+            'table' => $table,
+            'alias' => $alias,
+            'model' => $model
+        );
+    }
+
+    protected function getNextAliasKey(){
+        $this->_aliases_count +=1;
+        return 'A'.$this->_aliases_count;
+    }
+
+    protected function prefixToKey(array $prefix){
+        return implode('__', $prefix);
+    }
+
+    protected function searchChain($prefix){
+        $model = $this->model;
+        $alias = $this->tableAlias;
+
+        $prefix_remains = array();
+        $chain_remains = array();
+
+        foreach($prefix as $relation_name){
+            $chain[] = $relation_name;
+            if ($founded = $this->getChain($chain)){
+                $model = $founded['model'];
+                $alias = $founded['alias'];
+                $prefix_remains = array();
+                $chain_remains = $chain;
+            }else{
+                $prefix_remains[] = $relation_name;
+            }
+        }
+
+        return [$model, $alias, $prefix_remains, $chain_remains];
+    }
+
+    protected function makeChain($prefix){
+        // @TODO: recursive
+        list($model, $alias, $prefix, $chain) = $this->searchChain($prefix);
+
+        foreach($prefix as $relation_name){
+            $chain[] = $relation_name;
+            $related_value = $model->getField($relation_name);
+            list($relatedModel, $joinTables) = $related_value->getJoin();
+
+            $table = '';
+
+            foreach($joinTables as $join){
+                $new_alias = $this->getNextAliasKey();
+                $table = $join['table'] . ' ' . $new_alias;
+
+                $from = "{$alias}.{$join['from']}";
+                $to = "{$new_alias}.{$join['to']}";
+                $on = $this->quoteColumnName($from) . ' = ' . $this->quoteColumnName($to);
+
+                $this->join('LEFT JOIN', $table, $on);
+
+                // Has many relations (we must work only with current model lines)
+                if (isset($join['group']) && ($join['group']) && !$this->_chained_has_many){
+                    $this->_chained_has_many = true;
+                    $this->groupBy($this->tableAlias . '.'. $this->retreivePrimaryKey());
+                }
+
+                $alias = $new_alias;
+            }
+
+            $this->addChain($chain, $table, $alias, $relatedModel);
+
+            $model = $relatedModel;
+        }
+    }
+
+    protected function getChain($key_chain){
+        if (is_array($key_chain))
+            $key_chain = $this->prefixToKey($key_chain);
+
+        if (isset($this->_chains[$key_chain])){
+            return $this->_chains[$key_chain];
+        }
+        return null;
+    }
+
+    protected function getChainAlias($key_chain){
+        return ($chain = $this->getChain($key_chain)) ? $chain['alias'] : '';
+    }
+
+    protected function getOrCreateChainAlias(array $prefix){
+        if(count($prefix) > 0) {
+
+            if (!$this->from){
+                $this->from($this->model->tableName() . ' ' . $this->tableAlias);
+                $this->select($this->tableAlias . '.*');
+            }
+
+            if (!$this->getChainAlias($prefix))
+                $this->makeChain($prefix);
+
+            return $this->getChainAlias($prefix);
+        }
+        return '';
+    }
+
     protected function parseLookup(array $query, array $queryCondition = [], array $queryParams = [])
     {
         // $user = User::objects()->get(['pk' => 1]);
         // $pages = Page::object()->filter(['user__in' => [$user]])->all();
-
         $lookup = new LookupBuilder($query);
         $lookup_query = [];
         $lookup_params = [];
@@ -198,14 +341,17 @@ class QuerySet extends Query
         foreach($lookup->parse() as $data) {
             list($prefix, $field, $condition, $params) = $data;
 
-            $qs = $this->getChainedQuerySet($prefix);
+            $alias = $this->getOrCreateChainAlias($prefix);
 
             if($field === 'pk') {
                 $field = $this->retreivePrimaryKey();
             }
 
+            $field = "{$alias}.{$field}";
+
             $method = 'build' . ucfirst($condition);
-            list($query, $params) = $qs->$method($field, $params);
+
+            list($query, $params) = $this->$method($field, $params);
             $lookup_params = array_merge($lookup_params, $params);
             $lookup_query[] = $query;
         }
@@ -259,22 +405,22 @@ class QuerySet extends Query
 
     public function buildStartswith($field, $value)
     {
-        return [['like', $field, '%' . $value, false],[]];
+        return [['like', $field, $value . '%' , false],[]];
     }
 
     public function buildIStartswith($field, $value)
     {
-        return [['ilike', $field, '%' . $value, false],[]];
+        return [['ilike', $field, $value . '%', false],[]];
     }
 
     public function buildEndswith($field, $value)
     {
-        return [['like', $field, $value . '%', false],[]];
+        return [['like', $field, '%' . $value, false],[]];
     }
 
     public function buildIendswith($field, $value)
     {
-        return [['ilike', $field, $value . '%', false],[]];
+        return [['ilike', $field, '%' . $value, false],[]];
     }
 
     public function buildRange($field, $value)

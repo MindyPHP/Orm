@@ -246,4 +246,23 @@ class ManyToManyField extends RelatedField
             }
         }
     }
+
+    public function getJoin(){
+        $relatedModel = $this->getRelatedModel();
+
+        return array($relatedModel, array(
+            array(
+                'table' => $this->getTableName(),
+                // @TODO: chained with Sync - 40 line
+                'from' => $this->getModel()->getPkName(),
+                'to' => $this->getModelColumn()
+            ),
+            array(
+                'table' => $relatedModel->tableName(),
+                // @TODO: chained with Sync - 40 line
+                'from' => $this->getRelatedModelColumn(),
+                'to' => $relatedModel->getPkName()
+            )
+        ));
+    }
 }

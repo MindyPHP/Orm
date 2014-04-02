@@ -61,4 +61,16 @@ class ForeignField extends RelatedField
         /** @var $modelClass \Mindy\Orm\Model */
         return $modelClass::primaryKey();
     }
+
+    public function getJoin(){
+        $relatedModel = new $this->modelClass();
+        return array($relatedModel, array(
+            array(
+                'table' => $relatedModel->tableName(),
+                // @TODO: chained with Sync - 40 line
+                'from' => $relatedModel->tableName() . '_id',
+                'to' => $relatedModel->getPkName(),
+            )
+        ));
+    }
 }
