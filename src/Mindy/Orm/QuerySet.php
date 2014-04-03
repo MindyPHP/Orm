@@ -80,14 +80,35 @@ class QuerySet extends Query
      */
     public $model;
 
-    private $_params_count = 0;
+    /**
+     * Counter of params
+     * @var int
+     */
+    private $_paramsCount = 0;
 
+    /**
+     * Chains of joins
+     * @var array
+     */
     private $_chains = array();
-    private $_chained_has_many = false;
-    private $_aliases_count = 0;
 
+    /**
+     * Has chained
+     * @var bool
+     */
+    private $_chainedHasMany = false;
+
+    /**
+     * Counter of joined tables aliases
+     * @var int
+     */
+    private $_aliasesCount = 0;
+
+    /**
+     * Current table alias
+     * @var string
+     */
     public $tableAlias = 't1';
-
 
     /**
      * Executes query and returns all results as an array.
@@ -124,11 +145,6 @@ class QuerySet extends Query
                 $class = $this->modelClass;
                 $model = $class::create($row);
             }
-            if (!empty($this->with)) {
-                $models = [$model];
-                $this->findWith($this->with, $models);
-                $model = $models[0];
-            }
             return $model;
         } else {
             return null;
@@ -136,33 +152,39 @@ class QuerySet extends Query
     }
 
     /**
-     * @param string $q
-     * @param null $db
+     * @param null|string $q
+     * @param null|object $db
      * @return int
      */
     public function count($q = null, $db = null)
     {
-        if (!$q){
-            if ($this->_chained_has_many){
-                $q = 'DISTINCT ' . $this->quoteColumnName($this->tableAlias . '.'. $this->retreivePrimaryKey());
-            }else{
+        if (!$q) {
+            if ($this->_chainedHasMany) {
+                $q = 'DISTINCT ' . $this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey());
+            } else {
                 $q = '*';
             }
         }
         return parent::count($q, $db);
     }
 
+    /**
+     * @param null|string $q
+     * @param null|object $db
+     * @return string
+     */
     public function countSql($q = null, $db = null)
     {
-        if (!$q){
-            if ($this->_chained_has_many){
-                $q = 'DISTINCT ' . $this->quoteColumnName($this->tableAlias . '.'. $this->retreivePrimaryKey());
-            }else{
+        if (!$q) {
+            if ($this->_chainedHasMany) {
+                $q = 'DISTINCT ' . $this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey());
+            } else {
                 $q = '*';
             }
         }
         return parent::countSql($q, $db);
     }
+
     /**
      * Creates a DB command that can be used to execute this query.
      * @param \Mindy\Query\Connection $db the DB connection used to create the DB command.
@@ -194,7 +216,6 @@ class QuerySet extends Query
         return $db->createCommand($sql, $params);
     }
 
-
     /**
      * @return mixed|null
      */
@@ -203,60 +224,78 @@ class QuerySet extends Query
         return $this->model->getPkName();
     }
 
-    protected function getChainedQuerySet(array $prefix)
-    {
-        $qs = null;
-        if(count($prefix) > 0) {
-            foreach($prefix as $chain) {
-                if($qs === null) {
-                    $qs = $this->$chain;
-                } else {
-                    $qs = $qs->$chain;
-                }
-            }
-        } else {
-            $qs = $this;
-        }
-
-        return $qs;
-    }
-
-    protected function addChain($key_chain, $table, $alias, $model)
+    /**
+     * Add chained relation
+     * @param array|string $key_chain
+     * @param string $alias
+     * @param object $model
+     */
+    protected function addChain($key_chain, $alias, $model)
     {
         if (is_array($key_chain))
             $key_chain = $this->prefixToKey($key_chain);
 
         $this->_chains[$key_chain] = array(
-            'table' => $table,
             'alias' => $alias,
             'model' => $model
         );
     }
 
-    protected function getNextAliasKey(){
-        $this->_aliases_count +=1;
-        return 'A'.$this->_aliases_count;
+    /**
+     * Makes alias for joined table
+     * @param $table
+     * @return string
+     */
+    protected function makeAliasKey($table)
+    {
+        $this->_aliasesCount += 1;
+        return strtolower($table) . '_' . $this->_aliasesCount;
     }
 
-    protected function prefixToKey(array $prefix){
+    /**
+     * Makes key for param
+     * @param $fieldName
+     * @return string
+     */
+    protected function makeParamKey($fieldName)
+    {
+        $this->_paramsCount += 1;
+        return $fieldName . $this->_paramsCount;
+    }
+
+    /**
+     * Converts array prefix to string key
+     * @param array $prefix
+     * @return string
+     */
+    protected function prefixToKey(array $prefix)
+    {
         return implode('__', $prefix);
     }
 
-    protected function searchChain($prefix){
+    /**
+     * Searching closest already connected relation
+     * Example: User::objects()->filter(['group__name' => 'Admin', 'group__list__pk' => 2])
+     * at the second time we already have connected 'group' relation, return it
+     * @param $prefix
+     * @return array
+     */
+    protected function searchChain($prefix)
+    {
         $model = $this->model;
         $alias = $this->tableAlias;
 
         $prefix_remains = array();
         $chain_remains = array();
 
-        foreach($prefix as $relation_name){
+        foreach ($prefix as $relation_name) {
             $chain[] = $relation_name;
-            if ($founded = $this->getChain($chain)){
+            if ($founded = $this->getChain($chain)) {
                 $model = $founded['model'];
                 $alias = $founded['alias'];
                 $prefix_remains = array();
                 $chain_remains = $chain;
-            }else{
+            } else {
                 $prefix_remains[] = $relation_name;
             }
         }
@@ -264,70 +303,96 @@ class QuerySet extends Query
         return [$model, $alias, $prefix_remains, $chain_remains];
     }
 
-    protected function makeChain($prefix){
-        // @TODO: recursive
+    /**
+     * Makes connection by chain (creates joins)
+     * @param $prefix
+     */
+    protected function makeChain($prefix)
+    {
+        // Searching closest already connected relation
         list($model, $alias, $prefix, $chain) = $this->searchChain($prefix);
 
-        foreach($prefix as $relation_name){
+        foreach ($prefix as $relation_name) {
             $chain[] = $relation_name;
             $related_value = $model->getField($relation_name);
             list($relatedModel, $joinTables) = $related_value->getJoin();
 
-            $table = '';
-
-            foreach($joinTables as $join){
-                $new_alias = $this->getNextAliasKey();
+            foreach ($joinTables as $join) {
+                $new_alias = $this->makeAliasKey($join['table']);
                 $table = $join['table'] . ' ' . $new_alias;
 
-                $from = "{$alias}.{$join['from']}";
-                $to = "{$new_alias}.{$join['to']}";
+                $from = $alias . '.' . $join['from'];
+                $to = $new_alias . '.' . $join['to'];
                 $on = $this->quoteColumnName($from) . ' = ' . $this->quoteColumnName($to);
 
                 $this->join('LEFT JOIN', $table, $on);
 
-                // Has many relations (we must work only with current model lines)
-                if (isset($join['group']) && ($join['group']) && !$this->_chained_has_many){
-                    $this->_chained_has_many = true;
-                    $this->groupBy($this->tableAlias . '.'. $this->retreivePrimaryKey());
+                // Has many relations (we must work only with current model lines - exclude duplicates)
+                if (isset($join['group']) && ($join['group']) && !$this->_chainedHasMany) {
+                    $this->_chainedHasMany = true;
+                    $this->groupBy($this->tableAlias . '.' . $this->retreivePrimaryKey());
                 }
 
                 $alias = $new_alias;
             }
 
-            $this->addChain($chain, $table, $alias, $relatedModel);
+            $this->addChain($chain, $alias, $relatedModel);
 
             $model = $relatedModel;
         }
     }
 
-    protected function getChain($key_chain){
+    /**
+     * Returns chain if exists
+     * @param array|string $key_chain
+     * @return null|array
+     */
+    protected function getChain($key_chain)
+    {
         if (is_array($key_chain))
             $key_chain = $this->prefixToKey($key_chain);
 
-        if (isset($this->_chains[$key_chain])){
+        if (isset($this->_chains[$key_chain])) {
             return $this->_chains[$key_chain];
         }
         return null;
     }
 
-    protected function getChainAlias($key_chain){
+    /**
+     * Returns chain alias
+     * @param array|string $key_chain
+     * @return string
+     */
+    protected function getChainAlias($key_chain)
+    {
         return ($chain = $this->getChain($key_chain)) ? $chain['alias'] : '';
     }
 
-    protected function getOrCreateChainAlias(array $prefix){
-        if(count($prefix) > 0) {
+    /**
+     * Get or create alias and related model by chain
+     * @param array $prefix
+     * @return array
+     */
+    protected function getOrCreateChainAlias(array $prefix)
+    {
+        if (count($prefix) > 0) {
 
-            if (!$this->from){
+            if (!$this->from) {
                 $this->from($this->model->tableName() . ' ' . $this->tableAlias);
                 $this->select($this->tableAlias . '.*');
             }
 
-            if (!$this->getChainAlias($prefix))
+            if (!($chain = $this->getChain($prefix))) {
                 $this->makeChain($prefix);
+                $chain = $this->getChain($prefix);
+            }
 
-            return $this->getChainAlias($prefix);
+            if ($chain) {
+                return [$chain['alias'], $chain['model']];
+            }
         }
-        return '';
+
+        return ['', $this->model];
     }
 
     protected function parseLookup(array $query, array $queryCondition = [], array $queryParams = [])
@@ -338,17 +403,16 @@ class QuerySet extends Query
         $lookup_query = [];
         $lookup_params = [];
 
-        foreach($lookup->parse() as $data) {
+        foreach ($lookup->parse() as $data) {
             list($prefix, $field, $condition, $params) = $data;
+            list($alias, $model) = $this->getOrCreateChainAlias($prefix);
 
-            $alias = $this->getOrCreateChainAlias($prefix);
-
-            if($field === 'pk') {
-                $field = $this->retreivePrimaryKey();
+            if ($field === 'pk') {
+                $field = $model->getPkName();
             }
 
             if ($alias) {
-                $field = "{$alias}.{$field}";
+                $field = $alias . '.' . $field;
             }
 
             $method = 'build' . ucfirst($condition);
@@ -363,7 +427,7 @@ class QuerySet extends Query
 
     public function buildExact($field, $value)
     {
-        return [[$field => $value],[]];
+        return [[$field => $value], []];
     }
 
     public function buildIn($field, $value)
@@ -373,62 +437,62 @@ class QuerySet extends Query
 
     public function buildGte($field, $value)
     {
-        $paramName = $this->generateParamName($field);
+        $paramName = $this->makeParamKey($field);
         return [['and', $this->quoteColumnName($field) . ' >= :' . $paramName], [':' . $paramName => $value]];
     }
 
     public function buildGt($field, $value)
     {
-        $paramName = $this->generateParamName($field);
+        $paramName = $this->makeParamKey($field);
         return [['and', $this->quoteColumnName($field) . ' > :' . $paramName], [':' . $paramName => $value]];
     }
 
     public function buildLte($field, $value)
     {
-        $paramName = $this->generateParamName($field);
+        $paramName = $this->makeParamKey($field);
         return [['and', $this->quoteColumnName($field) . ' <= :' . $paramName], [':' . $paramName => $value]];
     }
 
     public function buildLt($field, $value)
     {
-        $paramName = $this->generateParamName($field);
+        $paramName = $this->makeParamKey($field);
         return [['and', $this->quoteColumnName($field) . ' < :' . $paramName], [':' . $paramName => $value]];
     }
 
     public function buildContains($field, $value)
     {
-        return [['like', $field, $value],[]];
+        return [['like', $field, $value], []];
     }
 
     public function buildIcontains($field, $value)
     {
-        return [['ilike', $field, $value],[]];
+        return [['ilike', $field, $value], []];
     }
 
     public function buildStartswith($field, $value)
     {
-        return [['like', $field, $value . '%' , false],[]];
+        return [['like', $field, $value . '%', false], []];
     }
 
     public function buildIStartswith($field, $value)
     {
-        return [['ilike', $field, $value . '%', false],[]];
+        return [['ilike', $field, $value . '%', false], []];
     }
 
     public function buildEndswith($field, $value)
     {
-        return [['like', $field, '%' . $value, false],[]];
+        return [['like', $field, '%' . $value, false], []];
     }
 
     public function buildIendswith($field, $value)
     {
-        return [['ilike', $field, '%' . $value, false],[]];
+        return [['ilike', $field, '%' . $value, false], []];
     }
 
     public function buildRange($field, $value)
     {
         list($start, $end) = $value;
-        return [['between', $field, $start, $end],[]];
+        return [['between', $field, $start, $end], []];
     }
 
     public function buildCondition(array $query, $method, $queryCondition = [])
@@ -509,14 +573,10 @@ class QuerySet extends Query
      * @param object|null $db Connection
      * @return string Quoted column name
      */
-    public function quoteColumnName($name, $db = null){
+    public function quoteColumnName($name, $db = null)
+    {
         if (!$db)
             $db = $this->getDb();
         return $db->quoteColumnName($name);
-    }
-
-    public function generateParamName($fieldName){
-        $this->_params_count += 1;
-        return $fieldName . $this->_params_count;
     }
 }
