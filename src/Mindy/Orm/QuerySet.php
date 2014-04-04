@@ -120,7 +120,7 @@ class QuerySet extends Query
     {
         // @TODO: hardcode, refactoring
         $group = $this->groupBy;
-        if ($this->_chainedHasMany){
+        if ($this->_chainedHasMany && !$group){
             $this->groupBy($this->tableAlias . '.' . $this->retreivePrimaryKey());
         }
         $command = $this->createCommand($db);
@@ -138,7 +138,7 @@ class QuerySet extends Query
     public function allSql($db = null)
     {
         $group = $this->groupBy;
-        if ($this->_chainedHasMany){
+        if ($this->_chainedHasMany && !$group){
             $this->groupBy($this->tableAlias . '.' . $this->retreivePrimaryKey());
         }
         $return = parent::allSql($db);
