@@ -70,7 +70,7 @@ class LookupRelationTest extends DatabaseTestCase
 
     public function tearDown()
     {
-       // $this->dropModels([new User, new Group, new Membership, new Customer]);
+        $this->dropModels([new User, new Group, new Membership, new Customer]);
     }
 
     public function testOneSimple()
