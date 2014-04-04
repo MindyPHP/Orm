@@ -255,7 +255,8 @@ class ManyToManyField extends RelatedField
                 'table' => $this->getTableName(),
                 // @TODO: chained with Sync - 40 line
                 'from' => $this->getModel()->getPkName(),
-                'to' => $this->getModelColumn()
+                'to' => $this->getModelColumn(),
+                'group' => true
             ),
             array(
                 'table' => $relatedModel->tableName(),

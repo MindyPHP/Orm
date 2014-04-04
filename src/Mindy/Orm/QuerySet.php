@@ -118,7 +118,14 @@ class QuerySet extends Query
      */
     public function all($db = null)
     {
+        // @TODO: hardcode, refactoring
+        $group = $this->groupBy;
+        if ($this->_chainedHasMany){
+            $this->groupBy($this->tableAlias . '.' . $this->retreivePrimaryKey());
+        }
         $command = $this->createCommand($db);
+        $this->groupBy = $group;
+
         $rows = $command->queryAll();
         if (!empty($rows)) {
             $models = $this->createModels($rows);
@@ -126,6 +133,17 @@ class QuerySet extends Query
         } else {
             return [];
         }
+    }
+
+    public function allSql($db = null)
+    {
+        $group = $this->groupBy;
+        if ($this->_chainedHasMany){
+            $this->groupBy($this->tableAlias . '.' . $this->retreivePrimaryKey());
+        }
+        $return = parent::allSql($db);
+        $this->groupBy = $group;
+        return $return;
     }
 
     /**
@@ -330,7 +348,6 @@ class QuerySet extends Query
                 // Has many relations (we must work only with current model lines - exclude duplicates)
                 if (isset($join['group']) && ($join['group']) && !$this->_chainedHasMany) {
                     $this->_chainedHasMany = true;
-                    $this->groupBy($this->tableAlias . '.' . $this->retreivePrimaryKey());
                 }
 
                 $alias = $new_alias;
