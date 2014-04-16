@@ -64,7 +64,7 @@ class LookupBuilder
         return $conditions;
     }
 
-    protected function parseLookup($lookup, $params, array $prefix = [])
+    public function parseLookup($lookup, $params = [], array $prefix = [])
     {
         $raw = explode($this->separator, $lookup);
         $first = array_shift($raw);

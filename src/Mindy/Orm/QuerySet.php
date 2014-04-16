@@ -596,4 +596,44 @@ class QuerySet extends Query
             $db = $this->getDb();
         return $db->quoteColumnName($name);
     }
+
+    /**
+     *
+     * @param $columns
+     * @return array
+     */
+    protected function normalizeOrderBy($columns)
+    {
+        if (!is_array($columns)){
+            $columns = preg_split('/\s*,\s*/', trim($columns), -1, PREG_SPLIT_NO_EMPTY);
+        }
+        $result = [];
+        foreach ($columns as $column) {
+            $sort = SORT_ASC;
+
+            if (substr($column, 0, 1) == '-') {
+                $column = substr($column, 1);
+                $sort = SORT_DESC;
+            }
+
+            $builder = new LookupBuilder();
+            list($prefix, $field, $condition, $params) = $builder->parseLookup($column);
+            list($alias, $model) = $this->getOrCreateChainAlias($prefix);
+
+            if ($alias) {
+                $column = $alias . '.' . $field;
+            }
+            $result[$column] = $sort;
+        }
+        return $result;
+    }
+
+    /**
+     * Order by alias
+     * @param $columns
+     * @return static
+     */
+    public function order($columns){
+        return $this->orderBy($columns);
+    }
 }
