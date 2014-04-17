@@ -452,6 +452,15 @@ class QuerySet extends Query
         return [[$field => $value], []];
     }
 
+    public function buildIsnull($field, $value)
+    {
+        if($value) {
+            return [[$field => null], []];
+        } else {
+            return [['not', [$field => null]], []];
+        }
+    }
+
     public function buildIn($field, $value)
     {
         if (is_object($value) && get_class($value) == __CLASS__) {
