@@ -17,5 +17,11 @@ namespace Mindy\Orm;
 
 class Model extends Orm
 {
-
+    public function set(array $values)
+    {
+        foreach($values as $name => $value) {
+            $this->{$name} = $value;
+        }
+        return $this;
+    }
 }

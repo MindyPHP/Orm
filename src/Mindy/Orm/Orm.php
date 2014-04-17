@@ -518,6 +518,7 @@ class Orm extends Base
 
         foreach ($this->getFields() as $name => $config) {
             $field = Creator::createObject($config);
+            $field->setName($name);
             /* @var $field \Mindy\Orm\Fields\Field */
             if (is_a($field, $this->autoField)) {
                 $needPk = false;
