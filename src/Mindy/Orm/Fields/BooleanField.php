@@ -27,6 +27,11 @@ class BooleanField extends Field
         parent::__construct($options);
     }
 
+    public function sql()
+    {
+        return trim(sprintf('%s %s', $this->sqlType(), $this->sqlNullable()));
+    }
+
     public function sqlType()
     {
         return 'bool';
