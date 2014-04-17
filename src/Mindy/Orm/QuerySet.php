@@ -93,6 +93,17 @@ class QuerySet extends Query
         }
     }
 
+    /**
+     * Paginate models
+     * @param int $page
+     * @param int $pageSize
+     * @return array
+     */
+    public function paginate($page = 1, $pageSize = 10)
+    {
+        return $this->limit($pageSize)->offset($pageSize * $page)->all();
+    }
+
     public function allSql($db = null)
     {
         $group = $this->groupBy;
