@@ -534,7 +534,13 @@ class Orm extends Base
                 } else if (is_a($field, $this->foreignField)){
                     /* @var $field \Mindy\Orm\Fields\ForeignField */
                     $this->_fields[$name] = $field;
-                    $this->_fkFields[$name . '_' . $field->getForeignPrimaryKey()] = $name;
+
+                    // ForeignKey in self model
+                    if($field->modelClass == get_class($this)) {
+                        $this->_fkFields[$name . '_' . $this->getPkName()] = $name;
+                    } else {
+                        $this->_fkFields[$name . '_' . $field->getForeignPrimaryKey()] = $name;
+                    }
                 }
             } else {
                 $this->_fields[$name] = $field;

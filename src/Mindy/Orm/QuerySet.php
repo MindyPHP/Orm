@@ -8,52 +8,10 @@
 
 namespace Mindy\Orm;
 
-use InvalidArgumentException;
-use Mindy\Exception\Exception;
 use Mindy\Query\Query;
-use Mindy\Exception\InvalidCallException;
 
-/**
- * ActiveQuery represents a DB query associated with an Active Record class.
- *
- * ActiveQuery instances are usually created by [[ActiveRecord::find()]] and [[ActiveRecord::findBySql()]].
- *
- * ActiveQuery mainly provides the following methods to retrieve the query results:
- *
- * - [[one()]]: returns a single record populated with the first row of data.
- * - [[all()]]: returns all records based on the query results.
- * - [[count()]]: returns the number of records.
- * - [[sum()]]: returns the sum over the specified column.
- * - [[average()]]: returns the average over the specified column.
- * - [[min()]]: returns the min over the specified column.
- * - [[max()]]: returns the max over the specified column.
- * - [[scalar()]]: returns the value of the first column in the first row of the query result.
- * - [[column()]]: returns the value of the first column in the query result.
- * - [[exists()]]: returns a value indicating whether the query result has data or not.
- *
- * Because ActiveQuery extends from [[Query]], one can use query methods, such as [[where()]],
- * [[orderBy()]] to customize the query options.
- *
- * ActiveQuery also provides the following additional query options:
- *
- * - [[with()]]: list of relations that this query should be performed with.
- * - [[indexBy()]]: the name of the column by which the query result should be indexed.
- * - [[asArray()]]: whether to return each record as an array.
- *
- * These options can be configured using methods of the same name. For example:
- *
- * ~~~
- * $customers = Customer::find()->with('orders')->asArray()->all();
- * ~~~
- *
- * @author Qiang Xue <qiang.xue@gmail.com>
- * @author Carsten Brandt <mail@cebe.cc>
- * @since 2.0
- */
 class QuerySet extends Query
 {
-    private $_separator = '__';
-
     /**
      * @var string the name of the ActiveRecord class.
      */

@@ -8,9 +8,10 @@ include __DIR__ . '/src/Mindy/Orm/Base.php';
 include __DIR__ . '/src/Mindy/Orm/Orm.php';
 include __DIR__ . '/src/Mindy/Orm/Model.php';
 include __DIR__ . '/src/Mindy/Orm/Manager.php';
-include __DIR__ . '/src/Mindy/Orm/Relation.php';
 include __DIR__ . '/src/Mindy/Orm/QuerySet.php';
 include __DIR__ . '/src/Mindy/Orm/Sync.php';
+include __DIR__ . '/src/Mindy/Orm/TreeModel.php';
+include __DIR__ . '/src/Mindy/Orm/TreeManager.php';
 
 include __DIR__ . '/src/Mindy/Orm/Fields/Field.php';
 include __DIR__ . '/src/Mindy/Orm/Fields/IntField.php';

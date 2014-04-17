@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -15,7 +15,6 @@
 namespace Mindy\Orm\Fields;
 
 
-use Exception;
 use InvalidArgumentException;
 use Mindy\Orm\Relation;
 
@@ -29,14 +28,14 @@ class ForeignField extends RelatedField
 
     public function init()
     {
-        if(is_subclass_of($this->modelClass, '\Mindy\Orm\Model') === false) {
+        if (is_subclass_of($this->modelClass, '\Mindy\Orm\Model') === false) {
             throw new InvalidArgumentException('$modelClass must be a \Mindy\Orm\Model instance');
         }
     }
 
     public function setValue($value)
     {
-        if(is_a($value, $this->modelClass) === false) {
+        if (is_a($value, $this->modelClass) === false) {
             /** @var $modelClass \Mindy\Orm\Model */
             $modelClass = $this->modelClass;
             $value = $modelClass::objects()->filter(['pk' => $value])->get();
@@ -62,7 +61,8 @@ class ForeignField extends RelatedField
         return $modelClass::primaryKey();
     }
 
-    public function getJoin(){
+    public function getJoin()
+    {
         $relatedModel = new $this->modelClass();
         return array($relatedModel, array(
             array(
