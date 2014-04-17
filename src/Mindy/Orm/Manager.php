@@ -130,4 +130,13 @@ class Manager
     {
         return $this->getQuerySet()->countSql();
     }
+
+    /**
+     * @param mixed $q
+     * @return \Mindy\Orm\QuerySet
+     */
+    public function order($q)
+    {
+        return $this->getQuerySet()->order($q);
+    }
 }

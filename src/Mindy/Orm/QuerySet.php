@@ -294,6 +294,7 @@ class QuerySet extends Query
             list($relatedModel, $joinTables) = $related_value->getJoin();
 
             foreach ($joinTables as $join) {
+                $type = isset($join['type']) ? $join['type'] : 'LEFT JOIN';
                 $new_alias = $this->makeAliasKey($join['table']);
                 $table = $join['table'] . ' ' . $new_alias;
 
@@ -301,7 +302,7 @@ class QuerySet extends Query
                 $to = $new_alias . '.' . $join['to'];
                 $on = $this->quoteColumnName($from) . ' = ' . $this->quoteColumnName($to);
 
-                $this->join('LEFT JOIN', $table, $on);
+                $this->join($type, $table, $on);
 
                 // Has many relations (we must work only with current model lines - exclude duplicates)
                 if (isset($join['group']) && ($join['group']) && !$this->_chainedHasMany) {
@@ -390,6 +391,10 @@ class QuerySet extends Query
                 $field = $alias . '.' . $field;
             }
 
+            if (is_object($params) && get_class($params) == __CLASS__ && $condition != 'in') {
+                throw new Exception("QuerySet object can be used as a parameter only in case of 'in' condition");
+            }
+
             $method = 'build' . ucfirst($condition);
 
             list($query, $params) = $this->$method($field, $params);
@@ -407,6 +412,10 @@ class QuerySet extends Query
 
     public function buildIn($field, $value)
     {
+        if (is_object($value) && get_class($value) == __CLASS__) {
+            return [['and', $this->quoteColumnName($field) . ' IN (' . $value->allSql() . ')'], []];
+        }
+
         return [['in', $field, $value], []];
     }
 
@@ -553,5 +562,46 @@ class QuerySet extends Query
         if (!$db)
             $db = $this->getDb();
         return $db->quoteColumnName($name);
+    }
+
+    /**
+     *
+     * @param $columns
+     * @return array
+     */
+    protected function normalizeOrderBy($columns)
+    {
+        if (!is_array($columns)) {
+            $columns = preg_split('/\s*,\s*/', trim($columns), -1, PREG_SPLIT_NO_EMPTY);
+        }
+        $result = [];
+        foreach ($columns as $column) {
+            $sort = SORT_ASC;
+
+            if (substr($column, 0, 1) == '-') {
+                $column = substr($column, 1);
+                $sort = SORT_DESC;
+            }
+
+            $builder = new LookupBuilder();
+            list($prefix, $field, $condition, $params) = $builder->parseLookup($column);
+            list($alias, $model) = $this->getOrCreateChainAlias($prefix);
+
+            if ($alias) {
+                $column = $alias . '.' . $field;
+            }
+            $result[$column] = $sort;
+        }
+        return $result;
+    }
+
+    /**
+     * Order by alias
+     * @param $columns
+     * @return static
+     */
+    public function order($columns)
+    {
+        return $this->orderBy($columns);
     }
 }
