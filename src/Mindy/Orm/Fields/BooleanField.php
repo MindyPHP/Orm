@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -15,13 +15,11 @@
 namespace Mindy\Orm\Fields;
 
 
-use Exception;
-
 class BooleanField extends Field
 {
     public function __construct(array $options = [])
     {
-        if(!isset($options['default'])) {
+        if (!isset($options['default'])) {
             $options['default'] = false;
         }
         parent::__construct($options);
@@ -39,11 +37,11 @@ class BooleanField extends Field
 
     public function setValue($value)
     {
-        $this->value = (bool) $value;
+        $this->value = (bool)$value;
     }
 
     public function getValue()
     {
-        return (bool) $this->value;
+        return (bool)$this->value;
     }
 }
