@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -34,7 +34,8 @@ class Manager
     /**
      * @return \Mindy\Orm\Model
      */
-    public function getModel(){
+    public function getModel()
+    {
         return $this->_model;
     }
 
@@ -43,7 +44,7 @@ class Manager
      */
     public function getQuerySet()
     {
-        if($this->_qs === null) {
+        if ($this->_qs === null) {
             $this->_qs = new QuerySet([
                 'model' => $this->getModel(),
                 'modelClass' => $this->getModel()->className()

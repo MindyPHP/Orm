@@ -22,7 +22,7 @@ class BooleanField extends Field
     public function __construct(array $options = [])
     {
         if(!isset($options['default'])) {
-            throw new Exception("Default param required");
+            $options['default'] = false;
         }
         parent::__construct($options);
     }
