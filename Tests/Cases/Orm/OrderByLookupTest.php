@@ -42,7 +42,6 @@ class OrderByLookupTest extends DatabaseTestCase
         $anton->password = 'Passwords';
         $anton->save();
 
-        $group->users->link($anton);
         $group_prog->users->link($anton);
 
         $anton_home = new Customer();
@@ -61,7 +60,6 @@ class OrderByLookupTest extends DatabaseTestCase
         $max->save();
 
         $group->users->link($max);
-        $group_prog->users->link($max);
 
         $max_home = new Customer();
         $max_home->address = "Max home";
@@ -74,7 +72,8 @@ class OrderByLookupTest extends DatabaseTestCase
         $this->dropModels([new User, new Group, new Membership, new Customer]);
     }
 
-    public function testWithoutLookup(){
+    public function testWithoutLookup()
+    {
         $users = User::objects()->order('-username')->all();
         $this->assertEquals(count($users), 2);
         $this->assertEquals($users[0]->username, 'Max');
@@ -86,7 +85,8 @@ class OrderByLookupTest extends DatabaseTestCase
         $this->assertEquals($users[1]->username, 'Max');
     }
 
-    public function testForeignLookup(){
+    public function testForeignLookup()
+    {
         $addresses = Customer::objects()->order(['-user__username', '-address'])->all();
 
         $this->assertEquals(count($addresses), 3);
@@ -94,10 +94,38 @@ class OrderByLookupTest extends DatabaseTestCase
         $this->assertEquals($addresses[1]->address, 'Anton work');
         $this->assertEquals($addresses[2]->address, 'Anton home');
 
-        $addresses = Customer::objects()->order('user__username')->all();
+        $addresses = Customer::objects()->order(['user__username', 'address'])->all();
         $this->assertEquals(count($addresses), 3);
         $this->assertEquals($addresses[0]->address, 'Anton home');
         $this->assertEquals($addresses[1]->address, 'Anton work');
         $this->assertEquals($addresses[2]->address, 'Max home');
+    }
+
+    public function testHasManyLookup()
+    {
+        $users = User::objects()->order(['-addresses__address'])->all();
+
+        $this->assertEquals(count($users), 2);
+        $this->assertEquals($users[0]->username, 'Max');
+        $this->assertEquals($users[1]->username, 'Anton');
+
+        $addresses = User::objects()->order(['addresses__address'])->all();
+        $this->assertEquals(count($users), 2);
+        $this->assertEquals($addresses[0]->username, 'Anton');
+        $this->assertEquals($addresses[1]->username, 'Max');
+    }
+
+    public function testManyToManyLookup()
+    {
+        $users = User::objects()->order(['-groups__name'])->all();
+
+        $this->assertEquals(count($users), 2);
+        $this->assertEquals($users[0]->username, 'Anton');
+        $this->assertEquals($users[1]->username, 'Max');
+
+        $addresses = User::objects()->order(['groups__name'])->all();
+        $this->assertEquals(count($users), 2);
+        $this->assertEquals($addresses[0]->username, 'Max');
+        $this->assertEquals($addresses[1]->username, 'Anton');
     }
 }

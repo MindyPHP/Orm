@@ -120,7 +120,7 @@ class QuerySet extends Query
     {
         // @TODO: hardcode, refactoring
         $group = $this->groupBy;
-        if ($this->_chainedHasMany && !$group){
+        if ($this->_chainedHasMany && !$group) {
             $this->groupBy($this->tableAlias . '.' . $this->retreivePrimaryKey());
         }
         $command = $this->createCommand($db);
@@ -138,7 +138,7 @@ class QuerySet extends Query
     public function allSql($db = null)
     {
         $group = $this->groupBy;
-        if ($this->_chainedHasMany && !$group){
+        if ($this->_chainedHasMany && !$group) {
             $this->groupBy($this->tableAlias . '.' . $this->retreivePrimaryKey());
         }
         $return = parent::allSql($db);
@@ -604,7 +604,7 @@ class QuerySet extends Query
      */
     protected function normalizeOrderBy($columns)
     {
-        if (!is_array($columns)){
+        if (!is_array($columns)) {
             $columns = preg_split('/\s*,\s*/', trim($columns), -1, PREG_SPLIT_NO_EMPTY);
         }
         $result = [];
@@ -633,7 +633,8 @@ class QuerySet extends Query
      * @param $columns
      * @return static
      */
-    public function order($columns){
+    public function order($columns)
+    {
         return $this->orderBy($columns);
     }
 }
