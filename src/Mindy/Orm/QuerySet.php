@@ -432,6 +432,10 @@ class QuerySet extends Query
                 $field = $alias . '.' . $field;
             }
 
+            if (get_class($params) == __CLASS__ && $condition != 'in') {
+                throw new Exception("QuerySet object can be used as a parameter only in case of 'in' condition");
+            }
+
             $method = 'build' . ucfirst($condition);
 
             list($query, $params) = $this->$method($field, $params);
@@ -449,6 +453,10 @@ class QuerySet extends Query
 
     public function buildIn($field, $value)
     {
+        if (get_class($value) == __CLASS__) {
+            return [['and', $this->quoteColumnName($field) . ' IN (' . $value->allSql() . ')'], []];
+        }
+
         return [['in', $field, $value], []];
     }
 
