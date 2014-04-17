@@ -336,6 +336,7 @@ class QuerySet extends Query
             list($relatedModel, $joinTables) = $related_value->getJoin();
 
             foreach ($joinTables as $join) {
+                $type = isset($join['type']) ? $join['type'] : 'LEFT JOIN';
                 $new_alias = $this->makeAliasKey($join['table']);
                 $table = $join['table'] . ' ' . $new_alias;
 
@@ -343,7 +344,7 @@ class QuerySet extends Query
                 $to = $new_alias . '.' . $join['to'];
                 $on = $this->quoteColumnName($from) . ' = ' . $this->quoteColumnName($to);
 
-                $this->join('LEFT JOIN', $table, $on);
+                $this->join($type, $table, $on);
 
                 // Has many relations (we must work only with current model lines - exclude duplicates)
                 if (isset($join['group']) && ($join['group']) && !$this->_chainedHasMany) {
@@ -432,7 +433,7 @@ class QuerySet extends Query
                 $field = $alias . '.' . $field;
             }
 
-            if (get_class($params) == __CLASS__ && $condition != 'in') {
+            if (is_object($params) && get_class($params) == __CLASS__ && $condition != 'in') {
                 throw new Exception("QuerySet object can be used as a parameter only in case of 'in' condition");
             }
 
@@ -453,7 +454,7 @@ class QuerySet extends Query
 
     public function buildIn($field, $value)
     {
-        if (get_class($value) == __CLASS__) {
+        if (is_object($value) && get_class($value) == __CLASS__) {
             return [['and', $this->quoteColumnName($field) . ' IN (' . $value->allSql() . ')'], []];
         }
 
