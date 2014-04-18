@@ -14,6 +14,9 @@
 
 namespace Mindy\Orm\Traits;
 
+use ReflectionObject;
+use Yii;
+
 trait AppYiiCompatible
 {
     /**
@@ -21,7 +24,8 @@ trait AppYiiCompatible
      */
     public function getModuleName()
     {
-        return dirname(__DIR__);
+        $object = new ReflectionObject($this);
+        return basename(dirname(dirname($object->getFilename())));
     }
 
     /**
