@@ -21,6 +21,11 @@ class Model extends Orm
 {
     use AppYiiCompatible;
 
+    public function __toString()
+    {
+        return (string) get_class($this);
+    }
+
     public function set(array $values)
     {
         foreach($values as $name => $value) {
