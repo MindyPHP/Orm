@@ -139,4 +139,14 @@ class Manager
     {
         return $this->getQuerySet()->order($q);
     }
+
+    /**
+     * @param $page
+     * @param int $pageSize
+     * @return array
+     */
+    public function paginate($page, $pageSize = 10)
+    {
+        return $this->getQuerySet()->paginate($page, $pageSize);
+    }
 }

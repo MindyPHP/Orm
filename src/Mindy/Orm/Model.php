@@ -15,6 +15,8 @@
 namespace Mindy\Orm;
 
 
+use Mindy\Orm\Traits\AppYiiCompatible;
+
 class Model extends Orm
 {
     use AppYiiCompatible;
