@@ -24,3 +24,5 @@ include __DIR__ . '/src/Mindy/Orm/Fields/JsonField.php';
 include __DIR__ . '/src/Mindy/Orm/Fields/RelatedField.php';
 include __DIR__ . '/src/Mindy/Orm/Fields/ForeignField.php';
 include __DIR__ . '/src/Mindy/Orm/Fields/ManyToManyField.php';
+
+include __DIR__ . '/src/Mindy/Orm/Traits/AppYiiCompatible.php';

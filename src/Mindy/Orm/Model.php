@@ -17,6 +17,8 @@ namespace Mindy\Orm;
 
 class Model extends Orm
 {
+    use AppYiiCompatible;
+
     public function set(array $values)
     {
         foreach($values as $name => $value) {
