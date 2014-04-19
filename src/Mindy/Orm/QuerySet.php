@@ -631,15 +631,16 @@ class QuerySet extends Query
      * @param $column
      * @return string
      */
-    public function aliasColumn($column){
+    public function aliasColumn($column)
+    {
         $builder = new LookupBuilder();
         list($prefix, $field, $condition, $params) = $builder->parseLookup($column);
         list($alias, $model) = $this->getOrCreateChainAlias($prefix);
 
         $column = $field;
-        if ($alias){
+        if ($alias) {
             $column = $alias . '.' . $column;
-        }elseif ($this->_chainedHasMany){
+        } elseif ($this->_chainedHasMany) {
             $column = $this->tableAlias . '.' . $column;
         }
         return $this->quoteColumnName($column);
