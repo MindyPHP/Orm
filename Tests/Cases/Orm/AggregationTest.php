@@ -76,19 +76,23 @@ class AggregationTest extends DatabaseTestCase
     public function testMin(){
         $this->assertEquals(User::objects()->min('id'), 1);
         $this->assertEquals(User::objects()->filter(['addresses__address__startswith' => 'A'])->min('id'), 1);
+        $this->assertEquals(User::objects()->filter(['addresses__address__startswith' => 'A'])->min('addresses__id'), 1);
     }
 
     public function testMax(){
         $this->assertEquals(User::objects()->max('id'), 2);
         $this->assertEquals(User::objects()->filter(['addresses__address__startswith' => 'A'])->max('id'), 1);
+        $this->assertEquals(User::objects()->filter(['addresses__address__startswith' => 'A'])->max('addresses__id'), 2);
     }
 
     public function testAvg(){
         $this->assertEquals(User::objects()->average('id'), 1.5);
         $this->assertEquals(User::objects()->filter(['addresses__address__startswith' => 'A'])->average('id'), 1);
+        $this->assertEquals(User::objects()->filter(['addresses__address__startswith' => 'A'])->average('addresses__id'), 1.5);
     }
 
     public function testSum(){
         $this->assertEquals(User::objects()->sum('id'), 3);
+        $this->assertEquals(User::objects()->filter(['addresses__address__startswith' => 'A'])->sum('addresses__id'), 3);
     }
 }
