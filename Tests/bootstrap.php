@@ -9,7 +9,7 @@ if(is_dir(__DIR__ . '/../vendor')) {
 require __DIR__ . '/TestCase.php';
 require __DIR__ . '/DatabaseTestCase.php';
 
-$models = glob(realpath(__DIR__) . '/models/*.php');
+$models = glob(realpath(__DIR__) . '/Models/*.php');
 foreach($models as $model) {
     include $model;
 }
