@@ -1,7 +1,7 @@
 # Mindy ORM
 
 Django based ORM implemented in php.
-
+For more code examples see unit tests.
 
 ## Example model
 
