@@ -31,6 +31,9 @@ abstract class TreeModel extends Model
         ];
     }
 
+    /**
+     * @return TreeManager
+     */
     public static function tree()
     {
         $className = get_called_class();

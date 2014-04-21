@@ -93,6 +93,17 @@ class QuerySet extends Query
         }
     }
 
+    /**
+     * Paginate models
+     * @param int $page
+     * @param int $pageSize
+     * @return array
+     */
+    public function paginate($page = 1, $pageSize = 10)
+    {
+        return $this->limit($pageSize)->offset($pageSize * $page);
+    }
+
     public function allSql($db = null)
     {
         $group = $this->groupBy;
@@ -412,7 +423,7 @@ class QuerySet extends Query
 
     public function buildIsnull($field, $value)
     {
-        if($value) {
+        if ($value) {
             return [[$field => null], []];
         } else {
             return [['not', [$field => null]], []];
@@ -532,7 +543,7 @@ class QuerySet extends Query
     /**
      * Converts found rows into model instances
      * @param array $rows
-     * @return array|ActiveRecord[]
+     * @return array|Orm[]
      */
     private function createModels($rows)
     {
@@ -550,7 +561,7 @@ class QuerySet extends Query
                 $models[$key] = $row;
             }
         } else {
-            /** @var ActiveRecord $class */
+            /** @var Orm $class */
             $class = $this->modelClass;
             if ($this->indexBy === null) {
                 foreach ($rows as $row) {
@@ -623,5 +634,88 @@ class QuerySet extends Query
     public function order($columns)
     {
         return $this->orderBy($columns);
+    }
+
+
+    /**
+     * 'id' -> '`t1`.`id`'
+     * @param $column
+     * @return string
+     */
+    public function aliasColumn($column)
+    {
+        $builder = new LookupBuilder();
+        list($prefix, $field, $condition, $params) = $builder->parseLookup($column);
+        list($alias, $model) = $this->getOrCreateChainAlias($prefix);
+
+        $column = $field;
+        if ($alias) {
+            $column = $alias . '.' . $column;
+        } elseif ($this->_chainedHasMany) {
+            $column = $this->tableAlias . '.' . $column;
+        }
+        return $this->quoteColumnName($column);
+    }
+
+    /**
+     * Converts string to float or val
+     * @param $value
+     * @return float|int
+     */
+    public function numval($value)
+    {
+        if (strpos($value, '.') !== false) {
+            return floatval($value);
+        } else {
+            return intval($value);
+        }
+    }
+
+    /**
+     * @param string $column
+     * @param null $db
+     * @return float|int
+     */
+    public function sum($column, $db = null)
+    {
+        $column = $this->aliasColumn($column);
+        $value = parent::sum($column, $db);
+        return $this->numval($value);
+    }
+
+    /**
+     * @param string $column
+     * @param null $db
+     * @return float|int
+     */
+    public function average($column, $db = null)
+    {
+        $column = $this->aliasColumn($column);
+        $value = parent::average($column, $db);
+        return $this->numval($value);
+    }
+
+    /**
+     * @param string $column
+     * @param null $db
+     * @return float|int
+     */
+    public function min($column, $db = null)
+    {
+        $column = $this->aliasColumn($column);
+        $value = parent::min($column, $db);
+        return $this->numval($value);
+    }
+
+    /**
+     * @param string $column
+     * @param null $db
+     * @return float|int
+     */
+    public function max($column, $db = null)
+    {
+        $column = $this->aliasColumn($column);
+        $value = parent::max($column, $db);
+        return $this->numval($value);
     }
 }

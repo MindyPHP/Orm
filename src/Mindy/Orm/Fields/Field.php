@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -17,9 +17,12 @@ namespace Mindy\Orm\Fields;
 
 use Closure;
 use Mindy\Helper\Creator;
+use Mindy\Orm\Model;
 
 abstract class Field
 {
+    public $verboseName = '';
+
     public $null = false;
 
     public $default = null;
@@ -35,6 +38,8 @@ abstract class Field
     public $choices = [];
 
     public $validators = [];
+
+    protected $name;
 
     private $_validatorClass = '\Mindy\Orm\Validator\Validator';
 
@@ -129,29 +134,49 @@ abstract class Field
     {
         $this->clearErrors();
 
-        foreach($this->validators as $validator) {
-            if($validator instanceof Closure) {
+        foreach ($this->validators as $validator) {
+            if ($validator instanceof Closure) {
                 /* @var $validator \Closure */
                 $valid = $validator->__invoke($this->value);
-                if($valid !== true) {
-                    if(!is_array($valid)) {
+                if ($valid !== true) {
+                    if (!is_array($valid)) {
                         $valid = [$valid];
                     }
 
                     $this->addErrors($valid);
                 }
-            } else if(is_subclass_of($validator, $this->_validatorClass)) {
+            } else if (is_subclass_of($validator, $this->_validatorClass)) {
                 /* @var $validator \Mindy\Orm\Validator\Validator */
                 $validator->clearErrors();
 
                 $valid = $validator->validate($this->value);
-                if($valid === false) {
+                if ($valid === false) {
                     $this->addErrors($validator->getErrors());
                 }
             }
         }
 
         return $this->hasErrors() === false;
+    }
+
+    public function setName($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    public function getVerboseName(Model $model)
+    {
+        if($this->verboseName) {
+            return $this->verboseName;
+        } else {
+            $name = str_replace('_', ' ', ucfirst($this->name));
+            if(method_exists($model, 'getModule')) {
+                return $model->getModule()->t($name);
+            } else {
+                return $name;
+            }
+        }
     }
 
     abstract public function sqlType();

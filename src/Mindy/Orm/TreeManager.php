@@ -18,24 +18,27 @@ namespace Mindy\Orm;
 class TreeManager extends Manager
 {
     /**
+     * @return \Mindy\Orm\TreeQuerySet
+     */
+    public function getQuerySet()
+    {
+        if ($this->_qs === null) {
+            $this->_qs = new TreeQuerySet([
+                'model' => $this->getModel(),
+                'modelClass' => $this->getModel()->className()
+            ]);
+        }
+        return $this->_qs;
+    }
+
+    /**
      * Named scope. Gets descendants for node.
      * @param int $depth the depth.
      * @return QuerySet
      */
     public function descendants($depth = null)
     {
-        $model = $this->getModel();
-
-        $qs = $this->filter([
-            'lft__gt' => $model->lft,
-            'rgt__lt' => $model->rgt
-        ])->order(['lft']);
-
-        if ($depth !== null) {
-            $qs = $qs->filter(['level__lte' => $model->level + $depth]);
-        }
-
-        return $qs->filter(['root' => $model->root]);
+        return $this->getQuerySet()->descendants($depth);
     }
 
     /**
@@ -44,7 +47,7 @@ class TreeManager extends Manager
      */
     public function children()
     {
-        return $this->descendants(1);
+        return $this->getQuerySet()->children();
     }
 
     /**
@@ -54,18 +57,7 @@ class TreeManager extends Manager
      */
     public function ancestors($depth = null)
     {
-        $model = $this->getModel();
-
-        $qs = $this->filter([
-            'lft__lt' => $model->lft,
-            'rgt__gt' => $model->rgt
-        ])->order(['lft']);
-
-        if ($depth !== null) {
-            $qs = $qs->filter(['level__gte' => $model->level + $depth]);
-        }
-
-        return $qs->filter(['root' => $model->root]);
+        return $this->getQuerySet()->ancestors($depth);
     }
 
     /**
@@ -74,7 +66,7 @@ class TreeManager extends Manager
      */
     public function roots()
     {
-        return $this->filter(['lft' => 1]);
+        return $this->getQuerySet()->roots();
     }
 
     /**
@@ -83,12 +75,7 @@ class TreeManager extends Manager
      */
     public function parent()
     {
-        $model = $this->getModel();
-        return $this->filter([
-            'lft__lt' => $model->lft,
-            'rgt__gt' => $model->rgt,
-            'root' => $model->root
-        ]);
+        return $this->getQuerySet()->parent();
     }
 
     /**
@@ -97,11 +84,7 @@ class TreeManager extends Manager
      */
     public function prev()
     {
-        $model = $this->getModel();
-        return $this->filter([
-            'rgt' => $model->lft - 1,
-            'root' => $model->root,
-        ]);
+        return $this->getQuerySet()->prev();
     }
 
     /**
@@ -110,19 +93,6 @@ class TreeManager extends Manager
      */
     public function next()
     {
-        $model = $this->getModel();
-        return $this->filter([
-            'lft' => $model->rgt + 1,
-            'root' => $model->root,
-        ]);
-    }
-
-    /**
-     * @return int
-     */
-    protected function getLastRoot()
-    {
-        $model = $this->getQuerySet()->max('root');
-        return $model ? $model + 1 : 1;
+        return $this->getQuerySet()->next();
     }
 }
