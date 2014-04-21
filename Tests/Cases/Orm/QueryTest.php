@@ -68,4 +68,11 @@ class QueryTest extends DatabaseTestCase
             ]
         ], $qs->all(true));
     }
+
+    public function testExclude()
+    {
+        $qs = User::objects()->filter(['username' => 'Anton'])->exclude(['username' => 'Max']);
+        $this->assertEquals(1, $qs->count());
+        $this->assertEquals("SELECT COUNT(*) FROM `user` WHERE ((`username`='Anton')) AND (NOT ((`username`='Max')))", $qs->countSql());
+    }
 }

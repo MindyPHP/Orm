@@ -82,6 +82,15 @@ class Manager
 
     /**
      * @param array $q
+     * @return \Mindy\Orm\QuerySet
+     */
+    public function exclude(array $q)
+    {
+        return $this->getQuerySet()->exclude($q);
+    }
+
+    /**
+     * @param array $q
      * @return Orm|null
      */
     public function get(array $q)

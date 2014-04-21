@@ -506,6 +506,17 @@ class QuerySet extends Query
         return $this->buildCondition($query, 'orWhere', ['and']);
     }
 
+    public function exclude(array $query)
+    {
+        return $this->buildCondition($query, 'excludeWhere', ['and']);
+    }
+
+    public function excludeWhere($condition, $params = [])
+    {
+        $condition = ['not', $condition];
+        return parent::andWhere($condition, $params);
+    }
+
     /**
      * Sets the [[asArray]] property.
      * @param boolean $value whether to return the query results in terms of arrays instead of Active Records.
