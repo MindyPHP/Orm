@@ -101,7 +101,7 @@ class QuerySet extends Query
      */
     public function paginate($page = 1, $pageSize = 10)
     {
-        return $this->limit($pageSize)->offset($pageSize * $page)->all();
+        return $this->limit($pageSize)->offset($pageSize * $page);
     }
 
     public function allSql($db = null)
