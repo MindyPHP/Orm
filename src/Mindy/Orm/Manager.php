@@ -82,6 +82,15 @@ class Manager
 
     /**
      * @param array $q
+     * @return \Mindy\Orm\QuerySet
+     */
+    public function exclude(array $q)
+    {
+        return $this->getQuerySet()->exclude($q);
+    }
+
+    /**
+     * @param array $q
      * @return Orm|null
      */
     public function get(array $q)
@@ -138,5 +147,47 @@ class Manager
     public function order($q)
     {
         return $this->getQuerySet()->order($q);
+    }
+
+    /**
+     * @param $page
+     * @param int $pageSize
+     * @return array
+     */
+    public function paginate($page, $pageSize = 10)
+    {
+        return $this->getQuerySet()->paginate($page, $pageSize);
+    }
+
+    /**
+     * @param $q
+     * @return int
+     */
+    public function sum($q){
+        return $this->getQuerySet()->sum($q);
+    }
+
+    /**
+     * @param $q
+     * @return int
+     */
+    public function average($q){
+        return $this->getQuerySet()->average($q);
+    }
+
+    /**
+     * @param $q
+     * @return int
+     */
+    public function min($q){
+        return $this->getQuerySet()->min($q);
+    }
+
+    /**
+     * @param $q
+     * @return int
+     */
+    public function max($q){
+        return $this->getQuerySet()->max($q);
     }
 }

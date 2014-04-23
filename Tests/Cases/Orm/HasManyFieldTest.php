@@ -45,7 +45,7 @@ class HasManyFieldTest extends DatabaseTestCase
         $category_animals->name = 'Animals';
         $category_animals->save();
 
-        $this->assertEquals("SELECT COUNT(*) FROM `product` WHERE (`category_id`='1')", $category_toys->products->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `product` WHERE (`category_id`=1)", $category_toys->products->countSql());
         $this->assertEquals(0, $category_toys->products->count());
 
         $product_bear = new Product();

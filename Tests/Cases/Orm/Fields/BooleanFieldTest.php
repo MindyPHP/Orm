@@ -37,12 +37,10 @@ class BooleanFieldTest extends TestCase
         $this->assertFalse($field->getValue());
     }
 
-    /**
-     * @expectedException \Exception
-     */
     public function testInitialization()
     {
-        new BooleanField();
+        $field = new BooleanField();
+        $this->assertFalse($field->default);
     }
 
     public function testObjectValue()

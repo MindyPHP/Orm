@@ -382,6 +382,13 @@ class QuerySet extends Query
         return ['', $this->model];
     }
 
+    /**
+     * @param array $query
+     * @param array $queryCondition
+     * @param array $queryParams
+     * @throws Exception
+     * @return array
+     */
     protected function parseLookup(array $query, array $queryCondition = [], array $queryParams = [])
     {
         // $user = User::objects()->get(['pk' => 1]);
@@ -416,20 +423,35 @@ class QuerySet extends Query
         return [$lookup_query, $lookup_params];
     }
 
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
     public function buildExact($field, $value)
     {
         return [[$field => $value], []];
     }
 
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
     public function buildIsnull($field, $value)
     {
-        if($value) {
+        if ($value) {
             return [[$field => null], []];
         } else {
             return [['not', [$field => null]], []];
         }
     }
 
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
     public function buildIn($field, $value)
     {
         if (is_object($value) && get_class($value) == __CLASS__) {
@@ -439,35 +461,65 @@ class QuerySet extends Query
         return [['in', $field, $value], []];
     }
 
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
     public function buildGte($field, $value)
     {
         $paramName = $this->makeParamKey($field);
         return [['and', $this->quoteColumnName($field) . ' >= :' . $paramName], [':' . $paramName => $value]];
     }
 
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
     public function buildGt($field, $value)
     {
         $paramName = $this->makeParamKey($field);
         return [['and', $this->quoteColumnName($field) . ' > :' . $paramName], [':' . $paramName => $value]];
     }
 
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
     public function buildLte($field, $value)
     {
         $paramName = $this->makeParamKey($field);
         return [['and', $this->quoteColumnName($field) . ' <= :' . $paramName], [':' . $paramName => $value]];
     }
 
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
     public function buildLt($field, $value)
     {
         $paramName = $this->makeParamKey($field);
         return [['and', $this->quoteColumnName($field) . ' < :' . $paramName], [':' . $paramName => $value]];
     }
 
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
     public function buildContains($field, $value)
     {
         return [['like', $field, $value], []];
     }
 
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
     public function buildIcontains($field, $value)
     {
         return [['ilike', $field, $value], []];
@@ -478,27 +530,53 @@ class QuerySet extends Query
         return [['like', $field, $value . '%', false], []];
     }
 
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
     public function buildIStartswith($field, $value)
     {
         return [['ilike', $field, $value . '%', false], []];
     }
 
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
     public function buildEndswith($field, $value)
     {
         return [['like', $field, '%' . $value, false], []];
     }
 
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
     public function buildIendswith($field, $value)
     {
         return [['ilike', $field, '%' . $value, false], []];
     }
 
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
     public function buildRange($field, $value)
     {
         list($start, $end) = $value;
         return [['between', $field, $start, $end], []];
     }
 
+    /**
+     * @param array $query
+     * @param $method
+     * @param array $queryCondition
+     * @return $this
+     */
     public function buildCondition(array $query, $method, $queryCondition = [])
     {
         list($condition, $params) = $this->parseLookup($query);
@@ -507,14 +585,62 @@ class QuerySet extends Query
         return $this;
     }
 
+    /**
+     * @param array $query
+     * @return $this
+     */
     public function filter(array $query)
     {
         return $this->buildCondition($query, 'andWhere', ['and']);
     }
 
+    /**
+     * @param array $query
+     * @return $this
+     */
     public function orFilter(array $query)
     {
         return $this->buildCondition($query, 'orWhere', ['and']);
+    }
+
+    /**
+     * @param array $query
+     * @return $this
+     */
+    public function exclude(array $query)
+    {
+        return $this->buildCondition($query, 'excludeWhere', ['and']);
+    }
+
+    /**
+     * @param array $query
+     * @return $this
+     */
+    public function orExclude(array $query)
+    {
+        return $this->buildCondition($query, 'excludeOrWhere', ['and']);
+    }
+
+    /**
+     * @param $condition
+     * @param array $params
+     * @return static
+     */
+    public function excludeWhere($condition, $params = [])
+    {
+        $condition = ['not', $condition];
+        return parent::andWhere($condition, $params);
+    }
+
+    /**
+     * @param $condition
+     * @param array $params
+     * @return static
+     */
+    public function excludeOrWhere($condition, $params = [])
+    {
+        $condition = ['not', $condition];
+        return parent::orWhere($condition, $params);
     }
 
     /**
@@ -532,7 +658,7 @@ class QuerySet extends Query
     /**
      * Converts found rows into model instances
      * @param array $rows
-     * @return array|ActiveRecord[]
+     * @return array|Orm[]
      */
     private function createModels($rows)
     {
@@ -550,7 +676,7 @@ class QuerySet extends Query
                 $models[$key] = $row;
             }
         } else {
-            /** @var ActiveRecord $class */
+            /** @var Orm $class */
             $class = $this->modelClass;
             if ($this->indexBy === null) {
                 foreach ($rows as $row) {
@@ -585,7 +711,6 @@ class QuerySet extends Query
     }
 
     /**
-     *
      * @param $columns
      * @return array
      */
@@ -623,5 +748,88 @@ class QuerySet extends Query
     public function order($columns)
     {
         return $this->orderBy($columns);
+    }
+
+
+    /**
+     * 'id' -> '`t1`.`id`'
+     * @param $column
+     * @return string
+     */
+    public function aliasColumn($column)
+    {
+        $builder = new LookupBuilder();
+        list($prefix, $field, $condition, $params) = $builder->parseLookup($column);
+        list($alias, $model) = $this->getOrCreateChainAlias($prefix);
+
+        $column = $field;
+        if ($alias) {
+            $column = $alias . '.' . $column;
+        } elseif ($this->_chainedHasMany) {
+            $column = $this->tableAlias . '.' . $column;
+        }
+        return $this->quoteColumnName($column);
+    }
+
+    /**
+     * Converts string to float or val
+     * @param $value
+     * @return float|int
+     */
+    public function numval($value)
+    {
+        if (strpos($value, '.') !== false) {
+            return floatval($value);
+        } else {
+            return intval($value);
+        }
+    }
+
+    /**
+     * @param string $column
+     * @param null $db
+     * @return float|int
+     */
+    public function sum($column, $db = null)
+    {
+        $column = $this->aliasColumn($column);
+        $value = parent::sum($column, $db);
+        return $this->numval($value);
+    }
+
+    /**
+     * @param string $column
+     * @param null $db
+     * @return float|int
+     */
+    public function average($column, $db = null)
+    {
+        $column = $this->aliasColumn($column);
+        $value = parent::average($column, $db);
+        return $this->numval($value);
+    }
+
+    /**
+     * @param string $column
+     * @param null $db
+     * @return float|int
+     */
+    public function min($column, $db = null)
+    {
+        $column = $this->aliasColumn($column);
+        $value = parent::min($column, $db);
+        return $this->numval($value);
+    }
+
+    /**
+     * @param string $column
+     * @param null $db
+     * @return float|int
+     */
+    public function max($column, $db = null)
+    {
+        $column = $this->aliasColumn($column);
+        $value = parent::max($column, $db);
+        return $this->numval($value);
     }
 }

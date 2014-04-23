@@ -17,6 +17,7 @@ namespace Mindy\Orm\Fields;
 
 use Closure;
 use Mindy\Helper\Creator;
+use Mindy\Orm\Model;
 
 abstract class Field
 {
@@ -164,9 +165,18 @@ abstract class Field
         return $this;
     }
 
-    public function getVerboseName()
+    public function getVerboseName(Model $model)
     {
-        return $this->verboseName ? $this->verboseName : ucfirst($this->name);
+        if($this->verboseName) {
+            return $this->verboseName;
+        } else {
+            $name = str_replace('_', ' ', ucfirst($this->name));
+            if(method_exists($model, 'getModule')) {
+                return $model->getModule()->t($name);
+            } else {
+                return $name;
+            }
+        }
     }
 
     abstract public function sqlType();
