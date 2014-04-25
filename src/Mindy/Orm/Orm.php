@@ -231,9 +231,14 @@ class Orm extends Base
     {
         $values = [];
         $rawFields = $this->getFieldsInit();
-        $initFields = [];
-        foreach($fields as $field) {
-            $initFields[$field] = $rawFields[$field];
+
+        if(!empty($fields)) {
+            $initFields = [];
+            foreach($fields as $field) {
+                $initFields[$field] = $rawFields[$field];
+            }
+        } else {
+            $initFields = $rawFields;
         }
 
         foreach($initFields as $name => $field) {
