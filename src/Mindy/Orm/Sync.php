@@ -15,6 +15,8 @@
 namespace Mindy\Orm;
 
 
+use Mindy\Exception\NotSupportedException;
+
 class Sync
 {
     private $_models = [];
@@ -40,11 +42,11 @@ class Sync
                     $name .= "_id";
                 }
 
-               $columns[$name] = $field->sql();
-            } else if(is_a($field, $model->manyToManyField)) {
+                $columns[$name] = $field->sql();
+            } else if (is_a($field, $model->manyToManyField)) {
                 /* @var $field \Mindy\Orm\Fields\ManyToManyField */
-                if(!$this->hasTable($model, $field->getTableName())) {
-                    if($field->through === null) {
+                if (!$this->hasTable($model, $field->getTableName())) {
+                    if ($field->through === null) {
                         $command->createTable($field->getTableName(), $field->getColumns())->execute();
                     }
                 }
@@ -62,18 +64,28 @@ class Sync
         $connection = $model->getConnection();
         $command = $connection->createCommand();
 
-        $command->checkIntegrity(false)->execute();
+        try {
+            // checkIntegrity is not supported by SQLite
+            $command->checkIntegrity(false)->execute();
+        } catch (NotSupportedException $e) {
 
-        foreach($model->getManyFields() as $field) {
-            if($field->through === null) {
-                if ($this->hasTable($model, $field->getTableName())){
+        }
+
+        foreach ($model->getManyFields() as $field) {
+            if ($field->through === null) {
+                if ($this->hasTable($model, $field->getTableName())) {
                     $command->dropTable($field->getTableName())->execute();
                 }
             }
         }
         $command->dropTable($model->tableName())->execute();
 
-        $command->checkIntegrity(true)->execute();
+        try {
+            // checkIntegrity is not supported by SQLite
+            $command->checkIntegrity(true)->execute();
+        } catch (NotSupportedException $e) {
+
+        }
     }
 
     /**
@@ -83,10 +95,15 @@ class Sync
     {
         $command = $model->getConnection()->createCommand();
 
-        $command->checkIntegrity(false)->execute();
+        try {
+            // checkIntegrity is not supported by SQLite
+            $command->checkIntegrity(false)->execute();
+        } catch (NotSupportedException $e) {
 
-        foreach($model->getFields() as $name => $field) {
-            if(is_a($field, '\Mindy\Orm\Fields\ForeignField')) {
+        }
+
+        foreach ($model->getFields() as $name => $field) {
+            if (is_a($field, '\Mindy\Orm\Fields\ForeignField')) {
                 /* @var $modelClass \Mindy\Orm\Model */
                 /* @var $field \Mindy\Orm\Fields\ForeignField */
                 $modelClass = $field->modelClass;
@@ -102,7 +119,12 @@ class Sync
             }
         }
 
-        $command->checkIntegrity(true)->execute();
+        try {
+            // checkIntegrity is not supported by SQLite
+            $command->checkIntegrity(true)->execute();
+        } catch (NotSupportedException $e) {
+
+        }
     }
 
     /**
@@ -113,10 +135,15 @@ class Sync
         $connection = $model->getConnection();
         $command = $connection->createCommand();
 
-        $command->checkIntegrity(false)->execute();
+        try {
+            // checkIntegrity is not supported by SQLite
+            $command->checkIntegrity(false)->execute();
+        } catch (NotSupportedException $e) {
 
-        foreach($model->getFields() as $name => $field) {
-            if(is_a($field, '\Mindy\Orm\Fields\ForeignField')) {
+        }
+
+        foreach ($model->getFields() as $name => $field) {
+            if (is_a($field, '\Mindy\Orm\Fields\ForeignField')) {
                 /* @var $modelClass Orm */
                 /* @var $field \Mindy\Orm\Fields\ForeignField */
                 // $modelClass = $field->relation->modelClass;
@@ -124,13 +151,18 @@ class Sync
             }
         }
 
-        $command->checkIntegrity(true)->execute();
+        try {
+            // checkIntegrity is not supported by SQLite
+            $command->checkIntegrity(true)->execute();
+        } catch (NotSupportedException $e) {
+
+        }
     }
 
     public function create()
     {
         foreach ($this->_models as $model) {
-            if(!$this->hasTable($model)) {
+            if (!$this->hasTable($model)) {
                 $this->createTable($model);
             }
         }
@@ -149,7 +181,7 @@ class Sync
     public function delete()
     {
         foreach ($this->_models as $model) {
-            if($this->hasTable($model)) {
+            if ($this->hasTable($model)) {
                 $this->dropIndexes($model);
                 $this->dropTable($model);
             }
@@ -166,7 +198,7 @@ class Sync
      */
     public function hasTable($model, $tableName = null)
     {
-        if($tableName === null) {
+        if ($tableName === null) {
             $tableName = $model->tableName();
         }
         return !is_null($model->getConnection()->getTableSchema($tableName, true));

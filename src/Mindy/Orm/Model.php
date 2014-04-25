@@ -26,7 +26,7 @@ class Model extends Orm
         return (string) get_class($this);
     }
 
-    public function set(array $values)
+    public function setData(array $values)
     {
         foreach($values as $name => $value) {
             $this->{$name} = $value;
