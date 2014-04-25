@@ -93,7 +93,7 @@ class Manager
      * @param array $q
      * @return Orm|null
      */
-    public function get(array $q)
+    public function get(array $q = [])
     {
         return $this->filter($q)->get();
     }
