@@ -54,6 +54,30 @@ class SaveUpdateTest extends DatabaseTestCase
         $this->assertEquals('VeryGoodP@ssword', $model->password);
     }
 
+    public function testSaveSelectedField()
+    {
+        $model = new User();
+        $model->username = 'Anton';
+        $model->password = 'VeryGoodP@ssword';
+        $this->assertEquals(0, User::objects()->count());
+        $this->assertTrue($model->isNewRecord);
+        $this->assertTrue($model->isValid());
+        $this->assertNull($model->pk);
+        $this->assertEquals('Anton', $model->username);
+        $this->assertEquals('VeryGoodP@ssword', $model->password);
+
+        $saved = $model->save(['username']);
+        $this->assertTrue($saved);
+        $this->assertEquals(1, User::objects()->count());
+        $this->assertFalse($model->isNewRecord);
+        $this->assertEquals(1, $model->pk);
+        $this->assertEquals('Anton', $model->username);
+        $this->assertEquals('VeryGoodP@ssword', $model->password);
+
+        $model = User::objects()->get();
+        $this->assertNull($model->password);
+    }
+
     public function testUpdate()
     {
         $model = new User();

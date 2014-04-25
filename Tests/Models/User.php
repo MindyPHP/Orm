@@ -40,7 +40,10 @@ class User extends Model
                     new MaxLengthValidator(20),
                 ]
             ],
-            'password' => ['class' => CharField::className()],
+            'password' => [
+                'class' => CharField::className(),
+                'null' => true
+            ],
             'groups' => [
                 'class' => ManyToManyField::className(),
                 'modelClass' => Group::className(),

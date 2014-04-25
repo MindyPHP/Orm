@@ -183,9 +183,9 @@ class Orm extends Base
      * TODO move to manager
      * @return bool
      */
-    protected function insert()
+    protected function insert(array $fields = [])
     {
-        $values = $this->getChangedValues();
+        $values = $this->getChangedValues($fields);
 
         $connection = $this->getConnection();
 
@@ -224,12 +224,19 @@ class Orm extends Base
 
     /**
      * TODO move to trait ? Used in save method !
+     * @param array $fields return incoming fields only
      * @return array
      */
-    protected function getChangedValues()
+    protected function getChangedValues(array $fields = [])
     {
         $values = [];
-        foreach($this->getFieldsInit() as $name => $field) {
+        $rawFields = $this->getFieldsInit();
+        $initFields = [];
+        foreach($fields as $field) {
+            $initFields[$field] = $rawFields[$field];
+        }
+
+        foreach($initFields as $name => $field) {
             if(is_a($field, $this->manyToManyField) || is_a($field, $this->hasManyField)) {
                 continue;
             }
@@ -257,10 +264,10 @@ class Orm extends Base
      * @return bool
      * @throws \Exception
      */
-    protected function update()
+    protected function update(array $fields = [])
     {
         // TODO beforeSave
-        $values = $this->getChangedValues();
+        $values = $this->getChangedValues($fields);
 
         $name = $this->primaryKey();
         $condition = [
@@ -276,9 +283,9 @@ class Orm extends Base
      * TODO move to manager
      * @return bool
      */
-    public function save()
+    public function save(array $fields = [])
     {
-        return $this->isNewRecord ? $this->insert() : $this->update();
+        return $this->isNewRecord ? $this->insert($fields) : $this->update($fields);
     }
 
     /**
