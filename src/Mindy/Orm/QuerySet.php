@@ -236,7 +236,9 @@ class QuerySet extends Query
     protected function makeAliasKey($table)
     {
         $this->_aliasesCount += 1;
-        return strtolower($table) . '_' . $this->_aliasesCount;
+        $table = str_replace(['{{','}}','%','`'],'',$table);
+        $table = strtolower($table) . '_' . $this->_aliasesCount;
+        return $this->quoteColumnName($table);
     }
 
     /**
@@ -772,7 +774,7 @@ class QuerySet extends Query
     }
 
     /**
-     * Converts string to float or val
+     * Converts string to float or int
      * @param $value
      * @return float|int
      */

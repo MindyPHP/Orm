@@ -19,6 +19,8 @@ use Tests\Models\User;
 
 class QueryTest extends DatabaseTestCase
 {
+    public $prefix = '';
+
     public function setUp()
     {
         parent::setUp();
@@ -36,6 +38,9 @@ class QueryTest extends DatabaseTestCase
             }
             $tmp->save();
         }
+
+        $model = new User();
+        $this->prefix = $model->getConnection()->tablePrefix;
     }
 
     public function testFind()
@@ -73,13 +78,13 @@ class QueryTest extends DatabaseTestCase
     {
         $qs = User::objects()->filter(['username' => 'Anton'])->exclude(['username' => 'Max']);
         $this->assertEquals(1, $qs->count());
-        $this->assertEquals("SELECT COUNT(*) FROM `user` WHERE ((`username`='Anton')) AND (NOT ((`username`='Max')))", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}user` WHERE ((`username`='Anton')) AND (NOT ((`username`='Max')))", $qs->countSql());
     }
 
     public function testOrExclude()
     {
         $qs = User::objects()->exclude(['username' => 'Max'])->orExclude(['username' => 'Anton']);
         $this->assertEquals(2, $qs->count());
-        $this->assertEquals("SELECT COUNT(*) FROM `user` WHERE (NOT ((`username`='Max'))) OR (NOT ((`username`='Anton')))", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}user` WHERE (NOT ((`username`='Max'))) OR (NOT ((`username`='Anton')))", $qs->countSql());
     }
 }

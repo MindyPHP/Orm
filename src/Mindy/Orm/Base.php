@@ -40,7 +40,7 @@ class Base implements ArrayAccess
         } else {
             $class = $normalizeClass;
         }
-        return trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', '_\0', $class)), '_');
+        return '{{%' . trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', '_\0', $class)), '_') . '}}';
     }
 
     /**

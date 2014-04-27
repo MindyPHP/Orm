@@ -47,6 +47,10 @@ class ManyToManyManager extends RelatedManager
     }
 
     protected function escape($value){
+        // if has auto-quotation
+        if (strpos($value, '{{') !== false || strpos($value, '`') !== false || strpos($value, '[[') !== false ){
+            return $value;
+        }
         return '`' . $value .'`';
     }
 

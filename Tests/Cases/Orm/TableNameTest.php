@@ -12,16 +12,16 @@ class TableNameTest extends TestCase
 {
     public function testTableName()
     {
-        $this->assertEquals('product', Product::tableName());
+        $this->assertEquals('{{%product}}', Product::tableName());
     }
 
     public function testLongTableName()
     {
-        $this->assertEquals('product_list', ProductList::tableName());
+        $this->assertEquals('{{%product_list}}', ProductList::tableName());
     }
 
     public function testWithoutNamespace()
     {
-        $this->assertEquals('without_namespace', WithoutNamespace::tableName());
+        $this->assertEquals('{{%without_namespace}}', WithoutNamespace::tableName());
     }
 }

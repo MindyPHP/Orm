@@ -59,22 +59,6 @@ class HasManyField extends RelatedField
         $this->_model = $model;
     }
 
-    public function getModel()
-    {
-        return $this->_model;
-    }
-
-    /**
-     * @return \Mindy\Orm\Model
-     */
-    public function getRelatedModel()
-    {
-        if (!$this->_relatedModel) {
-            $this->_relatedModel = new $this->modelClass();
-        }
-        return $this->_relatedModel;
-    }
-
     public function sqlType()
     {
         return false;
@@ -94,7 +78,7 @@ class HasManyField extends RelatedField
     public function to()
     {
         if (!$this->to) {
-            $this->to = $this->getModel()->tableName() . '_' . $this->getModel()->getPkName();
+            $this->to = $this->getTable() . '_' . $this->getModel()->getPkName();
         }
         return $this->to;
     }
@@ -114,7 +98,7 @@ class HasManyField extends RelatedField
     public function getJoin(){
         return array($this->getRelatedModel(), array(
             array(
-                'table' => $this->getRelatedModel()->tableName(),
+                'table' => $this->getRelatedTable(false),
                 'from' => $this->from(),
                 'to' => $this->to(),
                 'group' => true

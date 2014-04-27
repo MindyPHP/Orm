@@ -35,37 +35,37 @@ class ManyToManyField extends RelatedField
      * Main model
      * @var \Mindy\Orm\Model
      */
-    private $_model;
+    protected $_model;
 
     /**
      * Related model
      * @var \Mindy\Orm\Model
      */
-    private $_relatedModel;
+    protected $_relatedModel;
 
     /**
      * Primary key name
      * @var string
      */
-    private $_modelPk;
+    protected $_modelPk;
 
     /**
      * Primary key name of the related model
      * @var string
      */
-    private $_relatedModelPk;
+    protected $_relatedModelPk;
 
     /**
      * Model column in "link" table
      * @var string
      */
-    private $_modelColumn;
+    protected $_modelColumn;
 
     /**
      * Related model column in "link" table
      * @var string
      */
-    private $_relatedModelColumn;
+    protected $_relatedModelColumn;
 
     /**
      * @var array
@@ -80,7 +80,7 @@ class ManyToManyField extends RelatedField
     /**
      * @var
      */
-    private $_columns = [];
+    protected $_columns = [];
 
     /**
      * Initialization
@@ -128,7 +128,7 @@ class ManyToManyField extends RelatedField
     public function getRelatedModelColumn()
     {
         if (!$this->_relatedModelColumn) {
-            $this->_relatedModelColumn = $this->getRelatedModel()->tableName() . '_' . $this->getRelatedModelPk();
+            $this->_relatedModelColumn = $this->getRelatedTable() . '_' . $this->getRelatedModelPk();
         }
         return $this->_relatedModelColumn;
     }
@@ -150,7 +150,7 @@ class ManyToManyField extends RelatedField
     public function getModelColumn()
     {
         if (!$this->_modelColumn) {
-            $this->_modelColumn = $this->getModel()->tableName() . '_' . $this->getModelPk();
+            $this->_modelColumn = $this->getTable() . '_' . $this->getModelPk();
         }
         return $this->_modelColumn;
     }
@@ -180,9 +180,9 @@ class ManyToManyField extends RelatedField
     {
         if (!$this->_tableName) {
             if (!$this->through) {
-                $parts = [$this->getModel()->tableName(), $this->getRelatedModel()->tableName()];
+                $parts = [$this->getTable(), $this->getRelatedTable()];
                 sort($parts);
-                $this->_tableName = implode('_', $parts);
+                $this->_tableName = '{{%' . implode('_', $parts) . '}}';
             } else {
                 $through = $this->through;
                 $this->_tableName = $through::tableName();
@@ -254,14 +254,14 @@ class ManyToManyField extends RelatedField
 
         return array($relatedModel, array(
             array(
-                'table' => $this->getTableName(),
+                'table' => $this->getTableName(false),
                 // @TODO: chained with Sync - 40 line
                 'from' => $this->getModel()->getPkName(),
                 'to' => $this->getModelColumn(),
                 'group' => true
             ),
             array(
-                'table' => $relatedModel->tableName(),
+                'table' => $this->getRelatedTable(false),
                 // @TODO: chained with Sync - 40 line
                 'from' => $this->getRelatedModelColumn(),
                 'to' => $relatedModel->getPkName()
