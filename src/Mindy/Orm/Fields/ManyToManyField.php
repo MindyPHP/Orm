@@ -225,14 +225,18 @@ class ManyToManyField extends RelatedField
 
     protected function preformatValue($value)
     {
-        if(!is_array($value) && is_numeric($value)) {
+        if(!is_array($value) && $value != '' && is_numeric($value[0])) {
             $value = [$value];
         }
 
-        if(($value[0] instanceof Model) === false && !is_numeric($value[0])) {
-            throw new Exception("ManyToMany field can set only arrays of Models or existing primary keys");
+        if(is_array($value) && count($value) > 0) {
+            if (($value[0] instanceof Model) === false && !is_numeric($value[0])) {
+                throw new Exception("ManyToMany field can set only arrays of Models or existing primary keys");
+            } else {
+                return $value;
+            }
         } else {
-            return $value;
+            return [];
         }
     }
 
