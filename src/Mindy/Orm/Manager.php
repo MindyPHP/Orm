@@ -53,6 +53,11 @@ class Manager
         return $this->_qs;
     }
 
+    public function asArray($value = true)
+    {
+        return $this->getQuerySet()->asArray($value);
+    }
+
     /**
      * Returns the primary key name(s) for this AR class.
      * The default implementation will return the primary key(s) as declared
