@@ -22,6 +22,7 @@ use Tests\Models\Customer;
 use Tests\Models\Order;
 use Tests\Models\Product;
 use Tests\Models\User;
+use Tests\Models\ProductList;
 
 
 class LookupTest extends DatabaseTestCase
@@ -37,12 +38,18 @@ class LookupTest extends DatabaseTestCase
             new User,
             new Customer,
             new Product,
-            new Category
+            new Category,
+            new ProductList
         ]);
 
         $category = new Category;
         $category->name = 'test';
         $category->save();
+
+        $product_list = new ProductList();
+        $product_list->name = 'First product list';
+        $product_list->date_action = '2014-04-29 10:35:45';
+        $product_list->save();
 
         $user = new User;
         $user->password = 123456;
@@ -78,13 +85,13 @@ class LookupTest extends DatabaseTestCase
 
     public function tearDown()
     {
-        $this->dropModels([
-            new Order,
-            new User,
-            new Customer,
-            new Product,
-            new Category
-        ]);
+//        $this->dropModels([
+//            new Order,
+//            new User,
+//            new Customer,
+//            new Product,
+//            new Category
+//        ]);
     }
 
     public function testInit()
@@ -169,6 +176,97 @@ class LookupTest extends DatabaseTestCase
         $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product` WHERE (`id` LIKE '%1')", $qs->countSql());
     }
 
+    public function testYear()
+    {
+        $qs = ProductList::objects()->filter(['date_action__year' => 2014]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((EXTRACT(YEAR FROM `date_action`) = '2014'))", $qs->countSql());
+        $this->assertEquals(1, $qs->count());
+
+        $qs = ProductList::objects()->filter(['date_action__year' => '2013']);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((EXTRACT(YEAR FROM `date_action`) = '2013'))", $qs->countSql());
+        $this->assertEquals(0, $qs->count());
+    }
+
+    public function testMonth()
+    {
+        $qs = ProductList::objects()->filter(['date_action__month' => 4]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((EXTRACT(MONTH FROM `date_action`) = '4'))", $qs->countSql());
+        $this->assertEquals(1, $qs->count());
+
+        $qs = ProductList::objects()->filter(['date_action__month' => '3']);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((EXTRACT(MONTH FROM `date_action`) = '3'))", $qs->countSql());
+        $this->assertEquals(0, $qs->count());
+    }
+
+    public function testDay()
+    {
+        $qs = ProductList::objects()->filter(['date_action__day' => 29]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((EXTRACT(DAY FROM `date_action`) = '29'))", $qs->countSql());
+        $this->assertEquals(1, $qs->count());
+
+        $qs = ProductList::objects()->filter(['date_action__day' => '30']);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((EXTRACT(DAY FROM `date_action`) = '30'))", $qs->countSql());
+        $this->assertEquals(0, $qs->count());
+    }
+
+    public function testWeekDay()
+    {
+        $qs = ProductList::objects()->filter(['date_action__week_day' => 3]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((DAYOFWEEK(`date_action`) = '3'))", $qs->countSql());
+        $this->assertEquals(1, $qs->count());
+
+        $qs = ProductList::objects()->filter(['date_action__week_day' => '4']);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((DAYOFWEEK(`date_action`) = '4'))", $qs->countSql());
+        $this->assertEquals(0, $qs->count());
+    }
+
+    public function testHour()
+    {
+        $qs = ProductList::objects()->filter(['date_action__hour' => 10]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((EXTRACT(HOUR FROM `date_action`) = '10'))", $qs->countSql());
+        $this->assertEquals(1, $qs->count());
+
+        $qs = ProductList::objects()->filter(['date_action__hour' => '11']);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((EXTRACT(HOUR FROM `date_action`) = '11'))", $qs->countSql());
+        $this->assertEquals(0, $qs->count());
+    }
+
+    public function testMinute()
+    {
+        $qs = ProductList::objects()->filter(['date_action__minute' => 35]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((EXTRACT(MINUTE FROM `date_action`) = '35'))", $qs->countSql());
+        $this->assertEquals(1, $qs->count());
+
+        $qs = ProductList::objects()->filter(['date_action__minute' => '36']);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((EXTRACT(MINUTE FROM `date_action`) = '36'))", $qs->countSql());
+        $this->assertEquals(0, $qs->count());
+    }
+
+    public function testSecond()
+    {
+        $qs = ProductList::objects()->filter(['date_action__second' => 45]);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((EXTRACT(SECOND FROM `date_action`) = '45'))", $qs->countSql());
+        $this->assertEquals(1, $qs->count());
+
+        $qs = ProductList::objects()->filter(['date_action__second' => '46']);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((EXTRACT(SECOND FROM `date_action`) = '46'))", $qs->countSql());
+        $this->assertEquals(0, $qs->count());
+    }
+
     public function testRange()
     {
         $qs = Product::objects()->filter(['id__range' => [0, 1]]);
@@ -178,6 +276,32 @@ class LookupTest extends DatabaseTestCase
         $qs = Product::objects()->filter(['id__range' => [10, 20]]);
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
         $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product` WHERE (`id` BETWEEN 10 AND 20)", $qs->countSql());
+    }
+
+    public function testRegex()
+    {
+        $qs = ProductList::objects()->filter(['name__regex' => '[a-z]']);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((`name` REGEXP BINARY '[a-z]'))", $qs->countSql());
+        $this->assertEquals(1, $qs->count());
+
+        $qs = ProductList::objects()->filter(['name__regex' => '[0-9]']);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((`name` REGEXP BINARY '[0-9]'))", $qs->countSql());
+        $this->assertEquals(0, $qs->count());
+    }
+
+    public function testIregex()
+    {
+        $qs = ProductList::objects()->filter(['name__iregex' => '[P-Z]']);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((`name` REGEXP '[P-Z]'))", $qs->countSql());
+        $this->assertEquals(1, $qs->count());
+
+        $qs = ProductList::objects()->filter(['name__iregex' => '[0-9]']);
+        $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` WHERE ((`name` REGEXP '[0-9]'))", $qs->countSql());
+        $this->assertEquals(0, $qs->count());
     }
 
     public function testSql()

@@ -8,6 +8,7 @@
 
 namespace Mindy\Orm;
 
+use Mindy\Exception\Exception;
 use Mindy\Query\Query;
 
 class QuerySet extends Query
@@ -575,6 +576,143 @@ class QuerySet extends Query
     {
         list($start, $end) = $value;
         return [['between', $field, $start, $end], []];
+    }
+
+    /**
+     * @param $field
+     * @param $value
+     * @param $extract
+     * @return array
+     */
+    public function buildDateTimeCondition($field, $value, $extract = "YEAR")
+    {
+        if (!is_string($value)){
+            $value = (string)$value;
+        }
+
+        $paramName = $this->makeParamKey($field);
+        return [['and', "EXTRACT(" . $extract ." FROM " . $this->quoteColumnName($field) . ") = :" . $paramName], [':' . $paramName => $value]];
+    }
+
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
+    public function buildYear($field, $value)
+    {
+        return $this->buildDateTimeCondition($field, $value, "YEAR");
+    }
+
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
+    public function buildMonth($field, $value)
+    {
+        return $this->buildDateTimeCondition($field, $value, "MONTH");
+    }
+
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
+    public function buildDay($field, $value)
+    {
+        return $this->buildDateTimeCondition($field, $value, "DAY");
+    }
+
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
+    public function buildWeek_day($field, $value)
+    {
+        if (!is_string($value)){
+            $value = (string)$value;
+        }
+
+        $paramName = $this->makeParamKey($field);
+        // TODO: this works only with MYSQL, PostgreSQL need EXTRACT(DOW FROM `field`)
+        return [['and', "DAYOFWEEK(" . $this->quoteColumnName($field) . ") = :" . $paramName], [':' . $paramName => $value]];
+    }
+
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
+    public function buildHour($field, $value)
+    {
+        return $this->buildDateTimeCondition($field, $value, "HOUR");
+    }
+
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
+    public function buildMinute($field, $value)
+    {
+        return $this->buildDateTimeCondition($field, $value, "MINUTE");
+    }
+
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
+    public function buildSecond($field, $value)
+    {
+        return $this->buildDateTimeCondition($field, $value, "SECOND");
+    }
+
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     * @throws \Mindy\Exception\Exception
+     */
+    public function buildSearch($field, $value)
+    {
+        throw new Exception('Not implemented');
+    }
+
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     * @throws \Mindy\Exception\Exception
+     */
+    public function buildRegex($field, $value)
+    {
+        if (!is_string($value)){
+            $value = (string)$value;
+        }
+
+        $paramName = $this->makeParamKey($field);
+        // TODO: this works only with MYSQL, PostgreSQL need  ~
+        return [['and', $this->quoteColumnName($field) . " REGEXP BINARY :" . $paramName], [':' . $paramName => $value]];
+    }
+
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     * @throws \Mindy\Exception\Exception
+     */
+    public function buildIregex($field, $value)
+    {
+        if (!is_string($value)){
+            $value = (string)$value;
+        }
+
+        $paramName = $this->makeParamKey($field);
+        // TODO: this works only with MYSQL, PostgreSQL need  ~*
+        return [['and', $this->quoteColumnName($field) . " REGEXP :" . $paramName], [':' . $paramName => $value]];
     }
 
     /**

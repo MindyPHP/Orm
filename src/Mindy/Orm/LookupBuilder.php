@@ -38,7 +38,7 @@ class LookupBuilder
         'range',
         'year',
         'month',
-        'date',
+        'day',
         'week_day',
         'hour',
         'minute',

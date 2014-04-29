@@ -38,7 +38,7 @@ class SaveUpdateTest extends DatabaseTestCase
         $model->username = 'Anton';
         $model->password = 'VeryGoodP@ssword';
         $this->assertEquals(0, User::objects()->count());
-        $this->assertTrue($model->isNewRecord);
+        $this->assertTrue($model->getIsNewRecord());
 
         $this->assertTrue($model->isValid());
         $this->assertNull($model->pk);
@@ -48,7 +48,7 @@ class SaveUpdateTest extends DatabaseTestCase
         $saved = $model->save();
         $this->assertTrue($saved);
         $this->assertEquals(1, User::objects()->count());
-        $this->assertFalse($model->isNewRecord);
+        $this->assertFalse($model->getIsNewRecord());
         $this->assertEquals(1, $model->pk);
         $this->assertEquals('Anton', $model->username);
         $this->assertEquals('VeryGoodP@ssword', $model->password);
@@ -60,7 +60,7 @@ class SaveUpdateTest extends DatabaseTestCase
         $model->username = 'Anton';
         $model->password = 'VeryGoodP@ssword';
         $this->assertEquals(0, User::objects()->count());
-        $this->assertTrue($model->isNewRecord);
+        $this->assertTrue($model->getIsNewRecord());
         $this->assertTrue($model->isValid());
         $this->assertNull($model->pk);
         $this->assertEquals('Anton', $model->username);
@@ -69,7 +69,7 @@ class SaveUpdateTest extends DatabaseTestCase
         $saved = $model->save(['username']);
         $this->assertTrue($saved);
         $this->assertEquals(1, User::objects()->count());
-        $this->assertFalse($model->isNewRecord);
+        $this->assertFalse($model->getIsNewRecord());
         $this->assertEquals(1, $model->pk);
         $this->assertEquals('Anton', $model->username);
         $this->assertEquals('VeryGoodP@ssword', $model->password);
@@ -90,7 +90,7 @@ class SaveUpdateTest extends DatabaseTestCase
         $saved = $model->save();
         $this->assertTrue($saved);
         $this->assertEquals(1, User::objects()->count());
-        $this->assertFalse($model->isNewRecord);
+        $this->assertFalse($model->getIsNewRecord());
 
         $this->assertEquals('Max', $model->username);
         $this->assertEquals('VeryGoodP@ssword', $model->password);

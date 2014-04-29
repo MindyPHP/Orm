@@ -15,6 +15,7 @@
 namespace Tests\Models;
 
 use Mindy\Orm\Fields\CharField;
+use Mindy\Orm\Fields\DateTimeField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Model;
 
@@ -33,6 +34,11 @@ class ProductList extends Model
             'products' => [
                 'class' => ManyToManyField::className(),
                 'modelClass' => Product::className()
+            ],
+            'date_action' => [
+                'class' => DateTimeField::className(),
+                'required' => false,
+                'null' => true
             ]
         ];
     }
