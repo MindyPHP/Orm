@@ -85,13 +85,13 @@ class LookupTest extends DatabaseTestCase
 
     public function tearDown()
     {
-//        $this->dropModels([
-//            new Order,
-//            new User,
-//            new Customer,
-//            new Product,
-//            new Category
-//        ]);
+        $this->dropModels([
+            new Order,
+            new User,
+            new Customer,
+            new Product,
+            new Category
+        ]);
     }
 
     public function testInit()
