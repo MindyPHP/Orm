@@ -15,11 +15,11 @@
 namespace Mindy\Orm\Fields;
 
 
-class DateTimeField extends Field
+class DateField extends Field
 {
     public function sqlType()
     {
-        return 'datetime';
+        return 'date';
     }
 
     public function sqlDefault()
