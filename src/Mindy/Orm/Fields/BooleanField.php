@@ -17,17 +17,11 @@ namespace Mindy\Orm\Fields;
 
 class BooleanField extends Field
 {
-    public function __construct(array $options = [])
-    {
-        if (!isset($options['default'])) {
-            $options['default'] = false;
-        }
-        parent::__construct($options);
-    }
+    public $default = false;
 
     public function sql()
     {
-        return trim(sprintf('%s %s', $this->sqlType(), $this->sqlNullable()));
+        return trim(sprintf('%s %s', $this->sqlType(), $this->sqlDefault()));
     }
 
     public function sqlType()

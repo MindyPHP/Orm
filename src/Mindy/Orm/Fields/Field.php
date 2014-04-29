@@ -122,7 +122,8 @@ abstract class Field
 
     public function sqlDefault()
     {
-        return $this->default === null ? '' : "DEFAULT {$this->default}";
+        $default = $this->default ? 'TRUE' : 'FALSE';
+        return $this->default === null ? '' : "DEFAULT {$default}";
     }
 
     public function sqlNullable()

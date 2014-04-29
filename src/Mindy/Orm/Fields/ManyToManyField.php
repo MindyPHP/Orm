@@ -223,15 +223,30 @@ class ManyToManyField extends RelatedField
         return false;
     }
 
+    protected function preformatValue($value)
+    {
+        if(!is_array($value) && $value != '' && is_numeric($value[0])) {
+            $value = [$value];
+        }
+
+        if(is_array($value) && count($value) > 0) {
+            if (($value[0] instanceof Model) === false && !is_numeric($value[0])) {
+                throw new Exception("ManyToMany field can set only arrays of Models or existing primary keys");
+            } else {
+                return $value;
+            }
+        } else {
+            return [];
+        }
+    }
+
     /**
      * @param array $value
      * @throws \Exception
      */
     public function setValue($value)
     {
-        if (!is_array($value)) {
-            throw new Exception("ManyToMany field can set only arrays of Models or existing primary keys");
-        }
+        $value = $this->preformatValue($value);
         $class = $this->modelClass;
         $manager = $this->getManager();
         $manager->clean();

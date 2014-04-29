@@ -33,11 +33,6 @@ class Orm extends Base
     private $_errors = [];
 
     /**
-     * @var bool Returns a value indicating whether the current record is new.
-     */
-    public $isNewRecord = true;
-
-    /**
      * TODO move to manager
      * @var \Mindy\Query\Connection
      */
@@ -194,7 +189,6 @@ class Orm extends Base
             return false;
         }
 
-        $this->isNewRecord = false;
         $this->refreshPrimaryKeyValue();
 
         return true;
@@ -223,7 +217,7 @@ class Orm extends Base
     }
 
     /**
-     * TODO move to trait ? Used in save method !
+     * TODO method work incorrect
      * @param array $fields return incoming fields only
      * @return array
      */
@@ -290,7 +284,12 @@ class Orm extends Base
      */
     public function save(array $fields = [])
     {
-        return $this->isNewRecord ? $this->insert($fields) : $this->update($fields);
+        return $this->getIsNewRecord() ? $this->insert($fields) : $this->update($fields);
+    }
+
+    public function getIsNewRecord()
+    {
+        return $this->pk === null;
     }
 
     /**

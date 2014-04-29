@@ -29,7 +29,9 @@ class Model extends Orm
     public function setData(array $values)
     {
         foreach($values as $name => $value) {
-            $this->{$name} = $value;
+            if($this->hasField($name)) {
+                $this->{$name} = $value;
+            }
         }
         return $this;
     }
