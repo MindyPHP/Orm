@@ -71,6 +71,11 @@ class Orm extends Base
     /**
      * @var array
      */
+    private $_oldFields = [];
+
+    /**
+     * @var array
+     */
     private $_fkFields = [];
 
     /**
@@ -235,24 +240,45 @@ class Orm extends Base
             $initFields = $rawFields;
         }
 
+        $oldFields = $this->getOldFieldsInit();
+
         foreach($initFields as $name => $field) {
             if(is_a($field, $this->manyToManyField) || is_a($field, $this->hasManyField)) {
                 continue;
             }
 
             if(is_a($field, $this->foreignField)) {
-                $name .= '_id';
+                $newName = $name . '_id';
                 /* @var $field \Mindy\Orm\Fields\ForeignField */
                 $value = $field->getValue();
-                if(is_a($field->getValue(), '\Mindy\Orm\Model')) {
+                if(is_a($value, '\Mindy\Orm\Model')) {
                     $value = $value->pk;
                 }
             } else {
+                $newName = $name;
                 /* @var $field \Mindy\Orm\Fields\Field */
                 $value = $field->getValue();
             }
 
-            $values[$name] = $value;
+            if($this->getIsNewRecord()) {
+                $values[$newName] = $value;
+            } else {
+                $oldField = $oldFields[$name];
+                if(is_a($oldField, $this->foreignField)) {
+                    /* @var $field \Mindy\Orm\Fields\ForeignField */
+                    $oldValue = $oldField->getValue();
+                    if(is_a($oldValue, '\Mindy\Orm\Model')) {
+                        $oldValue = $oldValue->pk;
+                    }
+                } else {
+                    /* @var $field \Mindy\Orm\Fields\Field */
+                    $oldValue = $oldField->getValue();
+                }
+
+                if($oldValue != $value) {
+                    $values[$newName] = $value;
+                }
+            }
         }
 
         return $values;
@@ -576,6 +602,15 @@ class Orm extends Base
             $field->setModel($this);
             $this->_fields[$name] = $field;
         }
+
+        $this->setOldFields();
+    }
+
+    protected function setOldFields()
+    {
+        foreach ($this->_fields as $name => $field) {
+            $this->_oldFields[$name] = clone $field;
+        }
     }
 
     public function hasManyToManyField($name)
@@ -606,6 +641,15 @@ class Orm extends Base
     public function getFieldsInit()
     {
         return $this->_fields;
+    }
+
+    /**
+     * Return initialized old fields
+     * @return \Mindy\Orm\Fields\Field[]
+     */
+    public function getOldFieldsInit()
+    {
+        return $this->_oldFields;
     }
 
     /**
