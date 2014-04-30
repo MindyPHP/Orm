@@ -63,11 +63,7 @@ class QuerySet extends Query
      */
     private $_aliasesCount = 0;
 
-    /**
-     * Current table alias
-     * @var string
-     */
-    public $tableAlias = 't1';
+    protected $_tableAlias;
 
     /**
      * Executes query and returns all results as an array.
@@ -94,6 +90,45 @@ class QuerySet extends Query
         }
     }
 
+
+    public function getTableAlias(){
+        if (!$this->_tableAlias){
+            $table_name = $this->model->tableName();
+            $table_name = $this->makeAliasKey($table_name);
+            $this->_tableAlias = $table_name;
+        }
+        return $this->_tableAlias;
+    }
+
+    public function valuesList(array $fieldsList = [])
+    {
+        // @TODO: hardcode, refactoring
+        $select = $this->select;
+
+        $group = $this->groupBy;
+        if ($this->_chainedHasMany && !$group) {
+            $this->groupBy($this->tableAlias . '.' . $this->retreivePrimaryKey());
+        }
+
+        $values_select = [];
+        foreach ($fieldsList as $fieldName) {
+            $values_select[] = $this->aliasColumn($fieldName) . ' as '. $fieldName;
+        }
+        $this->select = $values_select;
+
+        $command = $this->createCommand();
+        $rows = $command->queryAll();
+
+        $this->groupBy = $group;
+        $this->select = $select;
+
+        if (!empty($rows)) {
+            return $rows;
+        } else {
+            return [];
+        }
+    }
+
     /**
      * Paginate models
      * @param int $page
@@ -103,7 +138,7 @@ class QuerySet extends Query
     public function paginate($page = 1, $pageSize = 10)
     {
         $this->limit($pageSize);
-        if($page > 1) {
+        if ($page > 1) {
             $this->offset($pageSize * $page);
         }
         return $this;
@@ -241,7 +276,7 @@ class QuerySet extends Query
     protected function makeAliasKey($table)
     {
         $this->_aliasesCount += 1;
-        $table = str_replace(['{{','}}','%','`'],'',$table);
+        $table = str_replace(['{{', '}}', '%', '`'], '', $table);
         $table = strtolower($table) . '_' . $this->_aliasesCount;
         return $this->quoteColumnName($table);
     }
@@ -254,6 +289,8 @@ class QuerySet extends Query
     protected function makeParamKey($fieldName)
     {
         $this->_paramsCount += 1;
+        $fieldName = str_replace(['`','{{','}}','%','[[',']]'],'',$fieldName);
+        $fieldName = str_replace('.','_',$fieldName);
         return $fieldName . $this->_paramsCount;
     }
 
@@ -369,13 +406,12 @@ class QuerySet extends Query
      */
     protected function getOrCreateChainAlias(array $prefix)
     {
+        if (!$this->from) {
+            $this->from($this->model->tableName() . ' ' . $this->tableAlias);
+            $this->select($this->tableAlias . '.*');
+        }
+
         if (count($prefix) > 0) {
-
-            if (!$this->from) {
-                $this->from($this->model->tableName() . ' ' . $this->tableAlias);
-                $this->select($this->tableAlias . '.*');
-            }
-
             if (!($chain = $this->getChain($prefix))) {
                 $this->makeChain($prefix);
                 $chain = $this->getChain($prefix);
@@ -386,7 +422,7 @@ class QuerySet extends Query
             }
         }
 
-        return ['', $this->model];
+        return [$this->tableAlias, $this->model];
     }
 
     /**
@@ -412,8 +448,10 @@ class QuerySet extends Query
                 $field = $model->getPkName();
             }
 
-            if ($alias) {
-                $field = $alias . '.' . $field;
+            if (strpos($field,'.') === false){
+                if ($alias) {
+                    $field = $alias . '.' . $field;
+                }
             }
 
             if (is_object($params) && get_class($params) == __CLASS__ && $condition != 'in') {
@@ -586,12 +624,12 @@ class QuerySet extends Query
      */
     public function buildDateTimeCondition($field, $value, $extract = "YEAR")
     {
-        if (!is_string($value)){
+        if (!is_string($value)) {
             $value = (string)$value;
         }
 
         $paramName = $this->makeParamKey($field);
-        return [['and', "EXTRACT(" . $extract ." FROM " . $this->quoteColumnName($field) . ") = :" . $paramName], [':' . $paramName => $value]];
+        return [['and', "EXTRACT(" . $extract . " FROM " . $this->quoteColumnName($field) . ") = :" . $paramName], [':' . $paramName => $value]];
     }
 
     /**
@@ -631,7 +669,7 @@ class QuerySet extends Query
      */
     public function buildWeek_day($field, $value)
     {
-        if (!is_string($value)){
+        if (!is_string($value)) {
             $value = (string)$value;
         }
 
@@ -689,7 +727,7 @@ class QuerySet extends Query
      */
     public function buildRegex($field, $value)
     {
-        if (!is_string($value)){
+        if (!is_string($value)) {
             $value = (string)$value;
         }
 
@@ -706,7 +744,7 @@ class QuerySet extends Query
      */
     public function buildIregex($field, $value)
     {
-        if (!is_string($value)){
+        if (!is_string($value)) {
             $value = (string)$value;
         }
 
@@ -872,13 +910,7 @@ class QuerySet extends Query
                 $sort = SORT_DESC;
             }
 
-            $builder = new LookupBuilder();
-            list($prefix, $field, $condition, $params) = $builder->parseLookup($column);
-            list($alias, $model) = $this->getOrCreateChainAlias($prefix);
-
-            if ($alias) {
-                $column = $alias . '.' . $field;
-            }
+            $column = $this->aliasColumn($column);
             $result[$column] = $sort;
         }
         return $result;
@@ -907,10 +939,13 @@ class QuerySet extends Query
         list($alias, $model) = $this->getOrCreateChainAlias($prefix);
 
         $column = $field;
-        if ($alias) {
-            $column = $alias . '.' . $column;
-        } elseif ($this->_chainedHasMany) {
-            $column = $this->tableAlias . '.' . $column;
+
+        if (strpos($column,'.') === false){
+            if ($alias) {
+                $column = $alias . '.' . $column;
+            } elseif ($this->_chainedHasMany) {
+                $column = $this->tableAlias . '.' . $column;
+            }
         }
         return $this->quoteColumnName($column);
     }

@@ -78,13 +78,13 @@ class QueryTest extends DatabaseTestCase
     {
         $qs = User::objects()->filter(['username' => 'Anton'])->exclude(['username' => 'Max']);
         $this->assertEquals(1, $qs->count());
-        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}user` WHERE ((`username`='Anton')) AND (NOT ((`username`='Max')))", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}user` `user_1` WHERE ((`user_1`.`username`='Anton')) AND (NOT ((`user_1`.`username`='Max')))", $qs->countSql());
     }
 
     public function testOrExclude()
     {
         $qs = User::objects()->exclude(['username' => 'Max'])->orExclude(['username' => 'Anton']);
         $this->assertEquals(2, $qs->count());
-        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}user` WHERE (NOT ((`username`='Max'))) OR (NOT ((`username`='Anton')))", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}user` `user_1` WHERE (NOT ((`user_1`.`username`='Max'))) OR (NOT ((`user_1`.`username`='Anton')))", $qs->countSql());
     }
 }

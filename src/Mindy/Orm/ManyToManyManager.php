@@ -55,9 +55,9 @@ class ManyToManyManager extends RelatedManager
     }
 
     // TODO: ugly, refactor me
-    public function makeOnJoin(){
+    public function makeOnJoin($qs){
         $from = $this->escape($this->relatedTable) . '.' . $this->escape($this->modelColumn);
-        $to = $this->escape($this->getModel()->tableName()) . '.' . $this->escape($this->getModel()->getPkName());
+        $to = $this->escape($qs->tableAlias) . '.' . $this->escape($this->getModel()->getPkName());
         return $from . '=' . $to;
     }
 
@@ -67,9 +67,10 @@ class ManyToManyManager extends RelatedManager
             $qs = parent::getQuerySet();
             $qs->join('JOIN',
                 $this->relatedTable,
-                $this->makeOnJoin()
+                $this->makeOnJoin($qs)
             );
-            $qs = $qs->filter([$this->relatedTable . '.' . $this->primaryModelColumn => $this->primaryModel->getPk()]);
+            $filter = [$this->escape($this->relatedTable) . '.' . $this->escape($this->primaryModelColumn) => $this->primaryModel->getPk()];
+            $qs = $qs->filter($filter);
             $this->_qs = $qs;
         }
         return $this->_qs;

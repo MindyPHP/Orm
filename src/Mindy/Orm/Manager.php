@@ -195,4 +195,12 @@ class Manager
     public function max($q){
         return $this->getQuerySet()->max($q);
     }
+
+    /**
+     * @param $q
+     * @return int
+     */
+    public function valuesList($q){
+        return $this->getQuerySet()->valuesList($q);
+    }
 }
