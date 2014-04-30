@@ -21,6 +21,11 @@ use Mindy\Orm\Fields\Field;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Query\Connection;
 
+/**
+ * Class Orm
+ * @package Mindy\Orm
+ * @method static Orm objects($instance = null)
+ */
 class Orm extends Base
 {
     /**
@@ -341,10 +346,35 @@ class Orm extends Base
         return null;
     }
 
-    public static function objects()
+    public static function __callStatic($method, $args)
+    {
+        $manager = $method . 'Manager';
+        $className = get_called_class();
+        if(is_callable([$className, $manager])) {
+            return call_user_func_array([$className, $manager], $args);
+        } elseif (is_callable([$className, $method])) {
+            return call_user_func_array([$className, $method], $args);
+        } else {
+            throw new Exception("Call unknown method {$method}");
+        }
+    }
+
+    public function __call($method, $args)
+    {
+        $manager = $method . 'Manager';
+        if(is_callable([$this, $manager])) {
+            return call_user_func_array([$this, $manager], array_merge([$this], $args));
+        } elseif (is_callable([$this, $method])) {
+            return call_user_func_array([$this, $method], $args);
+        } else {
+            throw new Exception("Call unknown method {$method}");
+        }
+    }
+
+    public static function objectsManager($instance = null)
     {
         $className = get_called_class();
-        return new Manager(new $className);
+        return new Manager($instance ? $instance : new $className);
     }
 
     /**

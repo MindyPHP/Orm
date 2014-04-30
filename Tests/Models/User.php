@@ -15,9 +15,11 @@
 namespace Tests\Models;
 
 
+use Exception;
 use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
+use Mindy\Orm\Manager;
 use Mindy\Orm\Model;
 use Mindy\Orm\Validator\MaxLengthValidator;
 use Mindy\Orm\Validator\MinLengthValidator;
