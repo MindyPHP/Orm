@@ -161,7 +161,7 @@ class QuerySet extends Query
      * Paginate models
      * @param int $page
      * @param int $pageSize
-     * @return array
+     * @return $this
      */
     public function paginate($page = 1, $pageSize = 10)
     {
