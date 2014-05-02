@@ -1,10 +1,4 @@
 <?php
-/**
- * @author Qiang Xue <qiang.xue@gmail.com>
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
 
 namespace Mindy\Orm;
 
@@ -76,7 +70,7 @@ class QuerySet extends Query
         // @TODO: hardcode, refactoring
         $group = $this->groupBy;
         if ($this->_chainedHasMany && !$group) {
-            $this->groupBy($this->tableAlias . '.' . $this->retreivePrimaryKey());
+            $this->groupBy($this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey()));
         }
         $command = $this->createCommand($db);
         $this->groupBy = $group;
@@ -90,9 +84,10 @@ class QuerySet extends Query
         }
     }
 
-
-    public function getTableAlias(){
-        if (!$this->_tableAlias){
+    // TODO unused? useless?
+    public function getTableAlias()
+    {
+        if (!$this->_tableAlias) {
             $table_name = $this->model->tableName();
             $table_name = $this->makeAliasKey($table_name);
             $this->_tableAlias = $table_name;
@@ -107,12 +102,12 @@ class QuerySet extends Query
 
         $group = $this->groupBy;
         if ($this->_chainedHasMany && !$group) {
-            $this->groupBy($this->tableAlias . '.' . $this->retreivePrimaryKey());
+            $this->groupBy($this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey()));
         }
 
         $values_select = [];
         foreach ($fieldsList as $fieldName) {
-            $values_select[] = $this->aliasColumn($fieldName) . ' as '. $fieldName;
+            $values_select[] = $this->aliasColumn($fieldName) . ' AS ' . $fieldName;
         }
         $this->select = $values_select;
 
@@ -127,6 +122,11 @@ class QuerySet extends Query
         } else {
             return [];
         }
+    }
+
+    public function update(array $values)
+    {
+        return parent::updateAll($this->model->tableName(), $values, $this->where, $this->model->getConnection());
     }
 
     /**
@@ -148,7 +148,7 @@ class QuerySet extends Query
     {
         $group = $this->groupBy;
         if ($this->_chainedHasMany && !$group) {
-            $this->groupBy($this->tableAlias . '.' . $this->retreivePrimaryKey());
+            $this->groupBy($this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey()));
         }
         $return = parent::allSql($db);
         $this->groupBy = $group;
@@ -289,8 +289,8 @@ class QuerySet extends Query
     protected function makeParamKey($fieldName)
     {
         $this->_paramsCount += 1;
-        $fieldName = str_replace(['`','{{','}}','%','[[',']]'],'',$fieldName);
-        $fieldName = str_replace('.','_',$fieldName);
+        $fieldName = str_replace(['`', '{{', '}}', '%', '[[', ']]'], '', $fieldName);
+        $fieldName = str_replace('.', '_', $fieldName);
         return $fieldName . $this->_paramsCount;
     }
 
@@ -426,16 +426,15 @@ class QuerySet extends Query
     }
 
     /**
+     * Example:
+     * >>> $user = User::objects()->get(['pk' => 1]);
+     * >>> $pages = Page::object()->filter(['user__in' => [$user]])->all();
      * @param array $query
-     * @param array $queryCondition
-     * @param array $queryParams
      * @throws Exception
      * @return array
      */
-    protected function parseLookup(array $query, array $queryCondition = [], array $queryParams = [])
+    protected function parseLookup(array $query)
     {
-        // $user = User::objects()->get(['pk' => 1]);
-        // $pages = Page::object()->filter(['user__in' => [$user]])->all();
         $lookup = new LookupBuilder($query);
         $lookup_query = [];
         $lookup_params = [];
@@ -448,7 +447,7 @@ class QuerySet extends Query
                 $field = $model->getPkName();
             }
 
-            if (strpos($field,'.') === false){
+            if (strpos($field, '.') === false) {
                 if ($alias) {
                     $field = $alias . '.' . $field;
                 }
@@ -940,7 +939,7 @@ class QuerySet extends Query
 
         $column = $field;
 
-        if (strpos($column,'.') === false){
+        if (strpos($column, '.') === false) {
             if ($alias) {
                 $column = $alias . '.' . $column;
             } elseif ($this->_chainedHasMany) {
