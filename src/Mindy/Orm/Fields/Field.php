@@ -45,6 +45,32 @@ abstract class Field
 
     private $_errors = [];
 
+    private $_extraFields = [];
+
+    /**
+     * @return Field[]
+     */
+    public function getExtraFieldsInit()
+    {
+        return $this->_extraFields;
+    }
+
+    public function getExtraField($name)
+    {
+        return $this->_extraFields[$name];
+    }
+
+    public function hasExtraField($name)
+    {
+        return array_key_exists($name, $this->_extraFields);
+    }
+
+    public function setExtraField($name, Field $field)
+    {
+        $this->_extraFields[$name] = $field;
+        return $this;
+    }
+
     /**
      * @return string the fully qualified name of this class.
      */

@@ -9,6 +9,11 @@ if(is_dir(__DIR__ . '/../vendor')) {
 require __DIR__ . '/TestCase.php';
 require __DIR__ . '/DatabaseTestCase.php';
 
+// Stupid composer
+require __DIR__ . '/../vendor/cebe/markdown/Parser.php';
+require __DIR__ . '/../vendor/cebe/markdown/Markdown.php';
+require __DIR__ . '/../vendor/cebe/markdown/GithubMarkdown.php';
+
 $models = glob(realpath(__DIR__) . '/Models/*.php');
 foreach($models as $model) {
     include $model;

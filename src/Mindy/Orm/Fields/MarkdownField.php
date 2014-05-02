@@ -19,6 +19,14 @@ namespace Mindy\Orm\Fields;
 
 class MarkdownField extends TextField
 {
+    public function setValue($value)
+    {
+        foreach($this->getExtraFieldsInit() as $key => $field) {
+            $field->setValue($value);
+        }
+        return parent::setValue($value);
+    }
+
     public function getExtraFields()
     {
         return [

@@ -619,7 +619,11 @@ class Orm extends Base
             }
 
             if(!$extra) {
-                $this->initFields($field->getExtraFields(), true);
+                $extraFields = $field->getExtraFields();
+                $this->initFields($extraFields, true);
+                foreach($extraFields as $key => $value) {
+                    $field->setExtraField($key, $this->_fields[$key]);
+                }
             }
         }
 
