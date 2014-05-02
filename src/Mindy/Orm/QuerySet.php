@@ -134,6 +134,29 @@ class QuerySet extends Query
         return parent::updateAll($table, $this->makeAliasAttributes($attributes), $this->where, $this->model->getConnection());
     }
 
+    public function getOrCreate(array $attributes)
+    {
+        $model = $this->filter($attributes)->get();
+        if ($model === null) {
+            $model = $this->model->setData($attributes);
+            $model->save();
+        }
+
+        return $model;
+    }
+
+    public function updateOrCreate(array $attributes, array $updateAttributes)
+    {
+        $model = $this->filter($attributes)->get();
+        if($model) {
+            $model->setData($updateAttributes);
+        } else {
+            $model = $this->model->setData($updateAttributes);
+        }
+        $model->save();
+        return $model;
+    }
+
     /**
      * Paginate models
      * @param int $page

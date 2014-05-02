@@ -168,7 +168,8 @@ class Manager
      * @param $q
      * @return int
      */
-    public function sum($q){
+    public function sum($q)
+    {
         return $this->getQuerySet()->sum($q);
     }
 
@@ -176,7 +177,8 @@ class Manager
      * @param $q
      * @return int
      */
-    public function average($q){
+    public function average($q)
+    {
         return $this->getQuerySet()->average($q);
     }
 
@@ -184,7 +186,8 @@ class Manager
      * @param $q
      * @return int
      */
-    public function min($q){
+    public function min($q)
+    {
         return $this->getQuerySet()->min($q);
     }
 
@@ -192,7 +195,8 @@ class Manager
      * @param $q
      * @return int
      */
-    public function max($q){
+    public function max($q)
+    {
         return $this->getQuerySet()->max($q);
     }
 
@@ -200,7 +204,29 @@ class Manager
      * @param $q
      * @return int
      */
-    public function valuesList($q){
+    public function valuesList($q)
+    {
         return $this->getQuerySet()->valuesList($q);
+    }
+
+    /**
+     * Get model if exists. Else create model.
+     * @param array $attributes
+     * @return Orm
+     */
+    public function getOrCreate(array $attributes)
+    {
+        return $this->getQuerySet()->getOrCreate($attributes);
+    }
+
+    /**
+     * Find and update model if exists. Else create model.
+     * @param array $attributes attributes for query
+     * @param array $updateAttributes attributes for update|create
+     * @return Orm
+     */
+    public function updateOrCreate(array $attributes, array $updateAttributes)
+    {
+        return $this->getQuerySet()->updateOrCreate($attributes, $updateAttributes);
     }
 }

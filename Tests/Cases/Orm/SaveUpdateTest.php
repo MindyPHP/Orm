@@ -131,4 +131,40 @@ class SaveUpdateTest extends DatabaseTestCase
         $updated = User::objects()->filter(['id__gte' => 0])->update(['username' => '123']);
         $this->assertEquals(2, $updated);
     }
+
+    public function testGetOrCreate()
+    {
+        $model = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
+        $this->assertFalse($model->getIsNewRecord());
+        $this->assertEquals('Max', $model->username);
+        $this->assertEquals('VeryGoodP@ssword', $model->password);
+        $this->assertEquals(1, $model->pk);
+
+        $newUser = new User();
+        $newUser->username = 'Anton';
+        $newUser->password = 'qwe';
+        $newUser->save();
+        $this->assertFalse($newUser->getIsNewRecord());
+        $this->assertEquals(2, $newUser->pk);
+
+        $queryUser = User::objects()->getOrCreate(['username' => 'Anton']);
+        $this->assertEquals('Anton', $queryUser->username);
+        $this->assertEquals('qwe', $queryUser->password);
+        $this->assertEquals(2, $queryUser->pk);
+    }
+
+    public function testUpdateOrCreate()
+    {
+        $model = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
+        $this->assertEquals(1, $model->pk);
+        $this->assertEquals('Max', $model->username);
+
+        $updatedModel = User::objects()->updateOrCreate(['username' => 'Max'], ['username' => 'Oleg']);
+        $this->assertEquals(1, $updatedModel->pk);
+        $this->assertEquals('Oleg', $updatedModel->username);
+
+        $updatedModel = User::objects()->updateOrCreate(['username' => 'Vasya'], ['username' => 'Vasya']);
+        $this->assertEquals(2, $updatedModel->pk);
+        $this->assertEquals('Vasya', $updatedModel->username);
+    }
 }
