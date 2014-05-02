@@ -24,7 +24,7 @@ use Mindy\Query\Connection;
 /**
  * Class Orm
  * @package Mindy\Orm
- * @method static Orm objects($instance = null)
+ * @method static \Mindy\Orm\Manager objects($instance = null)
  */
 class Orm extends Base
 {
