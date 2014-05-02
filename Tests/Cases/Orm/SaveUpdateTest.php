@@ -81,16 +81,28 @@ class SaveUpdateTest extends DatabaseTestCase
     public function testUpdate()
     {
         $model = new User();
+
+        $this->assertTrue($model->getIsNewRecord());
+
         $model->username = 'Anton';
         $model->password = 'VeryGoodP@ssword';
         $saved = $model->save();
+
+        $this->assertFalse($model->getIsNewRecord());
+
         $this->assertEquals(1, $model->pk);
         $this->assertTrue($saved);
 
         $model = new User();
+
+        $this->assertTrue($model->getIsNewRecord());
+
         $model->username = 'Max';
         $model->password = 'VeryGoodP@ssword';
         $saved = $model->save();
+
+        $this->assertFalse($model->getIsNewRecord());
+
         $this->assertTrue($saved);
         $this->assertEquals(2, User::objects()->count());
         $this->assertFalse($model->getIsNewRecord());
@@ -99,6 +111,9 @@ class SaveUpdateTest extends DatabaseTestCase
         $this->assertEquals('VeryGoodP@ssword', $model->password);
 
         $tmpFind = User::objects()->get(['id' => 1]);
+
+        $this->assertFalse($tmpFind->getIsNewRecord());
+
         $this->assertEquals('Anton', $tmpFind->username);
         $this->assertEquals('VeryGoodP@ssword', $tmpFind->password);
 
