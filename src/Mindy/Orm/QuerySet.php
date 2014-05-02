@@ -84,7 +84,6 @@ class QuerySet extends Query
         }
     }
 
-    // TODO unused? useless?
     public function getTableAlias()
     {
         if (!$this->_tableAlias) {
@@ -124,9 +123,15 @@ class QuerySet extends Query
         }
     }
 
-    public function update(array $values)
+    /**
+     * Update records
+     * @param array $attributes
+     * @return int updated records
+     */
+    public function update(array $attributes)
     {
-        return parent::updateAll($this->model->tableName(), $values, $this->where, $this->model->getConnection());
+        $table = $this->model->tableName() . ' ' . $this->getTableAlias();
+        return parent::updateAll($table, $this->makeAliasAttributes($attributes), $this->where, $this->model->getConnection());
     }
 
     /**
@@ -947,6 +952,20 @@ class QuerySet extends Query
             }
         }
         return $this->quoteColumnName($column);
+    }
+
+    /**
+     * Make aliased attributes
+     * @param array $attributes
+     * @return array new attributes with table aliases
+     */
+    protected function makeAliasAttributes(array $attributes)
+    {
+        $new = [];
+        foreach($attributes as $key => $value) {
+            $new[$this->getTableAlias() . '.' . $key] = $value;
+        }
+        return $new;
     }
 
     /**

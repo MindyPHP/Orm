@@ -17,7 +17,6 @@ namespace Tests\Orm;
 
 use Tests\DatabaseTestCase;
 use Tests\Models\InstanceTestModel;
-use Tests\Models\User;
 
 
 class InstanceTest extends DatabaseTestCase
