@@ -180,5 +180,10 @@ abstract class Field
         }
     }
 
+    public function getExtraFields()
+    {
+        return [];
+    }
+
     abstract public function sqlType();
 }

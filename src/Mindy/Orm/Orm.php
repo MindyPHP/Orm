@@ -579,11 +579,15 @@ class Orm extends Base
      * Initialize fields
      * @void
      */
-    public function initFields()
+    public function initFields($fields = [], $extra = false)
     {
-        $needPk = true;
+        if(empty($fields)) {
+            $fields = $this->getFields();
+        }
 
-        foreach ($this->getFields() as $name => $config) {
+        $needPk = !$extra;
+
+        foreach ($fields as $name => $config) {
             $field = Creator::createObject($config);
             $field->setName($name);
             /* @var $field \Mindy\Orm\Fields\Field */
@@ -612,6 +616,10 @@ class Orm extends Base
                 }
             } else {
                 $this->_fields[$name] = $field;
+            }
+
+            if(!$extra) {
+                $this->initFields($field->getExtraFields(), true);
             }
         }
 
