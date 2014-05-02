@@ -131,7 +131,7 @@ class QuerySet extends Query
     public function update(array $attributes)
     {
         $table = $this->model->tableName() . ' ' . $this->getTableAlias();
-        return parent::updateAll($table, $this->makeAliasAttributes($attributes), $this->where, $this->model->getConnection());
+        return parent::updateAll($table, $this->makeAliasAttributes($attributes), $this->model->getConnection());
     }
 
     public function getOrCreate(array $attributes)
