@@ -4,6 +4,7 @@ namespace Mindy\Orm;
 
 use Mindy\Exception\Exception;
 use Mindy\Query\Query;
+use Tests\Models\NestedModel;
 
 class QuerySet extends Query
 {
@@ -472,11 +473,19 @@ class QuerySet extends Query
 
 
             // https://github.com/studio107/Mindy_Orm/issues/26
-            if($condition == 'in' && $model->hasField($field)) {
-                $initField = $model->getField($field);
-                if(is_a($initField, $model->foreignField)) {
-                    $initFieldModelClass = $initField->modelClass;
-                    $field .= '_' . $initFieldModelClass::primaryKey();
+            if($model->hasField($field)) {
+                if($condition == 'in' || $condition == 'exact') {
+                    $initField = $model->getField($field);
+                    if(is_a($initField, $model->foreignField)) {
+                        $initFieldModelClass = $initField->modelClass;
+                        $field .= '_' . $initFieldModelClass::primaryKey();
+
+                        if($condition == 'exact') {
+                            if(is_a($params, Model::className())) {
+                                $params = $params->pk;
+                            }
+                        }
+                    }
                 }
             }
 
