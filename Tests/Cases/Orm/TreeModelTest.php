@@ -28,7 +28,7 @@ class TreeModelTest extends DatabaseTestCase
 
     public function tearDown()
     {
-//        $this->dropModels([new NestedModel]);
+        $this->dropModels([new NestedModel]);
     }
 
     public function testInit()
