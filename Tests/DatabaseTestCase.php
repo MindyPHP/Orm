@@ -43,4 +43,10 @@ class DatabaseTestCase extends TestCase
         $sync = new Sync($models);
         $sync->delete();
     }
+
+    public function getConnectionType()
+    {
+        $params = explode(':', Model::getConnection()->dsn);
+        return array_pop($params);
+    }
 }

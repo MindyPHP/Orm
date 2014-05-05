@@ -122,9 +122,13 @@ class LookupTest extends DatabaseTestCase
 
     public function testIn()
     {
-        $qs = Product::objects()->filter(['category__in' => [1, 2, 3, 4, 5]]);
+        $qs = Product::objects()->filter(['category_id__in' => [1, 2, 3, 4, 5]]);
+
+        // $tables = Product::getConnection()->createCommand("PRAGMA table_info(".Product::tableName().");")->queryAll();
+        // $tables = Product::getConnection()->createCommand("SHOW CREATE TABLE ".Product::tableName().";")->queryAll();
+
         $this->assertInstanceOf('\Mindy\Orm\QuerySet', $qs);
-        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product` `product_1` WHERE (`product_1`.`category` IN (1, 2, 3, 4, 5))", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product` `product_1` WHERE (`product_1`.`category_id` IN (1, 2, 3, 4, 5))", $qs->countSql());
     }
 
     public function testGte()

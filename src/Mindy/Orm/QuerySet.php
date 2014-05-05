@@ -34,12 +34,6 @@ class QuerySet extends Query
     public $model;
 
     /**
-     * Counter of params
-     * @var int
-     */
-    private $_paramsCount = 0;
-
-    /**
      * Chains of joins
      * @var array
      */
@@ -272,6 +266,14 @@ class QuerySet extends Query
     }
 
     /**
+     * @return \Mindy\Query\QueryBuilder|\Mindy\Query\Mysql\QueryBuilder|\Mindy\Query\Sqlite\QueryBuilder|\Mindy\Query\Pgsql\QueryBuilder|\Mindy\Query\Oci\QueryBuilder|\Mindy\Query\Cubrid\QueryBuilder|\Mindy\Query\Mssql\QueryBuilder
+     */
+    public function getQueryBuilder()
+    {
+        return $this->getDb()->getQueryBuilder();
+    }
+
+    /**
      * @return mixed|null
      */
     public function retreivePrimaryKey()
@@ -307,19 +309,6 @@ class QuerySet extends Query
         $table = str_replace(['{{', '}}', '%', '`'], '', $table);
         $table = strtolower($table) . '_' . $this->_aliasesCount;
         return $this->quoteColumnName($table);
-    }
-
-    /**
-     * Makes key for param
-     * @param $fieldName
-     * @return string
-     */
-    protected function makeParamKey($fieldName)
-    {
-        $this->_paramsCount += 1;
-        $fieldName = str_replace(['`', '{{', '}}', '%', '[[', ']]'], '', $fieldName);
-        $fieldName = str_replace('.', '_', $fieldName);
-        return $fieldName . $this->_paramsCount;
     }
 
     /**
@@ -502,7 +491,7 @@ class QuerySet extends Query
      */
     public function buildExact($field, $value)
     {
-        return [[$field => $value], []];
+        return $this->getQueryBuilder()->buildExact($field, $value);
     }
 
     /**
@@ -512,11 +501,7 @@ class QuerySet extends Query
      */
     public function buildIsnull($field, $value)
     {
-        if ($value) {
-            return [[$field => null], []];
-        } else {
-            return [['not', [$field => null]], []];
-        }
+        return $this->getQueryBuilder()->buildIsnull($field, $value);
     }
 
     /**
@@ -526,11 +511,7 @@ class QuerySet extends Query
      */
     public function buildIn($field, $value)
     {
-        if (is_object($value) && get_class($value) == __CLASS__) {
-            return [['and', $this->quoteColumnName($field) . ' IN (' . $value->allSql() . ')'], []];
-        }
-
-        return [['in', $field, $value], []];
+        return $this->getQueryBuilder()->buildIn($field, $value);
     }
 
     /**
@@ -540,8 +521,7 @@ class QuerySet extends Query
      */
     public function buildGte($field, $value)
     {
-        $paramName = $this->makeParamKey($field);
-        return [['and', $this->quoteColumnName($field) . ' >= :' . $paramName], [':' . $paramName => $value]];
+        return $this->getQueryBuilder()->buildGte($field, $value);
     }
 
     /**
@@ -551,8 +531,7 @@ class QuerySet extends Query
      */
     public function buildGt($field, $value)
     {
-        $paramName = $this->makeParamKey($field);
-        return [['and', $this->quoteColumnName($field) . ' > :' . $paramName], [':' . $paramName => $value]];
+        return $this->getQueryBuilder()->buildGt($field, $value);
     }
 
     /**
@@ -562,8 +541,7 @@ class QuerySet extends Query
      */
     public function buildLte($field, $value)
     {
-        $paramName = $this->makeParamKey($field);
-        return [['and', $this->quoteColumnName($field) . ' <= :' . $paramName], [':' . $paramName => $value]];
+        return $this->getQueryBuilder()->buildLte($field, $value);
     }
 
     /**
@@ -573,8 +551,7 @@ class QuerySet extends Query
      */
     public function buildLt($field, $value)
     {
-        $paramName = $this->makeParamKey($field);
-        return [['and', $this->quoteColumnName($field) . ' < :' . $paramName], [':' . $paramName => $value]];
+        return $this->getQueryBuilder()->buildLt($field, $value);
     }
 
     /**
@@ -584,7 +561,7 @@ class QuerySet extends Query
      */
     public function buildContains($field, $value)
     {
-        return [['like', $field, $value], []];
+        return $this->getQueryBuilder()->buildContains($field, $value);
     }
 
     /**
@@ -594,12 +571,17 @@ class QuerySet extends Query
      */
     public function buildIcontains($field, $value)
     {
-        return [['ilike', $field, $value], []];
+        return $this->getQueryBuilder()->buildIcontains($field, $value);
     }
 
+    /**
+     * @param $field
+     * @param $value
+     * @return array
+     */
     public function buildStartswith($field, $value)
     {
-        return [['like', $field, $value . '%', false], []];
+        return $this->getQueryBuilder()->buildStartswith($field, $value);
     }
 
     /**
@@ -609,7 +591,7 @@ class QuerySet extends Query
      */
     public function buildIStartswith($field, $value)
     {
-        return [['ilike', $field, $value . '%', false], []];
+        return $this->getQueryBuilder()->buildIStartswith($field, $value);
     }
 
     /**
@@ -619,7 +601,7 @@ class QuerySet extends Query
      */
     public function buildEndswith($field, $value)
     {
-        return [['like', $field, '%' . $value, false], []];
+        return $this->getQueryBuilder()->buildEndswith($field, $value);
     }
 
     /**
@@ -629,7 +611,7 @@ class QuerySet extends Query
      */
     public function buildIendswith($field, $value)
     {
-        return [['ilike', $field, '%' . $value, false], []];
+        return $this->getQueryBuilder()->buildIendswith($field, $value);
     }
 
     /**
@@ -639,24 +621,7 @@ class QuerySet extends Query
      */
     public function buildRange($field, $value)
     {
-        list($start, $end) = $value;
-        return [['between', $field, $start, $end], []];
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @param $extract
-     * @return array
-     */
-    public function buildDateTimeCondition($field, $value, $extract = "YEAR")
-    {
-        if (!is_string($value)) {
-            $value = (string)$value;
-        }
-
-        $paramName = $this->makeParamKey($field);
-        return [['and', "EXTRACT(" . $extract . " FROM " . $this->quoteColumnName($field) . ") = :" . $paramName], [':' . $paramName => $value]];
+        return $this->getQueryBuilder()->buildRange($field, $value);
     }
 
     /**
@@ -666,7 +631,7 @@ class QuerySet extends Query
      */
     public function buildYear($field, $value)
     {
-        return $this->buildDateTimeCondition($field, $value, "YEAR");
+        return $this->getQueryBuilder()->buildYear($field, $value);
     }
 
     /**
@@ -676,7 +641,7 @@ class QuerySet extends Query
      */
     public function buildMonth($field, $value)
     {
-        return $this->buildDateTimeCondition($field, $value, "MONTH");
+        return $this->getQueryBuilder()->buildMonth($field, $value);
     }
 
     /**
@@ -686,7 +651,7 @@ class QuerySet extends Query
      */
     public function buildDay($field, $value)
     {
-        return $this->buildDateTimeCondition($field, $value, "DAY");
+        return $this->getQueryBuilder()->buildDay($field, $value);
     }
 
     /**
@@ -696,13 +661,7 @@ class QuerySet extends Query
      */
     public function buildWeek_day($field, $value)
     {
-        if (!is_string($value)) {
-            $value = (string)$value;
-        }
-
-        $paramName = $this->makeParamKey($field);
-        // TODO: this works only with MYSQL, PostgreSQL need EXTRACT(DOW FROM `field`)
-        return [['and', "DAYOFWEEK(" . $this->quoteColumnName($field) . ") = :" . $paramName], [':' . $paramName => $value]];
+        return $this->getQueryBuilder()->buildWeek_day($field, $value);
     }
 
     /**
@@ -712,7 +671,7 @@ class QuerySet extends Query
      */
     public function buildHour($field, $value)
     {
-        return $this->buildDateTimeCondition($field, $value, "HOUR");
+        return $this->getQueryBuilder()->buildHour($field, $value);
     }
 
     /**
@@ -722,7 +681,7 @@ class QuerySet extends Query
      */
     public function buildMinute($field, $value)
     {
-        return $this->buildDateTimeCondition($field, $value, "MINUTE");
+        return $this->getQueryBuilder()->buildMinute($field, $value);
     }
 
     /**
@@ -732,18 +691,17 @@ class QuerySet extends Query
      */
     public function buildSecond($field, $value)
     {
-        return $this->buildDateTimeCondition($field, $value, "SECOND");
+        return $this->getQueryBuilder()->buildSecond($field, $value);
     }
 
     /**
      * @param $field
      * @param $value
      * @return array
-     * @throws \Mindy\Exception\Exception
      */
     public function buildSearch($field, $value)
     {
-        throw new Exception('Not implemented');
+        return $this->getQueryBuilder()->buildSearch($field, $value);
     }
 
     /**
@@ -754,13 +712,7 @@ class QuerySet extends Query
      */
     public function buildRegex($field, $value)
     {
-        if (!is_string($value)) {
-            $value = (string)$value;
-        }
-
-        $paramName = $this->makeParamKey($field);
-        // TODO: this works only with MYSQL, PostgreSQL need  ~
-        return [['and', $this->quoteColumnName($field) . " REGEXP BINARY :" . $paramName], [':' . $paramName => $value]];
+        return $this->getQueryBuilder()->buildRegex($field, $value);
     }
 
     /**
@@ -771,13 +723,7 @@ class QuerySet extends Query
      */
     public function buildIregex($field, $value)
     {
-        if (!is_string($value)) {
-            $value = (string)$value;
-        }
-
-        $paramName = $this->makeParamKey($field);
-        // TODO: this works only with MYSQL, PostgreSQL need  ~*
-        return [['and', $this->quoteColumnName($field) . " REGEXP :" . $paramName], [':' . $paramName => $value]];
+        return $this->getQueryBuilder()->buildIregex($field, $value);
     }
 
     /**
