@@ -452,6 +452,8 @@ class QuerySet extends Query
      */
     protected function parseLookup(array $query)
     {
+        $queryBuilder = $this->getQueryBuilder();
+
         $lookup = new LookupBuilder($query);
         $lookup_query = [];
         $lookup_params = [];
@@ -462,6 +464,12 @@ class QuerySet extends Query
 
             if ($field === 'pk') {
                 $field = $model->getPkName();
+            }
+
+            // https://github.com/studio107/Mindy_Orm/issues/26
+            if($condition == 'in' && $model->hasField($field)) {
+                $initField = $model->getField($field)->modelClass;
+                $field .= '_' . $initField::primaryKey();
             }
 
             if (strpos($field, '.') === false) {
@@ -476,254 +484,16 @@ class QuerySet extends Query
 
             $method = 'build' . ucfirst($condition);
 
-            list($query, $params) = $this->$method($field, $params);
+            if(method_exists($this, $method)) {
+                list($query, $params) = $this->$method($field, $params);
+            } else {
+                list($query, $params) = $queryBuilder->$method($field, $params);
+            }
             $lookup_params = array_merge($lookup_params, $params);
             $lookup_query[] = $query;
         }
 
         return [$lookup_query, $lookup_params];
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildExact($field, $value)
-    {
-        return $this->getQueryBuilder()->buildExact($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildIsnull($field, $value)
-    {
-        return $this->getQueryBuilder()->buildIsnull($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildIn($field, $value)
-    {
-        return $this->getQueryBuilder()->buildIn($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildGte($field, $value)
-    {
-        return $this->getQueryBuilder()->buildGte($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildGt($field, $value)
-    {
-        return $this->getQueryBuilder()->buildGt($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildLte($field, $value)
-    {
-        return $this->getQueryBuilder()->buildLte($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildLt($field, $value)
-    {
-        return $this->getQueryBuilder()->buildLt($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildContains($field, $value)
-    {
-        return $this->getQueryBuilder()->buildContains($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildIcontains($field, $value)
-    {
-        return $this->getQueryBuilder()->buildIcontains($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildStartswith($field, $value)
-    {
-        return $this->getQueryBuilder()->buildStartswith($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildIStartswith($field, $value)
-    {
-        return $this->getQueryBuilder()->buildIStartswith($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildEndswith($field, $value)
-    {
-        return $this->getQueryBuilder()->buildEndswith($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildIendswith($field, $value)
-    {
-        return $this->getQueryBuilder()->buildIendswith($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildRange($field, $value)
-    {
-        return $this->getQueryBuilder()->buildRange($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildYear($field, $value)
-    {
-        return $this->getQueryBuilder()->buildYear($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildMonth($field, $value)
-    {
-        return $this->getQueryBuilder()->buildMonth($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildDay($field, $value)
-    {
-        return $this->getQueryBuilder()->buildDay($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildWeek_day($field, $value)
-    {
-        return $this->getQueryBuilder()->buildWeek_day($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildHour($field, $value)
-    {
-        return $this->getQueryBuilder()->buildHour($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildMinute($field, $value)
-    {
-        return $this->getQueryBuilder()->buildMinute($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildSecond($field, $value)
-    {
-        return $this->getQueryBuilder()->buildSecond($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     */
-    public function buildSearch($field, $value)
-    {
-        return $this->getQueryBuilder()->buildSearch($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     * @throws \Mindy\Exception\Exception
-     */
-    public function buildRegex($field, $value)
-    {
-        return $this->getQueryBuilder()->buildRegex($field, $value);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @return array
-     * @throws \Mindy\Exception\Exception
-     */
-    public function buildIregex($field, $value)
-    {
-        return $this->getQueryBuilder()->buildIregex($field, $value);
     }
 
     /**
