@@ -259,22 +259,22 @@ class LookupTest extends DatabaseTestCase
     {
         $qs = ProductList::objects()->filter(['name__regex' => '[a-z]']);
         $this->assertEquals(1, $qs->count());
-        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` `product_list_1` WHERE ((`product_list_1`.`name` REGEXP '[a-z]'))", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` `product_list_1` WHERE ((`product_list_1`.`name` REGEXP '/[a-z]/'))", $qs->countSql());
 
         $qs = ProductList::objects()->filter(['name__regex' => '[0-9]']);
         $this->assertEquals(0, $qs->count());
-        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` `product_list_1` WHERE ((`product_list_1`.`name` REGEXP '[0-9]'))", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` `product_list_1` WHERE ((`product_list_1`.`name` REGEXP '/[0-9]/'))", $qs->countSql());
     }
 
     public function testIregex()
     {
         $qs = ProductList::objects()->filter(['name__iregex' => '[P-Z]']);
         $this->assertEquals(1, $qs->count());
-        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` `product_list_1` WHERE ((IREGEXP('[P-Z]', `product_list_1`.`name`)))", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` `product_list_1` WHERE ((`product_list_1`.`name` REGEXP '/[P-Z]/i'))", $qs->countSql());
 
         $qs = ProductList::objects()->filter(['name__iregex' => '[0-9]']);
         $this->assertEquals(0, $qs->count());
-        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` `product_list_1` WHERE ((IREGEXP('[0-9]', `product_list_1`.`name`)))", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product_list` `product_list_1` WHERE ((`product_list_1`.`name` REGEXP '/[0-9]/i'))", $qs->countSql());
     }
 
     public function testSql()
