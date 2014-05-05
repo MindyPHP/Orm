@@ -125,6 +125,9 @@ class LookupTest extends DatabaseTestCase
     {
         $qs = Product::objects()->filter(['category_id__in' => [1, 2, 3, 4, 5]]);
         $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product` `product_1` WHERE (`product_1`.`category_id` IN (1, 2, 3, 4, 5))", $qs->countSql());
+
+        $qs = Product::objects()->filter(['category__in' => [1, 2, 3, 4, 5]]);
+        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}product` `product_1` WHERE (`product_1`.`category_id` IN (1, 2, 3, 4, 5))", $qs->countSql());
     }
 
     public function testGte()
