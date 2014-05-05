@@ -229,4 +229,9 @@ class Manager
     {
         return $this->getQuerySet()->updateOrCreate($attributes, $updateAttributes);
     }
+
+    public function updateCounters(array $counters)
+    {
+        return $this->getQuerySet()->updateCounters($counters);
+    }
 }

@@ -129,6 +129,12 @@ class QuerySet extends Query
         return parent::updateAll($table, $this->makeAliasAttributes($attributes), $this->model->getConnection());
     }
 
+    public function updateCounters(array $counters)
+    {
+        $table = $this->model->tableName() . ' ' . $this->getTableAlias();
+        return parent::updateCountersInternal($table, $this->makeAliasAttributes($counters), $this->model->getConnection());
+    }
+
     public function getOrCreate(array $attributes)
     {
         $model = $this->filter($attributes)->get();
@@ -480,6 +486,7 @@ class QuerySet extends Query
                         $initFieldModelClass = $initField->modelClass;
                         $field .= '_' . $initFieldModelClass::primaryKey();
 
+                        // https://github.com/studio107/Mindy_Orm/issues/29
                         if($condition == 'exact') {
                             if(is_a($params, Model::className())) {
                                 $params = $params->pk;
