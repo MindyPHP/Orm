@@ -466,20 +466,24 @@ class QuerySet extends Query
                 $field = $model->getPkName();
             }
 
+            if (is_object($params) && get_class($params) == __CLASS__ && $condition != 'in') {
+                throw new Exception("QuerySet object can be used as a parameter only in case of 'in' condition");
+            }
+
+
             // https://github.com/studio107/Mindy_Orm/issues/26
             if($condition == 'in' && $model->hasField($field)) {
-                $initField = $model->getField($field)->modelClass;
-                $field .= '_' . $initField::primaryKey();
+                $initField = $model->getField($field);
+                if(is_a($initField, $model->foreignField)) {
+                    $initFieldModelClass = $initField->modelClass;
+                    $field .= '_' . $initFieldModelClass::primaryKey();
+                }
             }
 
             if (strpos($field, '.') === false) {
                 if ($alias) {
                     $field = $alias . '.' . $field;
                 }
-            }
-
-            if (is_object($params) && get_class($params) == __CLASS__ && $condition != 'in') {
-                throw new Exception("QuerySet object can be used as a parameter only in case of 'in' condition");
             }
 
             $method = 'build' . ucfirst($condition);
