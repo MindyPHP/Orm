@@ -22,13 +22,20 @@ use Mindy\Orm\Model;
 
 class DatabaseTestCase extends TestCase
 {
+    public $settings = [];
+
     public function setUp()
     {
         parent::setUp();
+        $this->settings = require __DIR__ . '/config_local.php';
+        $this->setConnection('mysql');
+    }
 
-        $connectionSettings = require __DIR__ . '/config_local.php';
-
-        Model::setConnection(new Connection($connectionSettings));
+    public function setConnection($name)
+    {
+        if(array_key_exists($name, $this->settings)) {
+            Model::setConnection(new Connection($this->settings[$name]));
+        }
     }
 
     public function initModels(array $models)

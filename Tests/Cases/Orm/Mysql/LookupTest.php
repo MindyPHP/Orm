@@ -12,7 +12,7 @@
  * @date 04/01/14.01.2014 00:53
  */
 
-namespace Tests\Orm;
+namespace Tests\Orm\Mysql;
 
 
 use Mindy\Orm\LookupBuilder;
@@ -27,11 +27,13 @@ use Tests\Models\ProductList;
 
 class LookupTest extends DatabaseTestCase
 {
-    var $prefix = '';
+    public $prefix = '';
 
     public function setUp()
     {
         parent::setUp();
+
+        $this->setConnection('mysql');
 
         $this->initModels([
             new Order,

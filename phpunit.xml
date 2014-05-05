@@ -18,9 +18,19 @@
     </php>
 
     <testsuites>
-        <testsuite name="Orm">
+        <testsuite name="Base">
             <directory>Tests/Cases/Orm/</directory>
             <directory>Tests/Cases/Orm/Fields/</directory>
+            <exclude>
+                <directory>Tests/Cases/Orm/Mysql/</directory>
+                <directory>Tests/Cases/Orm/Sqlite/</directory>
+            </exclude>
+        </testsuite>
+        <testsuite name="Mysql">
+            <directory>Tests/Cases/Orm/Mysql/</directory>
+        </testsuite>
+        <testsuite name="Sqlite">
+            <directory>Tests/Cases/Orm/Sqlite/</directory>
         </testsuite>
     </testsuites>
 
