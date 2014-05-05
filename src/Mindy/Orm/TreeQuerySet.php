@@ -21,13 +21,21 @@ class TreeQuerySet extends QuerySet
      * @param int $depth the depth.
      * @return QuerySet
      */
-    public function descendants($depth = null)
+    public function descendants($includeSelf = false, $depth = null)
     {
-        $qs = $this->filter([
-            'lft__gt' => $this->model->lft,
-            'rgt__lt' => $this->model->rgt,
-            'root' => $this->model->root
-        ])->order(['lft']);
+        if($includeSelf) {
+            $qs = $this->filter([
+                'lft__gte' => $this->model->lft,
+                'rgt__lte' => $this->model->rgt,
+                'root' => $this->model->root
+            ])->order(['lft']);
+        } else {
+            $qs = $this->filter([
+                'lft__gt' => $this->model->lft,
+                'rgt__lt' => $this->model->rgt,
+                'root' => $this->model->root
+            ])->order(['lft']);
+        }
 
         if ($depth !== null) {
             $qs = $qs->filter(['level__lte' => $this->model->level + $depth]);
@@ -40,9 +48,9 @@ class TreeQuerySet extends QuerySet
      * Named scope. Gets children for node (direct descendants only).
      * @return QuerySet
      */
-    public function children()
+    public function children($includeSelf = false)
     {
-        return $this->descendants(1);
+        return $this->descendants($includeSelf, 1);
     }
 
     /**
