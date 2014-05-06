@@ -89,7 +89,7 @@ class QuerySet extends Query
         return $this->_tableAlias;
     }
 
-    public function valuesList(array $fieldsList = [])
+    public function valuesList(array $fieldsList = [], $flat = false)
     {
         // @TODO: hardcode, refactoring
         $select = $this->select;
@@ -112,7 +112,13 @@ class QuerySet extends Query
         $this->select = $select;
 
         if (!empty($rows)) {
-            return $rows;
+            if($flat) {
+                return array_map(function(&$item) {
+                    return array_values($item);
+                }, $rows);
+            } else {
+                return $rows;
+            }
         } else {
             return [];
         }

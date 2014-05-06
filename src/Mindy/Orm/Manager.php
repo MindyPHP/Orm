@@ -206,9 +206,9 @@ class Manager
      * @param $q
      * @return int
      */
-    public function valuesList($q)
+    public function valuesList($q, $flat = false)
     {
-        return $this->getQuerySet()->valuesList($q);
+        return $this->getQuerySet()->valuesList($q, $flat);
     }
 
     /**

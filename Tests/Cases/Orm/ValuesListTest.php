@@ -15,10 +15,10 @@
 namespace Tests\Orm;
 
 use Tests\DatabaseTestCase;
-use Tests\Models\Group;
 use Tests\Models\Customer;
-use Tests\Models\User;
+use Tests\Models\Group;
 use Tests\Models\Membership;
+use Tests\Models\User;
 
 
 class ValuesListTest extends DatabaseTestCase
@@ -73,7 +73,25 @@ class ValuesListTest extends DatabaseTestCase
         $this->dropModels([new User, new Group, new Membership, new Customer]);
     }
 
-    public function testOneField(){
-        Customer::objects()->valuesList(['address', 'user__username']);
+    public function testValuesList()
+    {
+        $values = Customer::objects()->valuesList(['address', 'user__username']);
+
+        $this->assertEquals([
+            ['address' => 'Anton home', 'user__username' => 'Anton'],
+            ['address' => "Anton work", 'user__username' => 'Anton'],
+            ['address' => "Max home", 'user__username' => 'Max'],
+        ], $values);
+    }
+
+    public function testValuesListFlat()
+    {
+        $values = Customer::objects()->valuesList(['address', 'user__username'], true);
+
+        $this->assertEquals([
+            ['Anton home', 'Anton'],
+            ["Anton work", 'Anton'],
+            ["Max home", 'Max'],
+        ], $values);
     }
 }

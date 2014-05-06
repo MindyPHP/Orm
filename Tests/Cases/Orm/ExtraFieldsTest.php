@@ -27,16 +27,12 @@ class ExtraFieldsTest extends DatabaseTestCase
     {
         parent::setUp();
 
-        $this->initModels([
-            new MarkdownModel,
-        ]);
+        $this->initModels([new MarkdownModel]);
     }
 
     public function tearDown()
     {
-        $this->dropModels([
-            new MarkdownModel,
-        ]);
+        $this->dropModels([new MarkdownModel]);
     }
 
     public function testExtraFields()
@@ -51,5 +47,10 @@ class ExtraFieldsTest extends DatabaseTestCase
 
         $model->content = "# Hello world";
         $this->assertEquals("<h1>Hello world</h1>\n", $model->content_html);
+        $model->save();
+
+        $fetchModel = MarkdownModel::objects()->filter(['pk' => 1])->get();
+        $this->assertEquals("# Hello world", $fetchModel->content);
+        $this->assertEquals("<h1>Hello world</h1>\n", $fetchModel->content_html);
     }
 }
