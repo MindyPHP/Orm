@@ -117,7 +117,7 @@ if($modelThree->isValid() && $modelThree->save()) {
 
 Выборки реализованы по аналогии с Django Framework:
 
-```
+```php
 // SELECT * FROM my_model WHERE price >= 2
 $models = MyModel::objects()->filter(['price__gte' => 2])->all();
 
