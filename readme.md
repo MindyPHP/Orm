@@ -1,64 +1,29 @@
-# Mindy ORM
+# Mindy ORM (Django like ORM)
 
-Django like ORM implemented in php.
-For more code examples see unit tests.
+***Еще одна*** реализация Django ORM на PHP. На текущий момент находится в стадии активной доработки и не
+рекомендуется к использованию в `production` до версии ***1.0***.
 
-## Fields
+Приносим извинения за неполноту документации. Документация находится разработке.
 
-@TODO
+Часть кода основана на yii2 фреймворке, но ввиду монолитности ядра мы были вынуждены
+"распилить" фреймворк по отдельным пакетам. В `Mindy ORM` активно используется Query из yii2.
 
-### IntField
-
-@TODO
-
-### AutoField
-
-@TODO
-
-### BooleanField
-
-@TODO
-
-### CharField
-
-@TODO
-
-### EmailField
-
-@TODO
-
-### DateTimeField
-
-@TODO
-
-### TimeField
-
-@TODO
-
-### FileField
-
-@TODO
-
-### TextField
-
-@TODO
-
-### JsonField
-
-@TODO
-
-## Validators
-
-@TODO
+Поддерживаемые типы субд: `sqlite`, `mysql`, `pgsql`, `mssql` (все то, что умеет yii2 query).
+Теоретически ORM способна работать с `NoSql` хранилищами за счет реализации собственного менеджера
+с переопределением `Lookup`'ов.
 
 
-## Sample model
+## Краткий пример возможностей ORM
+
+Опишем подключение к бд:
 
 ```php
-class MyModel extends Model {}
+Model::setConnection([
+    'sqlite::memory'
+]);
 ```
 
-Create an empty model with primary key only or create a model with fields:
+Опишем модель:
 
 ```php
 class MyModel extends Model
@@ -66,9 +31,18 @@ class MyModel extends Model
     public function getFields()
     {
         return [
+            // Ключ - название поля при обращении к модели
             'name' => [
+                // Тип поля
                 'class' => CharField::className(),
-                'default' => 'Product',
+                // Длинна поля
+                'length' => 100,
+                // NULL|NOT NULL
+                'null' => false,
+                // "Читабельное" имя модели. Используется в Mindy\Form\ModelForm
+                // для построения форм автоматически.
+                'verboseName' => 'Продукция',
+                // Пример валидаторов
                 'validators' => [
                     function ($value) {
                         if (mb_strlen($value, 'UTF-8') < 3) {
@@ -77,13 +51,22 @@ class MyModel extends Model
 
                         return true;
                     },
+                    new UniqueValidator
                 ]
             ],
-            'price' => ['class' => CharField::className()],
-            'description' => ['class' => TextField::className()],
+            'price' => [
+                'class' => CharField::className(),
+                // Значение по умолчанию
+                'default' => 0
+            ],
+            'description' => [
+                'class' => TextField::className(),
+                'default' => ''
+            ],
             'category' => [
                 'class' => ForeignField::className(),
-                'modelClass' => Category::className()
+                'modelClass' => Category::className(),
+                'null' => true
             ],
             'lists' => [
                 'class' => ManyToManyField::className(),
@@ -94,7 +77,8 @@ class MyModel extends Model
 }
 ```
 
-Create table in database:
+Описание модели завершено. Валидация происходит на основе валидации полей модели.
+Модель описана, теперь необходимо создать ее в субд. Для этого выполним следующий код:
 
 ```php
 $sync = new Sync([
@@ -103,7 +87,51 @@ $sync = new Sync([
 $sync->create();
 ```
 
-Delete table from database:
+В бд создатутся таблицы всех переданных моделей а так же индексы и связи если это возможно.
+
+Создадим несколько записей:
+
+```php
+// Если модель с идентичными полями найдется, то ORM вернет ее, иначе создаст.
+$model = MyModel::objects()->getOrCreate(['name' => 'Поросенок петр', 'price' => 1]);
+
+$modelTwo = new MyModel;
+// Массовое присвоение аттрибутов
+$modelTwo->setData([
+    'name' => 'Рубаха',
+    'price' => 2
+]);
+// Валидация и сохранение
+if($modelTwo->isValid() && $modelTwo->save()) {
+    echo 'Модель сохранена';
+}
+
+$modelThree = new MyModel;
+$modelThree->name = 'Джинсы';
+$modelThree->price = 3;
+// Валидация и сохранение
+if($modelThree->isValid() && $modelThree->save()) {
+    echo 'Модель сохранена';
+}
+```
+
+Выборки реализованы по аналогии с Django Framework:
+
+```
+// SELECT * FROM my_model WHERE price >= 2
+$models = MyModel::objects()->filter(['price__gte' => 2])->all();
+
+// SELECT * FROM my_model WHERE name = 'Рубаха'
+$models = MyModel::objects()->filter(['name' => 'Рубаха'])->all();
+
+// SELECT * FROM my_model WHERE id IN (1, 2, 3)
+$models = MyModel::objects()->filter(['pk__in' => [1, 2, 3]])->all();
+```
+
+И так далее. Более подробную информацию
+смотрите в разделе ***Lookups***
+
+Очистим базу данных:
 
 ```php
 $sync = new Sync([
@@ -112,134 +140,153 @@ $sync = new Sync([
 $sync->delete();
 ```
 
-## Managers
+## Менеджеры
 
-Manager is the interface for current model database.
-
-Every model has default manager named `objects`. You can call it as follows:
+Менеджер это интерфейс проксирующий до класса `QuerySet`, который занимается обработкой
+наших `Lookup`'ов и выполнением запросов. Каждая модель по умолчанию имеет менеджер `objects()`.
 
 ```php
 User::objects()
 ```
 
-Manager handles QuerySet. The main method of the manager is getQuerySet().
-It returns an object that is afterwards handled by the manager.
-If you want to change default Manager logic, you can create your own manager.
-For example, ActiveUsersManager():
+Менеджер обрабатывает QuerySet. Основным методом менеджера является `getQuerySet()`.
+Это возвращает объект, который впоследствии обрабатывается менеджером.
+Если вы хотите изменить логику менеджера по умолчанию, вы можете создать свой собственный менеджер.
+Например, `activeUsersManager()`:
 
 ```php
-class ActiveUsersManager(Manager){
-    public function getQuerySet(){
+class ActiveUsersManager extends Manager
+{
+    public function getQuerySet()
+    {
         $qs = parent::getQuerySet();
         return $qs->filter(['status' => User::STATUS_ACTIVE]);
     }
 }
+```
 
-class User(Model){
-    const STATUS_NOT_ACTIVE = 0;
-    const STATUS_ACTIVE = 1;
+Модель с собственным менеджером:
 
-    public function getFields(){
+```php
+class User extends Model
+{
+    public function getFields()
+    {
         'name' => [
             'class' => CharField::className(),
-            'default' => 'Product',
         ],
         'status' => [
-            'class' => IntField::className(),
-            'default' => self::STATUS_NOT_ACTIVE
+            'class' => BooleanField::className(),
+            'default' => false
         ]
     }
 
-    public static function activeUsers(){
+    public static function activeUsersManager($instance = null)
+    {
         $className = get_called_class();
-        return new ActiveUsersManager(new $className);
+        return new ActiveUsersManager($instance ? $instance : new $className);
     }
 }
 ```
 
-You can call ActiveUsersManager() using User::activeUsers().
-And all the queries will be executed according to your logic handling only the ACTIVE users.
-For example, this code helps to select the active users with name starts with 'A':
+Теперь вы можете использовать `ActiveUsersManager()` с помощью `User::activeUsers()`.
+И все запросы будут выполняться в соответствии с вашей логикой обработки только активных пользователей.
+Например, этот код поможет выбрать активных пользователей имя которых начинается с 'A':
 
 ```php
 User::activeUsers()->filter(['name__startswith' => 'A'])->all();
 ```
 
-## Manager/QuerySet methods
+## Manager/QuerySet методы
 
 ### Methods returning a result
 
 #### Get
 
-Find one object.
-If more than 2 objects are found an Exception will be risen. If an object is not found `null` will be return .
-If precisely one user is found the object `User` will be returned.
+Выборка одного объекта. В случае если объектов соответствующих условию больше 1,
+выбрасываем исключение, иначе возвращаем объект. Если объектов не найдено, то возвращаем null.
 
-Find one user with pk equals 3.
+Найдем объект где `pk == 5`.
 
 ```php
-User::objects()->filter(['pk' => 3])->get();
+$model = User::objects()->filter(['pk' => 5])->get();
 ```
 
 #### All
 
-Returns an array of `Model` objects.
-Find all users. Returns array of `User` objects.
+Возвращает массив моделей класса `Model` или ассоциативный массив в случае если
+вызван метод `asArray()`.
+
+Выборка всех пользователей. Вернется массив моделей класса `User`.
 
 ```php
 User::objects()->all();
 ```
+
+Выборка всех пользователей. Вернется ассоциативный массив.
+
+```php
+User::objects()->asArray()->all();
+```
+
 #### Count
 
-Gets the number of objects in the current Manager/QuerySet.
+Возвращает число объектов подходящих под условия выборки
 
 ```php
 User::objects()->count();
 ```
 
-## Methods returning the changed QuerySet
+## Методы, возвращающие измененный QuerySet
 
-You can chain these methods as follows:
+Вы можете вызывать эти методы последовательно:
 
 ```php
 User::objects()->filter(['name' => 'Max'])->exclude(['address' => 'New York'])->order(['-address'])->all();
 ```
 
-This code finds all users with name 'Max' living not in New York ordered by address in DESC order.
+Данный код возвращает всех пользователей с именем `Max` живущих не в `New York` с сортировкой
+по адресу в обратном порядке.
+
+```sql
+SELECT * FROM user WHERE name='Max' AND address != 'New York' ORDER BY address DESC
+```
 
 #### Filter
 
-You can find all users in the group which name is `users` using the following code:
+Вы можете найти всех пользователей состоящих в группе с именем `example`, используя следующий код:
 
 ```php
-User::objects()->filter(['group__name' => 'users'])->all();
+User::objects()->filter(['group__name' => 'example'])->all();
 ```
+
+`group` в данном случае связь `m2m` до модели `Group`
 
 #### Exclude
 
-You can find all users not in the group which name is `users` using the following code:
+Вы можете найти всех пользователей которые не состоят в группе с названием `example`, используя следующий код:
 
 ```php
 User::objects()->exclude(['group__name' => 'users'])->all();
 ```
 
+`group` в данном случае связь `m2m` до модели `Group`
+
 #### Order
 
-Finds all users ordered by name in ASC order:
+Поиск всех пользователей и сортировка по имени:
 
 ```php
 User::objects()->order(['name'])->all();
 ```
 
-Finds all users ordered by name in DESC order:
+Поиск всех пользователей и сортировка по имени в обратном порядке:
 
 ```php
 User::objects()->order(['-name'])->all();
 ```
 
 ## Lookups
-
-Lookups helps you filtrate QuerySet. Lookups
 
 С помощью лукапов(lookups) вы можете фильтровать QuerySet.
 Лукапы применяются в методах менеджера `exclude()` и `filter()` и передаются в них массивом,
@@ -259,6 +306,9 @@ User::objects()->filter(['name__exact' => 'Max'])->all();
 Выбираем всех пользователей имя которых равно 'Max'.
 *На самом деле, лукап `exact` является лукапом "по умолчанию". То есть, в данном примере можно было было обойтись условием `filter(['name' => 'Max'])`.*
 
+```sql
+SELECT * FROM user WHERE name = 'Max'
+```
 
 ### isnull
 
@@ -270,6 +320,17 @@ User::objects()->filter(['name__isnull' => true])->all();
 ```
 
 Произойдет выбор всех пользователей cо значением имени в БД `NULL`.
+
+```sql
+SELECT * FROM user WHERE name IS NULL
+```
+
+Если передать `false` в качестве значения то sql запрос будет выглядеть слудющим
+образом:
+
+```sql
+SELECT * FROM user WHERE name IS NOT NULL
+```
 
 ### lte, lt
 
@@ -290,6 +351,18 @@ Product::objects()->filter(['price__lte' => 100.00])->all();
 
 Произойдет выбор всех продуктов с ценой меньшей, либо равной `100.00`.
 
+`lt` формирует слудющий sql:
+
+```sql
+SELECT * FROM user WHERE price < 100.00
+```
+
+`lte` формирует слудющий sql:
+
+```sql
+SELECT * FROM user WHERE price <= 100.00
+```
+
 ### gte, gt
 
 Лукапы, применяющиеся для поиска значений больше заданного (`gt`), и больших либо равных заданному (`lte`)
@@ -309,6 +382,18 @@ Product::objects()->filter(['price__gte' => 100.00])->all();
 
 Произойдет выбор всех продуктов с ценой большей, либо равной `100.00`.
 
+`gt` формирует слудющий sql:
+
+```sql
+SELECT * FROM user WHERE price > 100.00
+```
+
+`gte` формирует слудющий sql:
+
+```sql
+SELECT * FROM user WHERE price >= 100.00
+```
+
 ### exact
 
 Применяется для поиска значний строго равных заданному.
@@ -324,7 +409,7 @@ User::objects()->filter(['name__exact' => 'Max'])->all();
 ### contains
 
 Применяется для поиска значений в которых присутствует заданноу значение (аналог - SQL LIKE).
-Регистрозависимый поиск. Для регистронезависимого используйте lookup `icontains`.
+***Регистрозависимый*** поиск. Для регистронезависимого используйте lookup `icontains`.
 Пример:
 
 ```php
@@ -333,9 +418,13 @@ User::objects()->filter(['name__contains' => 'ax'])->all();
 
 Произойдет выбор всех пользователей, в имени которых есть сочетание 'ax'.
 
+```sql
+SELECT * FROM user WHERE name LIKE '%ax%'
+```
+
 ### icontains
 
-Полностью повторяет предыдущий lookup, но осуществляет регистронезависимый поиск.
+Полностью повторяет lookup `contains`, но осуществляет ***регистронезависимый*** поиск.
 
 ### startswith
 
@@ -349,9 +438,13 @@ User::objects()->filter(['name__startswith' => 'M'])->all();
 
 Произойдет выбор всех пользователей, имя которых начинается с 'M'.
 
+```sql
+SELECT * FROM user WHERE name LIKE 'M%'
+```
+
 ### istartswith
 
-Полностью повторяет предыдущий lookup, но осуществляет регистронезависимый поиск.
+Полностью повторяет lookup `startswith`, но осуществляет регистронезависимый поиск.
 
 ### endswith
 
@@ -365,9 +458,13 @@ User::objects()->filter(['name__endswith' => 'on'])->all();
 
 Произойдет выбор всех пользователей, имя которых начинается с 'on'.
 
+```sql
+SELECT * FROM user WHERE name LIKE '%on'
+```
+
 ### iendswith
 
-Полностью повторяет предыдущий lookup, но осуществляет регистронезависимый поиск.
+Полностью повторяет lookup `iendswith`, но осуществляет регистронезависимый поиск.
 
 ### in
 
@@ -379,9 +476,14 @@ User::objects()->filter(['pk__in' => [1, 2]])->all();
 ```
 Произойдет выбор всех пользователей, pk которых попадают в список `[1, 2]`.
 
-#### This lookup can take QuerySet object
+```sql
+SELECT * FROM user WHERE id IN (1, 2)
+```
+
+***Lookup может принимать QuerySet в качестве значения***
 
 Данный лукап позволяет принимать не только массив значений, но и объект QuerySet. В этом случае в запрос будет добавлен подзапрос.
+
 Пример:
 
 ```
@@ -405,7 +507,9 @@ Product::objects()->filter(['price__range' => [10, 20]])
 
 Произойдет выбор всех продуктов с ценой от 10 до 20.
 
-@TODO
+```sql
+SELECT * FROM product WHERE price BETWEEN 10 AND 20
+```
 
 ### year
 
@@ -420,6 +524,8 @@ Product::objects()->filter(['date_added__year' => 2014])
 
 Произойдет выбор всех продуктов, добавленных в 2014 году.
 
+***Внимание:*** sql запрос будет отличаться для разных субд.
+
 ### month
 
 Данный лукап работает только с полями типа `DateTimeField`, `DateField`.
@@ -432,6 +538,8 @@ Product::objects()->filter(['date_added__year' => 12])
 ```
 
 Произойдет выбор всех продуктов, добавленных в декабре.
+
+***Внимание:*** sql запрос будет отличаться для разных субд.
 
 ### day
 
@@ -446,19 +554,45 @@ Product::objects()->filter(['date_added__day' => 25])
 
 Произойдет выбор всех продуктов, добавленных 25 числа любого месяца.
 
+***Внимание:*** sql запрос будет отличаться для разных субд.
+
 ### week_day
 
 Данный лукап работает только с полями типа `DateTimeField`, `DateField`.
 Позволяет найти все значения, расположенные в заданном дне недели.
-Значения: 1 - Воскресенье, 2 - Понедельник, ..., 7 - Суббота
+
+Значения: 1 - Воскресенье, 2 - Понедельник, ..., 7 - Суббота.
+Порядок дней определяет ORM и подстраивает под текущую субд по следующей причине:
+
+```
+Method                              Range
+------                              -----
+PYTHON
+    datetime_object.weekday()       0-6    Sunday=6
+    datetime_object.isoweekday()    1-7    Sunday=7
+    dt_object.isoweekday() % 7      0-6    Sunday=0 # Can easily add 1 for a 1-7 week where Sunday=1
+
+MYSQL
+    DAYOFWEEK(timestamp)            1-7    Sunday=1
+    WEEKDAY(timestamp)              0-6    Monday=0
+
+POSTGRES
+    EXTRACT('dow' FROM timestamp)   0-6    Sunday=0
+    TO_CHAR(timestamp, 'D')         1-7    Sunday=1
+
+ORACLE
+    TO_CHAR(timestamp, 'D')         1-7    Sunday=1 (US), Sunday=6 (UK)
+```
+
 Пример:
 
 ```php
 Product::objects()->filter(['date_added__week_day' => 2])
 ```
-** Notice! На текущий момент реализовано только для MySQL **
 
 Произойдет выбор всех продуктов, добавленных в понедельник.
+
+***Внимание:*** sql запрос будет отличаться для разных субд.
 
 ### hour
 
@@ -472,6 +606,8 @@ Product::objects()->filter(['date_added__hour' => 10])
 
 Произойдет выбор всех продуктов, добавленных в 10 часов.
 
+***Внимание:*** sql запрос будет отличаться для разных субд.
+
 ### minute
 
 Данный лукап работает только с полями типа `DateTimeField`, `TimeField`.
@@ -483,6 +619,8 @@ Product::objects()->filter(['date_added__minute' => 35])
 ```
 
 Произойдет выбор всех продуктов, добавленных в 35 минут.
+
+***Внимание:*** sql запрос будет отличаться для разных субд.
 
 ### second
 
@@ -496,6 +634,8 @@ Product::objects()->filter(['date_added__minute' => 45])
 
 Произойдет выбор всех продуктов, добавленных в 45 секунд.
 
+***Внимание:*** sql запрос будет отличаться для разных субд.
+
 ### search
 
 ** Не реализовано **
@@ -503,7 +643,7 @@ Product::objects()->filter(['date_added__minute' => 45])
 ### regex
 
 Поиск по регулярному выражению.
-Регистрозависимый. Для регистронезависимого используйте lookup `iregex`.
+***Регистрозависимый***. Для регистронезависимого используйте lookup `iregex`.
 Пример:
 
 ```php
@@ -512,51 +652,10 @@ Product::objects()->filter(['name__regex' => '[a-z]'])
 
 Произойдет выбор всех продуктов, соответствующих регулярному выражению `[a-z]`
 
-** Notice! На текущий момент реализовано только для MySQL **
+***Внимание:*** sql запрос будет отличаться для разных субд.
 
 ### iregex
 
 Полностью повторяет предыдущий lookup, но осуществляет регистронезависимый поиск.
-** Notice! На текущий момент реализовано только для MySQL **
 
-## Relations
-
-@TODO: list of all relations
-
-### ForeignField
-
-@TODO
-
-### HasManyField
-
-@TODO
-
-### ManyToManyField
-
-@TODO
-
-#### With through model
-
-@TODO
-
-### Lookups with relations
-
-@TODO
-
-## Aggregations
-
-### max
-
-@TODO
-
-### min
-
-@TODO
-
-### avg
-
-@TODO
-
-### sum
-
-@TODO
+***Внимание:*** sql запрос будет отличаться для разных субд.
