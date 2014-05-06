@@ -14,6 +14,8 @@
 
 namespace Mindy\Orm;
 
+use Exception;
+
 class Manager
 {
     /**
@@ -238,5 +240,20 @@ class Manager
     public function update(array $attributes)
     {
         return $this->getQuerySet()->update($attributes);
+    }
+
+    public function delete(array $attributes = [])
+    {
+        $model = $this->getModel();
+        if($model->getIsNewRecord()) {
+            throw new Exception("The model can't be deleted because it is new.");
+        }
+
+        if(!empty($attributes)) {
+            $qs = $this->filter($attributes);
+        } else {
+            $qs = $this->getQuerySet();
+        }
+        return $qs->delete();
     }
 }

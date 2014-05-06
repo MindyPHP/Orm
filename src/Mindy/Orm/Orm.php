@@ -226,6 +226,11 @@ class Orm extends Base
         return $command->execute();
     }
 
+    public function getChangedFields()
+    {
+        return $this->_oldFields;
+    }
+
     /**
      * TODO method work incorrect
      * @param array $fields return incoming fields only
@@ -318,6 +323,15 @@ class Orm extends Base
         return $this->getIsNewRecord() ? $this->insert($fields) : $this->update($fields);
     }
 
+    public function delete()
+    {
+        if($this->getIsNewRecord()) {
+            throw new Exception("The node can't be deleted because it is new.");
+        }
+
+        return $this->objects($this)->delete();
+    }
+
     public function getIsNewRecord()
     {
         return $this->pk === null;
@@ -362,9 +376,9 @@ class Orm extends Base
     public function __call($method, $args)
     {
         $manager = $method . 'Manager';
-        if(is_callable([$this, $manager])) {
+        if(method_exists($this, $manager)) {
             return call_user_func_array([$this, $manager], array_merge([$this], $args));
-        } elseif (is_callable([$this, $method])) {
+        } elseif (method_exists($this, $method)) {
             return call_user_func_array([$this, $method], $args);
         } else {
             throw new Exception("Call unknown method {$method}");
@@ -406,9 +420,16 @@ class Orm extends Base
                 /** @var $field \Mindy\Orm\Fields\ForeignField */
                 $this->_fkFields[$name . '_' . $field->getForeignPrimaryKey()] = $name;
             }
+
+            $this->_oldFields[$name] = clone $field;
+
             $field->setValue($value);
         } else if($this->hasForeignKey($name)) {
-            $this->getForeignKey($name)->setValue($value);
+            $field = $this->getForeignKey($name);
+
+            $this->_oldFields[$name] = clone $field;
+
+            $field->setValue($value);
         } else if(false) {
             // TODO add support for m2m setter. Example:
             /**

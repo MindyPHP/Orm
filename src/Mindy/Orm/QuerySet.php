@@ -788,4 +788,11 @@ class QuerySet extends Query
         $value = parent::max($column, $db);
         return $this->numval($value);
     }
+
+    public function delete($db = null)
+    {
+        $alias = $this->getTableAlias();
+        $tableName = $alias . " USING " . $this->model->tableName() . " AS " . $alias;
+        return $this->createCommand($db)->delete($tableName, $this->where, $this->params)->execute();
+    }
 }
