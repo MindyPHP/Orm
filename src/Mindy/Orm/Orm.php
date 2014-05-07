@@ -59,6 +59,12 @@ class Orm extends Base
     public $foreignField = '\Mindy\Orm\Fields\ForeignField';
 
     /**
+     * TODO
+     * @var string
+     */
+    public $oneToOneField = '\Mindy\Orm\Fields\OneToOneField';
+
+    /**
      * @var string
      */
     public $manyToManyField = '\Mindy\Orm\Fields\ManyToManyField';

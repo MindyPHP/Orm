@@ -23,7 +23,7 @@ class Model extends Orm
 
     public function __toString()
     {
-        return (string) get_class($this);
+        return (string) $this->shortClassName();
     }
 
     public function setData(array $values)
@@ -34,5 +34,10 @@ class Model extends Orm
             }
         }
         return $this;
+    }
+
+    public function getVerboseName()
+    {
+        return $this->shortClassName();
     }
 }

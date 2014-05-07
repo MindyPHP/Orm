@@ -15,6 +15,7 @@ namespace Mindy\Orm;
 
 
 use ArrayAccess;
+use ReflectionClass;
 
 class Base implements ArrayAccess
 {
@@ -24,6 +25,15 @@ class Base implements ArrayAccess
     public static function className()
     {
         return get_called_class();
+    }
+
+    /**
+     * @return string the short name of this class.
+     */
+    public static function shortClassName()
+    {
+        $reflect = new ReflectionClass(self::className());
+        return $reflect->getShortName();
     }
 
     /**
