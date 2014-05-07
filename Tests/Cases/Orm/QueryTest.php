@@ -15,6 +15,7 @@
 namespace Tests\Orm;
 
 use Tests\DatabaseTestCase;
+use Tests\Models\Customer;
 use Tests\Models\Group;
 use Tests\Models\Membership;
 use Tests\Models\User;
@@ -27,7 +28,7 @@ class QueryTest extends DatabaseTestCase
     {
         parent::setUp();
 
-        $this->initModels([new User, new Group, new Membership]);
+        $this->initModels([new User, new Group, new Membership, new Customer]);
 
         $group = new Group();
         $group->name = 'test';
@@ -47,6 +48,8 @@ class QueryTest extends DatabaseTestCase
 
         foreach($users as $user) {
             $group->users->link($user);
+
+            Customer::objects()->getOrCreate(['address' => 'test', 'user' => $user]);
         }
 
         $model = new User();
@@ -55,7 +58,7 @@ class QueryTest extends DatabaseTestCase
 
     public function tearDown()
     {
-        $this->dropModels([new User, new Group, new Membership]);
+        $this->dropModels([new User, new Group, new Membership, new Customer]);
     }
 
     public function testFind()
@@ -108,5 +111,9 @@ class QueryTest extends DatabaseTestCase
         $group = Group::objects()->filter(['pk' => 1])->get();
         $this->assertEquals(1, Group::objects()->count());
         $this->assertEquals(2, $group->users->count());
+
+        $user = User::objects()->filter(['pk' => 1])->get();
+        $customer = Customer::objects()->filter(['user' => $user])->get();
+        $this->assertEquals(1, $customer->pk);
     }
 }
