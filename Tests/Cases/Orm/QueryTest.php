@@ -15,6 +15,8 @@
 namespace Tests\Orm;
 
 use Tests\DatabaseTestCase;
+use Tests\Models\Group;
+use Tests\Models\Membership;
 use Tests\Models\User;
 
 class QueryTest extends DatabaseTestCase
@@ -25,22 +27,35 @@ class QueryTest extends DatabaseTestCase
     {
         parent::setUp();
 
-        $this->initModels([new User]);
+        $this->initModels([new User, new Group, new Membership]);
+
+        $group = new Group();
+        $group->name = 'test';
+        $group->save();
 
         $this->items = [
             ['username' => 'Anton', 'password' => 'VeryGoodPassWord'],
             ['username' => 'Max', 'password' => 'The6estP@$$w0rd'],
         ];
+        $users = [];
         foreach($this->items as $item) {
             $tmp = new User();
-            foreach($item as $name => $value) {
-                $tmp->$name = $value;
-            }
+            $tmp->setData($item);
             $tmp->save();
+            $users[] = $tmp;
+        }
+
+        foreach($users as $user) {
+            $group->users->link($user);
         }
 
         $model = new User();
         $this->prefix = $model->getConnection()->tablePrefix;
+    }
+
+    public function tearDown()
+    {
+        $this->dropModels([new User, new Group, new Membership]);
     }
 
     public function testFind()
@@ -86,5 +101,12 @@ class QueryTest extends DatabaseTestCase
         $qs = User::objects()->exclude(['username' => 'Max'])->orExclude(['username' => 'Anton']);
         $this->assertEquals(2, $qs->count());
         $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}user` `user_1` WHERE (NOT ((`user_1`.`username`='Max'))) OR (NOT ((`user_1`.`username`='Anton')))", $qs->countSql());
+    }
+
+    public function testExactQs()
+    {
+        $group = Group::objects()->filter(['pk' => 1])->get();
+        $this->assertEquals(1, Group::objects()->count());
+        $this->assertEquals(2, $group->users->count());
     }
 }
