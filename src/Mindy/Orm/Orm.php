@@ -335,7 +335,7 @@ class Orm extends Base
             throw new Exception("The node can't be deleted because it is new.");
         }
 
-        return $this->objects($this)->delete();
+        return $this->objects()->delete();
     }
 
     public function getIsNewRecord()
