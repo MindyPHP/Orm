@@ -182,4 +182,22 @@ class SaveUpdateTest extends DatabaseTestCase
         $this->assertEquals(1, User::objects()->filter(['pk' => 2])->delete());
         $this->assertEquals(0, User::objects()->count());
     }
+
+    public function testDeleteTwo()
+    {
+        $modelOne = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
+        $modelTwo = User::objects()->getOrCreate(['username' => 'Anton', 'password' => 'VeryGoodP@ssword']);
+
+        $modelOne->delete();
+        $this->assertEquals(1, User::objects()->count());
+    }
+
+    public function testDeleteQsTwo()
+    {
+        $modelOne = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
+        $modelTwo = User::objects()->getOrCreate(['username' => 'Anton', 'password' => 'VeryGoodP@ssword']);
+
+        User::objects()->filter(['username' => 'Max'])->delete();
+        $this->assertEquals(1, User::objects()->count());
+    }
 }
