@@ -19,6 +19,7 @@ include __DIR__ . '/src/Mindy/Orm/Fields/AutoField.php';
 include __DIR__ . '/src/Mindy/Orm/Fields/CharField.php';
 include __DIR__ . '/src/Mindy/Orm/Fields/BooleanField.php';
 include __DIR__ . '/src/Mindy/Orm/Fields/TextField.php';
+include __DIR__ . '/src/Mindy/Orm/Fields/BlobField.php';
 include __DIR__ . '/src/Mindy/Orm/Fields/JsonField.php';
 
 include __DIR__ . '/src/Mindy/Orm/Fields/RelatedField.php';

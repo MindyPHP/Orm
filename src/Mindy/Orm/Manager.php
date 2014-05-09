@@ -256,4 +256,9 @@ class Manager
         }
         return $qs->delete();
     }
+
+    public function create(array $attributes)
+    {
+        return $this->getModel()->setData($attributes)->save();
+    }
 }
