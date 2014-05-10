@@ -51,14 +51,6 @@ class HasManyField extends RelatedField
 
     }
 
-    /**
-     * @param \Mindy\Orm\Model $model
-     */
-    public function setModel(Model $model)
-    {
-        $this->_model = $model;
-    }
-
     public function sqlType()
     {
         return false;

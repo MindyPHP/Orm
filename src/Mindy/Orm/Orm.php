@@ -619,6 +619,7 @@ class Orm extends Base
         foreach ($fields as $name => $config) {
             $field = Creator::createObject($config);
             $field->setName($name);
+            $field->setModel($this);
             /* @var $field \Mindy\Orm\Fields\Field */
             if (is_a($field, $this->autoField)) {
                 $needPk = false;
@@ -666,13 +667,11 @@ class Orm extends Base
 
         foreach($this->_manyFields as $name => $field) {
             /* @var $field \Mindy\Orm\Fields\ManyToManyField */
-            $field->setModel($this);
             $this->_fields[$name] = $field;
         }
 
         foreach($this->_hasManyFields as $name => $field) {
             /* @var $field \Mindy\Orm\Fields\HasManyField */
-            $field->setModel($this);
             $this->_fields[$name] = $field;
         }
 

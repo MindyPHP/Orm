@@ -90,16 +90,6 @@ class ManyToManyField extends RelatedField
 
     }
 
-    public function setModel(Model $model)
-    {
-        $this->_model = $model;
-    }
-
-    public function getModel()
-    {
-        return $this->_model;
-    }
-
     /**
      * @return \Mindy\Orm\Model
      */

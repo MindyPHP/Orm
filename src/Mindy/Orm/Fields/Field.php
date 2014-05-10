@@ -47,6 +47,8 @@ abstract class Field
 
     private $_extraFields = [];
 
+    private $_model;
+
     /**
      * @return Field[]
      */
@@ -109,6 +111,16 @@ abstract class Field
     public function addErrors($errors)
     {
         $this->_errors = array_merge($this->_errors, $errors);
+    }
+
+    public function setModel(Model $model)
+    {
+        $this->_model = $model;
+    }
+
+    public function getModel()
+    {
+        return $this->_model;
     }
 
     public function getValue()
