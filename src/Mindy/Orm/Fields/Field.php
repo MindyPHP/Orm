@@ -18,6 +18,7 @@ namespace Mindy\Orm\Fields;
 use Closure;
 use Mindy\Helper\Creator;
 use Mindy\Orm\Model;
+use Mindy\Orm\Validator\RequiredValidator;
 
 abstract class Field
 {
@@ -84,6 +85,10 @@ abstract class Field
     public function __construct(array $config = [])
     {
         Creator::configure($this, $config);
+
+        if($this->required) {
+            $this->validators = array_merge([new RequiredValidator], $this->validators);
+        }
 
         $this->init();
     }
