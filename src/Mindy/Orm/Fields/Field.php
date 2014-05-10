@@ -176,8 +176,6 @@ abstract class Field
 
     public function isValid()
     {
-        $this->clearErrors();
-
         foreach ($this->validators as $validator) {
             if ($validator instanceof Closure) {
                 /* @var $validator \Closure */
@@ -191,7 +189,7 @@ abstract class Field
                 }
             } else if (is_subclass_of($validator, $this->_validatorClass)) {
                 /* @var $validator \Mindy\Orm\Validator\Validator */
-                $validator->clearErrors();
+//                $validator->clearErrors();
 
                 $valid = $validator->validate($this->value);
                 if ($valid === false) {
