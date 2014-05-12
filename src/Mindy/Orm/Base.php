@@ -15,9 +15,10 @@ namespace Mindy\Orm;
 
 
 use ArrayAccess;
+use Mindy\Core\Interfaces\Arrayable;
 use ReflectionClass;
 
-class Base implements ArrayAccess
+class Base implements ArrayAccess, Arrayable
 {
     /**
      * @return string the fully qualified name of this class.
@@ -98,5 +99,14 @@ class Base implements ArrayAccess
     public function offsetUnset($offset)
     {
         $this->$offset = null;
+    }
+
+    /**
+     * Converts the object into an array.
+     * @return array the array representation of this object
+     */
+    public function toArray()
+    {
+        // TODO: Implement toArray() method.
     }
 }
