@@ -63,13 +63,13 @@ class ForeignField extends RelatedField
 
     public function getJoin()
     {
-        return array($this->getRelatedModel(), array(
-            array(
+        return [$this->getRelatedModel(),  [
+            [
                 'table' => $this->getRelatedTable(false),
                 // @TODO: chained with Sync - 40 line
                 'from' => $this->getRelatedTable() . '_id',
                 'to' => $this->getRelatedModel()->getPkName(),
-            )
-        ));
+            ]
+        ]];
     }
 }

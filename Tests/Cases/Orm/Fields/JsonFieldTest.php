@@ -39,6 +39,6 @@ class JsonFieldTest extends TestCase
     {
         $field = new JsonField();
         $field->setValue(new Test);
-        $this->assertTrue($field->isValid());
+        $this->assertFalse($field->isValid());
     }
 }

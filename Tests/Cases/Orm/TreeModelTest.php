@@ -131,4 +131,69 @@ class TreeModelTest extends DatabaseTestCase
         $rootModel->save();
         $this->assertEquals(2, $rootModel->root);
     }
+
+    public function testTree()
+    {
+        $rootModel = NestedModel::objects()->getOrCreate(['name' => 'test']);
+        $rootModelTwo = NestedModel::objects()->getOrCreate(['name' => 'test1']);
+        $nestedModel = NestedModel::objects()->getOrCreate(['name' => 'test2', 'parent' => $rootModelTwo]);
+        $nestedTwo = NestedModel::objects()->getOrCreate(['name' => 'test3', 'parent' => $rootModelTwo]);
+        $threeLevelModel = NestedModel::objects()->getOrCreate(['name' => 'test4', 'parent' => $nestedTwo]);
+
+        $data = NestedModel::tree()->asTree()->all();
+        $this->assertEquals([
+                [
+                    'id' => 1,
+                    'parent_id' => null,
+                    'lft' => 1,
+                    'rgt' => 2,
+                    'level' => 1,
+                    'root' => 1,
+                    'name' => 'test',
+                    'items' => [],
+                ],
+                [
+                    'id' => 2,
+                    'parent_id' => null,
+                    'lft' => 1,
+                    'rgt' => 8,
+                    'level' => 1,
+                    'root' => 2,
+                    'name' => 'test1',
+                    'items' => [
+                        [
+                            'id' => 3,
+                            'parent_id' => 2,
+                            'lft' => 6,
+                            'rgt' => 7,
+                            'level' => 2,
+                            'root' => 2,
+                            'name' => 'test2',
+                            'items' => [],
+                        ],
+                        [
+                            'id' => 4,
+                            'parent_id' => 2,
+                            'lft' => 2,
+                            'rgt' => 5,
+                            'level' => 2,
+                            'root' => 2,
+                            'name' => 'test3',
+                            'items' => [
+                                [
+                                    'id' => 5,
+                                    'parent_id' => 4,
+                                    'lft' => 3,
+                                    'rgt' => 4,
+                                    'level' => 3,
+                                    'root' => 2,
+                                    'name' => 'test4',
+                                    'items' => [],
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ], $data);
+    }
 }

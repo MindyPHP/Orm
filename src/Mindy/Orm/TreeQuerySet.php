@@ -14,9 +14,11 @@
 
 namespace Mindy\Orm;
 
+use Mindy\Core\Interfaces\Arrayable;
+
 class TreeQuerySet extends QuerySet
 {
-    protected $tree;
+    protected $treeKey;
 
     /**
      * Named scope. Gets descendants for node.
@@ -131,34 +133,35 @@ class TreeQuerySet extends QuerySet
         return ($max = $this->max('root')) ? $max + 1 : 1;
     }
 
-    public function asTree($value = true)
+    public function asTree($key = 'items')
     {
-        $this->tree = $value;
+        $this->treeKey = $key;
         return $this;
     }
 
     public function all($db = null)
     {
         $data = parent::all($db);
-        return $this->tree ? $this->toHierarchy($data) : $data;
+        return $this->treeKey ? $this->toHierarchy($data) : $data;
     }
 
     /**
      * Make hierarchy array by level
      * @param $collection models
-     * @param string $nestedKey
      * @return array
      */
-    public function toHierarchy($collection, $nestedKey = 'items')
+    public function toHierarchy($collection)
     {
         // Trees mapped
         $trees = array();
         if (count($collection) > 0) {
             // Node Stack. Used to help building the hierarchy
             $stack = [];
-            foreach ($collection as $node) {
-                $item = $node->toArray();
-                $item[$nestedKey] = array();
+            foreach ($collection as $item) {
+                if($item instanceof Arrayable) {
+                    $item = $item->toArray();
+                }
+                $item[$this->treeKey] = [];
                 // Number of stack items
                 $l = count($stack);
                 // Check if we're dealing with different levels
@@ -174,9 +177,9 @@ class TreeQuerySet extends QuerySet
                     $stack[] = & $trees[$i];
                 } else {
                     // Add node to parent
-                    $i = count($stack[$l - 1][$nestedKey]);
-                    $stack[$l - 1][$nestedKey][$i] = $item;
-                    $stack[] = & $stack[$l - 1][$nestedKey][$i];
+                    $i = count($stack[$l - 1][$this->treeKey]);
+                    $stack[$l - 1][$this->treeKey][$i] = $item;
+                    $stack[] = & $stack[$l - 1][$this->treeKey][$i];
                 }
             }
         }

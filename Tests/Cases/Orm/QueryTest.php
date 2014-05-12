@@ -76,7 +76,7 @@ class QueryTest extends DatabaseTestCase
                 'username' => 'Max',
                 'password' => 'The6estP@$$w0rd'
             ]
-        ], $qs->all(true));
+        ], $qs->asArray()->all());
     }
 
     public function testFindWhere()
@@ -89,7 +89,7 @@ class QueryTest extends DatabaseTestCase
                 'username' => 'Max',
                 'password' => 'The6estP@$$w0rd'
             ]
-        ], $qs->all(true));
+        ], $qs->asArray()->all());
     }
 
     public function testExclude()

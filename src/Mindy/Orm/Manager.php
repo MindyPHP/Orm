@@ -108,9 +108,9 @@ class Manager
     /**
      * @return array
      */
-    public function all($asArray = false)
+    public function all($db = null)
     {
-        return $this->getQuerySet()->asArray($asArray)->all();
+        return $this->getQuerySet()->all($db);
     }
 
     /**
