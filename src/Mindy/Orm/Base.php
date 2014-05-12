@@ -109,4 +109,9 @@ class Base implements ArrayAccess, Arrayable
     {
         // TODO: Implement toArray() method.
     }
+
+    public function toJson()
+    {
+        return Json::encode($this->toArray());
+    }
 }
