@@ -16,9 +16,9 @@ namespace Mindy\Orm;
 
 
 use Exception;
+use Mindy\Core\Interfaces\Arrayable;
 use Mindy\Helper\Creator;
-use Mindy\Orm\Fields\Field;
-use Mindy\Orm\Fields\ManyToManyField;
+use Mindy\Helper\Json;
 use Mindy\Query\Connection;
 
 /**
@@ -26,7 +26,7 @@ use Mindy\Query\Connection;
  * @package Mindy\Orm
  * @method static \Mindy\Orm\Manager objects($instance = null)
  */
-class Orm extends Base
+class Orm extends Base implements Arrayable
 {
     /**
      * @var bool if true, model created without initialized fields
@@ -201,7 +201,7 @@ class Orm extends Base
         $connection = $this->getConnection();
 
         $command = $connection->createCommand()->insert(static::tableName(), $values);
-        if(!$command->execute()) {
+        if (!$command->execute()) {
             return false;
         }
 
@@ -247,9 +247,9 @@ class Orm extends Base
         $values = [];
         $rawFields = $this->getFieldsInit();
 
-        if(!empty($fields)) {
+        if (!empty($fields)) {
             $initFields = [];
-            foreach($fields as $field) {
+            foreach ($fields as $field) {
                 $initFields[$field] = $rawFields[$field];
             }
         } else {
@@ -258,12 +258,12 @@ class Orm extends Base
 
         $oldFields = $this->getOldFieldsInit();
 
-        foreach($initFields as $name => $field) {
-            if(is_a($field, $this->manyToManyField) || is_a($field, $this->hasManyField)) {
+        foreach ($initFields as $name => $field) {
+            if (is_a($field, $this->manyToManyField) || is_a($field, $this->hasManyField)) {
                 continue;
             }
 
-            if(is_a($field, $this->foreignField)) {
+            if (is_a($field, $this->foreignField)) {
                 $newName = $name . '_id';
                 /* @var $field \Mindy\Orm\Fields\ForeignField */
                 $value = $field->getDbPrepValue();
@@ -276,11 +276,11 @@ class Orm extends Base
                 $value = $field->getDbPrepValue();
             }
 
-            if($this->getIsNewRecord()) {
+            if ($this->getIsNewRecord()) {
                 $values[$newName] = $value;
             } else {
                 $oldField = $oldFields[$name];
-                if(is_a($oldField, $this->foreignField)) {
+                if (is_a($oldField, $this->foreignField)) {
                     /* @var $field \Mindy\Orm\Fields\ForeignField */
                     $oldValue = $oldField->getDbPrepValue();
                     if(is_a($oldValue, '\Mindy\Orm\Model')) {
@@ -291,7 +291,7 @@ class Orm extends Base
                     $oldValue = $oldField->getDbPrepValue();
                 }
 
-                if($oldValue != $value) {
+                if ($oldValue != $value) {
                     $values[$newName] = $value;
                 }
             }
@@ -317,7 +317,7 @@ class Orm extends Base
 
         // We do not check the return value of updateAll() because it's possible
         // that the UPDATE statement doesn't change anything and thus returns 0.
-        return (bool) $this->updateAll($values, $condition);
+        return (bool)$this->updateAll($values, $condition);
     }
 
     /**
@@ -331,12 +331,12 @@ class Orm extends Base
 
     public function delete()
     {
-        if($this->getIsNewRecord()) {
+        if ($this->getIsNewRecord()) {
             throw new Exception("The node can't be deleted because it is new.");
         }
 
         return $this->objects()->delete([
-           $this->primaryKey() => $this->pk
+            $this->primaryKey() => $this->pk
         ]);
     }
 
@@ -372,7 +372,7 @@ class Orm extends Base
     {
         $manager = $method . 'Manager';
         $className = get_called_class();
-        if(is_callable([$className, $manager])) {
+        if (is_callable([$className, $manager])) {
             return call_user_func_array([$className, $manager], $args);
         } elseif (is_callable([$className, $method])) {
             return call_user_func_array([$className, $method], $args);
@@ -384,7 +384,7 @@ class Orm extends Base
     public function __call($method, $args)
     {
         $manager = $method . 'Manager';
-        if(method_exists($this, $manager)) {
+        if (method_exists($this, $manager)) {
             return call_user_func_array([$this, $manager], array_merge([$this], $args));
         } elseif (method_exists($this, $method)) {
             return call_user_func_array([$this, $method], $args);
@@ -405,7 +405,7 @@ class Orm extends Base
     public function __construct(array $config = [])
     {
         Creator::configure($this, $config);
-        if($this->autoInitFields) {
+        if ($this->autoInitFields) {
             $this->initFields();
         }
     }
@@ -424,7 +424,7 @@ class Orm extends Base
     {
         if ($this->hasField($name)) {
             $field = $this->getField($name);
-            if(is_a($field, $this->foreignField)) {
+            if (is_a($field, $this->foreignField)) {
                 /** @var $field \Mindy\Orm\Fields\ForeignField */
                 $this->_fkFields[$name . '_' . $field->getForeignPrimaryKey()] = $name;
             }
@@ -432,13 +432,13 @@ class Orm extends Base
             $this->_oldFields[$name] = clone $field;
 
             $field->setValue($value);
-        } else if($this->hasForeignKey($name)) {
+        } else if ($this->hasForeignKey($name)) {
             $field = $this->getForeignKey($name);
 
             $this->_oldFields[$name] = clone $field;
 
             $field->setValue($value);
-        } else if(false) {
+        } else if (false) {
             // TODO add support for m2m setter. Example:
             /**
              * $model->items = []; override all related records.
@@ -460,7 +460,7 @@ class Orm extends Base
      */
     public function __get($name)
     {
-        if($name == 'pk') {
+        if ($name == 'pk') {
             return $this->getPk();
         }
 
@@ -479,7 +479,7 @@ class Orm extends Base
             } else {
                 return $field->getValue();
             }
-        } else if($this->hasForeignKey($name)) {
+        } else if ($this->hasForeignKey($name)) {
             return $this->getForeignKey($name)->getValue()->getPk();
         }
 
@@ -507,7 +507,7 @@ class Orm extends Base
     public function getPk()
     {
         /* @var $field \Mindy\Orm\Fields\Field */
-        if($this->hasField('id')) {
+        if ($this->hasField('id')) {
             return $this->getField('id')->getValue();
         } else {
             foreach ($this->getFieldsInit() as $name => $field) {
@@ -610,7 +610,7 @@ class Orm extends Base
      */
     public function initFields($fields = [], $extra = false)
     {
-        if(empty($fields)) {
+        if (empty($fields)) {
             $fields = $this->getFields();
         }
 
@@ -630,15 +630,15 @@ class Orm extends Base
                 if (is_a($field, $this->manyToManyField)) {
                     /* @var $field \Mindy\Orm\Fields\ManyToManyField */
                     $this->_manyFields[$name] = $field;
-                } else if (is_a($field, $this->hasManyField)){
+                } else if (is_a($field, $this->hasManyField)) {
                     /* @var $field \Mindy\Orm\Fields\HasManyField */
                     $this->_hasManyFields[$name] = $field;
-                } else if (is_a($field, $this->foreignField)){
+                } else if (is_a($field, $this->foreignField)) {
                     /* @var $field \Mindy\Orm\Fields\ForeignField */
                     $this->_fields[$name] = $field;
 
                     // ForeignKey in self model
-                    if($field->modelClass == get_class($this)) {
+                    if ($field->modelClass == get_class($this)) {
                         $this->_fkFields[$name . '_' . $this->getPkName()] = $name;
                     } else {
                         $this->_fkFields[$name . '_' . $field->getForeignPrimaryKey()] = $name;
@@ -648,11 +648,11 @@ class Orm extends Base
                 $this->_fields[$name] = $field;
             }
 
-            if(!$extra) {
+            if (!$extra) {
                 $extraFields = $field->getExtraFields();
-                if(!empty($extraFields)) {
+                if (!empty($extraFields)) {
                     $this->initFields($extraFields, true);
-                    foreach($extraFields as $key => $value) {
+                    foreach ($extraFields as $key => $value) {
                         $field->setExtraField($key, $this->_fields[$key]);
                     }
                 }
@@ -665,12 +665,12 @@ class Orm extends Base
             ], $this->_fields);
         }
 
-        foreach($this->_manyFields as $name => $field) {
+        foreach ($this->_manyFields as $name => $field) {
             /* @var $field \Mindy\Orm\Fields\ManyToManyField */
             $this->_fields[$name] = $field;
         }
 
-        foreach($this->_hasManyFields as $name => $field) {
+        foreach ($this->_hasManyFields as $name => $field) {
             /* @var $field \Mindy\Orm\Fields\HasManyField */
             $this->_fields[$name] = $field;
         }
@@ -752,14 +752,41 @@ class Orm extends Base
      */
     public function getField($name, $throw = true)
     {
-        if($this->hasField($name)) {
+        if ($this->hasField($name)) {
             return $this->_fields[$name];
         }
 
-        if($throw) {
+        if ($throw) {
             throw new Exception('Field ' . $name . ' not found');
         } else {
             return null;
         }
+    }
+
+    /**
+     * Converts the object into an array.
+     * @return array the array representation of this object
+     */
+    public function toArray()
+    {
+        $data = [];
+        foreach($this->getFieldsInit() as $name => $field) {
+            if(is_a($field, $this->manyToManyField) || is_a($field, $this->hasManyField)) {
+                $data[$name] = $field->getManager()->all();
+            } elseif (is_a($field, $this->foreignField) || is_a($field, $this->oneToOneField)) {
+                /* @var $model null|Model */
+                $model = $field->getValue();
+                $modelClass = $field->modelClass;
+                $data[$name . '_' . $modelClass::primaryKey()] = $model ? $model->pk : $model;
+            } else {
+                $data[$name] = $field->getValue();
+            }
+        }
+        return $data;
+    }
+
+    public function toJson()
+    {
+        return Json::encode($this->toArray());
     }
 }

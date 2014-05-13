@@ -84,7 +84,7 @@ class ValidationTest extends TestCase
         $this->assertEquals([
             'NULL is not a string',
             'Minimal length < 3'
-        ], $nameField->getErrors(true));
+        ], $nameField->getErrors());
 
         $model->username = 'hi';
         $this->assertEquals('hi', $model->username);

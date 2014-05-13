@@ -14,16 +14,21 @@
 
 namespace Mindy\Orm;
 
+use Mindy\Core\Interfaces\Arrayable;
+
 class TreeQuerySet extends QuerySet
 {
+    protected $treeKey;
+
     /**
      * Named scope. Gets descendants for node.
+     * @param bool $includeSelf
      * @param int $depth the depth.
      * @return QuerySet
      */
     public function descendants($includeSelf = false, $depth = null)
     {
-        if($includeSelf) {
+        if ($includeSelf) {
             $qs = $this->filter([
                 'lft__gte' => $this->model->lft,
                 'rgt__lte' => $this->model->rgt,
@@ -46,6 +51,7 @@ class TreeQuerySet extends QuerySet
 
     /**
      * Named scope. Gets children for node (direct descendants only).
+     * @param bool $includeSelf
      * @return QuerySet
      */
     public function children($includeSelf = false)
@@ -125,5 +131,58 @@ class TreeQuerySet extends QuerySet
     protected function getLastRoot()
     {
         return ($max = $this->max('root')) ? $max + 1 : 1;
+    }
+
+    public function asTree($key = 'items')
+    {
+        $this->treeKey = $key;
+        return $this;
+    }
+
+    public function all($db = null)
+    {
+        $data = parent::all($db);
+        return $this->treeKey ? $this->toHierarchy($data) : $data;
+    }
+
+    /**
+     * Make hierarchy array by level
+     * @param $collection models
+     * @return array
+     */
+    public function toHierarchy($collection)
+    {
+        // Trees mapped
+        $trees = array();
+        if (count($collection) > 0) {
+            // Node Stack. Used to help building the hierarchy
+            $stack = [];
+            foreach ($collection as $item) {
+                if($item instanceof Arrayable) {
+                    $item = $item->toArray();
+                }
+                $item[$this->treeKey] = [];
+                // Number of stack items
+                $l = count($stack);
+                // Check if we're dealing with different levels
+                while ($l > 0 && $stack[$l - 1]['level'] >= $item['level']) {
+                    array_pop($stack);
+                    $l--;
+                }
+                // Stack is empty (we are inspecting the root)
+                if ($l == 0) {
+                    // Assigning the root node
+                    $i = count($trees);
+                    $trees[$i] = $item;
+                    $stack[] = & $trees[$i];
+                } else {
+                    // Add node to parent
+                    $i = count($stack[$l - 1][$this->treeKey]);
+                    $stack[$l - 1][$this->treeKey][$i] = $item;
+                    $stack[] = & $stack[$l - 1][$this->treeKey][$i];
+                }
+            }
+        }
+        return $trees;
     }
 }

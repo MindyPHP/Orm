@@ -95,4 +95,9 @@ class TreeManager extends Manager
     {
         return $this->getQuerySet()->next();
     }
+
+    public function asTree($key = 'items')
+    {
+        return $this->getQuerySet()->asTree($key);
+    }
 }
