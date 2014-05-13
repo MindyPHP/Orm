@@ -133,6 +133,11 @@ abstract class Field
         return $this->value === null ? $this->default : $this->value;
     }
 
+    public function getDbPrepValue()
+    {
+        return $this->getValue();
+    }
+
     public function setValue($value)
     {
         return $this->value = $value;

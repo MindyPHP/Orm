@@ -39,21 +39,42 @@ class FileField extends CharField
 
     public $hashName = true;
 
+    public $cleanValue = 'NULL';
+
     public function getValue()
     {
         if ($this->value) {
-            return $this->getMediaUrl() . $this->value;
+            $mediaUrl = $this->getMediaUrl();
+            return ($mediaUrl ? $mediaUrl : '') . $this->value;
+        }
+        return null;
+    }
+
+    public function getDbPrepValue()
+    {
+        if ($this->value) {
+            return $this->value;
         }
         return null;
     }
 
     public function setValue($value)
     {
-        if (is_array($value)) {
-            $value = $this->setLoadedFile($value);
+        if (is_null($value)) {
+            $this->value = null;
+        } elseif (is_array($value) && isset($value['tmp_name']) && $value['tmp_name']) {
+            if (is_array($value)) {
+                $value = $this->setLoadedFile($value);
+            }
+            $this->value = $value;
+        }elseif(is_string($value) && $value){
+            if ($value == $this->cleanValue) {
+                $value = null;
+            }
+            $this->value = $value;
         }
 
-        return $this->value = $value;
+        return $this->value;
     }
 
     /**

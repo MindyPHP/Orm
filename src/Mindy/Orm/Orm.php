@@ -266,14 +266,14 @@ class Orm extends Base
             if(is_a($field, $this->foreignField)) {
                 $newName = $name . '_id';
                 /* @var $field \Mindy\Orm\Fields\ForeignField */
-                $value = $field->getValue();
+                $value = $field->getDbPrepValue();
                 if(is_a($value, '\Mindy\Orm\Model')) {
                     $value = $value->pk;
                 }
             } else {
                 $newName = $name;
                 /* @var $field \Mindy\Orm\Fields\Field */
-                $value = $field->getValue();
+                $value = $field->getDbPrepValue();
             }
 
             if($this->getIsNewRecord()) {
@@ -282,13 +282,13 @@ class Orm extends Base
                 $oldField = $oldFields[$name];
                 if(is_a($oldField, $this->foreignField)) {
                     /* @var $field \Mindy\Orm\Fields\ForeignField */
-                    $oldValue = $oldField->getValue();
+                    $oldValue = $oldField->getDbPrepValue();
                     if(is_a($oldValue, '\Mindy\Orm\Model')) {
                         $oldValue = $oldValue->pk;
                     }
                 } else {
                     /* @var $field \Mindy\Orm\Fields\Field */
-                    $oldValue = $oldField->getValue();
+                    $oldValue = $oldField->getDbPrepValue();
                 }
 
                 if($oldValue != $value) {
