@@ -41,6 +41,13 @@ class FileField extends CharField
 
     public $cleanValue = 'NULL';
 
+    public function init()
+    {
+        if (!$this->isRequired()){
+            $this->null = true;
+        }
+    }
+
     public function getValue()
     {
         if ($this->value) {
