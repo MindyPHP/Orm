@@ -81,6 +81,7 @@ class Orm extends Base implements Arrayable
 
     /**
      * @var array
+     * @deprecated
      */
     private $_oldFields = [];
 
@@ -99,6 +100,12 @@ class Orm extends Base implements Arrayable
      */
     private $_hasManyFields = [];
 
+
+    /**
+     * @var array
+     * instead of $this->_oldFields
+     */
+    private $_oldValues = [];
 
     /**
      * TODO move to manager
@@ -166,6 +173,7 @@ class Orm extends Base implements Arrayable
                 $record->getField($name)->setValue($value);
             }
         }
+        $record->setOldValues();
         // TODO afterFind event
         return $record;
     }
@@ -205,9 +213,9 @@ class Orm extends Base implements Arrayable
             return false;
         }
 
-        $this->setOldFields();
-
         $this->refreshPrimaryKeyValue();
+
+        $this->setOldValues();
 
         return true;
     }
@@ -234,17 +242,48 @@ class Orm extends Base implements Arrayable
         return $command->execute();
     }
 
+    /**
+     * @return array
+     * @deprecated
+     */
     public function getChangedFields()
     {
         return $this->_oldFields;
     }
 
+    protected function getOldValues(){
+        return $this->_oldValues;
+    }
+
+    protected function setOldValues()
+    {
+        foreach ($this->_fields as $name => $field) {
+            if (is_a($field, $this->manyToManyField) || is_a($field, $this->hasManyField)) {
+                continue;
+            }
+
+            if (is_a($field, $this->foreignField)) {
+                $newName = $name . '_id';
+                /* @var $field \Mindy\Orm\Fields\ForeignField */
+                $value = $field->getDbPrepValue();
+                if(is_a($value, '\Mindy\Orm\Model')) {
+                    $value = $value->pk;
+                }
+            } else {
+                $newName = $name;
+                /* @var $field \Mindy\Orm\Fields\Field */
+                $value = $field->getDbPrepValue();
+            }
+
+            $this->_oldValues[$newName] = $value;
+        }
+    }
     /**
      * TODO method work incorrect
      * @param array $fields return incoming fields only
      * @return array
      */
-    protected function getChangedValues(array $fields = [])
+    public function getChangedValues(array $fields = [])
     {
         $values = [];
         $rawFields = $this->getFieldsInit();
@@ -258,7 +297,7 @@ class Orm extends Base implements Arrayable
             $initFields = $rawFields;
         }
 
-        $oldFields = $this->getOldFieldsInit();
+        $oldValues = $this->getOldValues();
 
         foreach ($initFields as $name => $field) {
             if (is_a($field, $this->manyToManyField) || is_a($field, $this->hasManyField)) {
@@ -278,24 +317,8 @@ class Orm extends Base implements Arrayable
                 $value = $field->getDbPrepValue();
             }
 
-            if ($this->getIsNewRecord()) {
+            if ($this->getIsNewRecord() || !array_key_exists($newName, $oldValues) || (array_key_exists($newName, $oldValues) && $oldValues[$newName] !== $value)) {
                 $values[$newName] = $value;
-            } else {
-                $oldField = $oldFields[$name];
-                if (is_a($oldField, $this->foreignField)) {
-                    /* @var $field \Mindy\Orm\Fields\ForeignField */
-                    $oldValue = $oldField->getDbPrepValue();
-                    if(is_a($oldValue, '\Mindy\Orm\Model')) {
-                        $oldValue = $oldValue->pk;
-                    }
-                } else {
-                    /* @var $field \Mindy\Orm\Fields\Field */
-                    $oldValue = $oldField->getDbPrepValue();
-                }
-
-                if ($oldValue != $value) {
-                    $values[$newName] = $value;
-                }
             }
         }
 
@@ -316,11 +339,19 @@ class Orm extends Base implements Arrayable
         $condition = [
             $name => $this->getField($name)->getValue()
         ];
-
-        $this->setOldFields();
         // We do not check the return value of updateAll() because it's possible
         // that the UPDATE statement doesn't change anything and thus returns 0.
-        return (bool)$this->updateAll($values, $condition);
+
+        $updated = true;
+        if (!count($values) == 0){
+            $updated = (bool)$this->updateAll($values, $condition);
+        }
+
+        if ($updated){
+            $this->setOldValues();
+        }
+
+        return $updated;
     }
 
     /**
@@ -682,9 +713,13 @@ class Orm extends Base implements Arrayable
             $this->_fields[$name] = $field;
         }
 
-        $this->setOldFields();
+        $this->setOldValues();
     }
 
+    /**
+     * @deprecated
+     * @see setOldValues
+     */
     protected function setOldFields()
     {
         foreach ($this->_fields as $name => $field) {
@@ -725,6 +760,7 @@ class Orm extends Base implements Arrayable
     /**
      * Return initialized old fields
      * @return \Mindy\Orm\Fields\Field[]
+     * @deprecated
      */
     public function getOldFieldsInit()
     {
