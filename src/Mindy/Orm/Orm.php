@@ -482,6 +482,10 @@ class Orm extends Base implements Arrayable
      */
     public function __set($name, $value)
     {
+        if($name == 'pk') {
+            $name = $this->primaryKey();
+        }
+
         if ($this->hasField($name)) {
             $field = $this->getField($name);
             if (is_a($field, $this->foreignField)) {

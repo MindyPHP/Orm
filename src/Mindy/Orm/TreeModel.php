@@ -92,18 +92,18 @@ abstract class TreeModel extends Model
     public function save(array $fields = [])
     {
         if ($this->getIsNewRecord()) {
-            if($this->parent) {
+            if ($this->parent) {
                 $this->appendTo($this->parent);
             } else {
                 $this->makeRoot();
             }
         } else {
             $dirtyFields = $this->getChangedValues();
-            if(array_key_exists('parent_id', $dirtyFields)) {
+            if (array_key_exists('parent_id', $dirtyFields)) {
                 $saved = parent::save($fields);
-                if($this->parent) {
+                if ($this->parent) {
                     $this->moveAsLast($this->parent);
-                } else if($this->isRoot() == false) {
+                } else if ($this->isRoot() == false) {
                     $this->moveAsRoot();
                 }
                 $this->setData($this->objects()->asArray()->filter(['pk' => $this->pk])->get());
@@ -326,8 +326,8 @@ abstract class TreeModel extends Model
     }
 
     /**
-     * @param int $key.
-     * @param int $delta.
+     * @param int $key .
+     * @param int $delta .
      */
     private function shiftLeftRight($key, $delta)
     {
@@ -338,11 +338,11 @@ abstract class TreeModel extends Model
     }
 
     /**
-     * @param TreeModel $target.
-     * @param int $key.
-     * @param int $levelUp.
-     * @param boolean $runValidation.
-     * @param array $attributes.
+     * @param TreeModel $target .
+     * @param int $key .
+     * @param int $levelUp .
+     * @param boolean $runValidation .
+     * @param array $attributes .
      * @throws Exception.
      * @throws \Exception.
      * @return boolean.
@@ -397,9 +397,9 @@ abstract class TreeModel extends Model
     }
 
     /**
-     * @param TreeModel $target.
-     * @param int $key.
-     * @param int $levelUp.
+     * @param TreeModel $target .
+     * @param int $key .
+     * @param int $levelUp .
      * @throws Exception.
      * @throws \Exception.
      * @return boolean.

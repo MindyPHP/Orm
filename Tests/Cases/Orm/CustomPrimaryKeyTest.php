@@ -47,5 +47,12 @@ class CustomPrimaryKeyTest extends DatabaseTestCase
 
         $model = CustomPk::objects()->filter(['pk' => 1])->get();
         $this->assertFalse($model->getIsNewRecord());
+        $model->id = 3;
+        $this->assertTrue($model->getIsNewRecord());
+
+        $model = CustomPk::objects()->filter(['pk' => 1])->get();
+        $this->assertFalse($model->getIsNewRecord());
+        $model->pk = 4;
+        $this->assertTrue($model->getIsNewRecord());
     }
 }
