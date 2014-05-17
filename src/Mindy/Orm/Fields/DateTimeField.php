@@ -17,6 +17,20 @@ namespace Mindy\Orm\Fields;
 
 class DateTimeField extends Field
 {
+    public $autoNowAdd = false;
+
+    public $autoNow = false;
+
+    public function getValue()
+    {
+        $db = $this->getModel()->getConnection()->getQueryBuilder();
+        if($this->autoNowAdd && $this->getModel()->getNewRecord() || $this->autoNow) {
+            return $db->convertToDateTime();
+        } else {
+            return $this->value;
+        }
+    }
+
     public function sqlType()
     {
         return 'datetime';

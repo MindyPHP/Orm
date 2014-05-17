@@ -123,6 +123,9 @@ abstract class Field
         $this->_model = $model;
     }
 
+    /**
+     * @return Model
+     */
     public function getModel()
     {
         return $this->_model;

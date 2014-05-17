@@ -368,13 +368,22 @@ class Orm extends Base implements Arrayable
         return null;
     }
 
+    public function __isset($name)
+    {
+        if($this->hasField($name)) {
+            return true;
+        } else {
+            return parent::__isset($name);
+        }
+    }
+
     public static function __callStatic($method, $args)
     {
         $manager = $method . 'Manager';
         $className = get_called_class();
-        if (is_callable([$className, $manager])) {
+        if (method_exists($className, $manager) && is_callable([$className, $manager])) {
             return call_user_func_array([$className, $manager], $args);
-        } elseif (is_callable([$className, $method])) {
+        } elseif (method_exists($className, $manager) && is_callable([$className, $method])) {
             return call_user_func_array([$className, $method], $args);
         } else {
             throw new Exception("Call unknown method {$method}");
