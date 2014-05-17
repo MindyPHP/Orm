@@ -362,7 +362,6 @@ class Orm extends Base implements Arrayable
      */
     public function save(array $fields = [])
     {
-        d($this->getIsNewRecord());
         return $this->getIsNewRecord() ? $this->insert($fields) : $this->update($fields);
     }
 
@@ -677,7 +676,7 @@ class Orm extends Base implements Arrayable
             $field->setName($name);
             $field->setModel($this);
             /* @var $field \Mindy\Orm\Fields\Field */
-            if (is_a($field, $this->autoField)) {
+            if (is_a($field, $this->autoField) || $field->primary) {
                 $needPk = false;
             }
 
