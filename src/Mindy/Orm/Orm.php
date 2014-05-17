@@ -205,6 +205,8 @@ class Orm extends Base implements Arrayable
             return false;
         }
 
+        $this->setOldFields();
+
         $this->refreshPrimaryKeyValue();
 
         return true;
@@ -315,6 +317,7 @@ class Orm extends Base implements Arrayable
             $name => $this->getField($name)->getValue()
         ];
 
+        $this->setOldFields();
         // We do not check the return value of updateAll() because it's possible
         // that the UPDATE statement doesn't change anything and thus returns 0.
         return (bool)$this->updateAll($values, $condition);
