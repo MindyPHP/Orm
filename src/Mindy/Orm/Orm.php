@@ -429,13 +429,17 @@ class Orm extends Base implements Arrayable
                 $this->_fkFields[$name . '_' . $field->getForeignPrimaryKey()] = $name;
             }
 
-            $this->_oldFields[$name] = clone $field;
+            // Users: {'pk': 1, 'username': 'Max'}
+            // $model = User::objects->filter(['pk' => 1])->get();
+            // $model->username = 'Anton'; $model->username = 'Anton'; getChangedValues -> username not changed!
+
+            //$this->_oldFields[$name] = clone $field;
 
             $field->setValue($value);
         } else if ($this->hasForeignKey($name)) {
             $field = $this->getForeignKey($name);
 
-            $this->_oldFields[$name] = clone $field;
+            //$this->_oldFields[$name] = clone $field;
 
             $field->setValue($value);
         } else if (false) {
