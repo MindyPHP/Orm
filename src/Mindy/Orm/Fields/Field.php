@@ -50,6 +50,8 @@ abstract class Field
 
     private $_model;
 
+    public $primary = false;
+
     /**
      * @return Field[]
      */

@@ -17,6 +17,8 @@ namespace Mindy\Orm\Fields;
 
 class AutoField extends IntField
 {
+    public $primary = true;
+
     public $editable = false;
 
     public function sql()
