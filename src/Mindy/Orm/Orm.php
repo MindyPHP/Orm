@@ -251,7 +251,8 @@ class Orm extends Base implements Arrayable
         return $this->_oldFields;
     }
 
-    protected function getOldValues(){
+    protected function getOldValues()
+    {
         return $this->_oldValues;
     }
 
@@ -266,7 +267,7 @@ class Orm extends Base implements Arrayable
                 $newName = $name . '_id';
                 /* @var $field \Mindy\Orm\Fields\ForeignField */
                 $value = $field->getDbPrepValue();
-                if(is_a($value, '\Mindy\Orm\Model')) {
+                if (is_a($value, '\Mindy\Orm\Model')) {
                     $value = $value->pk;
                 }
             } else {
@@ -278,6 +279,7 @@ class Orm extends Base implements Arrayable
             $this->_oldValues[$newName] = $value;
         }
     }
+
     /**
      * TODO method work incorrect
      * @param array $fields return incoming fields only
@@ -308,7 +310,7 @@ class Orm extends Base implements Arrayable
                 $newName = $name . '_id';
                 /* @var $field \Mindy\Orm\Fields\ForeignField */
                 $value = $field->getDbPrepValue();
-                if(is_a($value, '\Mindy\Orm\Model')) {
+                if (is_a($value, '\Mindy\Orm\Model')) {
                     $value = $value->pk;
                 }
             } else {
@@ -343,11 +345,11 @@ class Orm extends Base implements Arrayable
         // that the UPDATE statement doesn't change anything and thus returns 0.
 
         $updated = true;
-        if (!count($values) == 0){
+        if (count($values) > 0) {
             $updated = (bool)$this->updateAll($values, $condition);
         }
 
-        if ($updated){
+        if ($updated) {
             $this->setOldValues();
         }
 
@@ -360,6 +362,7 @@ class Orm extends Base implements Arrayable
      */
     public function save(array $fields = [])
     {
+        d($this->getIsNewRecord());
         return $this->getIsNewRecord() ? $this->insert($fields) : $this->update($fields);
     }
 
@@ -376,7 +379,13 @@ class Orm extends Base implements Arrayable
 
     public function getIsNewRecord()
     {
-        return $this->pk === null;
+        $pk = $this->primaryKey();
+        $oldValues = $this->getOldValues();
+        if(array_key_exists($pk, $oldValues)) {
+            return $oldValues[$pk] === null || $this->pk === null;
+        } else {
+            return $this->pk === null;
+        }
     }
 
     /**
@@ -394,7 +403,7 @@ class Orm extends Base implements Arrayable
     public function getPkName()
     {
         foreach ($this->getFieldsInit() as $name => $field) {
-            if (is_a($field, $this->autoField)) {
+            if (is_a($field, $this->autoField) || $field->primary) {
                 return $name;
             }
         }
@@ -404,7 +413,7 @@ class Orm extends Base implements Arrayable
 
     public function __isset($name)
     {
-        if($this->hasField($name)) {
+        if ($this->hasField($name)) {
             return true;
         } else {
             return parent::__isset($name);
@@ -809,7 +818,7 @@ class Orm extends Base implements Arrayable
         }
 
         if ($throw) {
-            throw new Exception('Field ' . $name . ' not found');
+            throw new Exception('Field "' . $name . '" not found');
         } else {
             return null;
         }
@@ -822,8 +831,8 @@ class Orm extends Base implements Arrayable
     public function toArray()
     {
         $data = [];
-        foreach($this->getFieldsInit() as $name => $field) {
-            if(is_a($field, $this->manyToManyField) || is_a($field, $this->hasManyField)) {
+        foreach ($this->getFieldsInit() as $name => $field) {
+            if (is_a($field, $this->manyToManyField) || is_a($field, $this->hasManyField)) {
                 $data[$name] = $field->getManager()->all();
             } elseif (is_a($field, $this->foreignField) || is_a($field, $this->oneToOneField)) {
                 /* @var $model null|Model */
