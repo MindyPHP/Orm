@@ -19,8 +19,6 @@ class AutoField extends IntField
 {
     public $primary = true;
 
-    public $editable = false;
-
     public function sql()
     {
         return trim(sprintf('%s %s', $this->sqlType(), $this->sqlDefault()));

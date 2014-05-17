@@ -107,6 +107,8 @@ class Orm extends Base implements Arrayable
      */
     private $_oldValues = [];
 
+    private $_isNewRecord;
+
     /**
      * TODO move to manager
      * @param Connection $connection
@@ -170,7 +172,11 @@ class Orm extends Base implements Arrayable
         $record = static::instantiate($row);
         foreach ($row as $name => $value) {
             if ($record->hasField($name)) {
-                $record->getField($name)->setValue($value);
+                $field = $record->getField($name);
+                $field->setValue($value);
+                if(is_a($field, $record->autoField) || $field->primary) {
+                    $record->setIsNewRecord(false);
+                }
             }
         }
         $record->setOldValues();
@@ -211,6 +217,8 @@ class Orm extends Base implements Arrayable
         $command = $connection->createCommand()->insert(static::tableName(), $values);
         if (!$command->execute()) {
             return false;
+        } else {
+            $this->setIsNewRecord(false);
         }
 
         $this->refreshPrimaryKeyValue();
@@ -251,7 +259,7 @@ class Orm extends Base implements Arrayable
         return $this->_oldFields;
     }
 
-    protected function getOldValues()
+    public function getOldValues()
     {
         return $this->_oldValues;
     }
@@ -327,6 +335,12 @@ class Orm extends Base implements Arrayable
         return $values;
     }
 
+    protected function setIsNewRecord($value)
+    {
+        $this->_isNewRecord = $value;
+        return $this;
+    }
+
     /**
      * TODO move to manager
      * @return bool
@@ -378,13 +392,7 @@ class Orm extends Base implements Arrayable
 
     public function getIsNewRecord()
     {
-        $pk = $this->primaryKey();
-        $oldValues = $this->getOldValues();
-        if(array_key_exists($pk, $oldValues)) {
-            return $oldValues[$pk] === null || $this->pk === null;
-        } else {
-            return $this->pk === null;
-        }
+        return $this->_isNewRecord;
     }
 
     /**
@@ -459,6 +467,7 @@ class Orm extends Base implements Arrayable
         if ($this->autoInitFields) {
             $this->initFields();
         }
+        $this->setIsNewRecord(true);
     }
 
     /**
@@ -478,6 +487,10 @@ class Orm extends Base implements Arrayable
             if (is_a($field, $this->foreignField)) {
                 /** @var $field \Mindy\Orm\Fields\ForeignField */
                 $this->_fkFields[$name . '_' . $field->getForeignPrimaryKey()] = $name;
+            }
+
+            if($field->primary) {
+                $this->setIsNewRecord(true);
             }
 
             // Users: {'pk': 1, 'username': 'Max'}

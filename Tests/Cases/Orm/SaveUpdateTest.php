@@ -23,7 +23,6 @@ class SaveUpdateTest extends DatabaseTestCase
     public function setUp()
     {
         parent::setUp();
-
         $this->initModels([new User]);
     }
 
@@ -83,9 +82,10 @@ class SaveUpdateTest extends DatabaseTestCase
         $model = new User();
 
         $this->assertTrue($model->getIsNewRecord());
-
         $model->username = 'Anton';
         $model->password = 'VeryGoodP@ssword';
+
+        $this->assertTrue($model->getIsNewRecord());
         $saved = $model->save();
 
         $this->assertFalse($model->getIsNewRecord());
@@ -99,6 +99,9 @@ class SaveUpdateTest extends DatabaseTestCase
 
         $model->username = 'Max';
         $model->password = 'VeryGoodP@ssword';
+
+        $this->assertTrue($model->getIsNewRecord());
+
         $saved = $model->save();
 
         $this->assertFalse($model->getIsNewRecord());
