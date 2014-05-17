@@ -200,4 +200,47 @@ class SaveUpdateTest extends DatabaseTestCase
         User::objects()->filter(['username' => 'Max'])->delete();
         $this->assertEquals(1, User::objects()->count());
     }
+
+    public function testChangedValues()
+    {
+        $model = new User();
+
+        $this->assertTrue($model->getIsNewRecord());
+
+        $model->username = 'Anton';
+        $model->password = 'VeryGoodP@ssword';
+
+        $this->assertEquals($model->getChangedValues(), [
+            'id' => null,
+            'username' => 'Anton',
+            'password' => 'VeryGoodP@ssword'
+        ]);
+
+        $model->save();
+
+        $this->assertEquals($model->getChangedValues(), []);
+
+        $this->assertFalse($model->getIsNewRecord());
+
+        $model->username = 'Vasya';
+        $model->username = 'Vasya';
+
+        $this->assertEquals($model->getChangedValues(), [
+            'username' => 'Vasya'
+        ]);
+
+        $model->save();
+
+
+
+        $finded = User::objects()->filter(['pk' => $model->pk])->get();
+        $this->assertEquals('Vasya', $finded->username);
+        $this->assertEquals($finded->getChangedValues(), []);
+
+        $finded->username = 'Max';
+        $this->assertEquals($finded->getChangedValues(), [
+            'username' => 'Max'
+        ]);
+
+    }
 }
