@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -12,7 +12,7 @@
  * @date 03/03/14.03.2014 13:12
  */
 
-if(is_dir(__DIR__ . '/../vendor')) {
+if (is_dir(__DIR__ . '/../vendor')) {
     include __DIR__ . '/../vendor/autoload.php';
 } else {
     require __DIR__ . '/../src.php';

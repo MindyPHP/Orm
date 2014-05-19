@@ -88,7 +88,7 @@ abstract class Field
     {
         Creator::configure($this, $config);
 
-        if($this->required) {
+        if ($this->required) {
             $this->validators = array_merge([new RequiredValidator], $this->validators);
         }
 
@@ -186,6 +186,7 @@ abstract class Field
 
     public function isValid()
     {
+        $this->clearErrors();
         foreach ($this->validators as $validator) {
             if ($validator instanceof Closure) {
                 /* @var $validator \Closure */
@@ -199,7 +200,7 @@ abstract class Field
                 }
             } else if (is_subclass_of($validator, $this->_validatorClass)) {
                 /* @var $validator \Mindy\Orm\Validator\Validator */
-//                $validator->clearErrors();
+                $validator->clearErrors();
 
                 $valid = $validator->validate($this->value);
                 if ($valid === false) {
@@ -219,11 +220,11 @@ abstract class Field
 
     public function getVerboseName(Model $model)
     {
-        if($this->verboseName) {
+        if ($this->verboseName) {
             return $this->verboseName;
         } else {
             $name = str_replace('_', ' ', ucfirst($this->name));
-            if(method_exists($model, 'getModule')) {
+            if (method_exists($model, 'getModule')) {
                 return $model->getModule()->t($name);
             } else {
                 return $name;

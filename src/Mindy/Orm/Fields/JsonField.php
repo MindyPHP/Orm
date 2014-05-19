@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -14,20 +14,17 @@
 
 namespace Mindy\Orm\Fields;
 
+use Mindy\Orm\Validator\JsonValidator;
 
 class JsonField extends TextField
 {
-    public function setValue($value)
+    public function init()
     {
-        if(is_array($value)) {
-            $this->value = json_encode($value);
-        } else if(is_object($value)) {
-            $this->addErrors(["Not json serialize object: " . gettype($value)]);
-        }
+        $this->validators = array_merge([new JsonValidator], $this->validators);
     }
 
-    public function getValue()
+    public function getDbPrepValue()
     {
-        return json_decode($this->value, true);
+        return json_encode($this->value, true);
     }
 }

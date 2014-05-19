@@ -107,6 +107,7 @@ abstract class TreeModel extends Model
                     $this->moveAsRoot();
                 }
                 $this->setData($this->objects()->asArray()->filter(['pk' => $this->pk])->get());
+                $this->setIsNewRecord(false);
                 return $saved;
             }
         }
@@ -269,11 +270,11 @@ abstract class TreeModel extends Model
             'rgt__lte' => $right,
             'root' => $this->root
         ])->update([
-            'lft' => new Expression('lft' . sprintf('%+d', $delta)),
-            'rgt' => new Expression('rgt' . sprintf('%+d', $delta)),
-            'level' => new Expression('level' . sprintf('%+d', $levelDelta)),
-            'root' => $this->getMaxRoot()
-        ]);
+                'lft' => new Expression('lft' . sprintf('%+d', $delta)),
+                'rgt' => new Expression('rgt' . sprintf('%+d', $delta)),
+                'level' => new Expression('level' . sprintf('%+d', $levelDelta)),
+                'root' => $this->getMaxRoot()
+            ]);
         $this->shiftLeftRight($right + 1, $left - $right - 1);
 
         return true;
@@ -440,8 +441,8 @@ abstract class TreeModel extends Model
                     $attribute . '__gte' => $key,
                     'root' => $target->root
                 ])->update([
-                    $attribute => new Expression($attribute . sprintf('%+d', $right - $left + 1))
-                ]);
+                        $attribute => new Expression($attribute . sprintf('%+d', $right - $left + 1))
+                    ]);
             }
 
             $delta = $key - $left;
@@ -450,11 +451,11 @@ abstract class TreeModel extends Model
                 'rgt__lte' => $right,
                 'root' => $this->root
             ])->update([
-                'lft' => new Expression('lft' . sprintf('%+d', $delta)),
-                'rgt' => new Expression('rgt' . sprintf('%+d', $delta)),
-                'level' => new Expression('level' . sprintf('%+d', $levelDelta)),
-                'root' => $target->root,
-            ]);
+                    'lft' => new Expression('lft' . sprintf('%+d', $delta)),
+                    'rgt' => new Expression('rgt' . sprintf('%+d', $delta)),
+                    'level' => new Expression('level' . sprintf('%+d', $levelDelta)),
+                    'root' => $target->root,
+                ]);
             $this->shiftLeftRight($right + 1, $left - $right - 1);
         }
 
