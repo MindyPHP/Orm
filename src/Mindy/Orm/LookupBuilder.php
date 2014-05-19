@@ -14,13 +14,14 @@
 
 namespace Mindy\Orm;
 
-
 use Mindy\Exception\Exception;
 
 class LookupBuilder
 {
     public $query = [];
+
     public $defaultLookup = 'exact';
+
     private $lookups = [
         'isnull',
         'lte',

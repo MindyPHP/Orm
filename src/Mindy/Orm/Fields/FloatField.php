@@ -15,8 +15,10 @@
 namespace Mindy\Orm\Fields;
 
 
-class FloatField 
+class FloatField extends Field
 {
-
+    public function sqlType()
+    {
+        return 'float';
+    }
 }
-

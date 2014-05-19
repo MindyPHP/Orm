@@ -3,6 +3,7 @@
 .idea
 *.iml
 
+benchmark
 build
 composer.lock
 vendor

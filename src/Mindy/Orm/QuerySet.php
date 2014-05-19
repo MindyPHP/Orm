@@ -4,7 +4,6 @@ namespace Mindy\Orm;
 
 use Mindy\Exception\Exception;
 use Mindy\Query\Query;
-use Tests\Models\NestedModel;
 
 class QuerySet extends Query
 {
@@ -112,8 +111,8 @@ class QuerySet extends Query
         $this->select = $select;
 
         if (!empty($rows)) {
-            if($flat) {
-                return array_map(function(&$item) {
+            if ($flat) {
+                return array_map(function (&$item) {
                     return array_values($item);
                 }, $rows);
             } else {
@@ -155,7 +154,7 @@ class QuerySet extends Query
     public function updateOrCreate(array $attributes, array $updateAttributes)
     {
         $model = $this->filter($attributes)->get();
-        if($model) {
+        if ($model) {
             $model->setData($updateAttributes);
         } else {
             $model = $this->model->setData($updateAttributes);
@@ -483,18 +482,17 @@ class QuerySet extends Query
                 throw new Exception("QuerySet object can be used as a parameter only in case of 'in' condition");
             }
 
-
             // https://github.com/studio107/Mindy_Orm/issues/26
-            if($model->hasField($field)) {
-                if($condition == 'in' || $condition == 'exact') {
+            if ($model->hasField($field)) {
+                if ($condition == 'in' || $condition == 'exact') {
                     $initField = $model->getField($field);
-                    if(is_a($initField, $model->foreignField)) {
+                    if (is_a($initField, $model->foreignField)) {
                         $initFieldModelClass = $initField->modelClass;
                         $field .= '_' . $initFieldModelClass::primaryKey();
 
                         // https://github.com/studio107/Mindy_Orm/issues/29
-                        if($condition == 'exact') {
-                            if(is_a($params, Model::className())) {
+                        if ($condition == 'exact') {
+                            if (is_a($params, Model::className())) {
                                 $params = $params->pk;
                             }
                         }
@@ -510,7 +508,7 @@ class QuerySet extends Query
 
             $method = 'build' . ucfirst($condition);
 
-            if(method_exists($this, $method)) {
+            if (method_exists($this, $method)) {
                 list($query, $params) = $this->$method($field, $params);
             } else {
                 list($query, $params) = $queryBuilder->$method($field, $params);
@@ -656,8 +654,9 @@ class QuerySet extends Query
      */
     public function quoteColumnName($name, $db = null)
     {
-        if (!$db)
+        if (!$db) {
             $db = $this->getDb();
+        }
         return $db->quoteColumnName($name);
     }
 
@@ -727,7 +726,7 @@ class QuerySet extends Query
     protected function makeAliasAttributes(array $attributes)
     {
         $new = [];
-        foreach($attributes as $key => $value) {
+        foreach ($attributes as $key => $value) {
             $new[$this->getTableAlias() . '.' . $key] = $value;
         }
         return $new;

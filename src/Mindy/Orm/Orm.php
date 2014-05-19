@@ -183,6 +183,7 @@ class Orm extends Base implements Arrayable
                     $record->setIsNewRecord(false);
                 }
             }
+            gc_collect_cycles();
         }
         $record->setOldValues();
         // TODO afterFind event
@@ -335,6 +336,7 @@ class Orm extends Base implements Arrayable
             if ($this->getIsNewRecord() || !array_key_exists($newName, $oldValues) || (array_key_exists($newName, $oldValues) && $oldValues[$newName] !== $value)) {
                 $values[$newName] = $value;
             }
+            gc_collect_cycles();
         }
 
         return $values;
@@ -730,6 +732,7 @@ class Orm extends Base implements Arrayable
                     }
                 }
             }
+            gc_collect_cycles();
         }
 
         if ($needPk) {
