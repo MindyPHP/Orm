@@ -173,6 +173,11 @@ class Orm extends Base implements Arrayable
         foreach ($row as $name => $value) {
             if ($record->hasField($name)) {
                 $field = $record->getField($name);
+            } else if($record->hasForeignKey($name)) {
+                $field = $record->getForeignKey($name);
+            }
+
+            if(isset($field)) {
                 $field->setValue($value);
                 if(is_a($field, $record->autoField) || $field->primary) {
                     $record->setIsNewRecord(false);
@@ -688,6 +693,8 @@ class Orm extends Base implements Arrayable
 
         $needPk = !$extra;
 
+        $fkFields = [];
+
         foreach ($fields as $name => $config) {
             $field = Creator::createObject($config);
             $field->setName($name);
@@ -708,13 +715,7 @@ class Orm extends Base implements Arrayable
                 } else if (is_a($field, $this->foreignField)) {
                     /* @var $field \Mindy\Orm\Fields\ForeignField */
                     $this->_fields[$name] = $field;
-
-                    // ForeignKey in self model
-                    if ($field->modelClass == get_class($this)) {
-                        $this->_fkFields[$name . '_' . $this->getPkName()] = $name;
-                    } else {
-                        $this->_fkFields[$name . '_' . $field->getForeignPrimaryKey()] = $name;
-                    }
+                    $fkFields[$name] = $field;
                 }
             } else {
                 $this->_fields[$name] = $field;
@@ -735,6 +736,15 @@ class Orm extends Base implements Arrayable
             $this->_fields = array_merge([
                 'id' => new $this->autoField()
             ], $this->_fields);
+        }
+
+        foreach($fkFields as $name => $field) {
+            // ForeignKey in self model
+            if ($field->modelClass == get_class($this)) {
+                $this->_fkFields[$name . '_' . $this->getPkName()] = $name;
+            } else {
+                $this->_fkFields[$name . '_' . $field->getForeignPrimaryKey()] = $name;
+            }
         }
 
         foreach ($this->_manyFields as $name => $field) {
