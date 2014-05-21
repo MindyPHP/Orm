@@ -29,9 +29,10 @@ use Mindy\Query\Connection;
 class Orm extends Base implements Arrayable
 {
     /**
-     * @var bool if true, model created without initialized fields
+     * @var array
      */
-    public $autoInitFields = true;
+    private $_attributes = [];
+
     /**
      * @var array validation errors (attribute name => array of errors)
      */
@@ -88,11 +89,6 @@ class Orm extends Base implements Arrayable
     /**
      * @var array
      */
-    private $_fkFields = [];
-
-    /**
-     * @var array
-     */
     private $_manyFields = [];
 
     /**
@@ -100,64 +96,11 @@ class Orm extends Base implements Arrayable
      */
     private $_hasManyFields = [];
 
-
     /**
      * @var array
      * instead of $this->_oldFields
      */
     private $_oldValues = [];
-
-    private $_isNewRecord;
-
-    /**
-     * TODO move to manager
-     * @param Connection $connection
-     */
-    public static function setConnection(Connection $connection)
-    {
-        self::$_connection = $connection;
-    }
-
-    /**
-     * TODO move to manager
-     * @return \Mindy\Query\Connection
-     */
-    public static function getConnection()
-    {
-        return self::$_connection;
-    }
-
-    /**
-     * TODO move to manager
-     * Returns the schema information of the DB table associated with this AR class.
-     * @return \Mindy\Query\TableSchema the schema information of the DB table associated with this AR class.
-     * @throws Exception if the table for the AR class does not exist.
-     */
-    public static function getTableSchema()
-    {
-        $schema = self::getConnection()->getTableSchema(static::tableName());
-        if ($schema !== null) {
-            return $schema;
-        } else {
-            throw new Exception("The table does not exist: " . static::tableName());
-        }
-    }
-
-    /**
-     * TODO move to manager
-     * Creates an active record instance.
-     * This method is called by [[create()]].
-     * You may override this method if the instance being created
-     * depends on the row data to be populated into the record.
-     * For example, by creating a record based on the value of a column,
-     * you may implement the so-called single-table inheritance mapping.
-     * @param array $row row data to be populated into the record.
-     * @return \Mindy\Orm\Model the newly created active record
-     */
-    public static function instantiate($row)
-    {
-        return new static;
-    }
 
     /**
      * TODO move to manager
@@ -169,24 +112,10 @@ class Orm extends Base implements Arrayable
      */
     public static function create($row)
     {
-        $record = static::instantiate($row);
-        foreach ($row as $name => $value) {
-            if ($record->hasField($name)) {
-                $field = $record->getField($name);
-            } else if($record->hasForeignKey($name)) {
-                $field = $record->getForeignKey($name);
-            }
-
-            if(isset($field)) {
-                $field->setValue($value);
-                if(is_a($field, $record->autoField) || $field->primary) {
-                    $record->setIsNewRecord(false);
-                }
-            }
-            gc_collect_cycles();
-        }
-        $record->setOldValues();
-        // TODO afterFind event
+        $className = self::className();
+        $record = new $className;
+        $record->setAttributes($row);
+        $record->setOldAttributes($row);
         return $record;
     }
 
@@ -201,37 +130,12 @@ class Orm extends Base implements Arrayable
         if ($table->sequenceName !== null) {
             foreach ($table->primaryKey as $name) {
                 $field = $this->getField($name, false);
-                if ($field->getValue() === null) {
-                    $id = $this->getConnection()->getLastInsertID($table->sequenceName);
-                    $field->setValue($id);
+                if ($field && $field->getValue() === null) {
+                    $field->setValue($this->getConnection()->getLastInsertID($table->sequenceName));
                     break;
                 }
             }
         }
-    }
-
-    /**
-     * TODO move to manager
-     * @return bool
-     */
-    protected function insert(array $fields = [])
-    {
-        $values = $this->getChangedValues($fields);
-
-        $connection = $this->getConnection();
-
-        $command = $connection->createCommand()->insert(static::tableName(), $values);
-        if (!$command->execute()) {
-            return false;
-        } else {
-            $this->setIsNewRecord(false);
-        }
-
-        $this->refreshPrimaryKeyValue();
-
-        $this->setOldValues();
-
-        return true;
     }
 
     /**
@@ -270,7 +174,7 @@ class Orm extends Base implements Arrayable
         return $this->_oldValues;
     }
 
-    protected function setOldValues()
+    public function setOldValues()
     {
         foreach ($this->_fields as $name => $field) {
             if (is_a($field, $this->manyToManyField) || is_a($field, $this->hasManyField)) {
@@ -336,81 +240,14 @@ class Orm extends Base implements Arrayable
             if ($this->getIsNewRecord() || !array_key_exists($newName, $oldValues) || (array_key_exists($newName, $oldValues) && $oldValues[$newName] !== $value)) {
                 $values[$newName] = $value;
             }
-            gc_collect_cycles();
         }
 
         return $values;
     }
 
-    protected function setIsNewRecord($value)
+    public function getAttributes()
     {
-        $this->_isNewRecord = $value;
-        return $this;
-    }
-
-    /**
-     * TODO move to manager
-     * @return bool
-     * @throws \Exception
-     */
-    protected function update(array $fields = [])
-    {
-        // TODO beforeSave
-        $values = $this->getChangedValues($fields);
-
-        $name = $this->primaryKey();
-        $condition = [
-            $name => $this->getField($name)->getValue()
-        ];
-        // We do not check the return value of updateAll() because it's possible
-        // that the UPDATE statement doesn't change anything and thus returns 0.
-
-        $updated = true;
-        if (count($values) > 0) {
-            $updated = (bool)$this->updateAll($values, $condition);
-        }
-
-        if ($updated) {
-            $this->setOldValues();
-        }
-
-        return $updated;
-    }
-
-    /**
-     * TODO move to manager
-     * @return bool
-     */
-    public function save(array $fields = [])
-    {
-        return $this->getIsNewRecord() ? $this->insert($fields) : $this->update($fields);
-    }
-
-    public function delete()
-    {
-        if ($this->getIsNewRecord()) {
-            throw new Exception("The node can't be deleted because it is new.");
-        }
-
-        return $this->objects()->delete([
-            $this->primaryKey() => $this->pk
-        ]);
-    }
-
-    public function getIsNewRecord()
-    {
-        return $this->_isNewRecord;
-    }
-
-    /**
-     * @return string|null
-     */
-    public static function primaryKey()
-    {
-        $className = get_called_class();
-        $model = new $className();
-        return $model->getPkName();
-        // return static::getTableSchema()->primaryKey;
+        return $this->_attributes;
     }
 
     // TODO documentation, refactoring
@@ -419,180 +256,6 @@ class Orm extends Base implements Arrayable
         foreach ($this->getFieldsInit() as $name => $field) {
             if (is_a($field, $this->autoField) || $field->primary) {
                 return $name;
-            }
-        }
-
-        return null;
-    }
-
-    public function __isset($name)
-    {
-        if ($this->hasField($name)) {
-            return true;
-        } else {
-            return parent::__isset($name);
-        }
-    }
-
-    public static function __callStatic($method, $args)
-    {
-        $manager = $method . 'Manager';
-        $className = get_called_class();
-        if (method_exists($className, $manager) && is_callable([$className, $manager])) {
-            return call_user_func_array([$className, $manager], $args);
-        } elseif (method_exists($className, $manager) && is_callable([$className, $method])) {
-            return call_user_func_array([$className, $method], $args);
-        } else {
-            throw new Exception("Call unknown method {$method}");
-        }
-    }
-
-    public function __call($method, $args)
-    {
-        $manager = $method . 'Manager';
-        if (method_exists($this, $manager)) {
-            return call_user_func_array([$this, $manager], array_merge([$this], $args));
-        } elseif (method_exists($this, $method)) {
-            return call_user_func_array([$this, $method], $args);
-        } else {
-            throw new Exception("Call unknown method {$method}");
-        }
-    }
-
-    public static function objectsManager($instance = null)
-    {
-        $className = get_called_class();
-        return new Manager($instance ? $instance : new $className);
-    }
-
-    /**
-     * @param array $config
-     */
-    public function __construct(array $config = [])
-    {
-        Creator::configure($this, $config);
-        if ($this->autoInitFields) {
-            $this->initFields();
-        }
-        $this->setIsNewRecord(true);
-    }
-
-    /**
-     * Sets value of an object property.
-     *
-     * Do not call this method directly as it is a PHP magic method that
-     * will be implicitly called when executing `$object->property = $value;`.
-     * @param string $name the property name or the event name
-     * @param mixed $value the property value
-     * @throws \Exception
-     * @see __set()
-     */
-    public function __set($name, $value)
-    {
-        if($name == 'pk') {
-            $name = $this->primaryKey();
-        }
-
-        if ($this->hasField($name)) {
-            $field = $this->getField($name);
-            if (is_a($field, $this->foreignField)) {
-                /** @var $field \Mindy\Orm\Fields\ForeignField */
-                $this->_fkFields[$name . '_' . $field->getForeignPrimaryKey()] = $name;
-            }
-
-            if($field->primary) {
-                $this->setIsNewRecord(true);
-            }
-
-            // Users: {'pk': 1, 'username': 'Max'}
-            // $model = User::objects->filter(['pk' => 1])->get();
-            // $model->username = 'Anton'; $model->username = 'Anton'; getChangedValues -> username not changed!
-
-            //$this->_oldFields[$name] = clone $field;
-
-            $field->setValue($value);
-        } else if ($this->hasForeignKey($name)) {
-            $field = $this->getForeignKey($name);
-
-            //$this->_oldFields[$name] = clone $field;
-
-            $field->setValue($value);
-        } else if (false) {
-            // TODO add support for m2m setter. Example:
-            /**
-             * $model->items = []; override all related records.
-             */
-        } else {
-            throw new Exception('Setting unknown property: ' . get_class($this) . '::' . $name);
-        }
-    }
-
-    /**
-     * Returns the value of an object property.
-     *
-     * Do not call this method directly as it is a PHP magic method that
-     * will be implicitly called when executing `$value = $object->property;`.
-     * @param string $name
-     * @return mixed the property value
-     * @throws \Exception
-     * @see __get()
-     */
-    public function __get($name)
-    {
-        if ($name == 'pk') {
-            return $this->getPk();
-        }
-
-        if ($this->hasField($name)) {
-            $field = $this->getField($name);
-            if (is_a($field, $this->relatedField)) {
-                if (is_a($field, $this->foreignField)) {
-                    /* @var mixed */
-                    return $field->getValue();
-                } else if (is_a($field, $this->manyToManyField) || is_a($field, $this->hasManyField)) {
-                    /* @var $field \Mindy\Orm\Fields\ManyToManyField|\Mindy\Orm\Fields\HasManyField */
-                    return $field->getManager();
-                } else {
-                    throw new Exception("Unknown field type " . $name . " in " . get_class($this));
-                }
-            } else {
-                return $field->getValue();
-            }
-        } else if ($this->hasForeignKey($name)) {
-            return $this->getForeignKey($name)->getValue()->getPk();
-        }
-
-        throw new Exception('Getting unknown property: ' . get_class($this) . '::' . $name);
-    }
-
-    /**
-     * @param $name
-     * @return bool
-     */
-    private function hasForeignKey($name)
-    {
-        return array_key_exists($name, $this->_fkFields);
-    }
-
-    /**
-     * @param $name
-     * @return \Mindy\Orm\Fields\ForeignField
-     */
-    private function getForeignKey($name)
-    {
-        return $this->getField($this->_fkFields[$name]);
-    }
-
-    public function getPk()
-    {
-        /* @var $field \Mindy\Orm\Fields\Field */
-        if ($this->hasField('id')) {
-            return $this->getField('id')->getValue();
-        } else {
-            foreach ($this->getFieldsInit() as $name => $field) {
-                if (is_a($field, $this->autoField)) {
-                    return $field->getValue();
-                }
             }
         }
 
@@ -684,86 +347,6 @@ class Orm extends Base implements Arrayable
     }
 
     /**
-     * Initialize fields
-     * @void
-     */
-    public function initFields($fields = [], $extra = false)
-    {
-        if (empty($fields)) {
-            $fields = $this->getFields();
-        }
-
-        $needPk = !$extra;
-
-        $fkFields = [];
-
-        foreach ($fields as $name => $config) {
-            $field = Creator::createObject($config);
-            $field->setName($name);
-            $field->setModel($this);
-            /* @var $field \Mindy\Orm\Fields\Field */
-            if (is_a($field, $this->autoField) || $field->primary) {
-                $needPk = false;
-            }
-
-            if (is_a($field, $this->relatedField)) {
-                /* @var $field \Mindy\Orm\Fields\RelatedField */
-                if (is_a($field, $this->manyToManyField)) {
-                    /* @var $field \Mindy\Orm\Fields\ManyToManyField */
-                    $this->_manyFields[$name] = $field;
-                } else if (is_a($field, $this->hasManyField)) {
-                    /* @var $field \Mindy\Orm\Fields\HasManyField */
-                    $this->_hasManyFields[$name] = $field;
-                } else if (is_a($field, $this->foreignField)) {
-                    /* @var $field \Mindy\Orm\Fields\ForeignField */
-                    $this->_fields[$name] = $field;
-                    $fkFields[$name] = $field;
-                }
-            } else {
-                $this->_fields[$name] = $field;
-            }
-
-            if (!$extra) {
-                $extraFields = $field->getExtraFields();
-                if (!empty($extraFields)) {
-                    $this->initFields($extraFields, true);
-                    foreach ($extraFields as $key => $value) {
-                        $field->setExtraField($key, $this->_fields[$key]);
-                    }
-                }
-            }
-            gc_collect_cycles();
-        }
-
-        if ($needPk) {
-            $this->_fields = array_merge([
-                'id' => new $this->autoField()
-            ], $this->_fields);
-        }
-
-        foreach($fkFields as $name => $field) {
-            // ForeignKey in self model
-            if ($field->modelClass == get_class($this)) {
-                $this->_fkFields[$name . '_' . $this->getPkName()] = $name;
-            } else {
-                $this->_fkFields[$name . '_' . $field->getForeignPrimaryKey()] = $name;
-            }
-        }
-
-        foreach ($this->_manyFields as $name => $field) {
-            /* @var $field \Mindy\Orm\Fields\ManyToManyField */
-            $this->_fields[$name] = $field;
-        }
-
-        foreach ($this->_hasManyFields as $name => $field) {
-            /* @var $field \Mindy\Orm\Fields\HasManyField */
-            $this->_fields[$name] = $field;
-        }
-
-        $this->setOldValues();
-    }
-
-    /**
      * @deprecated
      * @see setOldValues
      */
@@ -776,15 +359,12 @@ class Orm extends Base implements Arrayable
 
     public function hasManyToManyField($name)
     {
-        return array_key_exists($name, $this->_manyFields);
+        return $this->meta->hasManyToManyField($this->className(), $name);
     }
 
-    /**
-     * @return \Mindy\Orm\Fields\ManyToManyField[]
-     */
-    public function getManyFields()
+    public function hasHasManyField($name)
     {
-        return $this->_manyFields;
+        return $this->meta->hasHasManyField($this->className(), $name);
     }
 
     /**
@@ -793,15 +373,6 @@ class Orm extends Base implements Arrayable
     public function getHasManyFields()
     {
         return $this->_hasManyFields;
-    }
-
-    /**
-     * Return initialized fields
-     * @return \Mindy\Orm\Fields\Field[]
-     */
-    public function getFieldsInit()
-    {
-        return $this->_fields;
     }
 
     /**
@@ -828,51 +399,12 @@ class Orm extends Base implements Arrayable
     }
 
     /**
-     * @param $name
-     * @return bool
-     */
-    public function hasField($name)
-    {
-        return isset($this->_fields[$name]);
-    }
-
-    /**
-     * @param $name
-     * @return \Mindy\Orm\Fields\Field|null
-     */
-    public function getField($name, $throw = true)
-    {
-        if ($this->hasField($name)) {
-            return $this->_fields[$name];
-        }
-
-        if ($throw) {
-            throw new Exception('Field "' . $name . '" not found');
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Converts the object into an array.
      * @return array the array representation of this object
      */
     public function toArray()
     {
-        $data = [];
-        foreach ($this->getFieldsInit() as $name => $field) {
-            if (is_a($field, $this->manyToManyField) || is_a($field, $this->hasManyField)) {
-                $data[$name] = $field->getManager()->all();
-            } elseif (is_a($field, $this->foreignField) || is_a($field, $this->oneToOneField)) {
-                /* @var $model null|Model */
-                $model = $field->getValue();
-                $modelClass = $field->modelClass;
-                $data[$name . '_' . $modelClass::primaryKey()] = $model ? $model->pk : $model;
-            } else {
-                $data[$name] = $field->getValue();
-            }
-        }
-        return $data;
+        return $this->_attributes;
     }
 
     public function toJson()

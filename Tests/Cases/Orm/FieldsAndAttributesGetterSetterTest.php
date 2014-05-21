@@ -46,6 +46,7 @@ class FieldsAndAttributesGetterSetterTest extends DatabaseTestCase
 
         $this->assertInstanceOf('\Tests\Models\Category', $product->category);
         $this->assertTrue(is_numeric($product->category_id));
+        $this->assertEquals(1, $product->category_id);
     }
 
     public function testSetter()
@@ -60,7 +61,8 @@ class FieldsAndAttributesGetterSetterTest extends DatabaseTestCase
         $product->description = 'Funny white bear';
         $this->assertNull($product->category);
 
-        $product->category_id = $category->getPk();
+        $this->assertEquals(1, $category->pk);
+        $product->category_id = $category->pk;
         $product->save();
 
         $this->assertInstanceOf('\Tests\Models\Category', $product->category);

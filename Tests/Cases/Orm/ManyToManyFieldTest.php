@@ -22,7 +22,7 @@ use Tests\Models\ProductList;
 
 class ManyToManyFieldTest extends DatabaseTestCase
 {
-    var $prefix = '';
+    public $prefix = '';
 
     public function setUp()
     {
@@ -54,18 +54,34 @@ class ManyToManyFieldTest extends DatabaseTestCase
         $this->assertNull($product->pk);
         $this->assertEquals(0, $product->lists->count());
         $this->assertEquals([], $product->lists->all());
-
         $this->assertTrue($product->save());
         $this->assertEquals(1, $product->pk);
+        $this->assertEquals(1, $product->id);
 
         $list = new ProductList();
+
+        $this->assertTrue($list->getIsNewRecord());
+
         $list->name = 'qwe';
+
         $this->assertTrue($list->save());
+        $this->assertFalse($list->getIsNewRecord());
+        $this->assertEquals(1, $list->id);
+        $this->assertEquals(1, $list->pk);
 
         $list->products->link($product);
-        $this->assertEquals(1, count($product->lists->all()));
+
+        $this->assertEquals(1, ProductList::objects()->count());
+        // $this->assertEquals(1, count($product->lists->all()));
 
         $new = Product::objects()->get(['id' => 1]);
+        $this->assertFalse($new->getIsNewRecord());
+        $this->assertEquals(1, $new->id);
+        $this->assertEquals(1, $new->pk);
+
+        $this->assertEquals(
+            "SELECT `product_list_1`.* FROM `product_list` `product_list_1` JOIN `product_product_list` ON `product_product_list`.`product_list_id`=`product_list_1`.`id` WHERE (`product_product_list`.`product_id`='1')",
+            $new->lists->allSql());
         $this->assertEquals(1, count($new->lists->all()));
     }
 }

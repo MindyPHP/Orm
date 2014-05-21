@@ -58,7 +58,15 @@ class ForeignField extends RelatedField
     {
         $modelClass = $this->modelClass;
         /** @var $modelClass \Mindy\Orm\Model */
-        return $modelClass::primaryKey();
+        $pk = $modelClass::primaryKey();
+        return array_shift($pk);
+    }
+
+    public function fetch($value)
+    {
+        $modelClass = $this->modelClass;
+        /** @var $modelClass \Mindy\Orm\Model */
+        return $modelClass::objects()->filter(['pk' => $value])->get();
     }
 
     public function getJoin()

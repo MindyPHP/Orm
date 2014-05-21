@@ -71,8 +71,7 @@ class QuerySet extends Query
 
         $rows = $command->queryAll();
         if (!empty($rows)) {
-            $models = $this->createModels($rows);
-            return $models;
+            return $this->createModels($rows);
         } else {
             return [];
         }

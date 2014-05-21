@@ -46,16 +46,18 @@ class ManyToManyManager extends RelatedManager
         $this->_model = $model;
     }
 
-    protected function escape($value){
+    protected function escape($value)
+    {
         // if has auto-quotation
-        if (strpos($value, '{{') !== false || strpos($value, '`') !== false || strpos($value, '[[') !== false ){
+        if (strpos($value, '{{') !== false || strpos($value, '`') !== false || strpos($value, '[[') !== false) {
             return $value;
         }
-        return '`' . $value .'`';
+        return '`' . $value . '`';
     }
 
     // TODO: ugly, refactor me
-    public function makeOnJoin($qs){
+    public function makeOnJoin($qs)
+    {
         $from = $this->escape($this->relatedTable) . '.' . $this->escape($this->modelColumn);
         $to = $this->escape($qs->tableAlias) . '.' . $this->escape($this->getModel()->getPkName());
         return $from . '=' . $to;
@@ -69,7 +71,7 @@ class ManyToManyManager extends RelatedManager
                 $this->relatedTable,
                 $this->makeOnJoin($qs)
             );
-            $filter = [$this->escape($this->relatedTable) . '.' . $this->escape($this->primaryModelColumn) => $this->primaryModel->getPk()];
+            $filter = [$this->escape($this->relatedTable) . '.' . $this->escape($this->primaryModelColumn) => $this->primaryModel->pk];
             $qs = $qs->filter($filter);
             $this->_qs = $qs;
         }

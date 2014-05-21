@@ -158,7 +158,6 @@ class ManyToManyField extends RelatedField
             'primaryModel' => $this->getModel(),
             'relatedTable' => $this->getTableName()
         ]);
-
         return $manager;
     }
 
@@ -215,11 +214,11 @@ class ManyToManyField extends RelatedField
 
     protected function preformatValue($value)
     {
-        if(!is_array($value) && $value != '' && is_numeric($value[0])) {
+        if (!is_array($value) && $value != '' && is_numeric($value[0])) {
             $value = [$value];
         }
 
-        if(is_array($value) && count($value) > 0) {
+        if (is_array($value) && count($value) > 0) {
             if (($value[0] instanceof Model) === false && !is_numeric($value[0])) {
                 throw new Exception("ManyToMany field can set only arrays of Models or existing primary keys");
             } else {
@@ -272,5 +271,10 @@ class ManyToManyField extends RelatedField
                 'to' => $relatedModel->getPkName()
             )
         ));
+    }
+
+    public function fetch($value)
+    {
+        // TODO: Implement fetch() method.
     }
 }

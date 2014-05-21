@@ -14,9 +14,8 @@
 
 namespace Mindy\Orm\Fields;
 
-use Mindy\Orm\HasManyManager;
-use Mindy\Orm\Model;
 use Exception;
+use Mindy\Orm\HasManyManager;
 
 class HasManyField extends RelatedField
 {
@@ -58,13 +57,11 @@ class HasManyField extends RelatedField
 
     public function getManager()
     {
-        $manager = new HasManyManager($this->getRelatedModel(), [
+        return new HasManyManager($this->getRelatedModel(), [
             'primaryModel' => $this->getModel(),
             'from' => $this->from(),
             'to' => $this->to()
         ]);
-
-        return $manager;
     }
 
     public function to()
@@ -83,18 +80,23 @@ class HasManyField extends RelatedField
         return $this->from;
     }
 
-    public function setValue($value){
+    public function setValue($value)
+    {
         throw new Exception("Has many field can't set values. You can do it through ForeignKey.");
     }
 
-    public function getJoin(){
-        return array($this->getRelatedModel(), array(
-            array(
-                'table' => $this->getRelatedTable(false),
-                'from' => $this->from(),
-                'to' => $this->to(),
-                'group' => true
-            )
-        ));
+    public function getJoin()
+    {
+        return [$this->getRelatedModel(), [[
+            'table' => $this->getRelatedTable(false),
+            'from' => $this->from(),
+            'to' => $this->to(),
+            'group' => true
+        ]]];
+    }
+
+    public function fetch($value)
+    {
+        return;
     }
 }

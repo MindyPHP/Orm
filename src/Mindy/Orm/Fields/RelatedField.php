@@ -32,6 +32,8 @@ abstract class RelatedField extends IntField
         throw new Exception('Not implemented');
     }
 
+    abstract public function fetch($value);
+
     /**
      * @return \Mindy\Orm\Model
      */

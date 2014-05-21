@@ -21,13 +21,23 @@ use Tests\Models\Category;
 
 class PkTest extends DatabaseTestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->initModels([new Category]);
+    }
+
     public function testPk()
     {
         $category = new Category();
         $fields = $category->getFieldsInit();
 
+        $this->assertEquals(['id', 'name', 'products'], array_keys($fields));
+
         $this->assertInstanceOf($category->autoField, $fields['id']);
         $this->assertNull($fields['id']->value);
+
         $this->assertNull($category->id);
         $this->assertNull($category->pk);
     }
