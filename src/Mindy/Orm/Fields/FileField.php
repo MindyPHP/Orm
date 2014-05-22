@@ -14,7 +14,6 @@
 
 namespace Mindy\Orm\Fields;
 
-use ReflectionClass;
 use Mindy;
 
 class FileField extends CharField
@@ -43,7 +42,7 @@ class FileField extends CharField
 
     public function init()
     {
-        if (!$this->isRequired()){
+        if (!$this->isRequired()) {
             $this->null = true;
         }
     }
@@ -60,7 +59,8 @@ class FileField extends CharField
     public function getDbPrepValue()
     {
         if ($this->value) {
-            return $this->value;
+            $mediaUrl = $this->getMediaUrl();
+            return ($mediaUrl ? $mediaUrl : '') . $this->value;
         }
         return null;
     }
@@ -74,7 +74,7 @@ class FileField extends CharField
                 $value = $this->setLoadedFile($value);
             }
             $this->value = $value;
-        }elseif(is_string($value) && $value){
+        } elseif (is_string($value) && $value) {
             if ($value == $this->cleanValue) {
                 $value = null;
             }
@@ -91,11 +91,10 @@ class FileField extends CharField
      */
     public function setLoadedFile(array $data)
     {
-        $path = null;
         if (isset($data['tmp_name'])) {
-            $path = $this->setFile($data['tmp_name'], isset($data['name']) ? $data['name'] : null, self::MODE_POST);
+            return $this->setFile($data['tmp_name'], isset($data['name']) ? $data['name'] : null, self::MODE_POST);
         }
-        return $path;
+        return null;
     }
 
     /**
@@ -176,9 +175,7 @@ class FileField extends CharField
 
     public function revealShortName()
     {
-        $reflect = new ReflectionClass($this->getModel());
-        $short_name = $reflect->getShortName();
-        return trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', '_\0', $short_name)), '_');
+        return trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', '_\0', $this->getModel()->shortClassName())), '_');
     }
 
     public function getMediaPath()
