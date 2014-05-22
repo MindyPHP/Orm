@@ -187,8 +187,8 @@ abstract class Base implements ArrayAccess
             unset($this->_attributes[$name]);
         } elseif (array_key_exists($name, $this->_related)) {
             unset($this->_related[$name]);
-        } elseif ($this->getRelation($name, false) === null) {
-            parent::__unset($name);
+        } elseif (array_key_exists($name, $this->_related)) {
+            unset($this->_related);
         }
     }
 
@@ -551,6 +551,21 @@ abstract class Base implements ArrayAccess
         }
     }
 
+    protected function getDbPrepValues($values)
+    {
+        $prepValues = [];
+        foreach($values as $name => $value) {
+            if($this->hasField($name)) {
+                $field = $this->getField($name);
+                $field->setValue($value);
+                $prepValues[$name] = $field->getDbPrepValue();
+            } else {
+                $prepValues[$name] = $value;
+            }
+        }
+        return $prepValues;
+    }
+
     /**
      * Inserts an ActiveRecord into DB without considering transaction.
      * @param array $fields list of attributes that need to be saved. Defaults to null,
@@ -565,6 +580,9 @@ abstract class Base implements ArrayAccess
                 $values[$key] = $value;
             }
         }
+
+        $values = $this->getDbPrepValues($values);
+
         $db = static::getDb();
         $command = $db->createCommand()->insert($this->tableName(), $values);
         if (!$command->execute()) {
