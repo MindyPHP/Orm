@@ -214,7 +214,7 @@ class ManyToManyField extends RelatedField
 
     protected function preformatValue($value)
     {
-        if (!is_array($value) && $value != '' && is_numeric($value[0])) {
+        if (!is_array($value)) {
             $value = [$value];
         }
 

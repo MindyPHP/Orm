@@ -26,6 +26,8 @@ class MetaData
 
     private static $fields = [];
 
+    private static $extrafields = [];
+
     public static $fkFields = [];
 
     private static $hasManyFields = [];
@@ -77,6 +79,7 @@ class MetaData
             self::$manyFields[$className] = [];
             self::$hasManyFields[$className] = [];
             self::$fields[$className] = [];
+            self::$extrafields[$className] = [];
 
             self::initFields($model);
         }
@@ -136,6 +139,9 @@ class MetaData
                     $extraFieldsInitialized = self::initFields($model, $extraFields, true);
                     foreach ($extraFieldsInitialized as $key => $value) {
                         $field->setExtraField($key, self::$fields[$className][$key]);
+                        self::$extrafields[$className][$name] = [
+                            $key => self::$fields[$className][$key]
+                        ];
                     }
                 }
             }
@@ -215,5 +221,15 @@ class MetaData
     public function getManyFields($className)
     {
         return self::$manyFields[$className];
+    }
+
+    public function hasExtraFields($className, $name)
+    {
+        return array_key_exists($name, self::$extrafields[$className]);
+    }
+
+    public function getExtraFields($className, $name)
+    {
+        return self::$extrafields[$className][$name];
     }
 }

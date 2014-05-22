@@ -213,22 +213,21 @@ class SaveUpdateTest extends DatabaseTestCase
         $model->username = 'Anton';
         $model->password = 'VeryGoodP@ssword';
 
-        $this->assertEquals($model->getChangedValues(), [
-            'id' => null,
+        $this->assertEquals($model->getDirtyAttributes(), [
             'username' => 'Anton',
             'password' => 'VeryGoodP@ssword'
         ]);
 
         $model->save();
 
-        $this->assertEquals($model->getChangedValues(), []);
+        $this->assertEquals($model->getDirtyAttributes(), []);
 
         $this->assertFalse($model->getIsNewRecord());
 
         $model->username = 'Vasya';
         $model->username = 'Vasya';
 
-        $this->assertEquals($model->getChangedValues(), [
+        $this->assertEquals($model->getDirtyAttributes(), [
             'username' => 'Vasya'
         ]);
 
@@ -238,10 +237,10 @@ class SaveUpdateTest extends DatabaseTestCase
 
         $finded = User::objects()->filter(['pk' => $model->pk])->get();
         $this->assertEquals('Vasya', $finded->username);
-        $this->assertEquals($finded->getChangedValues(), []);
+        $this->assertEquals($finded->getDirtyAttributes(), []);
 
         $finded->username = 'Max';
-        $this->assertEquals($finded->getChangedValues(), [
+        $this->assertEquals($finded->getDirtyAttributes(), [
             'username' => 'Max'
         ]);
 

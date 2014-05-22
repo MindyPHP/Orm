@@ -98,7 +98,7 @@ abstract class TreeModel extends Model
                 $this->makeRoot();
             }
         } else {
-            $dirtyFields = $this->getChangedValues();
+            $dirtyFields = $this->getDirtyAttributes();
             if (array_key_exists('parent_id', $dirtyFields)) {
                 $saved = parent::save($fields);
                 if ($this->parent) {

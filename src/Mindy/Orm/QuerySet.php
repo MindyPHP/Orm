@@ -487,7 +487,7 @@ class QuerySet extends Query
                     $initField = $model->getField($field);
                     if (is_a($initField, $model->foreignField)) {
                         $initFieldModelClass = $initField->modelClass;
-                        $field .= '_' . $initFieldModelClass::primaryKey();
+                        $field .= '_' . $initFieldModelClass::primaryKeyName();
 
                         // https://github.com/studio107/Mindy_Orm/issues/29
                         if ($condition == 'exact') {

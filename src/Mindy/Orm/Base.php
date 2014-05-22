@@ -18,6 +18,7 @@ use ArrayAccess;
 use Exception;
 use Mindy\Exception\InvalidParamException;
 use Mindy\Helper\Creator;
+use Mindy\Helper\Json;
 use Mindy\Orm\Exception\InvalidConfigException;
 use Mindy\Query\Connection;
 use ReflectionClass;
@@ -61,6 +62,13 @@ abstract class Base implements ArrayAccess
      */
     private $_oldAttributes;
 
+    private $_related = [];
+
+    /**
+     * @var array validation errors (attribute name => array of errors)
+     */
+    private $_errors = [];
+
     /**
      * @param array $config
      */
@@ -70,6 +78,11 @@ abstract class Base implements ArrayAccess
     }
 
     /**
+     * Example usage:
+     * return [
+     *     'name' => new CharField(['length' => 250, 'default' => '']),
+     *     'email' => new EmailField(),
+     * ]
      * @return array
      */
     public function getFields()
@@ -110,7 +123,7 @@ abstract class Base implements ArrayAccess
         if (isset($this->_attributes[$name]) || array_key_exists($name, $this->_attributes)) {
             return $this->_attributes[$name];
         } elseif ($this->hasAttribute($name)) {
-            return null;
+            return $this->hasField($name) ? $this->getField($name)->default : null;
         }
 
         throw new Exception("Getting unknown property " . get_class($this) . "::" . $name);
@@ -138,8 +151,10 @@ abstract class Base implements ArrayAccess
             }
         }
 
-        if ($this->hasAttribute($name)) {
-            $this->_attributes[$name] = $value;
+        if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
+            $this->_related[$name] = $value;
+        } elseif ($this->hasAttribute($name)) {
+            $this->setAttribute($name, $value);
         } else {
             throw new Exception("Setting unknown property " . get_class($this) . "::" . $name);
         }
@@ -197,6 +212,21 @@ abstract class Base implements ArrayAccess
     }
 
     /**
+     * Returns a value indicating whether the given set of attributes represents the primary key for this model
+     * @param array $keys the set of attributes to check
+     * @return boolean whether the given set of attributes represents the primary key for this model
+     */
+    public static function isPrimaryKey($keys)
+    {
+        $pks = static::primaryKey();
+        if (count($keys) === count($pks)) {
+            return count(array_intersect($keys, $pks)) === count($pks);
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Returns a value indicating whether the model has an attribute with the specified name.
      * @param string $name the name of the attribute
      * @return boolean whether the model has an attribute with the specified name.
@@ -228,7 +258,26 @@ abstract class Base implements ArrayAccess
      */
     public function setAttribute($name, $value)
     {
+        $meta = static::getMeta();
+        $className = $this->className();
+
         if ($this->hasAttribute($name)) {
+            if ($this->isPrimaryKey([$name])) {
+                $this->setIsNewRecord(true);
+            }
+
+            if($meta->hasField($className, $name) && $meta->hasExtraFields($className, $name)) {
+                $field = $meta->getField($className, $name);
+                $field->setValue($value);
+
+                $extraFields = $meta->getExtraFields($className, $name);
+                foreach($extraFields as $extraName => $extraField) {
+                    if($this->hasAttribute($extraName)) {
+                        $this->_attributes[$extraName] = $extraField->getValue();
+                    }
+                }
+            }
+
             $this->_attributes[$name] = $value;
         } else {
             throw new InvalidParamException(get_class($this) . ' has no attribute named "' . $name . '".');
@@ -237,7 +286,7 @@ abstract class Base implements ArrayAccess
 
     public function setAttributes(array $attributes)
     {
-        foreach($attributes as $name => $value) {
+        foreach ($attributes as $name => $value) {
             $this->setAttribute($name, $value);
         }
     }
@@ -269,6 +318,11 @@ abstract class Base implements ArrayAccess
     {
         // return static::getTableSchema()->primaryKey;
         return static::getMeta()->primaryKey(self::className());
+    }
+
+    public static function primaryKeyName()
+    {
+        return implode('_', self::primaryKey());
     }
 
     public static function getMeta()
@@ -359,7 +413,7 @@ abstract class Base implements ArrayAccess
         } else {
             $class = $normalizeClass;
         }
-        return trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', '_\0', $class)), '_');
+        return "{{%" . trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', '_\0', $class)), '_') . "}}";
     }
 
     /**
@@ -473,7 +527,28 @@ abstract class Base implements ArrayAccess
             throw $e;
         }
 
+        $this->updateRelated();
+
         return $result;
+    }
+
+    public function updateRelated()
+    {
+        $className = $this->className();
+        $meta = static::getMeta();
+        foreach ($this->_related as $name => $value) {
+            if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
+                /* @var $field \Mindy\Orm\Fields\HasManyField|\Mindy\Orm\Fields\ManyToManyField */
+                $field = $meta->getField($className, $name);
+                $field->setModel($this);
+
+                if (empty($value)) {
+                    $field->getManager()->clean();
+                } else {
+                    $field->setValue($value);
+                }
+            }
+        }
     }
 
     /**
@@ -485,9 +560,6 @@ abstract class Base implements ArrayAccess
     protected function insertInternal(array $fields = [])
     {
         $values = $this->getDirtyAttributes($fields);
-        if(get_class($this) == '\\Tests\\Models\\Product') {
-            d($values);
-        }
         if (empty($values)) {
             foreach ($this->getPrimaryKey(true) as $key => $value) {
                 $values[$key] = $value;
@@ -583,6 +655,8 @@ abstract class Base implements ArrayAccess
             throw $e;
         }
 
+        $this->updateRelated();
+
         return $result;
     }
 
@@ -606,7 +680,7 @@ abstract class Base implements ArrayAccess
         }
         // We do not check the return value of updateAll() because it's possible
         // that the UPDATE statement doesn't change anything and thus returns 0.
-        $rows = $this->updateAll($values, $condition);
+        $rows = $this->objects()->filter($condition)->update($values);
 
         if ($lock !== null && !$rows) {
             throw new StaleObjectException('The object being updated is outdated.');
@@ -617,6 +691,64 @@ abstract class Base implements ArrayAccess
         }
 
         return $rows;
+    }
+
+    /**
+     * Returns the old primary key value(s).
+     * This refers to the primary key value that is populated into the record
+     * after executing a find method (e.g. find(), findOne()).
+     * The value remains unchanged even if the primary key attribute is manually assigned with a different value.
+     * @param boolean $asArray whether to return the primary key value as an array. If true,
+     * the return value will be an array with column name as key and column value as value.
+     * If this is false (default), a scalar value will be returned for non-composite primary key.
+     * @property mixed The old primary key value. An array (column name => column value) is
+     * returned if the primary key is composite. A string is returned otherwise (null will be
+     * returned if the key value is null).
+     * @return mixed the old primary key value. An array (column name => column value) is returned if the primary key
+     * is composite or `$asArray` is true. A string is returned otherwise (null will be returned if
+     * the key value is null).
+     */
+    public function getOldPrimaryKey($asArray = false)
+    {
+        $keys = $this->primaryKey();
+        if (count($keys) === 1 && !$asArray) {
+            return isset($this->_oldAttributes[$keys[0]]) ? $this->_oldAttributes[$keys[0]] : null;
+        } else {
+            $values = [];
+            foreach ($keys as $name) {
+                $values[$name] = isset($this->_oldAttributes[$name]) ? $this->_oldAttributes[$name] : null;
+            }
+
+            return $values;
+        }
+    }
+
+    /**
+     * Returns the name of the column that stores the lock version for implementing optimistic locking.
+     *
+     * Optimistic locking allows multiple users to access the same record for edits and avoids
+     * potential conflicts. In case when a user attempts to save the record upon some staled data
+     * (because another user has modified the data), a [[StaleObjectException]] exception will be thrown,
+     * and the update or deletion is skipped.
+     *
+     * Optimistic locking is only supported by [[update()]] and [[delete()]].
+     *
+     * To use Optimistic locking:
+     *
+     * 1. Create a column to store the version number of each row. The column type should be `BIGINT DEFAULT 0`.
+     *    Override this method to return the name of this column.
+     * 2. In the Web form that collects the user input, add a hidden field that stores
+     *    the lock version of the recording being updated.
+     * 3. In the controller action that does the data updating, try to catch the [[StaleObjectException]]
+     *    and implement necessary business logic (e.g. merging the changes, prompting stated data)
+     *    to resolve the conflict.
+     *
+     * @return string the column name that stores the lock version of a table row.
+     * If null is returned (default implemented), optimistic locking will not be supported.
+     */
+    public function optimisticLock()
+    {
+        return null;
     }
 
     /**
@@ -808,7 +940,120 @@ abstract class Base implements ArrayAccess
      */
     public function validate(array $attributeNames = [])
     {
-        return true;
+        $meta = static::getMeta();
+        $className = $this->className();
+
+        $this->clearErrors();
+
+        /* @var $field \Mindy\Orm\Fields\Field */
+        foreach ($attributeNames as $name) {
+            $field = $this->getField($name);
+
+            if ($meta->hasManyToManyField($className, $name) || $meta->hasHasManyField($className, $name)) {
+                continue;
+            }
+
+            $field->setValue($this->getAttribute($name));
+            if ($field->isValid() === false) {
+                foreach ($field->getErrors() as $error) {
+                    $this->addError($name, $error);
+                }
+            }
+        }
+
+        return $this->hasErrors() === false;
+    }
+
+    /**
+     * Adds a new error to the specified attribute.
+     * @param string $attribute attribute name
+     * @param string $error new error message
+     */
+    public function addError($attribute, $error = '')
+    {
+        $this->_errors[$attribute][] = $error;
+    }
+
+    /**
+     * Removes errors for all attributes or a single attribute.
+     * @param string $attribute attribute name. Use null to remove errors for all attribute.
+     */
+    public function clearErrors($attribute = null)
+    {
+        if ($attribute === null) {
+            $this->_errors = [];
+        } else {
+            unset($this->_errors[$attribute]);
+        }
+    }
+
+    /**
+     * Returns a value indicating whether there is any validation error.
+     * @param string|null $attribute attribute name. Use null to check all attributes.
+     * @return boolean whether there is any error.
+     */
+    public function hasErrors($attribute = null)
+    {
+        return $attribute === null ? !empty($this->_errors) : isset($this->_errors[$attribute]);
+    }
+
+    /**
+     * Returns the errors for all attribute or a single attribute.
+     * @param string $attribute attribute name. Use null to retrieve errors for all attributes.
+     * @property array An array of errors for all attributes. Empty array is returned if no error.
+     * The result is a two-dimensional array. See [[getErrors()]] for detailed description.
+     * @return array errors for all attributes or the specified attribute. Empty array is returned if no error.
+     * Note that when returning errors for all attributes, the result is a two-dimensional array, like the following:
+     *
+     * ~~~
+     * [
+     *     'username' => [
+     *         'Username is required.',
+     *         'Username must contain only word characters.',
+     *     ],
+     *     'email' => [
+     *         'Email address is invalid.',
+     *     ]
+     * ]
+     * ~~~
+     *
+     * @see getFirstErrors()
+     * @see getFirstError()
+     */
+    public function getErrors($attribute = null)
+    {
+        if ($attribute === null) {
+            return $this->_errors === null ? [] : $this->_errors;
+        } else {
+            return isset($this->_errors[$attribute]) ? $this->_errors[$attribute] : [];
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValid()
+    {
+        $meta = static::getMeta();
+        $className = $this->className();
+
+        $this->clearErrors();
+
+        /* @var $field \Mindy\Orm\Fields\Field */
+        foreach ($this->getFieldsInit() as $name => $field) {
+            if ($meta->hasManyToManyField($className, $name) || $meta->hasHasManyField($className, $name)) {
+                continue;
+            }
+
+            $field->setValue($this->getAttribute($name));
+            if ($field->isValid() === false) {
+                foreach ($field->getErrors() as $error) {
+                    $this->addError($name, $error);
+                }
+            }
+        }
+
+        return $this->hasErrors() === false;
     }
 
     /**
@@ -844,5 +1089,38 @@ abstract class Base implements ArrayAccess
     public function getManyFields()
     {
         return static::getMeta()->getManyFields($this->className());
+    }
+
+    public function delete()
+    {
+        return $this->objects()->delete([
+            'pk' => $this->pk
+        ]);
+    }
+
+    // TODO documentation, refactoring
+    public function getPkName()
+    {
+        foreach ($this->getFieldsInit() as $name => $field) {
+            if (is_a($field, $this->autoField) || $field->primary) {
+                return $name;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Converts the object into an array.
+     * @return array the array representation of this object
+     */
+    public function toArray()
+    {
+        return $this->_attributes;
+    }
+
+    public function toJson()
+    {
+        return Json::encode($this->toArray());
     }
 }

@@ -56,14 +56,17 @@ class ManyToManyFieldSetTest extends DatabaseTestCase
 
         // Test array of Models
         $product->lists = [$list];
+        $product->save(['lists']);
         $this->assertEquals(1, $product->lists->count());
 
         // Test empty array
         $product->lists = [];
+        $product->save(['lists']);
         $this->assertEquals(0, $product->lists->count());
 
         // Test array of pk
         $product->lists = [$pk];
+        $product->save(['lists']);
         $this->assertEquals(1, $product->lists->count());
 
         // Test clean()

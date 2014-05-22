@@ -79,8 +79,8 @@ class TreeModelTest extends DatabaseTestCase
         $nestedTwo = NestedModel::objects()->getOrCreate(['name' => 'test3', 'parent' => $rootModelTwo]);
         $this->assertEquals(4, $nestedTwo->pk);
 
-        $this->assertEquals(2, $nestedTwo->lft);
-        $this->assertEquals(3, $nestedTwo->rgt);
+        $this->assertEquals(4, $nestedTwo->lft);
+        $this->assertEquals(5, $nestedTwo->rgt);
         $this->assertEquals(2, $nestedTwo->level);
         $this->assertEquals(2, $nestedTwo->root);
         $this->assertNotNull($nestedTwo->parent);
@@ -90,8 +90,8 @@ class TreeModelTest extends DatabaseTestCase
         $threeLevelModel = NestedModel::objects()->getOrCreate(['name' => 'test4', 'parent' => $nestedTwo]);
         $this->assertEquals(5, $threeLevelModel->pk);
 
-        $this->assertEquals(3, $threeLevelModel->lft);
-        $this->assertEquals(4, $threeLevelModel->rgt);
+        $this->assertEquals(5, $threeLevelModel->lft);
+        $this->assertEquals(6, $threeLevelModel->rgt);
         $this->assertEquals(3, $threeLevelModel->level);
         $this->assertEquals(2, $threeLevelModel->root);
         $this->assertNotNull($threeLevelModel->parent);
@@ -164,8 +164,8 @@ class TreeModelTest extends DatabaseTestCase
                         [
                             'id' => 3,
                             'parent_id' => 2,
-                            'lft' => 6,
-                            'rgt' => 7,
+                            'lft' => 2,
+                            'rgt' => 3,
                             'level' => 2,
                             'root' => 2,
                             'name' => 'test2',
@@ -174,8 +174,8 @@ class TreeModelTest extends DatabaseTestCase
                         [
                             'id' => 4,
                             'parent_id' => 2,
-                            'lft' => 2,
-                            'rgt' => 5,
+                            'lft' => 4,
+                            'rgt' => 7,
                             'level' => 2,
                             'root' => 2,
                             'name' => 'test3',
@@ -183,8 +183,8 @@ class TreeModelTest extends DatabaseTestCase
                                 [
                                     'id' => 5,
                                     'parent_id' => 4,
-                                    'lft' => 3,
-                                    'rgt' => 4,
+                                    'lft' => 5,
+                                    'rgt' => 6,
                                     'level' => 3,
                                     'root' => 2,
                                     'name' => 'test4',

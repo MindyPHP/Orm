@@ -51,11 +51,12 @@ class Product extends Model
                     },
                 ]
             ],
-            'price' => ['class' => CharField::className()],
-            'description' => ['class' => TextField::className()],
+            'price' => ['class' => CharField::className(), 'default' => 0],
+            'description' => ['class' => TextField::className(), 'null' => true],
             'category' => [
                 'class' => ForeignField::className(),
-                'modelClass' => Category::className()
+                'modelClass' => Category::className(),
+                'null' => true
             ],
             'lists' => [
                 'class' => ManyToManyField::className(),

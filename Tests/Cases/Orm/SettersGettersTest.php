@@ -15,12 +15,24 @@
 namespace Tests\Orm;
 
 
+use Tests\DatabaseTestCase;
 use Tests\Models\Product;
 use Tests\TestCase;
 
 
-class SettersGettersTest extends TestCase
+class SettersGettersTest extends DatabaseTestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+        $this->initModels([new Product]);
+    }
+
+    public function tearDown()
+    {
+        $this->dropModels([new Product]);
+    }
+
     public function testSetters()
     {
         $model = new Product();
@@ -48,8 +60,12 @@ class SettersGettersTest extends TestCase
 
         // test default field value
         $this->assertEquals('Product', $model->name);
+        $this->assertTrue($model->save());
+        $this->assertEquals('Product', $model->name);
 
         $model->name = '123';
+
+        $this->assertTrue($model->save());
         $this->assertEquals('123', $model->name);
     }
 }

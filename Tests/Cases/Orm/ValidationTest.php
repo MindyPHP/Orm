@@ -15,12 +15,25 @@
 namespace Tests\Orm;
 
 
+use Tests\DatabaseTestCase;
+use Tests\Models\Category;
 use Tests\Models\Product;
 use Tests\Models\User;
 use Tests\TestCase;
 
-class ValidationTest extends TestCase
+class ValidationTest extends DatabaseTestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+        $this->initModels([new User, new Product, new Category]);
+    }
+
+    public function tearDown()
+    {
+        $this->dropModels([new User, new Product, new Category]);
+    }
+
     public function testClass()
     {
         $model = new User();
@@ -88,18 +101,15 @@ class ValidationTest extends TestCase
 
         $model->username = 'hi';
         $this->assertEquals('hi', $model->username);
-        $this->assertFalse($nameField->isValid());
-        $this->assertEquals(['Minimal length < 3'], $nameField->getErrors());
+        $this->assertFalse($model->isValid());
+        $this->assertEquals('hi', $model->username);
 
         $model->username = 'This is very long name for bad validation example';
-        $nameField->isValid();
-        $this->assertEquals(['Maximum length > 20'], $nameField->getErrors());
-
+        $model->isValid();
         $this->assertEquals([
             'username' => [
-                'NULL is not a string',
-                'Minimal length < 3'
-            ],
+                'Maximum length > 20'
+            ]
         ], $model->getErrors());
 
         $model->isValid();

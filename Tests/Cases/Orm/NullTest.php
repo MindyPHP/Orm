@@ -65,13 +65,8 @@ class NullTest extends DatabaseTestCase
         $order2->discount = 1;
         $order2->save();
 
-        foreach($products as $p) {
-            $order2->products->link($p);
-        }
-
-        // TODO
-//        $order2->products = $products;
-//        $order2->save();
+        $order2->products = $products;
+        $order2->save();
     }
 
     public function tearDown()

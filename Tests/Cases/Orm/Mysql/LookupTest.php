@@ -35,14 +35,7 @@ class LookupTest extends DatabaseTestCase
 
         $this->setConnection('mysql');
 
-        $this->initModels([
-            new Order,
-            new User,
-            new Customer,
-            new Product,
-            new Category,
-            new ProductList
-        ]);
+        $this->initModels([new Order, new User, new Customer, new Product, new Category, new ProductList]);
 
         $category = new Category;
         $category->name = 'test';
@@ -87,13 +80,7 @@ class LookupTest extends DatabaseTestCase
 
     public function tearDown()
     {
-        $this->dropModels([
-            new Order,
-            new User,
-            new Customer,
-            new Product,
-            new Category
-        ]);
+        // $this->dropModels([new Order, new User, new Customer, new Product, new Category]);
     }
 
     public function testInit()
