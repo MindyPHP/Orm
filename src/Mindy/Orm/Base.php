@@ -553,9 +553,14 @@ abstract class Base implements ArrayAccess
 
     protected function getDbPrepValues($values)
     {
+        $meta = static::getMeta();
         $prepValues = [];
         foreach($values as $name => $value) {
-            if($this->hasField($name)) {
+            if($meta->hasForeignField($this->className(), $name)) {
+                $field = $meta->getForeignField($this->className(), $name);
+                $field->setValue($value);
+                $prepValues[$name] = $field->getDbPrepValue();
+            } else if($this->hasField($name)) {
                 $field = $this->getField($name);
                 $field->setValue($value);
                 $prepValues[$name] = $field->getDbPrepValue();
@@ -698,6 +703,7 @@ abstract class Base implements ArrayAccess
         }
         // We do not check the return value of updateAll() because it's possible
         // that the UPDATE statement doesn't change anything and thus returns 0.
+        $values = $this->getDbPrepValues($values);
         $rows = $this->objects()->filter($condition)->update($values);
 
         if ($lock !== null && !$rows) {

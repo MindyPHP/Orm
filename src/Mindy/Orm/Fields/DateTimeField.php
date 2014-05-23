@@ -24,7 +24,7 @@ class DateTimeField extends Field
     public function getValue()
     {
         $db = $this->getModel()->getConnection()->getQueryBuilder();
-        if(is_numeric($this->value) || $this->autoNowAdd && $this->getModel()->getNewRecord() || $this->autoNow) {
+        if(is_numeric($this->value) || $this->autoNowAdd && $this->getModel()->getIsNewRecord() || $this->autoNow) {
             return $db->convertToDateTime();
         } else {
             return $this->value;

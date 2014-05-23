@@ -121,10 +121,14 @@ class MetaData
                 if (is_a($field, $model->manyToManyField)) {
                     /* @var $field \Mindy\Orm\Fields\ManyToManyField */
                     self::$manyFields[$className][$name] = $field;
-                } else if (is_a($field, $model->hasManyField)) {
+                }
+
+                if (is_a($field, $model->hasManyField)) {
                     /* @var $field \Mindy\Orm\Fields\HasManyField */
                     self::$hasManyFields[$className][$name] = $field;
-                } else if (is_a($field, $model->foreignField)) {
+                }
+
+                if (is_a($field, $model->foreignField)) {
                     /* @var $field \Mindy\Orm\Fields\ForeignField */
                     self::$fields[$className][$name] = $field;
                     $fkFields[$name] = $field;
@@ -207,6 +211,9 @@ class MetaData
 
     public function hasForeignField($className, $name)
     {
+        if(array_key_exists($className, self::$fkFields) && array_key_exists($name, self::$fkFields[$className])) {
+            $name = self::$fkFields[$className][$name];
+        }
         if($this->hasField($className, $name)) {
             return $this->getField($className, $name) instanceof ForeignField;
         }
@@ -215,6 +222,9 @@ class MetaData
 
     public function getForeignField($className, $name)
     {
+        if(array_key_exists($className, self::$fkFields) && array_key_exists($name, self::$fkFields[$className])) {
+            $name = self::$fkFields[$className][$name];
+        }
         return $this->getField($className, $name);
     }
 

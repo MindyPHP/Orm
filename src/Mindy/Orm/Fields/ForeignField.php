@@ -41,6 +41,9 @@ class ForeignField extends RelatedField
             $value = $modelClass::objects()->filter(['pk' => $value])->get();
         }
 
+        if(empty($value)) {
+            $value = null;
+        }
         $this->value = $value;
     }
 
