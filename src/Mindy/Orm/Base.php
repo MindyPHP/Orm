@@ -560,13 +560,20 @@ abstract class Base implements ArrayAccess
     {
         $meta = static::getMeta();
         $prepValues = [];
-        foreach($values as $name => $value) {
+        foreach($this->attributes() as $name) {
+            if($this->primaryKeyName() == $name && array_key_exists($name, $values) === false) {
+                continue;
+            }
+            $value = array_key_exists($name, $values) ? $values[$name] : $this->getOldAttribute($name);
+
             if($meta->hasForeignField($this->className(), $name)) {
                 $field = $meta->getForeignField($this->className(), $name);
+                $field->setModel($this);
                 $field->setValue($value);
                 $prepValues[$name] = $field->getDbPrepValue();
             } else if($this->hasField($name)) {
                 $field = $this->getField($name);
+                $field->setModel($this);
                 $field->setValue($value);
                 $prepValues[$name] = $field->getDbPrepValue();
             } else {
@@ -716,7 +723,9 @@ abstract class Base implements ArrayAccess
         }
 
         foreach ($values as $name => $value) {
-            $this->_oldAttributes[$name] = $this->_attributes[$name];
+            if(array_key_exists($name, $this->_attributes)) {
+                $this->_oldAttributes[$name] = $this->_attributes[$name];
+            }
         }
 
         return $rows;

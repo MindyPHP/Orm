@@ -19,31 +19,26 @@ use Mindy\Helper\Meta;
 
 class AutoSlugField extends CharField
 {
-    public $parent;
-
     public $source;
 
     public function getDbPrepValue()
     {
-        if($this->parent !== null) {
-            return $this->getRecursiveValue();
-        } else {
-            return $this->getValue();
-        }
+        return $this->getRecursiveValue();
     }
 
     public function getValue()
     {
-        return Meta::cleanString($this->value);
+        return $this->getRecursiveValue();
     }
 
     public function getRecursiveValue()
     {
         $slugs = [];
         $parent = $this->getModel();
-        while(($parent = $parent->{$this->parent}) !== null) {
-            $slugs[] = $parent->{$this->name}->getValue();
+        $slugs[] = Meta::cleanString($parent->{$this->source});
+        while(($parent = $parent->parent) !== null) {
+            $slugs[] = $parent->{$this->source};
         }
-        return implode('/', $slugs);
+        return implode('/', array_reverse($slugs));
     }
 }

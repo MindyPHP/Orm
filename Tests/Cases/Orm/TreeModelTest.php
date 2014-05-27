@@ -34,7 +34,7 @@ class TreeModelTest extends DatabaseTestCase
     public function testInit()
     {
         $model = new NestedModel;
-        $this->assertEquals(7, count($model->getFieldsInit()));
+        $this->assertEquals(8, count($model->getFieldsInit()));
 
         $this->assertTrue(array_key_exists("name", $model->getFieldsInit()));
 
@@ -43,6 +43,7 @@ class TreeModelTest extends DatabaseTestCase
         $this->assertTrue(array_key_exists("level", $model->getFieldsInit()));
         $this->assertTrue(array_key_exists("root", $model->getFieldsInit()));
         $this->assertTrue(array_key_exists("parent", $model->getFieldsInit()));
+        $this->assertTrue(array_key_exists("slug", $model->getFieldsInit()));
     }
 
     public function testInsert()
@@ -150,6 +151,7 @@ class TreeModelTest extends DatabaseTestCase
                     'level' => 1,
                     'root' => 1,
                     'name' => 'test',
+                    'slug' => 'test',
                     'items' => [],
                 ],
                 [
@@ -160,6 +162,7 @@ class TreeModelTest extends DatabaseTestCase
                     'level' => 1,
                     'root' => 2,
                     'name' => 'test1',
+                    'slug' => 'test1',
                     'items' => [
                         [
                             'id' => 3,
@@ -169,6 +172,7 @@ class TreeModelTest extends DatabaseTestCase
                             'level' => 2,
                             'root' => 2,
                             'name' => 'test2',
+                            'slug' => 'test1/test2',
                             'items' => [],
                         ],
                         [
@@ -179,6 +183,7 @@ class TreeModelTest extends DatabaseTestCase
                             'level' => 2,
                             'root' => 2,
                             'name' => 'test3',
+                            'slug' => 'test1/test3',
                             'items' => [
                                 [
                                     'id' => 5,
@@ -188,6 +193,7 @@ class TreeModelTest extends DatabaseTestCase
                                     'level' => 3,
                                     'root' => 2,
                                     'name' => 'test4',
+                                    'slug' => 'test1/test3/test4',
                                     'items' => [],
                                 ]
                             ]
