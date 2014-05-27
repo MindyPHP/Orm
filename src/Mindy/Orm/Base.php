@@ -296,7 +296,7 @@ abstract class Base implements ArrayAccess
         foreach ($attributes as $name => $value) {
             if($this->hasField($name)) {
                 $this->{$name} = $value;
-            } else {
+            } else if($this->hasAttribute($name)) {
                 $this->setAttribute($name, $value);
             }
         }
