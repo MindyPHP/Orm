@@ -237,5 +237,25 @@ abstract class Field
         return [];
     }
 
+    public function onAfterInsert()
+    {
+
+    }
+
+    public function onAfterUpdate()
+    {
+
+    }
+
+    public function onBeforeInsert()
+    {
+
+    }
+
+    public function onBeforeUpdate()
+    {
+
+    }
+
     abstract public function sqlType();
 }

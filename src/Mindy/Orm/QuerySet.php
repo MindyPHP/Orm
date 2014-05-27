@@ -143,7 +143,8 @@ class QuerySet extends Query
     {
         $model = $this->filter($attributes)->get();
         if ($model === null) {
-            $model = $this->model->setData($attributes);
+            $model = $this->model;
+            $model->setAttributes($attributes);
             $model->save();
         }
 
@@ -154,9 +155,10 @@ class QuerySet extends Query
     {
         $model = $this->filter($attributes)->get();
         if ($model) {
-            $model->setData($updateAttributes);
+            $model->setAttributes($updateAttributes);
         } else {
-            $model = $this->model->setData($updateAttributes);
+            $model = $this->model;
+            $model->setAttributes($updateAttributes);
         }
         $model->save();
         return $model;

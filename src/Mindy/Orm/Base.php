@@ -72,9 +72,11 @@ abstract class Base implements ArrayAccess
     /**
      * @param array $config
      */
-    public function __construct(array $config = [])
+    public function __construct(array $attributes = [])
     {
-        Creator::configure($this, $config);
+        if(!empty($attributes)) {
+            $this->setAttributes($attributes);
+        }
     }
 
     /**
@@ -292,7 +294,11 @@ abstract class Base implements ArrayAccess
     public function setAttributes(array $attributes)
     {
         foreach ($attributes as $name => $value) {
-            $this->setAttribute($name, $value);
+            if($this->hasField($name)) {
+                $this->{$name} = $value;
+            } else {
+                $this->setAttribute($name, $value);
+            }
         }
     }
 
@@ -519,6 +525,8 @@ abstract class Base implements ArrayAccess
         }
         $db = static::getDb();
 
+        $this->onBeforeInsertInternal();
+
         $transaction = $db->beginTransaction();
         try {
             $result = $this->insertInternal($fields);
@@ -533,8 +541,65 @@ abstract class Base implements ArrayAccess
         }
 
         $this->updateRelated();
+        $this->onAfterInsertInternal();
 
         return $result;
+    }
+
+    protected function onBeforeInsertInternal()
+    {
+        $className = $this->className();
+        $meta = static::getMeta();
+        foreach($this->getFieldsInit() as $name => $field) {
+            if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
+                continue;
+            }
+            $field->setValue($this->getAttribute($name));
+            $field->setModel($this);
+            $field->onBeforeInsert();
+        }
+    }
+
+    protected function onBeforeUpdateInternal()
+    {
+        $className = $this->className();
+        $meta = static::getMeta();
+        foreach($this->getFieldsInit() as $name => $field) {
+            if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
+                continue;
+            }
+            $field->setValue($this->getAttribute($name));
+            $field->setModel($this);
+            $field->onBeforeUpdate();
+        }
+    }
+
+    protected function onAfterInsertInternal()
+    {
+        $className = $this->className();
+        $meta = static::getMeta();
+        foreach($this->getFieldsInit() as $name => $field) {
+            if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
+                continue;
+            }
+            $field->setValue($this->getAttribute($name));
+            $field->setModel($this);
+            $field->onAfterInsert();
+        }
+    }
+
+    protected function onAfterUpdateInternal()
+    {
+        $className = $this->className();
+        $meta = static::getMeta();
+        foreach($this->getFieldsInit() as $name => $field) {
+            if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
+                continue;
+            }
+            $field->setValue($this->getAttribute($name));
+            $field->setModel($this);
+            $field->onAfterUpdate();
+        }
     }
 
     public function updateRelated()
@@ -560,12 +625,7 @@ abstract class Base implements ArrayAccess
     {
         $meta = static::getMeta();
         $prepValues = [];
-        foreach($this->attributes() as $name) {
-            if($this->primaryKeyName() == $name && array_key_exists($name, $values) === false) {
-                continue;
-            }
-            $value = array_key_exists($name, $values) ? $values[$name] : $this->getOldAttribute($name);
-
+        foreach($values as $name => $value) {
             if($meta->hasForeignField($this->className(), $name)) {
                 $field = $meta->getForeignField($this->className(), $name);
                 $field->setModel($this);
@@ -617,6 +677,7 @@ abstract class Base implements ArrayAccess
             }
         }
 
+        $this->setAttributes($values);
         $this->setOldAttributes($values);
 
         return true;
@@ -677,6 +738,9 @@ abstract class Base implements ArrayAccess
             return false;
         }
         $db = static::getDb();
+
+        $this->onBeforeUpdateInternal();
+
         $transaction = $db->beginTransaction();
         try {
             $result = $this->updateInternal($fields);
@@ -691,6 +755,7 @@ abstract class Base implements ArrayAccess
         }
 
         $this->updateRelated();
+        $this->onAfterUpdateInternal();
 
         return $result;
     }
@@ -1154,11 +1219,33 @@ abstract class Base implements ArrayAccess
      */
     public function toArray()
     {
-        return $this->_attributes;
+        $arr = [];
+        $attributes = $this->attributes();
+        foreach($attributes as $name) {
+            $arr[$name] = array_key_exists($name, $this->_attributes) ? $this->_attributes[$name] : null;
+        }
+        return $arr;
     }
 
     public function toJson()
     {
         return Json::encode($this->toArray());
+    }
+
+    /**
+     * TODO move to manager
+     * Creates an active record object using a row of data.
+     * This method is called by [[ActiveQuery]] to populate the query results
+     * into Active Records. It is not meant to be used to create new records.
+     * @param array $row attribute values (name => value)
+     * @return \Mindy\Orm\Model the newly created active record.
+     */
+    public static function create($row)
+    {
+        $className = self::className();
+        $record = new $className;
+        $record->setAttributes($row);
+        $record->setOldAttributes($row);
+        return $record;
     }
 }

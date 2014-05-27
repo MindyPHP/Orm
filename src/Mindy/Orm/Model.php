@@ -26,13 +26,14 @@ class Model extends Orm
         return (string) $this->shortClassName();
     }
 
+    /**
+     * @deprecated
+     * @param array $values
+     * @return $this
+     */
     public function setData(array $values)
     {
-        foreach($values as $name => $value) {
-            if($this->hasField($name)) {
-                $this->{$name} = $value;
-            }
-        }
+        $this->setAttributes($values);
         return $this;
     }
 

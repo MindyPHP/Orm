@@ -36,18 +36,18 @@ class TreeManager extends Manager
      * @param int $depth the depth.
      * @return QuerySet
      */
-    public function descendants($depth = null)
+    public function descendants($includeSelf = false, $depth = null)
     {
-        return $this->getQuerySet()->descendants($depth);
+        return $this->getQuerySet()->descendants($includeSelf, $depth);
     }
 
     /**
      * Named scope. Gets children for node (direct descendants only).
      * @return QuerySet
      */
-    public function children()
+    public function children($includeSelf = false)
     {
-        return $this->getQuerySet()->children();
+        return $this->getQuerySet()->children($includeSelf);
     }
 
     /**

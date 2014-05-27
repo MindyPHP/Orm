@@ -58,21 +58,4 @@ class Orm extends Base implements Arrayable
      * @var string
      */
     public $hasManyField = '\Mindy\Orm\Fields\HasManyField';
-
-    /**
-     * TODO move to manager
-     * Creates an active record object using a row of data.
-     * This method is called by [[ActiveQuery]] to populate the query results
-     * into Active Records. It is not meant to be used to create new records.
-     * @param array $row attribute values (name => value)
-     * @return \Mindy\Orm\Model the newly created active record.
-     */
-    public static function create($row)
-    {
-        $className = self::className();
-        $record = new $className;
-        $record->setAttributes($row);
-        $record->setOldAttributes($row);
-        return $record;
-    }
 }

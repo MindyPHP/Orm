@@ -16,10 +16,23 @@ namespace Mindy\Orm\Fields;
 
 
 use Mindy\Helper\Meta;
+use Mindy\Query\Expression;
 
 class AutoSlugField extends CharField
 {
     public $source;
+
+    public function onBeforeInsert()
+    {
+        $this->value = empty($this->value) ? $this->getModel()->{$this->source} : ltrim($this->value,  '/');
+        $this->getModel()->setAttribute($this->name, $this->value);
+    }
+
+    public function onBeforeUpdate()
+    {
+        $this->value = empty($this->value) ? $this->getModel()->{$this->source} : ltrim($this->value, '/');
+        $this->getModel()->setAttribute($this->name, $this->value);
+    }
 
     public function getDbPrepValue()
     {
@@ -28,13 +41,26 @@ class AutoSlugField extends CharField
 
     public function getRecursiveValue()
     {
-        $slugs = [];
         $parent = $this->getModel();
-        $value = $this->getValue();
-        $slugs[] = Meta::cleanString(empty($value) ? $parent->{$this->source} : $value);
+        $slugs = [
+            Meta::cleanString($this->getValue())
+        ];
         while(($parent = $parent->parent) !== null) {
             $slugs[] = $parent->{$this->source};
         }
+
         return implode('/', array_reverse($slugs));
+    }
+
+    public function onAfterUpdate()
+    {
+        $model = $this->getModel();
+        $oldUrl = $model->getOldAttribute($this->source);
+        $url = $model->{$this->name};
+        $alias = $model->tree()->getQuerySet()->getTableAlias();
+
+        $model->tree()->descendants()->update([
+            'slug' => new Expression("REPLACE({$alias}.`{$this->name}`, '{$oldUrl}', '{$url}')")
+        ]);
     }
 }
