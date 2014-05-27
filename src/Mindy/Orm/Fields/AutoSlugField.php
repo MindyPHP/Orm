@@ -55,12 +55,12 @@ class AutoSlugField extends CharField
     public function onAfterUpdate()
     {
         $model = $this->getModel();
-        $oldUrl = $model->getOldAttribute($this->source);
+        $oldUrl = $model->getOldAttribute($this->name);
         $url = $model->{$this->name};
         $alias = $model->tree()->getQuerySet()->getTableAlias();
 
         $model->tree()->descendants()->update([
-            'slug' => new Expression("REPLACE({$alias}.`{$this->name}`, '{$oldUrl}', '{$url}')")
+            $this->name => new Expression("REPLACE({$alias}.`{$this->name}`, '{$oldUrl}', '{$url}')")
         ]);
     }
 }
