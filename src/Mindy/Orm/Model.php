@@ -14,7 +14,7 @@
 
 namespace Mindy\Orm;
 
-
+use \Yii;
 use Mindy\Orm\Traits\AppYiiCompatible;
 
 class Model extends Orm
@@ -39,5 +39,10 @@ class Model extends Orm
     public function getVerboseName()
     {
         return $this->shortClassName();
+    }
+
+    public function generateUrl($route, $data = null)
+    {
+        return Yii::app()->urlManager->createUrl($route, $data);
     }
 }
