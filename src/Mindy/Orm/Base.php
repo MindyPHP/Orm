@@ -108,8 +108,9 @@ abstract class Base implements ArrayAccess
 
         $className = $this->className();
         $meta = static::getMeta();
-        if ($meta->hasForeignField($className, $name)) {
-            $value = $this->getAttribute($name . '_id');
+        if ($meta->hasForeignField($className, $name) && $this->hasAttribute($name) === false) {
+            $name .= '_id';
+            $value = $this->getAttribute($name);
             $field = static::getMeta()->getForeignField($this->className(), $name);
             return $field->fetch($value);
         }
@@ -134,6 +135,7 @@ abstract class Base implements ArrayAccess
      * This method is overridden so that AR attributes can be accessed like properties.
      * @param string $name property name
      * @param mixed $value property value
+     * @throws \Exception
      */
     public function __set($name, $value)
     {
@@ -145,7 +147,10 @@ abstract class Base implements ArrayAccess
         $className = $this->className();
         $meta = static::getMeta();
         if ($meta->hasForeignField($className, $name)) {
-            $name .= '_id';
+            if(!$this->hasAttribute($name)) {
+                $name .= '_id';
+            }
+
             if ($value instanceof Base) {
                 $value = $value->pk;
             }

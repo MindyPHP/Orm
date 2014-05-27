@@ -43,8 +43,8 @@ class RelationTest extends DatabaseTestCase
     public function testForeignKey()
     {
         $model = new Product();
-        $fk = $model->getField('category');
+        $fk = $model->getField("category");
         $this->assertInstanceOf($model->foreignField, $fk);
-        $this->assertNull($fk->getValue());
+        $this->assertNull($model->category);
     }
 }

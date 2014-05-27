@@ -16,6 +16,7 @@ namespace Mindy\Orm\Fields;
 
 
 use InvalidArgumentException;
+use Mindy\Orm\Orm;
 use Mindy\Orm\Relation;
 
 class ForeignField extends RelatedField
@@ -55,6 +56,11 @@ class ForeignField extends RelatedField
     public function getOnUpdate()
     {
         return $this->onUpdate;
+    }
+
+    public function getDbPrepValue()
+    {
+        return $this->value && is_a($this->value, Orm::className()) ? $this->value->pk : $this->value;
     }
 
     public function getForeignPrimaryKey()
