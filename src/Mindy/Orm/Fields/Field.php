@@ -168,6 +168,11 @@ abstract class Field
         return trim(sprintf('%s %s %s', $this->sqlType(), $this->sqlNullable(), $this->sqlDefault()));
     }
 
+    public function getFormValue()
+    {
+        return $this->getValue();
+    }
+
     public function isRequired()
     {
         return $this->required === true;

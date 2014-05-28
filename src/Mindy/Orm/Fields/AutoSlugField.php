@@ -63,4 +63,10 @@ class AutoSlugField extends CharField
             $this->name => new Expression("REPLACE({$alias}.`{$this->name}`, '{$oldUrl}', '{$url}')")
         ]);
     }
+
+    public function getFormValue()
+    {
+        $slugs = explode('/', $this->getValue());
+        return end($slugs);
+    }
 }
