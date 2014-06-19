@@ -14,8 +14,8 @@
 
 namespace Mindy\Orm\Traits;
 
+use Mindy\Base\Mindy;
 use ReflectionObject;
-use Yii;
 
 trait AppYiiCompatible
 {
@@ -25,14 +25,14 @@ trait AppYiiCompatible
     public function getModuleName()
     {
         $object = new ReflectionObject($this);
-        return basename(dirname(dirname($object->getFilename())));
+        return strtolower(basename(dirname(dirname($object->getFilename()))));
     }
 
     /**
-     * @return MWebModule
+     * @return \Mindy\Base\Module
      */
     public function getModule()
     {
-        return Yii::app()->getModule($this->getModuleName());
+        return Mindy::app()->getModule($this->getModuleName());
     }
 }

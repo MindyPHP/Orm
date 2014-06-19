@@ -14,6 +14,7 @@
 
 namespace Mindy\Orm;
 
+use Mindy\Base\Mindy;
 use \Yii;
 use Mindy\Orm\Traits\AppYiiCompatible;
 
@@ -44,6 +45,6 @@ class Model extends Orm
 
     public function generateUrl($route, $data = null)
     {
-        return Yii::app()->urlManager->createUrl($route, $data);
+        return Mindy::app()->urlManager->createUrl($route, $data);
     }
 }

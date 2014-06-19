@@ -15,11 +15,7 @@
 namespace Mindy\Orm;
 
 
-use Exception;
 use Mindy\Core\Interfaces\Arrayable;
-use Mindy\Helper\Creator;
-use Mindy\Helper\Json;
-use Mindy\Query\Connection;
 
 /**
  * Class Orm
