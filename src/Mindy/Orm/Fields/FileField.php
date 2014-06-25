@@ -14,7 +14,7 @@
 
 namespace Mindy\Orm\Fields;
 
-use Mindy;
+use Mindy\Base\Mindy;
 
 class FileField extends CharField
 {
@@ -47,22 +47,22 @@ class FileField extends CharField
         }
     }
 
+    /**
+     * @return \Modules\Files\Components\Storage
+     */
+    public function getStorage()
+    {
+        return Mindy::app()->storage;
+    }
+
     public function getValue()
     {
-        if ($this->value) {
-            $mediaUrl = $this->getMediaUrl();
-            return ($mediaUrl ? $mediaUrl : '') . $this->value;
-        }
-        return null;
+        return $this->value;
     }
 
     public function getDbPrepValue()
     {
-        if ($this->value) {
-            $mediaUrl = $this->getMediaUrl();
-            return ($mediaUrl ? $mediaUrl : '') . $this->value;
-        }
-        return null;
+        return $this->value;
     }
 
     public function setValue($value)
@@ -114,42 +114,8 @@ class FileField extends CharField
         $uploadFolder = $this->getMediaPath() . $this->makeFilePath();
         $counter = 0;
 
-        // Make file name
-        while (file_exists($uploadFolder . $this->makeFileName($name, $counter))) {
-            $counter++;
-        }
-        $filename = $this->makeFileName($name, $counter);
-
-        // Filename for database
-        $file = $this->makeFilePath() . $filename;
-        if (!file_exists($uploadFolder)) {
-            mkdir($uploadFolder, 0777, true);
-        }
-
-        // Filename for upload
-        $uploadFile = $uploadFolder . $filename;
-
-        // Move file
-        if ($mode == self::MODE_POST) {
-            move_uploaded_file($path, $uploadFile);
-        } elseif ($mode == self::MODE_LOCAL) {
-            rename($path, $uploadFile);
-        }
-
-        return $file;
-    }
-
-    public function makeFileName($name, $counter = 0)
-    {
-        $ext = pathinfo($name, PATHINFO_EXTENSION);
-        $ext = ($ext ? '.' . $ext : '');
-
-        if ($this->hashName) {
-            $name = md5($name . time());
-        } else {
-            $name = pathinfo($name, PATHINFO_FILENAME);
-        }
-        return $name . ($counter > 0 ? '_' . $counter : '') . $ext;
+        $filename = $this->getStorage()->path($name);
+        return $this->getStorage()->save($this->makeFilePath(), file_get_contents($uploadFolder . $filename));
     }
 
     public function makeFilePath()
