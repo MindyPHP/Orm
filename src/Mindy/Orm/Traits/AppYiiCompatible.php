@@ -25,7 +25,7 @@ trait AppYiiCompatible
     public function getModuleName()
     {
         $object = new ReflectionObject($this);
-        return strtolower(basename(dirname(dirname($object->getFilename()))));
+        return basename(dirname(dirname($object->getFilename())));
     }
 
     /**

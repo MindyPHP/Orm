@@ -298,6 +298,7 @@ abstract class Base implements ArrayAccess
                 $this->setAttribute($name, $value);
             }
         }
+        return $this;
     }
 
     /**
