@@ -15,6 +15,10 @@
 namespace Mindy\Orm\Fields;
 
 use Mindy\Base\Mindy;
+use Mindy\Helper\Alias;
+use Mindy\Storage\Files\File;
+use Mindy\Storage\Files\LocalFile;
+use Mindy\Storage\Files\UploadedFile;
 
 class FileField extends CharField
 {
@@ -40,6 +44,16 @@ class FileField extends CharField
 
     public $cleanValue = 'NULL';
 
+    public function __toString()
+    {
+        return (string)$this->getValue();
+    }
+
+    public function getUrl()
+    {
+        return $this->getValue();
+    }
+
     public function init()
     {
         if (!$this->isRequired()) {
@@ -47,8 +61,22 @@ class FileField extends CharField
         }
     }
 
+    public function setValue($value)
+    {
+        if (is_null($value)) {
+            $this->getStorage()->delete($this->getValue());
+        } else {
+            if(is_array($value)) {
+                $value = $this->setFile(new UploadedFile($value));
+            } else if(is_string($value) && is_file($value)) {
+                $value = $this->setFile(new LocalFile($value));
+            }
+        }
+        return parent::setValue($value);
+    }
+
     /**
-     * @return \Modules\Files\Components\Storage
+     * @return \Mindy\Storage\Storage
      */
     public function getStorage()
     {
@@ -65,57 +93,43 @@ class FileField extends CharField
         return $this->value;
     }
 
-    public function setValue($value)
+    public function getPath()
     {
-        if (is_null($value)) {
-            $this->value = null;
-        } elseif (is_array($value) && isset($value['tmp_name']) && $value['tmp_name']) {
-            if (is_array($value)) {
-                $value = $this->setLoadedFile($value);
-            }
-            $this->value = $value;
-        } elseif (is_string($value) && $value) {
-            if ($value == $this->cleanValue) {
-                $value = null;
-            }
-            $this->value = $value;
-        }
+        return $this->getStorage()->path($this->getCleanValue());
+    }
 
-        return $this->value;
+    public function getCleanValue()
+    {
+        return substr($this->getValue(), strlen($this->getMediaUrl()));
+    }
+
+    public function delete()
+    {
+        return $this->getStorage()->delete($this->getValue());
+    }
+
+    public function getSize()
+    {
+        return $this->getStorage()->size($this->getCleanValue());
     }
 
     /**
-     * Set data from $_FILES
-     * @param array $data
-     * @return string $path - path of uploaded file
-     */
-    public function setLoadedFile(array $data)
-    {
-        if (isset($data['tmp_name'])) {
-            return $this->setFile($data['tmp_name'], isset($data['name']) ? $data['name'] : null, self::MODE_POST);
-        }
-        return null;
-    }
-
-    /**
-     * @param $path
+     * @param \Mindy\Storage\Files\File $file
      * @param null $name
-     * @param int $mode
      * @return null|string
      */
-    public function setFile($path, $name = null, $mode = self::MODE_LOCAL)
+    public function setFile(File $file, $name = null)
     {
-        $file = null;
-        if (!$name) {
-            $name = pathinfo($path, PATHINFO_BASENAME);
-        }
+        $name = $name ? $name : $file->name;
 
         // Folder for upload
-        $uploadFolder = $this->getMediaPath() . $this->makeFilePath();
-        $counter = 0;
-
-        $filename = $this->getStorage()->path($name);
-        return $this->getStorage()->save($this->makeFilePath(), file_get_contents($uploadFolder . $filename));
+        $filePath = $this->makeFilePath();
+        $uploadFolder = $this->getMediaPath() . $filePath;
+        if ($this->getStorage()->save($uploadFolder . $name, file_get_contents($file->path))) {
+            return $this->getMediaUrl() . $filePath . $name;
+        } else {
+            return null;
+        }
     }
 
     public function makeFilePath()
@@ -130,23 +144,16 @@ class FileField extends CharField
                 '%H' => date('H'),
                 '%i' => date('i'),
                 '%s' => date('s'),
-                '%O' => $this->revealShortName(),
+                '%O' => $this->getModel()->shortClassName(),
+                '%M' => $this->getModel()->getModuleName(),
             ]);
         }
-        if (substr($uploadTo, -1) != '/') {
-            $uploadTo .= '/';
-        }
-        return $uploadTo;
-    }
-
-    public function revealShortName()
-    {
-        return trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', '_\0', $this->getModel()->shortClassName())), '_');
+        return rtrim($uploadTo, '/') . '/';
     }
 
     public function getMediaPath()
     {
-        return Mindy::getPathOfAlias('webroot') . $this->mediaFolder;
+        return Alias::get('www') . $this->mediaFolder;
     }
 
     public function getMediaUrl()

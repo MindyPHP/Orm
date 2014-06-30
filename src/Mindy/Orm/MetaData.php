@@ -32,9 +32,31 @@ class MetaData
 
     private static $hasManyFields = [];
 
+    private static $fileFields = [];
+
     public function __construct()
     {
 
+    }
+
+    /**
+     * @param $className
+     * @param $name
+     * @return bool
+     */
+    public function hasFileField($className, $name)
+    {
+        return array_key_exists($name, self::$fileFields[$className]);
+    }
+
+    /**
+     * @param $className
+     * @param $name
+     * @return \Mindy\Orm\Fields\FileField
+     */
+    public function getFileField($className, $name)
+    {
+        return self::$fileFields[$className][$name];
     }
 
     public function hasForeignKey($className, $name)
@@ -80,6 +102,7 @@ class MetaData
             self::$hasManyFields[$className] = [];
             self::$fields[$className] = [];
             self::$extrafields[$className] = [];
+            self::$fileFields[$className] = [];
 
             self::initFields($model);
         }
@@ -114,6 +137,10 @@ class MetaData
 
             if (is_a($field, $model->autoField) || $field->primary) {
                 $needPk = false;
+            }
+
+            if(is_a($field, $model->fileField)) {
+                self::$fileFields[$className][$name] = $field;
             }
 
             if (is_a($field, $model->relatedField)) {

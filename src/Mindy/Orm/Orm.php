@@ -27,29 +27,28 @@ class Orm extends Base implements Arrayable
     /**
      * @var string
      */
+    public $fileField = '\Mindy\Orm\Fields\FileField';
+    /**
+     * @var string
+     */
     public $autoField = '\Mindy\Orm\Fields\AutoField';
-
     /**
      * @var string
      */
     public $relatedField = '\Mindy\Orm\Fields\RelatedField';
-
     /**
      * @var string
      */
     public $foreignField = '\Mindy\Orm\Fields\ForeignField';
-
     /**
      * TODO
      * @var string
      */
     public $oneToOneField = '\Mindy\Orm\Fields\OneToOneField';
-
     /**
      * @var string
      */
     public $manyToManyField = '\Mindy\Orm\Fields\ManyToManyField';
-
     /**
      * @var string
      */

@@ -108,15 +108,24 @@ abstract class Base implements ArrayAccess
 
         $className = $this->className();
         $meta = static::getMeta();
+
+        if($meta->hasFileField($className, $name)) {
+            $fileField = $meta->getFileField($className, $name);
+            $fileField->value = $this->getAttribute($name);
+            return $fileField;
+        }
+
         if ($meta->hasForeignField($className, $name) && $this->hasAttribute($name) === false) {
             $name .= '_id';
             $value = $this->getAttribute($name);
-            $field = static::getMeta()->getForeignField($this->className(), $name);
+            /* @var $field \Mindy\Orm\Fields\ForeignField */
+            $field = $meta->getForeignField($this->className(), $name);
             return $field->fetch($value);
         }
 
         if ($meta->hasManyToManyField($className, $name) || $meta->hasHasManyField($className, $name)) {
-            $field = static::getMeta()->getField($className, $name);
+            /* @var $field \Mindy\Orm\Fields\ManyToManyField|\Mindy\Orm\Fields\HasManyField */
+            $field = $meta->getField($className, $name);
             $field->setModel($this);
             return $field->getManager();
         }
@@ -146,6 +155,11 @@ abstract class Base implements ArrayAccess
 
         $className = $this->className();
         $meta = static::getMeta();
+
+        if($meta->hasFileField($className, $name)) {
+            $value = $meta->getFileField($className, $name)->setValue($value);
+        }
+
         if ($meta->hasForeignField($className, $name)) {
             if (!$this->hasAttribute($name)) {
                 $name .= '_id';
@@ -293,7 +307,7 @@ abstract class Base implements ArrayAccess
     {
         foreach ($attributes as $name => $value) {
             if ($this->hasField($name)) {
-                $this->{$name} = $value;
+                $this->$name = $value;
             } else if ($this->hasAttribute($name)) {
                 $this->setAttribute($name, $value);
             }
@@ -553,7 +567,12 @@ abstract class Base implements ArrayAccess
             if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
                 continue;
             }
-            $field->setValue($this->getAttribute($name));
+            // TODO :( refactoring
+            if(is_a($field, $this->fileField)) {
+                $field->value = $this->getAttribute($name);
+            } else {
+                $field->setValue($this->getAttribute($name));
+            }
             $field->setModel($this);
             $field->onBeforeInsert();
         }
@@ -633,7 +652,13 @@ abstract class Base implements ArrayAccess
             } else if ($this->hasField($name)) {
                 $field = $this->getField($name);
                 $field->setModel($this);
-                $field->setValue($value);
+
+                if(is_a($field, $this->fileField)) {
+                    $field->value = $value;
+                } else {
+                    $field->setValue($value);
+                }
+
                 $prepValues[$name] = $field->getDbPrepValue();
             } else {
                 $prepValues[$name] = $value;

@@ -19,6 +19,7 @@ use Closure;
 use Mindy\Helper\Creator;
 use Mindy\Orm\Model;
 use Mindy\Orm\Validator\RequiredValidator;
+use ReflectionClass;
 
 abstract class Field
 {
@@ -82,6 +83,15 @@ abstract class Field
     public static function className()
     {
         return get_called_class();
+    }
+
+    /**
+     * @return string the short name of this class.
+     */
+    public static function shortClassName()
+    {
+        $reflect = new ReflectionClass(self::className());
+        return $reflect->getShortName();
     }
 
     public function __construct(array $config = [])
