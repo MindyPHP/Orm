@@ -49,6 +49,10 @@ class FileField extends CharField
         return (string)$this->getValue();
     }
 
+    /**
+     * @deprecated
+     * @return string
+     */
     public function getUrl()
     {
         return $this->getValue();
@@ -61,20 +65,6 @@ class FileField extends CharField
         }
     }
 
-    public function setValue($value)
-    {
-        if (is_null($value)) {
-            $this->getStorage()->delete($this->getValue());
-        } else {
-            if(is_array($value)) {
-                $value = $this->setFile(new UploadedFile($value));
-            } else if(is_string($value) && is_file($value)) {
-                $value = $this->setFile(new LocalFile($value));
-            }
-        }
-        return parent::setValue($value);
-    }
-
     /**
      * @return \Mindy\Storage\Storage
      */
@@ -83,13 +73,17 @@ class FileField extends CharField
         return Mindy::app()->storage;
     }
 
-    public function getValue()
-    {
-        return $this->value;
-    }
-
     public function getDbPrepValue()
     {
+        if (is_null($this->value)) {
+            $this->getStorage()->delete($this->getValue());
+        } else {
+            if(is_array($this->value)) {
+                $this->value = $this->setFile(new UploadedFile($this->value));
+            } else if(is_string($this->value) && is_file($this->value)) {
+                $this->value = $this->setFile(new LocalFile($this->value));
+            }
+        }
         return $this->value;
     }
 
@@ -127,9 +121,9 @@ class FileField extends CharField
         $uploadFolder = $this->getMediaPath() . $filePath;
         if ($this->getStorage()->save($uploadFolder . $name, file_get_contents($file->path))) {
             return $this->getMediaUrl() . $filePath . $name;
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     public function makeFilePath()
@@ -153,7 +147,7 @@ class FileField extends CharField
 
     public function getMediaPath()
     {
-        return Alias::get('www') . $this->mediaFolder;
+        return $this->getStorage()->location;
     }
 
     public function getMediaUrl()

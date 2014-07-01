@@ -156,9 +156,9 @@ abstract class Base implements ArrayAccess
         $className = $this->className();
         $meta = static::getMeta();
 
-        if($meta->hasFileField($className, $name)) {
-            $value = $meta->getFileField($className, $name)->setValue($value);
-        }
+//        if($meta->hasFileField($className, $name)) {
+//            $value = $meta->getFileField($className, $name)->setValue($value);
+//        }
 
         if ($meta->hasForeignField($className, $name)) {
             if (!$this->hasAttribute($name)) {
@@ -567,12 +567,7 @@ abstract class Base implements ArrayAccess
             if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
                 continue;
             }
-            // TODO :( refactoring
-            if(is_a($field, $this->fileField)) {
-                $field->value = $this->getAttribute($name);
-            } else {
-                $field->setValue($this->getAttribute($name));
-            }
+            $field->setValue($this->getAttribute($name));
             $field->setModel($this);
             $field->onBeforeInsert();
         }
@@ -652,13 +647,7 @@ abstract class Base implements ArrayAccess
             } else if ($this->hasField($name)) {
                 $field = $this->getField($name);
                 $field->setModel($this);
-
-                if(is_a($field, $this->fileField)) {
-                    $field->value = $value;
-                } else {
-                    $field->setValue($value);
-                }
-
+                $field->setValue($value);
                 $prepValues[$name] = $field->getDbPrepValue();
             } else {
                 $prepValues[$name] = $value;
@@ -812,6 +801,10 @@ abstract class Base implements ArrayAccess
         }
 
         foreach ($values as $name => $value) {
+
+            // o_O
+            $this->_attributes[$name] = $value;
+
             if (array_key_exists($name, $this->_attributes)) {
                 $this->_oldAttributes[$name] = $this->_attributes[$name];
             }
