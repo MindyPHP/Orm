@@ -54,6 +54,27 @@ class QuerySet extends Query
     protected $_tableAlias;
 
     /**
+     * @var bool
+     */
+    private $_filterComplete = false;
+    /**
+     * @var array
+     */
+    private $_filterAnd = [];
+    /**
+     * @var array
+     */
+    private $_filterOr = [];
+    /**
+     * @var array
+     */
+    private $_filterExclude = [];
+    /**
+     * @var array
+     */
+    private $_filterOrExclude = [];
+
+    /**
      * Executes query and returns all results as an array.
      * @param Connection $db the DB connection used to create the DB command.
      * If null, the DB connection returned by [[modelClass]] will be used.
@@ -61,6 +82,8 @@ class QuerySet extends Query
      */
     public function all($db = null)
     {
+        $this->prepareConditions();
+
         // @TODO: hardcode, refactoring
         $group = $this->groupBy;
         if ($this->_chainedHasMany && !$group) {
@@ -129,8 +152,8 @@ class QuerySet extends Query
      */
     public function update(array $attributes)
     {
-        $table = $this->model->tableName() . ' ' . $this->getTableAlias();
-        return parent::updateAll($table, $this->makeAliasAttributes($attributes), $this->model->getConnection());
+        $this->prepareConditions(false);
+        return parent::updateAll($this->model->tableName(), $attributes, $this->model->getConnection());
     }
 
     public function updateCounters(array $counters)
@@ -181,6 +204,8 @@ class QuerySet extends Query
 
     public function allSql($db = null)
     {
+        $this->prepareConditions();
+
         $group = $this->groupBy;
         if ($this->_chainedHasMany && !$group) {
             $this->groupBy($this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey()));
@@ -190,6 +215,40 @@ class QuerySet extends Query
         return $return;
     }
 
+    protected function prepareConditions($aliased = true)
+    {
+        if($this->_filterComplete === false) {
+            foreach($this->_filterAnd as $query) {
+                $this->buildCondition($query, 'andWhere', ['and'], $aliased);
+            }
+
+            foreach($this->_filterOr as $query) {
+                $this->buildCondition($query, 'orWhere', ['and'], $aliased);
+            }
+
+            foreach($this->_filterExclude as $query) {
+                $this->buildCondition($query, 'excludeWhere', ['and'], $aliased);
+            }
+
+            foreach($this->_filterOrExclude as $query) {
+                $this->buildCondition($query, 'excludeOrWhere', ['and'], $aliased);
+            }
+            $this->_filterComplete = true;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param null $db
+     * @return string
+     */
+    public function getSql($db = null)
+    {
+        $this->prepareConditions();
+        return parent::getSql($db);
+    }
+
     /**
      * Executes query and returns a single row of result.
      * @param null $db
@@ -197,6 +256,7 @@ class QuerySet extends Query
      */
     public function get($db = null)
     {
+        $this->prepareConditions();
         $command = $this->createCommand($db);
         $row = $command->queryOne();
         if ($row !== false) {
@@ -220,6 +280,7 @@ class QuerySet extends Query
      */
     public function count($q = null, $db = null)
     {
+        $this->prepareConditions();
         if (!$q) {
             if ($this->_chainedHasMany) {
                 $q = 'DISTINCT ' . $this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey());
@@ -237,6 +298,7 @@ class QuerySet extends Query
      */
     public function countSql($q = null, $db = null)
     {
+        $this->prepareConditions();
         if (!$q) {
             if ($this->_chainedHasMany) {
                 $q = 'DISTINCT ' . $this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey());
@@ -463,7 +525,7 @@ class QuerySet extends Query
      * @throws Exception
      * @return array
      */
-    protected function parseLookup(array $query)
+    protected function parseLookup(array $query, $aliased = true)
     {
         $queryBuilder = $this->getQueryBuilder();
 
@@ -479,8 +541,12 @@ class QuerySet extends Query
                 $field = $model->getPkName();
             }
 
-            if (is_object($params) && get_class($params) == __CLASS__ && $condition != 'in') {
-                throw new Exception("QuerySet object can be used as a parameter only in case of 'in' condition");
+            if (is_object($params) && get_class($params) == __CLASS__) {
+                if($condition != 'in') {
+                    throw new Exception("QuerySet object can be used as a parameter only in case of 'in' condition");
+                } else {
+                    $params->prepareConditions();
+                }
             }
 
             // https://github.com/studio107/Mindy_Orm/issues/26
@@ -501,9 +567,11 @@ class QuerySet extends Query
                 }
             }
 
-            if (strpos($field, '.') === false) {
-                if ($alias) {
-                    $field = $alias . '.' . $field;
+            if($aliased) {
+                if (strpos($field, '.') === false) {
+                    if ($alias) {
+                        $field = $alias . '.' . $field;
+                    }
                 }
             }
 
@@ -527,9 +595,9 @@ class QuerySet extends Query
      * @param array $queryCondition
      * @return $this
      */
-    public function buildCondition(array $query, $method, $queryCondition = [])
+    public function buildCondition(array $query, $method, $queryCondition = [], $aliased = true)
     {
-        list($condition, $params) = $this->parseLookup($query);
+        list($condition, $params) = $this->parseLookup($query, $aliased);
         $this->$method(array_merge($queryCondition, $condition), $params);
 
         return $this;
@@ -541,7 +609,8 @@ class QuerySet extends Query
      */
     public function filter(array $query)
     {
-        return $this->buildCondition($query, 'andWhere', ['and']);
+        $this->_filterAnd[] = $query;
+        return $this;
     }
 
     /**
@@ -550,7 +619,8 @@ class QuerySet extends Query
      */
     public function orFilter(array $query)
     {
-        return $this->buildCondition($query, 'orWhere', ['and']);
+        $this->_filterOr[] = $query;
+        return $this;
     }
 
     /**
@@ -559,7 +629,9 @@ class QuerySet extends Query
      */
     public function exclude(array $query)
     {
-        return $this->buildCondition($query, 'excludeWhere', ['and']);
+        $this->_filterExclude[] = $query;
+        return $this;
+//        return $this->buildCondition($query, 'excludeWhere', ['and']);
     }
 
     /**
@@ -568,7 +640,9 @@ class QuerySet extends Query
      */
     public function orExclude(array $query)
     {
-        return $this->buildCondition($query, 'excludeOrWhere', ['and']);
+        $this->_filterOrExclude[] = $query;
+        return $this;
+//        return $this->buildCondition($query, 'excludeOrWhere', ['and']);
     }
 
     /**
@@ -754,6 +828,7 @@ class QuerySet extends Query
      */
     public function sum($column, $db = null)
     {
+        $this->prepareConditions();
         $column = $this->aliasColumn($column);
         $value = parent::sum($column, $db);
         return $this->numval($value);
@@ -766,6 +841,7 @@ class QuerySet extends Query
      */
     public function average($column, $db = null)
     {
+        $this->prepareConditions();
         $column = $this->aliasColumn($column);
         $value = parent::average($column, $db);
         return $this->numval($value);
@@ -778,6 +854,7 @@ class QuerySet extends Query
      */
     public function min($column, $db = null)
     {
+        $this->prepareConditions();
         $column = $this->aliasColumn($column);
         $value = parent::min($column, $db);
         return $this->numval($value);
@@ -790,6 +867,7 @@ class QuerySet extends Query
      */
     public function max($column, $db = null)
     {
+        $this->prepareConditions();
         $column = $this->aliasColumn($column);
         $value = parent::max($column, $db);
         return $this->numval($value);
@@ -797,6 +875,7 @@ class QuerySet extends Query
 
     public function delete($db = null)
     {
+        $this->prepareConditions();
         $alias = $this->getTableAlias();
         $tableName = $alias . " USING " . $this->model->tableName() . " AS " . $alias;
         return $this->createCommand($db)->delete($tableName, $this->where, $this->params)->execute();
