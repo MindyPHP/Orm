@@ -118,8 +118,7 @@ class FileField extends CharField
 
         // Folder for upload
         $filePath = $this->makeFilePath();
-        $uploadFolder = $this->getMediaPath() . $filePath;
-        if ($this->getStorage()->save($uploadFolder . $name, file_get_contents($file->path))) {
+        if ($this->getStorage()->save($filePath . $name, file_get_contents($file->path))) {
             return $this->getMediaUrl() . $filePath . $name;
         }
 
@@ -143,11 +142,6 @@ class FileField extends CharField
             ]);
         }
         return rtrim($uploadTo, '/') . '/';
-    }
-
-    public function getMediaPath()
-    {
-        return $this->getStorage()->location;
     }
 
     public function getMediaUrl()
