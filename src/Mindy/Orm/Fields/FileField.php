@@ -36,7 +36,7 @@ class FileField extends CharField
      * %O - Current object class (lower-based)
      * @var string
      */
-    public $uploadTo = '/models/%O/%Y-%m-%d/';
+    public $uploadTo = 'models/%O/%Y-%m-%d/';
 
     public $mediaFolder = '/public';
 
@@ -118,9 +118,8 @@ class FileField extends CharField
 
         // Folder for upload
         $filePath = $this->makeFilePath();
-        $uploadFolder = $this->getMediaPath() . $filePath;
-        if ($this->getStorage()->save($uploadFolder . $name, file_get_contents($file->path))) {
-            return $this->getMediaUrl() . $filePath . $name;
+        if ($this->getStorage()->save($filePath . $name, file_get_contents($file->path))) {
+            return $this->getStorage()->url($filePath . $name);
         }
 
         return null;
