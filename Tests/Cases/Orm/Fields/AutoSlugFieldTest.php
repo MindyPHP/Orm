@@ -81,18 +81,23 @@ class AutoSlugFieldTest extends DatabaseTestCase
         $model->slug = 'qwe';
         $this->assertEquals('test1', $model->getOldAttribute('slug'));
         $model->save();
+
         $this->assertEquals('qwe', $model->getOldAttribute('slug'));
         $this->assertEquals('qwe', $model->getAttribute('slug'));
         $this->assertEquals('qwe', $model->slug);
+
         $test2 = NestedModel::objects()->filter(['name' => 'test2'])->get();
         $this->assertEquals('qwe/test2', $test2->slug);
+
         $test3 = NestedModel::objects()->filter(['name' => 'test3'])->get();
         $this->assertEquals('qwe/test3', $test3->slug);
+
         $test4 = NestedModel::objects()->filter(['name' => 'test4'])->get();
         $this->assertEquals('qwe/test3/test4', $test4->slug);
 
         $test3->slug = 'www';
         $test3->save(['slug']);
+
         $test4 = NestedModel::objects()->filter(['name' => 'test4'])->get();
         $this->assertEquals('qwe/www/test4', $test4->slug);
     }

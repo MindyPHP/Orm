@@ -156,6 +156,14 @@ class QuerySet extends Query
         return parent::updateAll($this->model->tableName(), $attributes, $this->model->getConnection());
     }
 
+    public function updateSql(array $attributes)
+    {
+        $this->prepareConditions(false);
+        $command = $this->createCommand($this->model->getConnection());
+        $command->update($this->model->tableName(), $attributes, $this->where, $this->params);
+        return $command->sql;
+    }
+
     public function updateCounters(array $counters)
     {
         $table = $this->model->tableName() . ' ' . $this->getTableAlias();

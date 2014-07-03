@@ -21,6 +21,7 @@ use Mindy\Query\Expression;
 class AutoSlugField extends CharField
 {
     public $source;
+    protected $oldValue;
 
     public function onBeforeInsert()
     {
@@ -32,6 +33,19 @@ class AutoSlugField extends CharField
     {
         $this->value = empty($this->value) ? $this->getModel()->{$this->source} : ltrim($this->value, '/');
         $this->getModel()->setAttribute($this->name, $this->value);
+        $this->oldValue = $this->getModel()->getOldAttribute($this->name);
+
+        $model = $this->getModel();
+        $oldUrl = $model->getOldAttribute($this->name);
+        $url = $model->{$this->name};
+        $parent = $model->tree()->parent()->get();
+        if($parent) {
+            $url = $parent->slug  . '/' . $url;
+        }
+        // $alias = $model->tree()->getQuerySet()->getTableAlias();
+        $model->tree()->descendants()->update([
+            $this->name => new Expression("REPLACE(`{$this->name}`, '{$oldUrl}', '{$url}')")
+        ]);
     }
 
     public function getDbPrepValue()
@@ -50,18 +64,6 @@ class AutoSlugField extends CharField
         }
 
         return implode('/', array_reverse($slugs));
-    }
-
-    public function onAfterUpdate()
-    {
-        $model = $this->getModel();
-        $oldUrl = $model->getOldAttribute($this->name);
-        $url = $model->{$this->name};
-        $alias = $model->tree()->getQuerySet()->getTableAlias();
-
-        $model->tree()->descendants()->update([
-            $this->name => new Expression("REPLACE(`{$this->name}`, '{$oldUrl}', '{$url}')")
-        ]);
     }
 
     public function getFormValue()

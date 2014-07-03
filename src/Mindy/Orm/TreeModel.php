@@ -106,7 +106,7 @@ abstract class TreeModel extends Model
                 } else if ($this->isRoot() == false) {
                     $this->moveAsRoot();
                 }
-                $this->setData($this->objects()->asArray()->filter(['pk' => $this->pk])->get());
+                $this->setAttributes($this->objects()->asArray()->filter(['pk' => $this->pk])->get());
                 $this->setIsNewRecord(false);
                 return $saved;
             }
