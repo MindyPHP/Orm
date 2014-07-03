@@ -144,11 +144,6 @@ class FileField extends CharField
         return rtrim($uploadTo, '/') . '/';
     }
 
-    public function getMediaPath()
-    {
-        return $this->getStorage()->location;
-    }
-
     public function getMediaUrl()
     {
         return $this->mediaFolder;
