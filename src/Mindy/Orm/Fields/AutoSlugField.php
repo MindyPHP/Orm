@@ -60,7 +60,7 @@ class AutoSlugField extends CharField
         $alias = $model->tree()->getQuerySet()->getTableAlias();
 
         $model->tree()->descendants()->update([
-            $this->name => new Expression("REPLACE({$alias}.`{$this->name}`, '{$oldUrl}', '{$url}')")
+            $this->name => new Expression("REPLACE(`{$this->name}`, '{$oldUrl}', '{$url}')")
         ]);
     }
 
