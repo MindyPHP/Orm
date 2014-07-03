@@ -204,7 +204,8 @@ class Manager
 
     /**
      * @param $q
-     * @return int
+     * @param bool $flat
+     * @return array
      */
     public function valuesList($q, $flat = false)
     {

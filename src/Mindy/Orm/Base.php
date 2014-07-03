@@ -16,6 +16,7 @@ namespace Mindy\Orm;
 
 use ArrayAccess;
 use Exception;
+use Mindy\Base\Mindy;
 use Mindy\Exception\InvalidParamException;
 use Mindy\Helper\Json;
 use Mindy\Orm\Exception\InvalidConfigException;
@@ -466,6 +467,9 @@ abstract class Base implements ArrayAccess
      */
     public static function getConnection()
     {
+        if(self::$_connection === null) {
+            self::$_connection = Mindy::app()->db;
+        }
         return self::$_connection;
     }
 

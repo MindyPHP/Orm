@@ -110,6 +110,11 @@ class QuerySet extends Query
         return $this->_tableAlias;
     }
 
+    /**
+     * @param array $fieldsList
+     * @param bool $flat
+     * @return array
+     */
     public function valuesList(array $fieldsList = [], $flat = false)
     {
         // @TODO: hardcode, refactoring
