@@ -15,6 +15,8 @@
 namespace Mindy\Orm\Validator;
 
 
+use Mindy\Base\Mindy;
+
 class EmailValidator extends Validator
 {
     /**
@@ -47,6 +49,7 @@ class EmailValidator extends Validator
      */
     public $enableIDN = false;
 
+
     public function validate($value)
     {
         // make sure string length is limited to avoid DOS attacks
@@ -66,7 +69,7 @@ class EmailValidator extends Validator
         }
 
         if(!$valid) {
-            $this->addError("is not a valid email address");
+            $this->addError(Mindy::app()->t("is not a valid email address"));
         }
 
         return $this->hasErrors() === false;

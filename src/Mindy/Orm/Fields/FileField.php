@@ -16,6 +16,7 @@ namespace Mindy\Orm\Fields;
 
 use Mindy\Base\Mindy;
 use Mindy\Helper\Alias;
+use Mindy\Orm\Validator\FileExtensionValidator;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\Files\LocalFile;
 use Mindy\Storage\Files\UploadedFile;
@@ -41,8 +42,20 @@ class FileField extends CharField
     public $hashName = true;
 
     public $cleanValue = 'NULL';
+    /**
+     * List of allowed file types
+     * @var array|null
+     */
+    public $types = null;
 
-    public $oldValue = null;
+    public function __construct(array $options = [])
+    {
+        parent::__construct($options);
+
+        $this->validators = array_merge([
+            new FileExtensionValidator($this->types)
+        ], $this->validators);
+    }
 
     public function __toString()
     {
@@ -87,7 +100,6 @@ class FileField extends CharField
                 $this->value = $this->setFile(new LocalFile($this->value));
             }
         }
-        $this->oldValue = null;
         return $this->value;
     }
 
@@ -116,8 +128,8 @@ class FileField extends CharField
      */
     public function deleteOld()
     {
-        if ($this->oldValue) {
-            $this->getStorage()->delete($this->oldValue);
+        if ($this->getOldValue()) {
+            $this->getStorage()->delete($this->getOldValue());
         }
     }
 
@@ -126,22 +138,18 @@ class FileField extends CharField
         return $this->getStorage()->size($this->getCleanValue());
     }
 
-    public function updateOldValue()
+    public function getOldValue()
     {
-        if ($this->value && !$this->oldValue && is_string($this->value)) {
-            $this->oldValue = $this->value;
-        }
+        return $this->getModel()->getOldAttribute($this->name);
     }
 
     public function setValue($value)
     {
         if ($value == $this->cleanValue) {
-            $this->updateOldValue();
             $this->value = null;
         } else if (is_string($value)
             || (is_array($value) && isset($value['tmp_name']) && $value['tmp_name'])
         ) {
-            $this->updateOldValue();
             $this->value = $value;
         }
     }
