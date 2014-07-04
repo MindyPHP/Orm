@@ -2,13 +2,9 @@
 
 namespace Mindy\Orm\Fields;
 
-use Mindy\Base\Mindy;
-use Mindy\Helper\Alias;
 use Mindy\Orm\Traits\ImageProcess;
 use Mindy\Storage\Files\File;
-use Imagine\Image\Box;
 use Imagine\Image\ImageInterface;
-use Imagine\Image\ManipulatorInterface;
 use Imagine\Image\Point;
 
 
@@ -86,9 +82,7 @@ class ImageField extends FileField
         if ($name){
             $imagineSource = $this->getImagine()->open($file->path);
             $this->value = $this->makeFilePath($name);
-
             $imagineSource = $this->processSource($imagineSource);
-
             $this->getStorage()->save($this->value, $imagineSource->__toString());
         }
 
