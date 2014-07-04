@@ -40,7 +40,7 @@ class AutoSlugField extends CharField
         $url = $model->{$this->name};
         $parent = $model->tree()->parent()->get();
         if($parent) {
-            $url = $parent->slug  . '/' . $url;
+            $url = $parent->{$this->name}  . '/' . $url;
         }
         // $alias = $model->tree()->getQuerySet()->getTableAlias();
         $model->tree()->descendants()->update([
