@@ -38,24 +38,25 @@ class FileField extends CharField
      */
     public $uploadTo = 'models/%O/%Y-%m-%d/';
 
-    public $mediaFolder = '/public';
-
     public $hashName = true;
 
     public $cleanValue = 'NULL';
 
+    public $oldValue = null;
+
     public function __toString()
     {
-        return (string)$this->getValue();
+        return (string)$this->getUrl();
     }
 
     /**
-     * @deprecated
-     * @return string
+     * @return string|null
      */
     public function getUrl()
     {
-        return $this->getValue();
+        if ($this->value)
+            return $this->getStorage()->url($this->value);
+        return null;
     }
 
     public function init()
@@ -76,30 +77,48 @@ class FileField extends CharField
     public function getDbPrepValue()
     {
         if (is_null($this->value)) {
-            $this->getStorage()->delete($this->getValue());
+            $this->deleteOld();
         } else {
             if(is_array($this->value)) {
+                $this->deleteOld();
                 $this->value = $this->setFile(new UploadedFile($this->value));
             } else if(is_string($this->value) && is_file($this->value)) {
+                $this->deleteOld();
                 $this->value = $this->setFile(new LocalFile($this->value));
             }
         }
+        $this->oldValue = null;
         return $this->value;
     }
 
     public function getPath()
     {
-        return $this->getStorage()->path($this->getCleanValue());
+        return $this->getStorage()->path($this->value);
     }
 
     public function getCleanValue()
     {
-        return substr($this->getValue(), strlen($this->getMediaUrl()));
+        return $this->value;
+    }
+
+    public function getValue()
+    {
+        return $this->getUrl();
     }
 
     public function delete()
     {
-        return $this->getStorage()->delete($this->getValue());
+        return $this->getStorage()->delete($this->getCleanValue());
+    }
+
+    /**
+     * Delete old file from storage (replacing or deleting old file)
+     */
+    public function deleteOld()
+    {
+        if ($this->oldValue){
+            $this->getStorage()->delete($this->oldValue);
+        }
     }
 
     public function getSize()
@@ -107,6 +126,24 @@ class FileField extends CharField
         return $this->getStorage()->size($this->getCleanValue());
     }
 
+    public function updateOldValue()
+    {
+        if ($this->value && !$this->oldValue && is_string($this->value)){
+            $this->oldValue = $this->value;
+        }
+    }
+
+    public function setValue($value)
+    {
+        if ($value == $this->cleanValue){
+            $this->updateOldValue();
+            $this->value = null;
+        }else if(is_string($value)
+            || (is_array($value) && isset($value['tmp_name']) && $value['tmp_name'])){
+            $this->updateOldValue();
+            $this->value = $value;
+        }
+    }
     /**
      * @param \Mindy\Storage\Files\File $file
      * @param null $name
@@ -118,16 +155,16 @@ class FileField extends CharField
 
         if ($name){
             // Folder for upload
-            $filePath = $this->makeFilePath();
-            if ($this->getStorage()->save($filePath . $name, file_get_contents($file->path))) {
-                return $this->getStorage()->url($filePath . $name);
+            $filePath = $this->makeFilePath($name);
+            if ($this->getStorage()->save($filePath, file_get_contents($file->path))) {
+                return $filePath;
             }
         }
 
         return null;
     }
 
-    public function makeFilePath()
+    public function makeFilePath($fileName = '')
     {
         if (is_callable($this->uploadTo)) {
             $uploadTo = $this->uploadTo();
@@ -143,11 +180,6 @@ class FileField extends CharField
                 '%M' => $this->getModel()->getModuleName(),
             ]);
         }
-        return rtrim($uploadTo, '/') . '/';
-    }
-
-    public function getMediaUrl()
-    {
-        return $this->mediaFolder;
+        return rtrim($uploadTo, '/') . '/' . ($fileName ? $fileName : '');
     }
 }
