@@ -79,10 +79,10 @@ class FileField extends CharField
         if (is_null($this->value)) {
             $this->deleteOld();
         } else {
-            if(is_array($this->value)) {
+            if (is_array($this->value)) {
                 $this->deleteOld();
                 $this->value = $this->setFile(new UploadedFile($this->value));
-            } else if(is_string($this->value) && is_file($this->value)) {
+            } else if (is_string($this->value) && is_file($this->value)) {
                 $this->deleteOld();
                 $this->value = $this->setFile(new LocalFile($this->value));
             }
@@ -116,7 +116,7 @@ class FileField extends CharField
      */
     public function deleteOld()
     {
-        if ($this->oldValue){
+        if ($this->oldValue) {
             $this->getStorage()->delete($this->oldValue);
         }
     }
@@ -128,22 +128,24 @@ class FileField extends CharField
 
     public function updateOldValue()
     {
-        if ($this->value && !$this->oldValue && is_string($this->value)){
+        if ($this->value && !$this->oldValue && is_string($this->value)) {
             $this->oldValue = $this->value;
         }
     }
 
     public function setValue($value)
     {
-        if ($value == $this->cleanValue){
+        if ($value == $this->cleanValue) {
             $this->updateOldValue();
             $this->value = null;
-        }else if(is_string($value)
-            || (is_array($value) && isset($value['tmp_name']) && $value['tmp_name'])){
+        } else if (is_string($value)
+            || (is_array($value) && isset($value['tmp_name']) && $value['tmp_name'])
+        ) {
             $this->updateOldValue();
             $this->value = $value;
         }
     }
+
     /**
      * @param \Mindy\Storage\Files\File $file
      * @param null $name
@@ -153,7 +155,7 @@ class FileField extends CharField
     {
         $name = $name ? $name : $file->name;
 
-        if ($name){
+        if ($name) {
             // Folder for upload
             $filePath = $this->makeFilePath($name);
             if ($this->getStorage()->save($filePath, file_get_contents($file->path))) {
