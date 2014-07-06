@@ -176,6 +176,24 @@ class Manager
     }
 
     /**
+     * @param $limit
+     * @return static
+     */
+    public function limit($limit)
+    {
+        return $this->getQuerySet()->limit($limit);
+    }
+
+    /**
+     * @param $offset int
+     * @return static
+     */
+    public function offset($offset)
+    {
+        return $this->getQuerySet()->offset($offset);
+    }
+
+    /**
      * @param $q
      * @return int
      */
