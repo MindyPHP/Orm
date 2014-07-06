@@ -20,7 +20,13 @@ use Mindy\Query\Expression;
 
 class AutoSlugField extends CharField
 {
+    /**
+     * @var string
+     */
     public $source;
+    /**
+     * @var string|null
+     */
     protected $oldValue;
 
     public function onBeforeInsert()
@@ -42,7 +48,9 @@ class AutoSlugField extends CharField
         if($parent) {
             $url = $parent->{$this->name}  . '/' . $url;
         }
+
         // $alias = $model->tree()->getQuerySet()->getTableAlias();
+
         $model->tree()->descendants()->update([
             $this->name => new Expression("REPLACE(`{$this->name}`, '{$oldUrl}', '{$url}')")
         ]);
@@ -60,7 +68,7 @@ class AutoSlugField extends CharField
             Meta::cleanString($this->getValue())
         ];
         while(($parent = $parent->parent) !== null) {
-            $slugs[] = $parent->{$this->source};
+            $slugs[] = $parent->{$this->name};
         }
 
         return implode('/', array_reverse($slugs));
