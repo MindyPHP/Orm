@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -13,11 +13,12 @@
  */
 
 namespace Mindy\Orm\Traits;
+
 use Imagine\Image\Box;
+use Imagine\Image\ImagineInterface;
 use Imagine\Image\ManipulatorInterface;
 use Imagine\Image\Point;
 use Mindy\Exception\Exception;
-use Imagine\Image\ImagineInterface;
 
 
 trait ImageProcess
@@ -91,31 +92,35 @@ trait ImageProcess
 
         $imgBox = $img->getSize();
 
-        if (($imgBox->getWidth() <= $box->getWidth() && $imgBox->getHeight() <= $box->getHeight()) ||
-            (!$box->getWidth() && !$box->getHeight())) {
+        if (($imgBox->getWidth() <= $box->getWidth() && $imgBox->getHeight() <= $box->getHeight()) || (!$box->getWidth() && !$box->getHeight())) {
             return $img->copy();
         }
+
         $thumb = null;
-        if ($method == 'resize'){
+        if ($method == 'resize') {
             $thumb = $img->thumbnail($box, ManipulatorInterface::THUMBNAIL_INSET);
-        }elseif($method == 'adaptiveResize'){
+        } elseif ($method == 'adaptiveResize') {
             $thumb = $img->thumbnail($box, ManipulatorInterface::THUMBNAIL_OUTBOUND);
-        }elseif($method == 'adaptiveResizeFromTop'){
+        } elseif ($method == 'adaptiveResizeFromTop') {
             $fromWidth = $imgBox->getWidth();
             $fromHeight = $imgBox->getHeight();
 
             $toWidth = $box->getWidth();
             $toHeight = $box->getHeight();
 
-            $fromPercent = $fromWidth/$fromHeight;
-            $toPercent = $toWidth/$toHeight;
+            $fromPercent = $fromWidth / $fromHeight;
+            $toPercent = $toWidth / $toHeight;
 
-            if ($toPercent >= $fromPercent){
+            if ($toPercent >= $fromPercent) {
                 $resizeWidth = $toWidth;
-                $resizeHeight = round($toWidth/$fromWidth*$fromHeight);
-                $thumb = $img->resize(new Box($resizeWidth, $resizeHeight))
-                    ->crop(new Point(0,0), new Box($toWidth, $toHeight));
-            }else{
+                $resizeHeight = round($toWidth / $fromWidth * $fromHeight);
+                $thumb = $img
+                    ->resize(new Box($resizeWidth, $resizeHeight))
+                    ->crop(
+                        new Point(0, 0),
+                        new Box($toWidth, $toHeight)
+                    );
+            } else {
                 $thumb = $img->thumbnail($box, ManipulatorInterface::THUMBNAIL_OUTBOUND);
             }
         }
@@ -125,7 +130,7 @@ trait ImageProcess
 
     public function applyWatermark($source, $options)
     {
-        if ($options && is_array($options) && isset($options['file']) && isset($options['position'])){
+        if ($options && is_array($options) && isset($options['file']) && isset($options['position'])) {
             $watermark = $this->getImagine()->open($options['file']);
             $position = $options['position'];
 
@@ -142,29 +147,29 @@ trait ImageProcess
             $sHeight = $sSize->getHeight();
 
 
-            if (is_array($position)){
+            if (is_array($position)) {
                 list($x, $y) = $position;
-            }else{
-                switch ($position){
+            } else {
+                switch ($position) {
                     case 'top':
-                        $x = $sWidth/2 - $wWidth/2;
+                        $x = $sWidth / 2 - $wWidth / 2;
                         $y = 0;
                         break;
                     case 'bottom':
-                        $x = $sWidth/2 - $wWidth/2;
-                        $y = $sHeight-$wHeight;
+                        $x = $sWidth / 2 - $wWidth / 2;
+                        $y = $sHeight - $wHeight;
                         break;
                     case 'center':
-                        $x = $sWidth/2 - $wWidth/2;
-                        $y = $sHeight/2 - $wHeight/2;
+                        $x = $sWidth / 2 - $wWidth / 2;
+                        $y = $sHeight / 2 - $wHeight / 2;
                         break;
                     case 'left':
                         $x = 0;
-                        $y = $sHeight/2 - $wHeight/2;
+                        $y = $sHeight / 2 - $wHeight / 2;
                         break;
                     case 'right':
                         $x = $sWidth - $wWidth;
-                        $y = $sHeight/2 - $wHeight/2;
+                        $y = $sHeight / 2 - $wHeight / 2;
                         break;
                     case 'top-left':
                         $x = 0;
@@ -176,21 +181,21 @@ trait ImageProcess
                         break;
                     case 'bottom-left':
                         $x = 0;
-                        $y = $sHeight-$wHeight;
+                        $y = $sHeight - $wHeight;
                         break;
                     case 'bottom-right':
                         $x = $sWidth - $wWidth;
-                        $y = $sHeight-$wHeight;
+                        $y = $sHeight - $wHeight;
                         break;
                 }
-                if ($x < 0){
+                if ($x < 0) {
                     $x = 0;
                 }
-                if ($y < 0){
+                if ($y < 0) {
                     $y = 0;
                 }
             }
-            if (($x+$wWidth <= $sWidth) || ($y+$wHeight <= $sHeight))
+            if (($x + $wWidth <= $sWidth) || ($y + $wHeight <= $sHeight))
                 return $source->paste($watermark, new Point($x, $y));
         }
         return $source;

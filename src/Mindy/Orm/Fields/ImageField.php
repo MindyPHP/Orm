@@ -2,10 +2,10 @@
 
 namespace Mindy\Orm\Fields;
 
-use Mindy\Orm\Traits\ImageProcess;
-use Mindy\Storage\Files\File;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\Point;
+use Mindy\Orm\Traits\ImageProcess;
+use Mindy\Storage\Files\File;
 
 
 class ImageField extends FileField
@@ -79,11 +79,12 @@ class ImageField extends FileField
     {
         $name = $name ? $name : $file->name;
 
-        if ($name){
-            $imagineSource = $this->getImagine()->open($file->path);
+        if ($name) {
             $this->value = $this->makeFilePath($name);
-            $imagineSource = $this->processSource($imagineSource);
-            $this->getStorage()->save($this->value, $imagineSource->__toString());
+            if(!empty($this->sizes)) {
+                $this->processSource($this->getImagine()->open($file->path));
+            }
+            $this->getStorage()->save($this->value, file_get_contents($file->path));
         }
 
         return $this->value;
@@ -108,14 +109,16 @@ class ImageField extends FileField
             $method = isset($size['method']) ? $size['method'] : $this->defaultResize;
             $options = isset($size['options']) ? $size['options'] : $this->options;
             $watermark = isset($size['watermark']) ? $size['watermark'] : $this->watermark;
-            if ($width && $height && $method) {
+            if (($width || $height) && $method) {
                 $newSource = $this->resize($imagineSource, $width, $height, $method);
-                $newSource = $this->applyWatermark($newSource, $watermark);
+                if($watermark) {
+                    $newSource = $this->applyWatermark($newSource, $watermark);
+                }
                 $this->getStorage()->save($this->sizeStoragePath($prefix), $newSource->get($ext, $options));
             }
         }
 
-        return $this->applyWatermark($imagineSource, $this->watermark);
+        return $this->watermark ? $this->applyWatermark($imagineSource, $this->watermark) : $imagineSource;
     }
 
     /**
