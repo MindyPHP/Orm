@@ -86,6 +86,13 @@ trait ImageProcess
         throw new Exception("Your system does not support any of these drivers: " . implode(',', $drivers));
     }
 
+    /**
+     * @param $img \Imagine\Gmagick\Imagine|\Imagine\Imagick\Imagine|\Imagine\Gd\Imagine
+     * @param $width
+     * @param $height
+     * @param $method
+     * @return null
+     */
     public function resize($img, $width, $height, $method)
     {
         $box = new Box($width, $height);

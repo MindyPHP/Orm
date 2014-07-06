@@ -81,10 +81,11 @@ class ImageField extends FileField
 
         if ($name) {
             $this->value = $this->makeFilePath($name);
-            if(!empty($this->sizes)) {
-                $this->processSource($this->getImagine()->open($file->path));
+            $fileContent = file_get_contents($file->path);
+            $this->getStorage()->save($this->value, $fileContent);
+            if (!empty($this->sizes)) {
+                $this->processSource($file->path, $fileContent);
             }
-            $this->getStorage()->save($this->value, file_get_contents($file->path));
         }
 
         return $this->value;
@@ -100,25 +101,55 @@ class ImageField extends FileField
         }
     }
 
-    public function processSource($imagineSource)
+    /**
+     * @param $sourcePath
+     * @param $fileContent
+     * @void
+     */
+    public function processSource($sourcePath, $fileContent)
     {
         $ext = pathinfo($this->getCleanValue(), PATHINFO_EXTENSION);
         foreach ($this->sizes as $prefix => $size) {
             $width = isset($size[0]) ? $size[0] : null;
             $height = isset($size[1]) ? $size[1] : null;
+            if (!$width || !$height) {
+                list($width, $height) = $this->imageScale($sourcePath, $width, $height);
+            }
             $method = isset($size['method']) ? $size['method'] : $this->defaultResize;
             $options = isset($size['options']) ? $size['options'] : $this->options;
             $watermark = isset($size['watermark']) ? $size['watermark'] : $this->watermark;
             if (($width || $height) && $method) {
-                $newSource = $this->resize($imagineSource, $width, $height, $method);
-                if($watermark) {
+                $newSource = $this->resize($this->getImagine()->load($fileContent), $width, $height, $method);
+                if ($watermark) {
                     $newSource = $this->applyWatermark($newSource, $watermark);
                 }
                 $this->getStorage()->save($this->sizeStoragePath($prefix), $newSource->get($ext, $options));
             }
         }
 
-        return $this->watermark ? $this->applyWatermark($imagineSource, $this->watermark) : $imagineSource;
+        // Накладываем водяной знак на оригинальное изображение
+        if ($this->watermark) {
+            $this->applyWatermark($this->getImagine()->load($fileContent), $this->watermark);
+        };
+    }
+
+    /**
+     * @param $source
+     * @param null $width
+     * @param null $height
+     * @return array
+     */
+    protected function imageScale($source, $width = null, $height = null)
+    {
+        list($w, $h, $type, $attr) = getimagesize($source);
+        $ratio = $w / $h;
+        if ($width && !$height) {
+            $height = $width / $ratio;
+        } else if (!$width && $height) {
+            $width = $height * $ratio;
+        }
+
+        return [(int)$width, (int)$height];
     }
 
     /**
