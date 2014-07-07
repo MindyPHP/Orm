@@ -100,14 +100,13 @@ trait ImageProcess
         $imgBox = $img->getSize();
 
         if (($imgBox->getWidth() <= $box->getWidth() && $imgBox->getHeight() <= $box->getHeight()) || (!$box->getWidth() && !$box->getHeight())) {
-            return $img->copy();
+            return $img;
         }
 
-        $thumb = null;
         if ($method == 'resize') {
-            $thumb = $img->thumbnail($box, ManipulatorInterface::THUMBNAIL_INSET);
+            $img = $img->thumbnail($box, ManipulatorInterface::THUMBNAIL_INSET);
         } elseif ($method == 'adaptiveResize') {
-            $thumb = $img->thumbnail($box, ManipulatorInterface::THUMBNAIL_OUTBOUND);
+            $img = $img->thumbnail($box, ManipulatorInterface::THUMBNAIL_OUTBOUND);
         } elseif ($method == 'adaptiveResizeFromTop') {
             $fromWidth = $imgBox->getWidth();
             $fromHeight = $imgBox->getHeight();
@@ -121,18 +120,18 @@ trait ImageProcess
             if ($toPercent >= $fromPercent) {
                 $resizeWidth = $toWidth;
                 $resizeHeight = round($toWidth / $fromWidth * $fromHeight);
-                $thumb = $img
+                $img = $img
                     ->resize(new Box($resizeWidth, $resizeHeight))
                     ->crop(
                         new Point(0, 0),
                         new Box($toWidth, $toHeight)
                     );
             } else {
-                $thumb = $img->thumbnail($box, ManipulatorInterface::THUMBNAIL_OUTBOUND);
+                $img = $img->thumbnail($box, ManipulatorInterface::THUMBNAIL_OUTBOUND);
             }
         }
 
-        return $thumb;
+        return $img;
     }
 
     public function applyWatermark($source, $options)
@@ -152,7 +151,6 @@ trait ImageProcess
 
             $sWidth = $sSize->getWidth();
             $sHeight = $sSize->getHeight();
-
 
             if (is_array($position)) {
                 list($x, $y) = $position;
@@ -202,9 +200,28 @@ trait ImageProcess
                     $y = 0;
                 }
             }
-            if (($x + $wWidth <= $sWidth) || ($y + $wHeight <= $sHeight))
+            if (($x + $wWidth <= $sWidth) && ($y + $wHeight <= $sHeight))
                 return $source->paste($watermark, new Point($x, $y));
         }
         return $source;
+    }
+
+    /**
+     * @param $source
+     * @param null $width
+     * @param null $height
+     * @return array
+     */
+    protected function imageScale($source, $width = null, $height = null)
+    {
+        $size = $source->getSize();
+        $ratio = $size->getWidth() / $size->getHeight();
+        if ($width && !$height) {
+            $height = $width / $ratio;
+        } else if (!$width && $height) {
+            $width = $height * $ratio;
+        }
+
+        return [(int)$width, (int)$height];
     }
 }

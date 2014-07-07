@@ -591,6 +591,20 @@ abstract class Base implements ArrayAccess
         }
     }
 
+    protected function onBeforeDeleteInternal()
+    {
+        $className = $this->className();
+        $meta = static::getMeta();
+        foreach ($this->getFieldsInit() as $name => $field) {
+            if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
+                continue;
+            }
+            $field->setValue($this->getAttribute($name));
+            $field->setModel($this);
+            $field->onBeforeDelete();
+        }
+    }
+
     protected function onAfterInsertInternal()
     {
         $className = $this->className();
@@ -616,6 +630,20 @@ abstract class Base implements ArrayAccess
             $field->setValue($this->getAttribute($name));
             $field->setModel($this);
             $field->onAfterUpdate();
+        }
+    }
+
+    protected function onAfterDeleteInternal()
+    {
+        $className = $this->className();
+        $meta = static::getMeta();
+        foreach ($this->getFieldsInit() as $name => $field) {
+            if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
+                continue;
+            }
+            $field->setValue($this->getAttribute($name));
+            $field->setModel($this);
+            $field->onAfterDelete();
         }
     }
 
@@ -1217,9 +1245,14 @@ abstract class Base implements ArrayAccess
 
     public function delete()
     {
-        return $this->objects()->delete([
+        $this->onBeforeDeleteInternal();
+        $result = $this->objects()->delete([
             'pk' => $this->pk
         ]);
+        if ($result >= 1){
+            $this->onAfterDeleteInternal();
+        }
+        return $result;
     }
 
     // TODO documentation, refactoring

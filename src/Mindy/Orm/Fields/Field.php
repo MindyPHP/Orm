@@ -262,12 +262,22 @@ abstract class Field
 
     }
 
+    public function onAfterDelete()
+    {
+
+    }
+
     public function onBeforeInsert()
     {
 
     }
 
     public function onBeforeUpdate()
+    {
+
+    }
+
+    public function onBeforeDelete()
     {
 
     }

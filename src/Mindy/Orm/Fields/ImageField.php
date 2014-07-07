@@ -81,11 +81,9 @@ class ImageField extends FileField
 
         if ($name) {
             $this->value = $this->makeFilePath($name);
-            $fileContent = file_get_contents($file->path);
+            $image = $this->getImagine()->load(file_get_contents($file->path));
+            $fileContent = $this->processSource($image);
             $this->getStorage()->save($this->value, $fileContent);
-            if (!empty($this->sizes)) {
-                $this->processSource($file->path, $fileContent);
-            }
         }
 
         return $this->value;
@@ -102,24 +100,24 @@ class ImageField extends FileField
     }
 
     /**
-     * @param $sourcePath
+     * @param $source
      * @param $fileContent
      * @void
      */
-    public function processSource($sourcePath, $fileContent)
+    public function processSource($source)
     {
         $ext = pathinfo($this->getCleanValue(), PATHINFO_EXTENSION);
         foreach ($this->sizes as $prefix => $size) {
             $width = isset($size[0]) ? $size[0] : null;
             $height = isset($size[1]) ? $size[1] : null;
             if (!$width || !$height) {
-                list($width, $height) = $this->imageScale($sourcePath, $width, $height);
+                list($width, $height) = $this->imageScale($source, $width, $height);
             }
             $method = isset($size['method']) ? $size['method'] : $this->defaultResize;
             $options = isset($size['options']) ? $size['options'] : $this->options;
             $watermark = isset($size['watermark']) ? $size['watermark'] : $this->watermark;
             if (($width || $height) && $method) {
-                $newSource = $this->resize($this->getImagine()->load($fileContent), $width, $height, $method);
+                $newSource = $this->resize($source->copy(), $width, $height, $method);
                 if ($watermark) {
                     $newSource = $this->applyWatermark($newSource, $watermark);
                 }
@@ -129,27 +127,9 @@ class ImageField extends FileField
 
         // Накладываем водяной знак на оригинальное изображение
         if ($this->watermark) {
-            $this->applyWatermark($this->getImagine()->load($fileContent), $this->watermark);
+            $source = $this->applyWatermark($source, $this->watermark);
         };
-    }
-
-    /**
-     * @param $source
-     * @param null $width
-     * @param null $height
-     * @return array
-     */
-    protected function imageScale($source, $width = null, $height = null)
-    {
-        list($w, $h, $type, $attr) = getimagesize($source);
-        $ratio = $w / $h;
-        if ($width && !$height) {
-            $height = $width / $ratio;
-        } else if (!$width && $height) {
-            $width = $height * $ratio;
-        }
-
-        return [(int)$width, (int)$height];
+        return $source->get($ext, $this->options);
     }
 
     /**
@@ -173,5 +153,10 @@ class ImageField extends FileField
     {
         $path = $this->sizeStoragePath($prefix);
         return $this->getStorage()->url($path);
+    }
+
+    public function onAfterDelete()
+    {
+        $this->deleteOld();
     }
 }
