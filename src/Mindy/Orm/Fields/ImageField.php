@@ -14,6 +14,7 @@ class ImageField extends FileField
 
     /**
      * Array with image sizes
+     * key 'original' is reserved!
      * example:
      * [
      *      'thumb' => [
@@ -81,7 +82,10 @@ class ImageField extends FileField
 
         if ($name) {
             $this->value = $this->makeFilePath($name);
-            $image = $this->getImagine()->load(file_get_contents($file->path));
+            $fileContent = file_get_contents($file->path);
+            $this->getStorage()->save($this->sizeStoragePath('original'), $fileContent);
+
+            $image = $this->getImagine()->load($fileContent);
             $fileContent = $this->processSource($image);
             $this->getStorage()->save($this->value, $fileContent);
         }
@@ -101,8 +105,6 @@ class ImageField extends FileField
 
     /**
      * @param $source
-     * @param $fileContent
-     * @void
      */
     public function processSource($source)
     {
@@ -115,6 +117,7 @@ class ImageField extends FileField
             }
             $method = isset($size['method']) ? $size['method'] : $this->defaultResize;
             $options = isset($size['options']) ? $size['options'] : $this->options;
+
             $watermark = isset($size['watermark']) ? $size['watermark'] : $this->watermark;
             if (($width || $height) && $method) {
                 $newSource = $this->resize($source->copy(), $width, $height, $method);
@@ -125,7 +128,6 @@ class ImageField extends FileField
             }
         }
 
-        // Накладываем водяной знак на оригинальное изображение
         if ($this->watermark) {
             $source = $this->applyWatermark($source, $this->watermark);
         };
