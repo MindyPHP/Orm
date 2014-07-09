@@ -17,7 +17,8 @@ namespace Mindy\Orm;
 
 use Mindy\Helper\Creator;
 
-class HasManyManager extends RelatedManager{
+class HasManyManager extends RelatedManager
+{
 
     /**
      * Primary model (has many owner)
@@ -34,6 +35,10 @@ class HasManyManager extends RelatedManager{
      * @var string
      */
     public $to;
+    /**
+     * @var array extra condition for join
+     */
+    public $extra = [];
 
     public function __construct(Model $model, array $config = [])
     {
@@ -41,10 +46,14 @@ class HasManyManager extends RelatedManager{
         $this->_model = $model;
     }
 
-    public function getQuerySet(){
-        if($this->_qs === null) {
+    public function getQuerySet()
+    {
+        if ($this->_qs === null) {
             $qs = parent::getQuerySet();
-            $this->_qs = $qs->filter([$this->to => $this->primaryModel->{$this->from}]);
+
+            $this->_qs = $qs->filter(array_merge([
+                $this->to => $this->primaryModel->{$this->from}
+            ], $this->extra));
         }
         return $this->_qs;
     }

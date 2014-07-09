@@ -256,21 +256,18 @@ class ManyToManyField extends RelatedField
     {
         $relatedModel = $this->getRelatedModel();
 
-        return array($relatedModel, array(
-            array(
-                'table' => $this->getTableName(false),
-                // @TODO: chained with Sync - 40 line
-                'from' => $this->getModel()->getPkName(),
-                'to' => $this->getModelColumn(),
-                'group' => true
-            ),
-            array(
-                'table' => $this->getRelatedTable(false),
-                // @TODO: chained with Sync - 40 line
-                'from' => $this->getRelatedModelColumn(),
-                'to' => $relatedModel->getPkName()
-            )
-        ));
+        return [$relatedModel, [[
+            'table' => $this->getTableName(false),
+            // @TODO: chained with Sync - 40 line
+            'from' => $this->getModel()->getPkName(),
+            'to' => $this->getModelColumn(),
+            'group' => true
+        ], [
+            'table' => $this->getRelatedTable(false),
+            // @TODO: chained with Sync - 40 line
+            'from' => $this->getRelatedModelColumn(),
+            'to' => $relatedModel->getPkName()
+        ]]];
     }
 
     public function fetch($value)

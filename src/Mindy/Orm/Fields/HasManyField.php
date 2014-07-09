@@ -20,6 +20,10 @@ use Mindy\Orm\HasManyManager;
 class HasManyField extends RelatedField
 {
     /**
+     * @var array extra condition for join
+     */
+    public $extra = [];
+    /**
      * @var \Mindy\Orm\Model
      */
     protected $_relatedModel;
@@ -60,7 +64,8 @@ class HasManyField extends RelatedField
         return new HasManyManager($this->getRelatedModel(), [
             'primaryModel' => $this->getModel(),
             'from' => $this->from(),
-            'to' => $this->to()
+            'to' => $this->to(),
+            'extra' => $this->extra
         ]);
     }
 
