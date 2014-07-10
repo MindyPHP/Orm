@@ -47,7 +47,8 @@ abstract class RelatedField extends IntField
 
     public function getTable($clean = true)
     {
-        $tableName = $this->getModel()->tableName();
+        $ownerClassName = $this->ownerClassName;
+        $tableName = $ownerClassName::tableName();
         return $clean ? $this->cleanTableName($tableName) : $tableName;
     }
 

@@ -38,12 +38,12 @@ class Sync
         $command = $model->getConnection()->createCommand();
         foreach ($model->getFieldsInit() as $name => $field) {
             if ($field->sqlType() !== false) {
-                if (is_a($field, $model->foreignField)) {
+                if (is_a($field, $model::$foreignField)) {
                     $name .= "_id";
                 }
 
                 $columns[$name] = $field->sql();
-            } else if (is_a($field, $model->manyToManyField)) {
+            } else if (is_a($field, $model::$manyToManyField)) {
                 /* @var $field \Mindy\Orm\Fields\ManyToManyField */
                 if (!$this->hasTable($model, $field->getTableName())) {
                     if ($field->through === null) {

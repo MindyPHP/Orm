@@ -73,6 +73,7 @@ class ManyToManyManager extends RelatedManager
         }
 
         $db = $this->primaryModel->getConnection();
+
         /** @var $command \Mindy\Query\Command */
         $command = $db->createCommand()->delete($this->relatedTable, [
             $this->primaryModelColumn => $this->primaryModel->pk,

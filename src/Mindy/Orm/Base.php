@@ -46,7 +46,34 @@ abstract class Base implements ArrayAccess
      * This is a shortcut of the expression: OP_INSERT | OP_UPDATE | OP_DELETE.
      */
     const OP_ALL = 0x07;
-
+    /**
+     * @var string
+     */
+    public static $fileField = '\Mindy\Orm\Fields\FileField';
+    /**
+     * @var string
+     */
+    public static $autoField = '\Mindy\Orm\Fields\AutoField';
+    /**
+     * @var string
+     */
+    public static $relatedField = '\Mindy\Orm\Fields\RelatedField';
+    /**
+     * @var string
+     */
+    public static $foreignField = '\Mindy\Orm\Fields\ForeignField';
+    /**
+     * @var string
+     */
+    public static $oneToOneField = '\Mindy\Orm\Fields\OneToOneField';
+    /**
+     * @var string
+     */
+    public static $manyToManyField = '\Mindy\Orm\Fields\ManyToManyField';
+    /**
+     * @var string
+     */
+    public static $hasManyField = '\Mindy\Orm\Fields\HasManyField';
     /**
      * @var \Mindy\Query\Connection|null
      */
@@ -86,7 +113,7 @@ abstract class Base implements ArrayAccess
      * ]
      * @return array
      */
-    public function getFields()
+    public static function getFields()
     {
         return [];
     }
@@ -110,7 +137,7 @@ abstract class Base implements ArrayAccess
         $className = $this->className();
         $meta = static::getMeta();
 
-        if($meta->hasFileField($className, $name)) {
+        if ($meta->hasFileField($className, $name)) {
             $fileField = $meta->getFileField($className, $name);
             $fileField->value = $this->getAttribute($name);
             return $fileField;
@@ -350,10 +377,12 @@ abstract class Base implements ArrayAccess
         return implode('_', self::primaryKey());
     }
 
+    /**
+     * @return MetaData
+     */
     public static function getMeta()
     {
-        $className = self::className();
-        return MetaData::getInstance(new $className);
+        return MetaData::getInstance(get_called_class());
     }
 
     /**
@@ -467,7 +496,7 @@ abstract class Base implements ArrayAccess
      */
     public static function getConnection()
     {
-        if(self::$_connection === null) {
+        if (self::$_connection === null) {
             self::$_connection = Mindy::app()->db;
         }
         return self::$_connection;
@@ -1186,7 +1215,7 @@ abstract class Base implements ArrayAccess
      */
     public function isValid()
     {
-        $meta = static::getMeta();
+        $meta = self::getMeta();
         $className = $this->className();
 
         $this->clearErrors();
@@ -1225,7 +1254,7 @@ abstract class Base implements ArrayAccess
     {
         $className = $this->className();
         if (self::getMeta()->hasField($className, $name)) {
-            return self::getMeta()->getField($className, $name);
+            return self::getMeta()->getField($className, $name)->setModel($this);
         }
 
         if ($throw) {
@@ -1249,22 +1278,19 @@ abstract class Base implements ArrayAccess
         $result = $this->objects()->delete([
             'pk' => $this->pk
         ]);
-        if ($result >= 1){
+        if ($result >= 1) {
             $this->onAfterDeleteInternal();
         }
         return $result;
     }
 
-    // TODO documentation, refactoring
-    public function getPkName()
+    /**
+     * Get primary key name
+     * @return string|null
+     */
+    public static function getPkName()
     {
-        foreach ($this->getFieldsInit() as $name => $field) {
-            if (is_a($field, $this->autoField) || $field->primary) {
-                return $name;
-            }
-        }
-
-        return null;
+        return self::getMeta()->getPkName(get_called_class());
     }
 
     /**

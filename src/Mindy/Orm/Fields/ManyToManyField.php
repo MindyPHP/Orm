@@ -16,6 +16,7 @@ namespace Mindy\Orm\Fields;
 
 use Exception;
 use Mindy\Orm\ManyToManyManager;
+use Mindy\Orm\MetaData;
 use Mindy\Orm\Model;
 
 class ManyToManyField extends RelatedField
@@ -129,7 +130,7 @@ class ManyToManyField extends RelatedField
     public function getModelPk()
     {
         if (!$this->_modelPk) {
-            $this->_modelPk = $this->getModel()->getPkName();
+            $this->_modelPk = MetaData::getInstance($this->ownerClassName)->getPkName($this->ownerClassName);
         }
         return $this->_modelPk;
     }
@@ -198,7 +199,7 @@ class ManyToManyField extends RelatedField
             $fields = $this->getRelatedModel()->getFieldsInit();
             $this->addColumn($this->getRelatedModelColumn(), $fields[$this->getRelatedModelPk()]->sqlType());
 
-            $fields = $this->getModel()->getFieldsInit();
+            $fields = MetaData::getInstance($this->ownerClassName)->getFieldsInit($this->ownerClassName);
             $this->addColumn($this->getModelColumn(), $fields[$this->getModelPk()]->sqlType());
         }
         return $this->_columns;

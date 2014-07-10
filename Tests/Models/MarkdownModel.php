@@ -20,7 +20,7 @@ use Mindy\Orm\Model;
 
 class MarkdownModel extends Model
 {
-    public function getFields()
+    public static function getFields()
     {
         return [
             'content' => ['class' => MarkdownField::className()],

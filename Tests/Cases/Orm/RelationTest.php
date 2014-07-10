@@ -44,7 +44,7 @@ class RelationTest extends DatabaseTestCase
     {
         $model = new Product();
         $fk = $model->getField("category");
-        $this->assertInstanceOf($model->foreignField, $fk);
+        $this->assertInstanceOf('\Mindy\Orm\Fields\ForeignField', $fk);
         $this->assertNull($model->category);
     }
 }

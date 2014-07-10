@@ -63,14 +63,10 @@ class AutoSlugField extends CharField
 
     public function getRecursiveValue()
     {
-        $parent = $this->getModel();
-        $slugs = [
-            Meta::cleanString($this->getValue())
-        ];
-        while(($parent = $parent->parent) !== null) {
+        $slugs = [Meta::cleanString($this->getValue())];
+        if($parent = $this->getModel()->parent) {
             $slugs[] = $parent->{$this->name};
         }
-
         return implode('/', array_reverse($slugs));
     }
 

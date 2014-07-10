@@ -30,7 +30,7 @@ use Mindy\Orm\Validator\MinLengthValidator;
  */
 class User extends Model
 {
-    public function getFields()
+    public static function getFields()
     {
         return [
             'username' => [

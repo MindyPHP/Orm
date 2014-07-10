@@ -21,7 +21,7 @@ use Mindy\Orm\TreeModel;
 
 class NestedModel extends TreeModel
 {
-    public function getFields()
+    public static function getFields()
     {
         return array_merge(parent::getFields(), [
             'name' => ['class' => CharField::className()],

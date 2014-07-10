@@ -34,7 +34,7 @@ class HasManyField extends RelatedField
     protected $_model;
 
     /**
-     * TODO: Write normal doc
+     * TODO: docs
      * Explain by example: model User has many models Pages
      * User->id <- from
      * Pages->user_id <- to

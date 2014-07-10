@@ -53,6 +53,8 @@ abstract class Field
 
     public $primary = false;
 
+    protected $ownerClassName;
+
     /**
      * @return Field[]
      */
@@ -133,6 +135,13 @@ abstract class Field
     public function setModel(Model $model)
     {
         $this->_model = $model;
+        return $this;
+    }
+
+    public function setModelClass($className)
+    {
+        $this->ownerClassName = $className;
+        return $this;
     }
 
     /**

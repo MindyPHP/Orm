@@ -566,7 +566,7 @@ class QuerySet extends Query
             if ($model->hasField($field)) {
                 if ($condition == 'in' || $condition == 'exact') {
                     $initField = $model->getField($field);
-                    if (is_a($initField, $model->foreignField)) {
+                    if (is_a($initField, $model::$foreignField)) {
                         $initFieldModelClass = $initField->modelClass;
                         $field .= '_' . $initFieldModelClass::primaryKeyName();
 

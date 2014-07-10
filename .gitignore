@@ -8,5 +8,6 @@ build
 composer.lock
 vendor
 Tests/config_local.php
+test.php
 
 *.swp

@@ -20,7 +20,7 @@ use Mindy\Orm\Model;
 
 class Hits extends Model
 {
-    public function getFields()
+    public static function getFields()
     {
         return [
             'hits' => [

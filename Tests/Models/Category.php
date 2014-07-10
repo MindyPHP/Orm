@@ -27,7 +27,7 @@ use Mindy\Orm\Model;
  */
 class Category extends Model
 {
-    public function getFields()
+    public static function getFields()
     {
         return [
             'name' => ['class' => CharField::className()],

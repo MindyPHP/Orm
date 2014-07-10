@@ -35,7 +35,7 @@ class Product extends Model
 {
     public $type = 'SIMPLE';
 
-    public function getFields()
+    public static function getFields()
     {
         return [
             'name' => [

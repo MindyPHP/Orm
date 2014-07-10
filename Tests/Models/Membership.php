@@ -20,11 +20,17 @@ use Mindy\Orm\Model;
 
 class Membership extends Model
 {
-    public function getFields()
+    public static function getFields()
     {
         return [
-            'group' => ['class' => ForeignField::className(), 'modelClass' => Group::className()],
-            'user' => ['class' => ForeignField::className(), 'modelClass' => User::className()]
+            'group' => [
+                'class' => ForeignField::className(),
+                'modelClass' => Group::className()
+            ],
+            'user' => [
+                'class' => ForeignField::className(),
+                'modelClass' => User::className()
+            ]
         ];
     }
 }

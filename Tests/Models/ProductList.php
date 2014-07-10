@@ -27,7 +27,7 @@ use Mindy\Orm\Model;
  */
 class ProductList extends Model
 {
-    public function getFields()
+    public static function getFields()
     {
         return [
             'name' => ['class' => CharField::className()],
@@ -43,7 +43,8 @@ class ProductList extends Model
         ];
     }
 
-    public static function tableName(){
+    public static function tableName()
+    {
         return '{{%product_list}}';
     }
 }

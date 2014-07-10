@@ -27,12 +27,12 @@ use Mindy\Query\Expression;
  */
 abstract class TreeModel extends Model
 {
-    public function getFields()
+    public static function getFields()
     {
         return [
             'parent' => [
                 'class' => ForeignField::className(),
-                'modelClass' => get_class($this),
+                'modelClass' => get_called_class(),
                 'null' => true
             ],
             'lft' => [
