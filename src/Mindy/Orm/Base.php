@@ -134,26 +134,25 @@ abstract class Base implements ArrayAccess
             $name = array_shift($name);
         }
 
-        $className = $this->className();
         $meta = static::getMeta();
 
-        if ($meta->hasFileField($className, $name)) {
-            $fileField = $meta->getFileField($className, $name);
+        if ($meta->hasFileField($name)) {
+            $fileField = $meta->getFileField($name);
             $fileField->value = $this->getAttribute($name);
             return $fileField;
         }
 
-        if ($meta->hasForeignField($className, $name) && $this->hasAttribute($name) === false) {
+        if ($meta->hasForeignField($name) && $this->hasAttribute($name) === false) {
             $name .= '_id';
             $value = $this->getAttribute($name);
             /* @var $field \Mindy\Orm\Fields\ForeignField */
-            $field = $meta->getForeignField($this->className(), $name);
+            $field = $meta->getForeignField($name);
             return $field->fetch($value);
         }
 
-        if ($meta->hasManyToManyField($className, $name) || $meta->hasHasManyField($className, $name)) {
+        if ($meta->hasManyToManyField($name) || $meta->hasHasManyField($name)) {
             /* @var $field \Mindy\Orm\Fields\ManyToManyField|\Mindy\Orm\Fields\HasManyField */
-            $field = $meta->getField($className, $name);
+            $field = $meta->getField($name);
             $field->setModel($this);
             return $field->getManager();
         }
@@ -181,14 +180,13 @@ abstract class Base implements ArrayAccess
             $name = array_shift($name);
         }
 
-        $className = $this->className();
         $meta = static::getMeta();
 
 //        if($meta->hasFileField($className, $name)) {
 //            $value = $meta->getFileField($className, $name)->setValue($value);
 //        }
 
-        if ($meta->hasForeignField($className, $name)) {
+        if ($meta->hasForeignField($name)) {
             if (!$this->hasAttribute($name)) {
                 $name .= '_id';
             }
@@ -198,7 +196,7 @@ abstract class Base implements ArrayAccess
             }
         }
 
-        if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
+        if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
             $this->_related[$name] = $value;
         } elseif ($this->hasAttribute($name)) {
             $this->setAttribute($name, $value);
@@ -306,18 +304,17 @@ abstract class Base implements ArrayAccess
     public function setAttribute($name, $value)
     {
         $meta = static::getMeta();
-        $className = $this->className();
 
         if ($this->hasAttribute($name)) {
             if ($this->isPrimaryKey([$name])) {
                 $this->setIsNewRecord(true);
             }
 
-            if ($meta->hasField($className, $name) && $meta->hasExtraFields($className, $name)) {
-                $field = $meta->getField($className, $name);
+            if ($meta->hasField($name) && $meta->hasExtraFields($name)) {
+                $field = $meta->getField($name);
                 $field->setValue($value);
 
-                $extraFields = $meta->getExtraFields($className, $name);
+                $extraFields = $meta->getExtraFields($name);
                 foreach ($extraFields as $extraName => $extraField) {
                     if ($this->hasAttribute($extraName)) {
                         $this->_attributes[$extraName] = $extraField->getValue();
@@ -369,7 +366,7 @@ abstract class Base implements ArrayAccess
     public static function primaryKey()
     {
         // return static::getTableSchema()->primaryKey;
-        return static::getMeta()->primaryKey(self::className());
+        return static::getMeta()->primaryKey();
     }
 
     public static function primaryKeyName()
@@ -391,7 +388,7 @@ abstract class Base implements ArrayAccess
      */
     public function getFieldsInit()
     {
-        return static::getMeta()->getFieldsInit($this->className());
+        return static::getMeta()->getFieldsInit();
     }
 
     /**
@@ -594,10 +591,9 @@ abstract class Base implements ArrayAccess
 
     protected function onBeforeInsertInternal()
     {
-        $className = $this->className();
         $meta = static::getMeta();
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
+            if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;
             }
             $field->setValue($this->getAttribute($name));
@@ -608,10 +604,9 @@ abstract class Base implements ArrayAccess
 
     protected function onBeforeUpdateInternal()
     {
-        $className = $this->className();
         $meta = static::getMeta();
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
+            if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;
             }
             $field->setValue($this->getAttribute($name));
@@ -622,10 +617,9 @@ abstract class Base implements ArrayAccess
 
     protected function onBeforeDeleteInternal()
     {
-        $className = $this->className();
         $meta = static::getMeta();
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
+            if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;
             }
             $field->setValue($this->getAttribute($name));
@@ -636,10 +630,9 @@ abstract class Base implements ArrayAccess
 
     protected function onAfterInsertInternal()
     {
-        $className = $this->className();
         $meta = static::getMeta();
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
+            if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;
             }
             $field->setValue($this->getAttribute($name));
@@ -650,10 +643,9 @@ abstract class Base implements ArrayAccess
 
     protected function onAfterUpdateInternal()
     {
-        $className = $this->className();
         $meta = static::getMeta();
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
+            if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;
             }
             $field->setValue($this->getAttribute($name));
@@ -664,10 +656,9 @@ abstract class Base implements ArrayAccess
 
     protected function onAfterDeleteInternal()
     {
-        $className = $this->className();
         $meta = static::getMeta();
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
+            if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;
             }
             $field->setValue($this->getAttribute($name));
@@ -678,12 +669,11 @@ abstract class Base implements ArrayAccess
 
     public function updateRelated()
     {
-        $className = $this->className();
         $meta = static::getMeta();
         foreach ($this->_related as $name => $value) {
-            if ($meta->hasHasManyField($className, $name) || $meta->hasManyToManyField($className, $name)) {
+            if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 /* @var $field \Mindy\Orm\Fields\HasManyField|\Mindy\Orm\Fields\ManyToManyField */
-                $field = $meta->getField($className, $name);
+                $field = $meta->getField($name);
                 $field->setModel($this);
 
                 if (empty($value)) {
@@ -700,8 +690,8 @@ abstract class Base implements ArrayAccess
         $meta = static::getMeta();
         $prepValues = [];
         foreach ($values as $name => $value) {
-            if ($meta->hasForeignField($this->className(), $name)) {
-                $field = $meta->getForeignField($this->className(), $name);
+            if ($meta->hasForeignField($name)) {
+                $field = $meta->getForeignField($name);
                 $field->setModel($this);
                 $field->setValue($value);
                 $prepValues[$name] = $field->getDbPrepValue();
@@ -1122,7 +1112,6 @@ abstract class Base implements ArrayAccess
     public function validate(array $attributeNames = [])
     {
         $meta = static::getMeta();
-        $className = $this->className();
 
         $this->clearErrors();
 
@@ -1130,7 +1119,7 @@ abstract class Base implements ArrayAccess
         foreach ($attributeNames as $name) {
             $field = $this->getField($name);
 
-            if ($meta->hasManyToManyField($className, $name) || $meta->hasHasManyField($className, $name)) {
+            if ($meta->hasManyToManyField($name) || $meta->hasHasManyField($name)) {
                 continue;
             }
 
@@ -1216,13 +1205,12 @@ abstract class Base implements ArrayAccess
     public function isValid()
     {
         $meta = self::getMeta();
-        $className = $this->className();
 
         $this->clearErrors();
 
         /* @var $field \Mindy\Orm\Fields\Field */
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($meta->hasManyToManyField($className, $name) || $meta->hasHasManyField($className, $name)) {
+            if ($meta->hasManyToManyField($name) || $meta->hasHasManyField($name)) {
                 continue;
             }
 
@@ -1243,7 +1231,7 @@ abstract class Base implements ArrayAccess
      */
     public function hasField($name)
     {
-        return static::getMeta()->hasField($this->className(), $name);
+        return static::getMeta()->hasField($name);
     }
 
     /**
@@ -1252,9 +1240,8 @@ abstract class Base implements ArrayAccess
      */
     public function getField($name, $throw = true)
     {
-        $className = $this->className();
-        if (self::getMeta()->hasField($className, $name)) {
-            return self::getMeta()->getField($className, $name)->setModel($this);
+        if (self::getMeta()->hasField($name)) {
+            return self::getMeta()->getField($name)->setModel($this);
         }
 
         if ($throw) {
@@ -1269,7 +1256,7 @@ abstract class Base implements ArrayAccess
      */
     public function getManyFields()
     {
-        return static::getMeta()->getManyFields($this->className());
+        return static::getMeta()->getManyFields();
     }
 
     public function delete()
