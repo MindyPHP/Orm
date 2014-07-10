@@ -19,7 +19,6 @@ use Mindy\Helper\Creator;
 
 class HasManyManager extends RelatedManager
 {
-
     /**
      * Primary model (has many owner)
      * @var \Mindy\Orm\Model
