@@ -49,6 +49,8 @@ class HasManyField extends RelatedField
 
     public $modelClass;
 
+    public $through;
+
     public function init()
     {
 

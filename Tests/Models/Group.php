@@ -30,7 +30,9 @@ class Group extends Model
     public static function getFields()
     {
         return [
-            'name' => ['class' => CharField::className()],
+            'name' => [
+                'class' => CharField::className()
+            ],
             'users' => [
                 'class' => ManyToManyField::className(),
                 'modelClass' => User::className(),

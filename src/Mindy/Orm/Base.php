@@ -143,8 +143,7 @@ abstract class Base implements ArrayAccess
         }
 
         if ($meta->hasForeignField($name) && $this->hasAttribute($name) === false) {
-            $name .= '_id';
-            $value = $this->getAttribute($name);
+            $value = $this->getAttribute($name . '_id');
             /* @var $field \Mindy\Orm\Fields\ForeignField */
             $field = $meta->getForeignField($name);
             return $field->fetch($value);
@@ -420,7 +419,7 @@ abstract class Base implements ArrayAccess
 
     /**
      * Returns the schema information of the DB table associated with this AR class.
-     * @return TableSchema the schema information of the DB table associated with this AR class.
+     * @return \Mindy\Query\TableSchema the schema information of the DB table associated with this AR class.
      * @throws InvalidConfigException if the table for the AR class does not exist.
      */
     public static function getTableSchema()
@@ -446,7 +445,7 @@ abstract class Base implements ArrayAccess
      */
     public static function shortClassName()
     {
-        $reflect = new ReflectionClass(self::className());
+        $reflect = new ReflectionClass(get_called_class());
         return $reflect->getShortName();
     }
 

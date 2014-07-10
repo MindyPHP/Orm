@@ -24,35 +24,46 @@ class MetaData
      * @var MetaData[]
      */
     private static $instances = [];
-
+    /**
+     * @var string
+     */
     protected $modelClassName;
-
-    /** @var \Mindy\Orm\Fields\Field */
+    /**
+     * @var \Mindy\Orm\Fields\Field
+     */
     protected $primaryKeyField;
-
+    /**
+     * @var array
+     */
     protected $allFields = [];
+    /**
+     * @var array
+     */
     protected $localFields = [];
+    /**
+     * @var array
+     */
     protected $localFileFields = [];
+    /**
+     * @var array
+     */
     protected $extFields = [];
-    protected $relFkFields = [];
-    protected $relM2mFields = [];
-    protected $relM2oneFields = [];
-
+    /**
+     * @var array
+     */
+    protected $foreignFields = [];
+    /**
+     * @var array
+     */
+    protected $manyToManyFields = [];
+    /**
+     * @var array
+     */
+    protected $hasManyFields = [];
 
     public function __construct($className)
     {
-        self::$manyFields[$className] = [];
-        self::$hasManyFields[$className] = [];
-        self::$fields[$className] = [];
-        self::$extrafields[$className] = [];
-        self::$fileFields[$className] = [];
-
-//        foreach(self::$fields[$className] as $name => $field) {
-//            if(array_key_exists($name, self::$hasManyFields[$className]) || array_key_exists($name, self::$manyFields[$className])) {
-//                continue;
-//            }
-//            $model->setAttribute($name, $field->default);
-//        }
+        $this->modelClassName = $className;
     }
 
     public function getPkName()
@@ -80,22 +91,22 @@ class MetaData
 
     public function hasForeignKey($name)
     {
-        return array_key_exists($name, $this->relFkFields);
+        return array_key_exists($name, $this->foreignFields);
     }
 
     public function hasHasManyField($name)
     {
-        return array_key_exists($name, $this->relM2oneFields[$name]);
+        return array_key_exists($name, $this->hasManyFields);
     }
 
     public function hasManyToManyField($name)
     {
-        return array_key_exists($name, $this->relM2mFields[$name]);
+        return array_key_exists($name, $this->manyToManyFields);
     }
 
     public function getForeignKey($name)
     {
-        return $this->relFkFields[$name];
+        return $this->foreignFields[$name];
     }
 
     public function primaryKey()
@@ -136,6 +147,8 @@ class MetaData
                 $field = Creator::createObject($config);
                 $field->setName($name);
                 $field->setModelClass($className);
+            } else {
+                $field = $config;
             }
             // $field->setModel($model);
 
@@ -152,17 +165,16 @@ class MetaData
                 /* @var $field \Mindy\Orm\Fields\RelatedField */
                 if (is_a($field, $className::$manyToManyField)) {
                     /* @var $field \Mindy\Orm\Fields\ManyToManyField */
-                    $this->relM2mFields[$name] = $field;
+                    $this->manyToManyFields[$name] = $field;
                 }
 
                 if (is_a($field, $className::$hasManyField)) {
                     /* @var $field \Mindy\Orm\Fields\HasManyField */
-                    $this->relM2oneFields[$name] = $field;
+                    $this->hasManyFields[$name] = $field;
                 }
 
                 if (is_a($field, $className::$foreignField)) {
                     /* @var $field \Mindy\Orm\Fields\ForeignField */
-                    $this->relFkFields[$name] = $field;
                     $fkFields[$name] = $field;
                 }
             } else {
@@ -197,19 +209,27 @@ class MetaData
             $this->primaryKeyField = $autoField;
         }
 
-
-        foreach ($fkFields as $name => $field) {
+        foreach($fkFields as $name => $field) {
             // ForeignKey in self model
             if ($field->modelClass == $className) {
-                // я так понимаю это если FK на эту же модель (типа дерево)
-                $this->relFkFields[$name . '_' . $this->primaryKeyField->getName()] = $field;
+                $this->foreignFields[$name . '_' . $this->primaryKeyField->getName()] = $name;
             } else {
-                // а это вообще странная штука
-                // должен быть аналог contribute_to_class
-                $relClass = $field->modelClass;
-                $relClass::getMeta()->initFields([$name . '_' . $field->getForeignPrimaryKey() => $field], true);
+                $this->foreignFields[$name . '_' . $field->getForeignPrimaryKey()] = $name;
             }
         }
+
+//        foreach ($fkFields as $name => $field) {
+//            // ForeignKey in self model
+//            if ($field->modelClass == $className) {
+//                // я так понимаю это если FK на эту же модель (типа дерево)
+//                $this->foreignFields[$name . '_' . $this->primaryKeyField->getName()] = $field;
+//            } else {
+//                // а это вообще странная штука
+//                // должен быть аналог contribute_to_class
+//                $relClass = $field->modelClass;
+//                $relClass::getMeta()->initFields([$name . '_' . $field->getForeignPrimaryKey() => $field], true);
+//            }
+//        }
         return $fields;
     }
 
@@ -238,7 +258,10 @@ class MetaData
 
     public function hasForeignField($name)
     {
-        if ($this->hasField($name)) {
+        if(array_key_exists($name, $this->foreignFields)) {
+            $name = $this->foreignFields[$name];
+        }
+        if($this->hasField($name)) {
             return $this->getField($name) instanceof ForeignField;
         }
         return false;
@@ -246,15 +269,15 @@ class MetaData
 
     public function getForeignField($name)
     {
-        if ($this->hasForeignField($name)) {
-            return $this->getField($name);
+        if(array_key_exists($name, $this->foreignFields)) {
+            $name = $this->foreignFields[$name];
         }
-        return null;
+        return $this->getField($name);
     }
 
     public function getManyFields()
     {
-        return $this->relM2oneFields;
+        return $this->manyToManyFields;
     }
 
     public function hasExtraFields($name)
