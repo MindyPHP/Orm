@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -25,19 +25,19 @@ class MetaData
      */
     private static $instances = [];
 
-    private static $manyFields = [];
+    protected $modelClassName;
 
-    private static $fields = [];
+    /** @var \Mindy\Orm\Fields\Field */
+    protected $primaryKeyField;
 
-    private static $extrafields = [];
+    protected $allFields = [];
+    protected $localFields = [];
+    protected $localFileFields = [];
+    protected $extFields = [];
+    protected $relFkFields = [];
+    protected $relM2mFields = [];
+    protected $relM2oneFields = [];
 
-    public static $fkFields = [];
-
-    private static $hasManyFields = [];
-
-    private static $fileFields = [];
-
-    public static $pkName = [];
 
     public function __construct($className)
     {
@@ -55,56 +55,54 @@ class MetaData
 //        }
     }
 
-    public function getPkName($className)
+    public function getPkName()
     {
-        return self::$pkName[$className];
+        return $this->primaryKeyField->getName();
     }
 
     /**
-     * @param $className
      * @param $name
      * @return bool
      */
-    public function hasFileField($className, $name)
+    public function hasFileField($name)
     {
-        return array_key_exists($name, self::$fileFields[$className]);
+        return array_key_exists($name, $this->localFileFields);
     }
 
     /**
-     * @param $className
      * @param $name
      * @return \Mindy\Orm\Fields\FileField
      */
-    public function getFileField($className, $name)
+    public function getFileField($name)
     {
-        return self::$fileFields[$className][$name];
+        return $this->localFileFields[$name];
     }
 
-    public function hasForeignKey($className, $name)
+    public function hasForeignKey($name)
     {
-        return array_key_exists($name, self::$fkFields[$className]);
+        return array_key_exists($name, $this->relFkFields);
     }
 
-    public function hasHasManyField($className, $name)
+    public function hasHasManyField($name)
     {
-        return array_key_exists($name, self::$hasManyFields[$className]);
+        return array_key_exists($name, $this->relM2oneFields[$name]);
     }
 
-    public function hasManyToManyField($className, $name)
+    public function hasManyToManyField($name)
     {
-        return array_key_exists($name, self::$manyFields[$className]);
+        return array_key_exists($name, $this->relM2mFields[$name]);
     }
 
-    public function getForeignKey($className, $name)
+    public function getForeignKey($name)
     {
-        return $this->getField($className, self::$fkFields[$className][$name]);
+        return $this->relFkFields[$name];
     }
 
-    public function primaryKey($className)
+    public function primaryKey()
     {
         $primaryKeys = [];
-        foreach(self::$fields[$className] as $name => $field) {
-            if($field->primary) {
+        foreach ($this->allFields as $name => $field) {
+            if ($field->primary) {
                 $primaryKeys[] = $name;
             }
         }
@@ -113,16 +111,17 @@ class MetaData
 
     public static function getInstance($className)
     {
-        if(!isset(self::$instances[$className])) {
+        if (!isset(self::$instances[$className])) {
             self::$instances[$className] = new self($className);
-            self::$instances[$className]->initFields($className);
+            self::$instances[$className]->initFields();
         }
 
         return self::$instances[$className];
     }
 
-    public function initFields($className, array $fields = [], $extra = false)
+    public function initFields(array $fields = [], $extra = false)
     {
+        $className = $this->modelClassName;
         if (empty($fields)) {
             $fields = $className::getFields();
         }
@@ -133,49 +132,52 @@ class MetaData
         foreach ($fields as $name => $config) {
             /* @var $field \Mindy\Orm\Fields\Field */
 
-            $field = Creator::createObject($config);
-            $field->setName($name);
-            $field->setModelClass($className);
+            if (!is_object($config) && !$config instanceof \Mindy\Orm\Fields\Field) {
+                $field = Creator::createObject($config);
+                $field->setName($name);
+                $field->setModelClass($className);
+            }
             // $field->setModel($model);
 
             if (is_a($field, $className::$autoField) || $field->primary) {
                 $needPk = false;
-                self::$pkName[$className] = $name;
+                $this->primaryKeyField = $field;
             }
 
-            if(is_a($field, $className::$fileField)) {
-                self::$fileFields[$className][$name] = $field;
+            if (is_a($field, $className::$fileField)) {
+                $this->localFileFields[$name] = $field;
             }
 
             if (is_a($field, $className::$relatedField)) {
                 /* @var $field \Mindy\Orm\Fields\RelatedField */
                 if (is_a($field, $className::$manyToManyField)) {
                     /* @var $field \Mindy\Orm\Fields\ManyToManyField */
-                    self::$manyFields[$className][$name] = $field;
+                    $this->relM2mFields[$name] = $field;
                 }
 
                 if (is_a($field, $className::$hasManyField)) {
                     /* @var $field \Mindy\Orm\Fields\HasManyField */
-                    self::$hasManyFields[$className][$name] = $field;
+                    $this->relM2oneFields[$name] = $field;
                 }
 
                 if (is_a($field, $className::$foreignField)) {
                     /* @var $field \Mindy\Orm\Fields\ForeignField */
-                    self::$fields[$className][$name] = $field;
+                    $this->relFkFields[$name] = $field;
                     $fkFields[$name] = $field;
                 }
             } else {
-                self::$fields[$className][$name] = $field;
+                $this->localFields[$name] = $field;
             }
+            $this->allFields[$name] = $field;
 
             if (!$extra) {
                 $extraFields = $field->getExtraFields();
                 if (!empty($extraFields)) {
-                    $extraFieldsInitialized = self::initFields($className, $extraFields, true);
+                    $extraFieldsInitialized = $this->initFields($extraFields, true);
                     foreach ($extraFieldsInitialized as $key => $value) {
-                        $field->setExtraField($key, self::$fields[$className][$key]);
-                        self::$extrafields[$className][$name] = [
-                            $key => self::$fields[$className][$key]
+                        $field->setExtraField($key, $this->allFields[$key]);
+                        $this->extFields[$name] = [
+                            $key => $this->allFields[$key]
                         ];
                     }
                 }
@@ -183,95 +185,85 @@ class MetaData
         }
 
         if ($needPk) {
-            self::$pkName[$className] = $name = 'id';
-
+            $pkName = 'id';
             /* @var $autoField \Mindy\Orm\Fields\AutoField */
             $autoFieldClass = $className::$autoField;
             $autoField = new $autoFieldClass;
-            $autoField->setName($name);
+            $autoField->setName($pkName);
             // $autoField->setModel($model);
 
-            self::$fields[$className] = array_merge([$name => $autoField], self::$fields[$className]);
+            $this->allFields = array_merge([$pkName => $autoField], $this->allFields);
+            $this->localFields = array_merge([$pkName => $autoField], $this->localFields);
+            $this->primaryKeyField = $autoField;
         }
 
-        foreach($fkFields as $name => $field) {
+
+        foreach ($fkFields as $name => $field) {
             // ForeignKey in self model
             if ($field->modelClass == $className) {
-                self::$fkFields[$className][$name . '_' . self::$pkName[$className]] = $name;
+                // я так понимаю это если FK на эту же модель (типа дерево)
+                $this->relFkFields[$name . '_' . $this->primaryKeyField->getName()] = $field;
             } else {
-                self::$fkFields[$className][$name . '_' . $field->getForeignPrimaryKey()] = $name;
+                // а это вообще странная штука
+                // должен быть аналог contribute_to_class
+                $relClass = $field->modelClass;
+                $relClass::getMeta()->initFields([$name . '_' . $field->getForeignPrimaryKey() => $field], true);
             }
         }
-
-        foreach (self::$manyFields[$className] as $name => $field) {
-            /* @var $field \Mindy\Orm\Fields\ManyToManyField */
-            self::$fields[$className][$name] = $field;
-        }
-
-        foreach (self::$hasManyFields[$className] as $name => $field) {
-            /* @var $field \Mindy\Orm\Fields\HasManyField */
-            self::$fields[$className][$name] = $field;
-        }
-
         return $fields;
     }
 
-    public function getFieldsInit($className)
+    public function getFieldsInit()
     {
-        return self::$fields[$className];
+        return $this->allFields;
     }
 
     /**
-     * @param $className
      * @param $name
      * @return \Mindy\Orm\Fields\Field
      */
-    public function getField($className, $name)
+    public function getField($name)
     {
-        return self::$fields[$className][$name];
+        return $this->allFields[$name];
     }
 
     /**
-     * @param $className
      * @param $name
      * @return bool
      */
-    public function hasField($className, $name)
+    public function hasField($name)
     {
-        return array_key_exists($name, self::$fields[$className]);
+        return array_key_exists($name, $this->allFields);
     }
 
-    public function hasForeignField($className, $name)
+    public function hasForeignField($name)
     {
-        if(array_key_exists($className, self::$fkFields) && array_key_exists($name, self::$fkFields[$className])) {
-            $name = self::$fkFields[$className][$name];
-        }
-        if($this->hasField($className, $name)) {
-            return $this->getField($className, $name) instanceof ForeignField;
+        if ($this->hasField($name)) {
+            return $this->getField($name) instanceof ForeignField;
         }
         return false;
     }
 
-    public function getForeignField($className, $name)
+    public function getForeignField($name)
     {
-        if(array_key_exists($className, self::$fkFields) && array_key_exists($name, self::$fkFields[$className])) {
-            $name = self::$fkFields[$className][$name];
+        if ($this->hasForeignField($name)) {
+            return $this->getField($name);
         }
-        return $this->getField($className, $name);
+        return null;
     }
 
-    public function getManyFields($className)
+    public function getManyFields()
     {
-        return self::$manyFields[$className];
+        return $this->relM2oneFields;
     }
 
-    public function hasExtraFields($className, $name)
+    public function hasExtraFields($name)
     {
-        return array_key_exists($name, self::$extrafields[$className]);
+        return array_key_exists($name, $this->extFields);
     }
 
-    public function getExtraFields($className, $name)
+    public function getExtraFields($name)
     {
-        return self::$extrafields[$className][$name];
+        return $this->extFields[$name];
     }
 }

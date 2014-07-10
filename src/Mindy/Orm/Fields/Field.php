@@ -242,6 +242,11 @@ abstract class Field
         return $this;
     }
 
+    public function getName()
+    {
+        return $this->name;
+    }
+
     public function getVerboseName(Model $model)
     {
         if ($this->verboseName) {
