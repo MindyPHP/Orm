@@ -17,6 +17,7 @@ namespace Mindy\Orm;
 
 use Mindy\Helper\Creator;
 use Mindy\Orm\Fields\ForeignField;
+use Mindy\Orm\Fields\HasManyField;
 
 class MetaData
 {
@@ -188,9 +189,7 @@ class MetaData
                     $extraFieldsInitialized = $this->initFields($extraFields, true);
                     foreach ($extraFieldsInitialized as $key => $value) {
                         $field->setExtraField($key, $this->allFields[$key]);
-                        $this->extFields[$name] = [
-                            $key => $this->allFields[$key]
-                        ];
+                        $this->extFields[$name] = [$key => $this->allFields[$key]];
                     }
                 }
             }
@@ -218,18 +217,22 @@ class MetaData
             }
         }
 
-//        foreach ($fkFields as $name => $field) {
-//            // ForeignKey in self model
-//            if ($field->modelClass == $className) {
-//                // я так понимаю это если FK на эту же модель (типа дерево)
-//                $this->foreignFields[$name . '_' . $this->primaryKeyField->getName()] = $field;
-//            } else {
-//                // а это вообще странная штука
-//                // должен быть аналог contribute_to_class
-//                $relClass = $field->modelClass;
-//                $relClass::getMeta()->initFields([$name . '_' . $field->getForeignPrimaryKey() => $field], true);
-//            }
-//        }
+        foreach ($fkFields as $name => $field) {
+            $targetClass = $field->modelClass;
+            $metaInstance = $this->getInstance($targetClass);
+            $relatedName = $field->getRelatedName();
+
+            $hasManyField = new HasManyField([
+                'name' => $relatedName,
+                'modelClass' => $className,
+                'to' => $name . '_' . $targetClass::getPkName()
+            ]);
+            $hasManyField->setModelClass($field->modelClass);
+
+            $metaInstance->initFields([
+                $relatedName => $hasManyField
+            ], true);
+        }
         return $fields;
     }
 

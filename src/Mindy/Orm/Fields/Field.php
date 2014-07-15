@@ -16,12 +16,13 @@ namespace Mindy\Orm\Fields;
 
 
 use Closure;
+use Mindy\Core\Object;
 use Mindy\Helper\Creator;
 use Mindy\Orm\Model;
 use Mindy\Orm\Validator\RequiredValidator;
 use ReflectionClass;
 
-abstract class Field
+abstract class Field extends Object
 {
     public $verboseName = '';
 

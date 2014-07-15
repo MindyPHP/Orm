@@ -11,7 +11,7 @@ class FieldsTest extends TestCase
     {
         $model = new Category();
         $this->assertEquals(2, count($model->getFields()));
-        $this->assertEquals(3, count($model->getFieldsInit()));
+        $this->assertEquals(4, count($model->getFieldsInit()));
     }
 
     /**

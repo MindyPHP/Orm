@@ -14,7 +14,7 @@
 
 namespace Mindy\Orm\Fields;
 
-use \Mindy\Exception\Exception;
+use Mindy\Exception\Exception;
 
 abstract class RelatedField extends IntField
 {
@@ -22,10 +22,21 @@ abstract class RelatedField extends IntField
      * @var string
      */
     public $relatedName;
+    /**
+     * @var string
+     */
     public $modelClass;
 
     protected $_model;
     protected $_relatedModel;
+
+    public function getRelatedName()
+    {
+        if (!$this->relatedName) {
+            $this->relatedName = $this->name . '_set';
+        }
+        return $this->relatedName;
+    }
 
     public function getJoin()
     {
