@@ -20,18 +20,7 @@ use Tests\Models\BookCategory;
 
 class BackwardFieldsTest extends DatabaseTestCase
 {
-    public function setUp()
-    {
-        parent::setUp();
-        $this->initModels($this->getModels());
-    }
-
-    public function tearDown()
-    {
-        $this->dropModels($this->getModels());
-    }
-
-    private function getModels()
+    public function getModels()
     {
         return [
             new Book,
