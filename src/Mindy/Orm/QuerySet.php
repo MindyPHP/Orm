@@ -139,9 +139,11 @@ class QuerySet extends Query
 
         if (!empty($rows)) {
             if ($flat) {
-                return array_map(function (&$item) {
-                    return array_values($item);
-                }, $rows);
+                $flatArr = [];
+                foreach($rows as $item) {
+                    $flatArr = array_merge($flatArr, array_values($item));
+                }
+                return $flatArr;
             } else {
                 return $rows;
             }
@@ -208,10 +210,7 @@ class QuerySet extends Query
      */
     public function paginate($page = 1, $pageSize = 10)
     {
-        $this->limit($pageSize);
-        if ($page > 1) {
-            $this->offset($pageSize * $page);
-        }
+        $this->limit($pageSize)->offset($page > 1 ? $pageSize * ($page - 1) : 0);
         return $this;
     }
 

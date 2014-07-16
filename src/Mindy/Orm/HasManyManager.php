@@ -39,6 +39,8 @@ class HasManyManager extends RelatedManager
      */
     public $extra = [];
 
+    public $through;
+
     public function __construct(Model $model, array $config = [])
     {
         Creator::configure($this, $config);
@@ -49,7 +51,6 @@ class HasManyManager extends RelatedManager
     {
         if ($this->_qs === null) {
             $qs = parent::getQuerySet();
-
             $this->_qs = $qs->filter(array_merge([
                 $this->to => $this->primaryModel->{$this->from}
             ], $this->extra));
