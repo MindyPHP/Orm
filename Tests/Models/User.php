@@ -49,9 +49,8 @@ class User extends Model
                 'modelClass' => Group::className(),
                 'through' => Membership::className()
             ],
-            'addresses' => [
-                'class' => HasManyField::className(),
-                'modelClass' => Customer::className()
+            'permissions' => [
+                'class' => ''
             ]
         ];
     }

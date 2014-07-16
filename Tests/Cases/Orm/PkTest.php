@@ -33,7 +33,7 @@ class PkTest extends DatabaseTestCase
         $category = new Category();
         $fields = $category->getFieldsInit();
 
-        $this->assertEquals(['id', 'name', 'products', 'category_set'], array_keys($fields));
+        $this->assertEquals(['id', 'name', 'products'], array_keys($fields));
 
         $this->assertInstanceOf('\Mindy\Orm\Fields\AutoField', $fields['id']);
         $this->assertNull($category->id);

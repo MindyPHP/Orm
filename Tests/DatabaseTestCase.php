@@ -29,6 +29,18 @@ class DatabaseTestCase extends TestCase
         parent::setUp();
         $this->settings = require __DIR__ . '/config_local.php';
         $this->setConnection('mysql');
+        $this->initModels($this->getModels());
+    }
+
+    public function tearDown()
+    {
+        $this->dropModels($this->getModels());
+        parent::tearDown();
+    }
+
+    public function getModels()
+    {
+        return [];
     }
 
     public function setConnection($name)
