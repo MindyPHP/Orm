@@ -67,7 +67,8 @@ class HasManyField extends RelatedField
             'primaryModel' => $this->getModel(),
             'from' => $this->from(),
             'to' => $this->to(),
-            'extra' => $this->extra
+            'extra' => $this->extra,
+            'through' => $this->through
         ]);
     }
 
