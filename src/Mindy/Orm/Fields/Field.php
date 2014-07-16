@@ -214,8 +214,8 @@ abstract class Field extends Object
         $this->clearErrors();
         foreach ($this->validators as $validator) {
             if ($validator instanceof Closure) {
-                /* @var $validator \Closure */
-                $valid = $validator->__invoke($this->value);
+                /* @var $validator Closure */
+                $valid = $validator($this->value);
                 if ($valid !== true) {
                     if (!is_array($valid)) {
                         $valid = [$valid];
