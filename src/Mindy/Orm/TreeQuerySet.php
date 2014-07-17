@@ -15,6 +15,7 @@
 namespace Mindy\Orm;
 
 use Mindy\Core\Interfaces\Arrayable;
+use Mindy\Query\Expression;
 
 class TreeQuerySet extends QuerySet
 {
@@ -154,15 +155,14 @@ class TreeQuerySet extends QuerySet
      */
     public function delete($db = null)
     {
-        $models = $this->all();
+        $pkList = $this->valuesList(['parent_id'], true);
         $deleted = parent::delete($db);
-        if($deleted && !empty($models)) {
-            foreach($models as $model) {
-                if($parent = $model->parent) {
-                    $parent->rgt = $parent->lft + 1;
-                    $parent->save(['rgt', 'lft']);
-                }
-            }
+        if($deleted && !empty($pkList)) {
+            $pkList = array_unique(array_filter($pkList));
+            $this->where = [];
+            $this->filter(['pk__in' => $pkList])->update([
+                'rgt' => new Expression('`lft`+1')
+            ]);
         }
         return $deleted;
     }
