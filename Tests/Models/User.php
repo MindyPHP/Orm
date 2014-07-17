@@ -49,9 +49,6 @@ class User extends Model
                 'modelClass' => Group::className(),
                 'through' => Membership::className()
             ],
-            'permissions' => [
-                'class' => ''
-            ]
         ];
     }
 }

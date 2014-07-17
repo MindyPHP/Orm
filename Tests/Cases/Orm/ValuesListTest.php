@@ -86,12 +86,18 @@ class ValuesListTest extends DatabaseTestCase
 
     public function testValuesListFlat()
     {
-        $values = Customer::objects()->valuesList(['address', 'user__username'], true);
-
+        $values = Customer::objects()->valuesList(['address', 'user__username']);
         $this->assertEquals([
-            ['Anton home', 'Anton'],
-            ["Anton work", 'Anton'],
-            ["Max home", 'Max'],
+            ['address' => 'Anton home', 'user__username' => 'Anton'],
+            ['address' => "Anton work", 'user__username' => 'Anton'],
+            ['address' => "Max home", 'user__username' => 'Max'],
+        ], $values);
+
+        $values = Customer::objects()->valuesList(['user__username'], true);
+        $this->assertEquals([
+            'Anton',
+            'Anton',
+            'Max',
         ], $values);
     }
 }

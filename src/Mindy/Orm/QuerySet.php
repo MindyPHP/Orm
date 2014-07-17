@@ -125,30 +125,25 @@ class QuerySet extends Query
             $this->groupBy($this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey()));
         }
 
-        $values_select = [];
+        $valuesSelect = [];
         foreach ($fieldsList as $fieldName) {
-            $values_select[] = $this->aliasColumn($fieldName) . ' AS ' . $fieldName;
+            $valuesSelect[] = $this->aliasColumn($fieldName) . ' AS ' . $fieldName;
         }
-        $this->select = $values_select;
+        $this->select = $valuesSelect;
 
-        $command = $this->createCommand();
-        $rows = $command->queryAll();
+        $rows = $this->createCommand()->queryAll();
 
         $this->groupBy = $group;
         $this->select = $select;
 
-        if (!empty($rows)) {
-            if ($flat) {
-                $flatArr = [];
-                foreach($rows as $item) {
-                    $flatArr = array_merge($flatArr, array_values($item));
-                }
-                return $flatArr;
-            } else {
-                return $rows;
+        if ($flat) {
+            $flatArr = [];
+            foreach($rows as $item) {
+                $flatArr = array_merge($flatArr, array_values($item));
             }
+            return $flatArr;
         } else {
-            return [];
+            return $rows;
         }
     }
 
