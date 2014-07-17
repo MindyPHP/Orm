@@ -146,8 +146,30 @@ class TreeQuerySet extends QuerySet
     }
 
     /**
+     * Пересчитываем дерево после удаления моделей через
+     * $modelClass::objects()->filter(['pk__in' => $data])->delete();
+     *
+     * @param null $db
+     * @return int
+     */
+    public function delete($db = null)
+    {
+        $models = $this->all();
+        $deleted = parent::delete($db);
+        if($deleted && !empty($models)) {
+            foreach($models as $model) {
+                if($parent = $model->parent) {
+                    $parent->rgt = $parent->lft + 1;
+                    $parent->save(['rgt', 'lft']);
+                }
+            }
+        }
+        return $deleted;
+    }
+
+    /**
      * Make hierarchy array by level
-     * @param $collection models
+     * @param $collection Model[]
      * @return array
      */
     public function toHierarchy($collection)

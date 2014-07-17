@@ -202,4 +202,23 @@ class TreeModelTest extends DatabaseTestCase
                 ]
             ], $data);
     }
+
+    /**
+     * https://github.com/studio107/Mindy_Orm/issues/50
+     */
+    public function testFixIsLeaf()
+    {
+        $root1 = NestedModel::objects()->getOrCreate(['name' => 'root1']);
+        $root2 = NestedModel::objects()->getOrCreate(['name' => 'root2']);
+        $nested = NestedModel::objects()->getOrCreate(['name' => 'nested', 'parent' => $root1]);
+
+        $this->assertFalse(NestedModel::objects()->filter(['name' => 'root1'])->get()->getIsLeaf());
+        $this->assertTrue(NestedModel::objects()->filter(['name' => 'root2'])->get()->getIsLeaf());
+
+        $this->assertTrue(NestedModel::objects()->filter(['name' => 'nested'])->get()->getIsLeaf());
+
+        NestedModel::tree()->filter(['name' => 'nested'])->delete();
+        $this->assertTrue(NestedModel::objects()->filter(['name' => 'root1'])->get()->getIsLeaf());
+        $this->assertTrue(NestedModel::objects()->filter(['name' => 'root2'])->get()->getIsLeaf());
+    }
 }
