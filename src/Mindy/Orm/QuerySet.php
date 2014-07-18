@@ -2,10 +2,13 @@
 
 namespace Mindy\Orm;
 
+use ArrayAccess;
+use Countable;
+use Iterator;
 use Mindy\Exception\Exception;
 use Mindy\Query\Query;
 
-class QuerySet extends Query
+class QuerySet extends Query implements Iterator, ArrayAccess, Countable
 {
     /**
      * @var string the name of the ActiveRecord class.
@@ -74,13 +77,7 @@ class QuerySet extends Query
      */
     private $_filterOrExclude = [];
 
-    /**
-     * Executes query and returns all results as an array.
-     * @param Connection $db the DB connection used to create the DB command.
-     * If null, the DB connection returned by [[modelClass]] will be used.
-     * @return array the query results. If the query results in nothing, an empty array will be returned.
-     */
-    public function all($db = null)
+    protected function prepareCommand($db = null)
     {
         $this->prepareConditions();
 
@@ -91,13 +88,26 @@ class QuerySet extends Query
         }
         $command = $this->createCommand($db);
         $this->groupBy = $group;
+        $this->setCommand($command);
+        return $this;
+    }
 
-        $rows = $command->queryAll();
-        if (!empty($rows)) {
-            return $this->createModels($rows);
-        } else {
-            return [];
-        }
+    /**
+     * Executes query and returns all results as an array.
+     * @param Connection $db the DB connection used to create the DB command.
+     * If null, the DB connection returned by [[modelClass]] will be used.
+     * @return array the query results. If the query results in nothing, an empty array will be returned.
+     */
+    public function all($db = null)
+    {
+        return $this->prepareCommand($db)->getData($this->asArray ? false : true);
+
+//        $rows = $command->queryAll();
+//        if (!empty($rows)) {
+//            return $this->createModels($rows);
+//        } else {
+//            return [];
+//        }
     }
 
     public function getTableAlias()
@@ -285,7 +295,7 @@ class QuerySet extends Query
      * @param null|object $db
      * @return int
      */
-    public function count($q = null, $db = null)
+    public function countInternal($q = null, $db = null)
     {
         $this->prepareConditions();
         if (!$q) {
@@ -691,42 +701,42 @@ class QuerySet extends Query
      * @param array $rows
      * @return array|Orm[]
      */
-    private function createModels($rows)
-    {
-        $models = [];
-        if ($this->asArray) {
-            if ($this->indexBy === null) {
-                return $rows;
-            }
-            foreach ($rows as $row) {
-                if (is_string($this->indexBy)) {
-                    $key = $row[$this->indexBy];
-                } else {
-                    $key = call_user_func($this->indexBy, $row);
-                }
-                $models[$key] = $row;
-            }
-        } else {
-            /** @var Orm $class */
-            $class = $this->modelClass;
-            if ($this->indexBy === null) {
-                foreach ($rows as $row) {
-                    $models[] = $class::create($row);
-                }
-            } else {
-                foreach ($rows as $row) {
-                    $model = $class::create($row);
-                    if (is_string($this->indexBy)) {
-                        $key = $model->{$this->indexBy};
-                    } else {
-                        $key = call_user_func($this->indexBy, $model);
-                    }
-                    $models[$key] = $model;
-                }
-            }
-        }
-        return $models;
-    }
+//    private function createModels($rows)
+//    {
+//        $models = [];
+//        if ($this->asArray) {
+//            if ($this->indexBy === null) {
+//                return $rows;
+//            }
+//            foreach ($rows as $row) {
+//                if (is_string($this->indexBy)) {
+//                    $key = $row[$this->indexBy];
+//                } else {
+//                    $key = call_user_func($this->indexBy, $row);
+//                }
+//                $models[$key] = $row;
+//            }
+//        } else {
+//            /** @var Orm $class */
+//            $class = $this->modelClass;
+//            if ($this->indexBy === null) {
+//                foreach ($rows as $row) {
+//                    $models[] = $class::create($row);
+//                }
+//            } else {
+//                foreach ($rows as $row) {
+//                    $model = $class::create($row);
+//                    if (is_string($this->indexBy)) {
+//                        $key = $model->{$this->indexBy};
+//                    } else {
+//                        $key = call_user_func($this->indexBy, $model);
+//                    }
+//                    $models[$key] = $model;
+//                }
+//            }
+//        }
+//        return $models;
+//    }
 
     /**
      * Converts name => `name`, user.name => `user`.`name`
@@ -886,5 +896,149 @@ class QuerySet extends Query
         $alias = $this->getTableAlias();
         $tableName = $alias . " USING " . $this->model->tableName() . " AS " . $alias;
         return $this->createCommand($db)->delete($tableName, $this->where, $this->params)->execute();
+    }
+
+    /********************************************************
+     * Iterators
+     ********************************************************/
+
+    /**
+     * @var null
+     */
+    protected $_data = [];
+
+    protected $command;
+
+    protected function setCommand($command)
+    {
+        $this->command = $command;
+        return $this;
+    }
+
+    protected function createModel($row)
+    {
+        $class = $this->modelClass;
+        return $class::create($row);
+    }
+
+    /**
+     * Converts found rows into model instances
+     * @param array $rows
+     * @return array|Orm[]
+     */
+    protected function createModels($rows)
+    {
+        $models = [];
+        foreach ($rows as $row) {
+            $models[] = $this->createModel($row);
+        }
+        return $models;
+    }
+
+    /**
+     * @return array|Model[]
+     */
+    public function getData($forceModels = false)
+    {
+        if(empty($this->_data)) {
+            if($this->command === null) {
+                $this->prepareCommand();
+            }
+            $this->_data = $this->command->queryAll();
+            $this->command = null;
+        }
+        return $forceModels ? $this->createModels($this->_data) : $this->_data;
+    }
+
+    /**
+     * @return mixed|void
+     */
+    public function rewind()
+    {
+        return reset($this->_data);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function current()
+    {
+        $item = current($this->_data);
+        return $this->asArray ? $item : $this->createModel($item);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function key()
+    {
+        return key($this->_data);
+    }
+
+    /**
+     * @return mixed|void
+     */
+    public function next()
+    {
+        return next($this->_data);
+    }
+
+    /**
+     * @return bool
+     */
+    public function valid()
+    {
+        return key($this->_data) !== null;
+    }
+
+    /**
+     * @param mixed $offset
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        return isset($this->data[$offset]);
+    }
+
+    /**
+     * @param mixed $offset
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        return $this->asArray ? $this->data[$offset] : $this->createModel($this->data[$offset]);
+    }
+
+    /**
+     * @param mixed $offset
+     * @param mixed $value
+     */
+    public function offsetSet($offset, $value)
+    {
+        if (is_null($offset)) {
+            $this->data[] = $value;
+        } else {
+            $this->data[$offset] = $value;
+        }
+    }
+
+    /**
+     * @param mixed $offset
+     */
+    public function offsetUnset($offset)
+    {
+        unset($this->data[$offset]);
+    }
+
+    /**
+     * @return int
+     */
+    public function count($q = '*', $db = NULL)
+    {
+        if(empty($this->data)) {
+            return $this->countInternal($q, $db);
+        } else {
+            return count($this->data);
+        }
     }
 }
