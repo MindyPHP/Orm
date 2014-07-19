@@ -10,7 +10,6 @@
     },
     "require": {
         "php": ">=5.4",
-        "mindy/core": "dev-master",
         "mindy/exception": "dev-master",
         "mindy/cache": "dev-master",
         "mindy/query": "dev-master",
