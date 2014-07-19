@@ -98,6 +98,7 @@ class TreeQuerySet extends QuerySet
         return $this->filter([
             'lft__lt' => $this->model->lft,
             'rgt__gt' => $this->model->rgt,
+            'level' => $this->model->level - 1,
             'root' => $this->model->root
         ]);
     }
