@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -15,10 +15,10 @@
 namespace Tests;
 
 
-use Exception;
+use Mindy\Orm\Model;
 use Mindy\Orm\Sync;
 use Mindy\Query\Connection;
-use Mindy\Orm\Model;
+use Mindy\Query\ConnectionManager;
 
 class DatabaseTestCase extends TestCase
 {
@@ -28,6 +28,7 @@ class DatabaseTestCase extends TestCase
     {
         parent::setUp();
         $this->settings = require __DIR__ . '/config_local.php';
+        $this->manager = new ConnectionManager(['databases' => $this->settings]);
         $this->setConnection('mysql');
         $this->initModels($this->getModels());
     }
@@ -45,9 +46,7 @@ class DatabaseTestCase extends TestCase
 
     public function setConnection($name)
     {
-        if(array_key_exists($name, $this->settings)) {
-            Model::setConnection(new Connection($this->settings[$name]));
-        }
+        $this->manager->setDefaultDatabase($name);
     }
 
     public function initModels(array $models)
@@ -65,7 +64,7 @@ class DatabaseTestCase extends TestCase
 
     public function getConnectionType()
     {
-        $params = explode(':', Model::getConnection()->dsn);
+        $params = explode(':', ConnectionManager::getDb()->dsn);
         return array_pop($params);
     }
 }

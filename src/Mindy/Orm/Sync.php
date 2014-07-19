@@ -16,6 +16,7 @@ namespace Mindy\Orm;
 
 
 use Mindy\Exception\NotSupportedException;
+use Mindy\Query\ConnectionManager;
 
 class Sync
 {
@@ -27,6 +28,7 @@ class Sync
             $models = [$models];
         }
         $this->_models = $models;
+        $this->db = ConnectionManager::getDb();
     }
 
     /**
@@ -35,7 +37,7 @@ class Sync
     public function createTable(Model $model)
     {
         $columns = [];
-        $command = $model->getConnection()->createCommand();
+        $command = $this->db->createCommand();
         foreach ($model->getFieldsInit() as $name => $field) {
             if ($field->sqlType() !== false) {
                 if (is_a($field, $model::$foreignField)) {
@@ -61,8 +63,7 @@ class Sync
      */
     public function dropTable(Model $model)
     {
-        $connection = $model->getConnection();
-        $command = $connection->createCommand();
+        $command = $this->db->createCommand();
 
         try {
             // checkIntegrity is not supported by SQLite
@@ -93,7 +94,7 @@ class Sync
      */
     public function createIndexes(Model $model)
     {
-        $command = $model->getConnection()->createCommand();
+        $command = $this->db->createCommand();
 
         try {
             // checkIntegrity is not supported by SQLite
@@ -132,8 +133,7 @@ class Sync
      */
     public function dropIndexes(Model $model)
     {
-        $connection = $model->getConnection();
-        $command = $connection->createCommand();
+        $command = $this->db->createCommand();
 
         try {
             // checkIntegrity is not supported by SQLite
@@ -201,6 +201,6 @@ class Sync
         if ($tableName === null) {
             $tableName = $model->tableName();
         }
-        return !is_null($model->getConnection()->getTableSchema($tableName, true));
+        return !is_null($this->db->getTableSchema($tableName, true));
     }
 }

@@ -20,6 +20,7 @@ use Mindy\Base\Mindy;
 use Mindy\Exception\InvalidParamException;
 use Mindy\Helper\Json;
 use Mindy\Orm\Exception\InvalidConfigException;
+use Mindy\Query\ConnectionManager;
 use ReflectionClass;
 
 /**
@@ -144,9 +145,13 @@ abstract class Base implements ArrayAccess
 
         if ($meta->hasForeignField($name) && $this->hasAttribute($name) === false) {
             $value = $this->getAttribute($name . '_id');
-            /* @var $field \Mindy\Orm\Fields\ForeignField */
-            $field = $meta->getForeignField($name);
-            return $field->fetch($value);
+            if(is_null($value)) {
+                return $value;
+            } else {
+                /* @var $field \Mindy\Orm\Fields\ForeignField */
+                $field = $meta->getForeignField($name);
+                return $field->fetch($value);
+            }
         }
 
         if ($meta->hasManyToManyField($name) || $meta->hasHasManyField($name)) {
@@ -419,8 +424,8 @@ abstract class Base implements ArrayAccess
 
     /**
      * Returns the schema information of the DB table associated with this AR class.
+     * @param bool $refresh
      * @return \Mindy\Query\TableSchema the schema information of the DB table associated with this AR class.
-     * @throws InvalidConfigException if the table for the AR class does not exist.
      */
     public static function getTableSchema()
     {
@@ -430,6 +435,15 @@ abstract class Base implements ArrayAccess
         } else {
             throw new InvalidConfigException("The table does not exist: " . static::tableName());
         }
+    }
+
+    /**
+     * @deprecated
+     * @return \Mindy\Query\Connection
+     */
+    public static function getConnection()
+    {
+        return ConnectionManager::getDb();
     }
 
     /**
@@ -474,28 +488,7 @@ abstract class Base implements ArrayAccess
      */
     public static function getDb()
     {
-        return self::getConnection();
-    }
-
-    /**
-     * TODO move to manager
-     * @param \Mindy\Query\Connection $connection
-     */
-    public static function setConnection(\Mindy\Query\Connection $connection)
-    {
-        self::$_connection = $connection;
-    }
-
-    /**
-     * TODO move to manager
-     * @return \Mindy\Query\Connection
-     */
-    public static function getConnection()
-    {
-        if (self::$_connection === null) {
-            self::$_connection = Mindy::app()->db;
-        }
-        return self::$_connection;
+        return ConnectionManager::getDb();
     }
 
     /**
@@ -594,7 +587,11 @@ abstract class Base implements ArrayAccess
         foreach ($this->getFieldsInit() as $name => $field) {
             if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;
+            } else if($meta->hasForeignField($name)) {
+                $foreighField = $meta->getForeignField($name);
+                $name .= "_" . MetaData::getInstance($foreighField->modelClass)->getPkName();
             }
+
             $field->setValue($this->getAttribute($name));
             $field->setModel($this);
             $field->onBeforeInsert();
@@ -633,6 +630,9 @@ abstract class Base implements ArrayAccess
         foreach ($this->getFieldsInit() as $name => $field) {
             if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;
+            } else if($meta->hasForeignField($name)) {
+                $foreighField = $meta->getForeignField($name);
+                $name .= "_" . MetaData::getInstance($foreighField->modelClass)->getPkName();
             }
             $field->setValue($this->getAttribute($name));
             $field->setModel($this);

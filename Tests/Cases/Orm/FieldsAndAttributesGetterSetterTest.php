@@ -40,8 +40,13 @@ class FieldsAndAttributesGetterSetterTest extends DatabaseTestCase
         $product->description = 'Funny white bear';
 
         $this->assertNull($product->category);
-
         $product->category = $category;
+
+        $this->assertEquals($product->category, $category);
+        $this->assertEquals($product->category_id, $category->pk);
+        $this->assertEquals('1', $product->category_id);
+        $this->assertEquals('1', $product->category->pk);
+
         $product->save();
 
         $this->assertInstanceOf('\Tests\Models\Category', $product->category);

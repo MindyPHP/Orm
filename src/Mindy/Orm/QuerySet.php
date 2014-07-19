@@ -6,6 +6,8 @@ use ArrayAccess;
 use Countable;
 use Iterator;
 use Mindy\Exception\Exception;
+use Mindy\Orm\Exception\MultipleObjectsReturned;
+use Mindy\Orm\Exception\ObjectDoesNotExist;
 use Mindy\Query\Query;
 
 class QuerySet extends Query implements Iterator, ArrayAccess, Countable
@@ -268,26 +270,19 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable
 
     /**
      * Executes query and returns a single row of result.
-     * @param null $db
+     * @throws \Mindy\Orm\Exception\MultipleObjectsReturned
      * @return null|Orm
      */
-    public function get($db = null)
+    public function get()
     {
         $this->prepareConditions();
-        $command = $this->createCommand($db);
-        $row = $command->queryOne();
-        if ($row !== false) {
-            if ($this->asArray) {
-                $model = $row;
-            } else {
-                /** @var Orm $class */
-                $class = $this->modelClass;
-                $model = $class::create($row);
-            }
-            return $model;
-        } else {
+        $rows = $this->createCommand()->queryAll();
+        if (count($rows) > 1) {
+            throw new MultipleObjectsReturned();
+        } elseif (count($rows) === 0) {
             return null;
         }
+        return $this->asArray ? array_shift($rows) : $this->createModel(array_shift($rows));
     }
 
     /**
@@ -917,8 +912,11 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable
 
     protected function createModel($row)
     {
-        $class = $this->modelClass;
-        return $class::create($row);
+        $className = $this->modelClass;
+        $record = new $className;
+        $record->setAttributes($row);
+        $record->setOldAttributes($row);
+        return $record;
     }
 
     /**
