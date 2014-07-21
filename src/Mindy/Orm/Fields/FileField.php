@@ -186,7 +186,7 @@ class FileField extends CharField
                 '%H' => date('H'),
                 '%i' => date('i'),
                 '%s' => date('s'),
-                '%O' => $this->getModel()->shortClassName(),
+                '%O' => $this->getModel()->classNameShort(),
                 '%M' => $this->getModel()->getModuleName(),
             ]);
         }
