@@ -13,7 +13,7 @@
         "mindy/exception": "dev-master",
         "mindy/cache": "dev-master",
         "mindy/query": "dev-master",
-        "mindy/logger": "1.0.1",
+        "mindy/logger": "*",
         "mindy/helper": "dev-master",
         "cebe/markdown": "*"
     },
