@@ -39,8 +39,16 @@ class DataIteratorTest extends DatabaseTestCase
         foreach ($qs as $i => $model) {
             $this->assertEquals($i + 1, $model["id"]);
         }
+        $this->assertEquals(5, $qs->count());
+        foreach ($qs as $i => $model) {
+            $this->assertEquals($i + 1, $model["id"]);
+        }
 
         $qs = BookCategory::objects()->filter(['id__gt' => 0]);
+        $this->assertEquals(5, $qs->count());
+        foreach ($qs as $i => $model) {
+            $this->assertEquals($i + 1, $model->pk);
+        }
         $this->assertEquals(5, $qs->count());
         foreach ($qs as $i => $model) {
             $this->assertEquals($i + 1, $model->pk);
