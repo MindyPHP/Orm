@@ -24,7 +24,7 @@ class Model extends Orm
 
     public function __toString()
     {
-        return (string) $this->shortClassName();
+        return (string) $this->classNameShort();
     }
 
     /**
@@ -40,7 +40,7 @@ class Model extends Orm
 
     public function getVerboseName()
     {
-        return $this->shortClassName();
+        return $this->classNameShort();
     }
 
     public function generateUrl($route, $data = null)

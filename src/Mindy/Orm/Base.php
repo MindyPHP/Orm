@@ -16,12 +16,11 @@ namespace Mindy\Orm;
 
 use ArrayAccess;
 use Exception;
-use Mindy\Base\Mindy;
 use Mindy\Exception\InvalidParamException;
 use Mindy\Helper\Json;
+use Mindy\Helper\Traits\Configurator;
 use Mindy\Orm\Exception\InvalidConfigException;
 use Mindy\Query\ConnectionManager;
-use ReflectionClass;
 
 /**
  * Class Base
@@ -30,6 +29,8 @@ use ReflectionClass;
  */
 abstract class Base implements ArrayAccess
 {
+    use Configurator;
+
     /**
      * The insert operation. This is mainly used when overriding [[transactions()]] to specify which operations are transactional.
      */
@@ -76,10 +77,6 @@ abstract class Base implements ArrayAccess
      */
     public static $hasManyField = '\Mindy\Orm\Fields\HasManyField';
     /**
-     * @var \Mindy\Query\Connection|null
-     */
-    private static $_connection;
-    /**
      * @var array attribute values indexed by attribute names
      */
     private $_attributes = [];
@@ -97,7 +94,7 @@ abstract class Base implements ArrayAccess
     private $_errors = [];
 
     /**
-     * @param array $config
+     * @param array $attributes
      */
     public function __construct(array $attributes = [])
     {
@@ -124,7 +121,7 @@ abstract class Base implements ArrayAccess
      * This method is overridden so that attributes and related objects can be accessed like properties.
      *
      * @param string $name property name
-     * @throws \Mindy\Exception\InvalidParamException if relation name is wrong
+     * @throws \Exception
      * @return mixed property value
      * @see getAttribute()
      */
@@ -145,7 +142,7 @@ abstract class Base implements ArrayAccess
 
         if ($meta->hasForeignField($name) && $this->hasAttribute($name) === false) {
             $value = $this->getAttribute($name . '_id');
-            if(is_null($value)) {
+            if (is_null($value)) {
                 return $value;
             } else {
                 /* @var $field \Mindy\Orm\Fields\ForeignField */
@@ -424,7 +421,7 @@ abstract class Base implements ArrayAccess
 
     /**
      * Returns the schema information of the DB table associated with this AR class.
-     * @param bool $refresh
+     * @throws \Mindy\Exception\InvalidConfigException
      * @return \Mindy\Query\TableSchema the schema information of the DB table associated with this AR class.
      */
     public static function getTableSchema()
@@ -444,23 +441,6 @@ abstract class Base implements ArrayAccess
     public static function getConnection()
     {
         return ConnectionManager::getDb();
-    }
-
-    /**
-     * @return string the fully qualified name of this class.
-     */
-    public static function className()
-    {
-        return get_called_class();
-    }
-
-    /**
-     * @return string the short name of this class.
-     */
-    public static function shortClassName()
-    {
-        $reflect = new ReflectionClass(get_called_class());
-        return $reflect->getShortName();
     }
 
     /**
@@ -587,7 +567,7 @@ abstract class Base implements ArrayAccess
         foreach ($this->getFieldsInit() as $name => $field) {
             if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;
-            } else if($meta->hasForeignField($name)) {
+            } else if ($meta->hasForeignField($name)) {
                 $foreighField = $meta->getForeignField($name);
                 $name .= "_" . MetaData::getInstance($foreighField->modelClass)->getPkName();
             }
@@ -630,7 +610,7 @@ abstract class Base implements ArrayAccess
         foreach ($this->getFieldsInit() as $name => $field) {
             if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;
-            } else if($meta->hasForeignField($name)) {
+            } else if ($meta->hasForeignField($name)) {
                 $foreighField = $meta->getForeignField($name);
                 $name .= "_" . MetaData::getInstance($foreighField->modelClass)->getPkName();
             }

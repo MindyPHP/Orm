@@ -16,14 +16,15 @@ namespace Mindy\Orm\Fields;
 
 
 use Closure;
-use Mindy\Core\Object;
-use Mindy\Helper\Creator;
+use Mindy\Helper\Traits\Accessors;
+use Mindy\Helper\Traits\Configurator;
 use Mindy\Orm\Model;
 use Mindy\Orm\Validator\RequiredValidator;
-use ReflectionClass;
 
-abstract class Field extends Object
+abstract class Field
 {
+    use Accessors, Configurator;
+
     public $verboseName = '';
 
     public $null = false;
@@ -80,26 +81,9 @@ abstract class Field extends Object
         return $this;
     }
 
-    /**
-     * @return string the fully qualified name of this class.
-     */
-    public static function className()
-    {
-        return get_called_class();
-    }
-
-    /**
-     * @return string the short name of this class.
-     */
-    public static function shortClassName()
-    {
-        $reflect = new ReflectionClass(self::className());
-        return $reflect->getShortName();
-    }
-
     public function __construct(array $config = [])
     {
-        Creator::configure($this, $config);
+        $this->configure($config);
 
         if ($this->required) {
             $this->validators = array_merge([new RequiredValidator], $this->validators);
