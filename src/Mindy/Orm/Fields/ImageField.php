@@ -6,6 +6,7 @@ use Imagine\Image\ImageInterface;
 use Imagine\Image\Point;
 use Mindy\Orm\Traits\ImageProcess;
 use Mindy\Storage\Files\File;
+use Mindy\Form\Fields\ImageField as FormImageField;
 
 
 class ImageField extends FileField
@@ -160,5 +161,10 @@ class ImageField extends FileField
     public function onAfterDelete()
     {
         $this->deleteOld();
+    }
+
+    public function getFormField($form, $fieldClass = null)
+    {
+        return parent::getFormField($form, FormImageField::className());
     }
 }

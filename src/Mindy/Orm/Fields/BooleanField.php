@@ -15,6 +15,8 @@
 namespace Mindy\Orm\Fields;
 
 
+use Mindy\Form\Fields\CheckboxField;
+
 class BooleanField extends Field
 {
     public $default = false;
@@ -37,5 +39,10 @@ class BooleanField extends Field
     public function getValue()
     {
         return (bool)$this->value;
+    }
+
+    public function getFormField($form, $fieldClass = null)
+    {
+        return parent::getFormField($form, CheckboxField::className());
     }
 }

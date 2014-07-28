@@ -16,9 +16,13 @@ namespace Mindy\Orm\Fields;
 
 
 use Closure;
+use Mindy\Form\Fields\CharField;
+use Mindy\Form\Fields\DropDownField;
+use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
 use Mindy\Orm\Model;
+use Mindy\Orm\RelatedManager;
 use Mindy\Orm\Validator\RequiredValidator;
 
 abstract class Field
@@ -42,6 +46,8 @@ abstract class Field
     public $choices = [];
 
     public $validators = [];
+
+    public $helpText;
 
     protected $name;
 
@@ -279,6 +285,30 @@ abstract class Field
     public function onBeforeDelete()
     {
 
+    }
+
+    public function getFormField($form, $fieldClass = null)
+    {
+        if($this->primary || $this->editable === false) {
+            return null;
+        }
+
+        if(!$fieldClass) {
+            $fieldClass = $this->choices ? DropDownField::className() : CharField::className();
+        }
+
+        return Creator::createObject([
+            'class' => $fieldClass,
+            'required' => $this->required,
+            'form' => $form,
+            'choices' => $this->choices,
+            'name' => $this->name,
+            'label' => $this->verboseName,
+            'hint' => $this->helpText,
+            'html' => [
+                'multiple' => $this->value instanceof RelatedManager
+            ]
+        ]);
     }
 
     abstract public function sqlType();

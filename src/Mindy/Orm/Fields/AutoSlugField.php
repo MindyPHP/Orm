@@ -15,6 +15,7 @@
 namespace Mindy\Orm\Fields;
 
 
+use Mindy\Form\Fields\ShortUrlField;
 use Mindy\Helper\Meta;
 use Mindy\Query\Expression;
 
@@ -74,5 +75,10 @@ class AutoSlugField extends CharField
     {
         $slugs = explode('/', $this->getValue());
         return end($slugs);
+    }
+
+    public function getFormField($form, $fieldClass = null)
+    {
+        return parent::getFormField($form, ShortUrlField::className());
     }
 }

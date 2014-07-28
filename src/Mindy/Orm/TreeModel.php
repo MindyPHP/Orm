@@ -36,17 +36,21 @@ abstract class TreeModel extends Model
                 'null' => true
             ],
             'lft' => [
-                'class' => IntField::className()
+                'class' => IntField::className(),
+                'editable' => false
             ],
             'rgt' => [
-                'class' => IntField::className()
+                'class' => IntField::className(),
+                'editable' => false
             ],
             'level' => [
-                'class' => IntField::className()
+                'class' => IntField::className(),
+                'editable' => false
             ],
             'root' => [
                 'class' => IntField::className(),
-                'null' => true
+                'null' => true,
+                'editable' => false
             ],
         ];
     }

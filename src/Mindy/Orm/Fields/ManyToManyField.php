@@ -15,6 +15,7 @@
 namespace Mindy\Orm\Fields;
 
 use Exception;
+use Mindy\Form\Fields\DropDownField;
 use Mindy\Orm\ManyToManyManager;
 use Mindy\Orm\MetaData;
 use Mindy\Orm\Model;
@@ -274,5 +275,10 @@ class ManyToManyField extends RelatedField
     public function fetch($value)
     {
         // TODO: Implement fetch() method.
+    }
+
+    public function getFormField($form, $fieldClass = null)
+    {
+        return parent::getFormField($form, DropDownField::className());
     }
 }

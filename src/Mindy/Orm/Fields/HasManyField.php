@@ -15,6 +15,7 @@
 namespace Mindy\Orm\Fields;
 
 use Exception;
+use Mindy\Form\Fields\DropDownField;
 use Mindy\Orm\HasManyManager;
 
 class HasManyField extends RelatedField
@@ -106,5 +107,10 @@ class HasManyField extends RelatedField
     public function fetch($value)
     {
         return;
+    }
+
+    public function getFormField($form, $fieldClass = null)
+    {
+        return parent::getFormField($form, DropDownField::className());
     }
 }

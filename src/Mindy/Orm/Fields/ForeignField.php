@@ -16,6 +16,7 @@ namespace Mindy\Orm\Fields;
 
 
 use InvalidArgumentException;
+use Mindy\Form\Fields\DropDownField;
 use Mindy\Orm\Orm;
 use Mindy\Orm\Relation;
 
@@ -88,5 +89,10 @@ class ForeignField extends RelatedField
                 'to' => $this->getRelatedModel()->getPkName(),
             ]
         ]];
+    }
+
+    public function getFormField($form, $fieldClass = null)
+    {
+        return parent::getFormField($form, DropDownField::className());
     }
 }
