@@ -104,7 +104,7 @@ class ManyToManyManager extends RelatedManager
             throw new Exception('Unable to ' . ($link ? 'link' : 'unlink') . ' models: the primary key of ' . get_class($this->primaryModel) . ' is null.');
         }
 
-        $db = $this->primaryModel->getConnection();
+        $db = $this->primaryModel->getDb();
         /** @var $command \Mindy\Query\Command */
         $command = $db->createCommand()->$method($this->relatedTable, [
             $this->primaryModelColumn => $this->primaryModel->pk,

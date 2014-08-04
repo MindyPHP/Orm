@@ -28,7 +28,7 @@ class SyncTest extends DatabaseTestCase
     public function testPk()
     {
         $product = new Product();
-        $this->assertEquals(6, count($product->getFieldsInit()));
+        $this->assertEquals(7, count($product->getFieldsInit()));
 
         $models = [
             new ProductList(),

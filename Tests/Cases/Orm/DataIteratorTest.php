@@ -24,7 +24,7 @@ class DataIteratorTest extends DatabaseTestCase
         return [new BookCategory];
     }
 
-    public function testData()
+    public function testDataQuerySet()
     {
         foreach (range(1, 5) as $i) {
             (new BookCategory())->save();
@@ -50,6 +50,30 @@ class DataIteratorTest extends DatabaseTestCase
             $this->assertEquals($i + 1, $model->pk);
         }
         $this->assertEquals(5, $qs->count());
+        foreach ($qs as $i => $model) {
+            $this->assertEquals($i + 1, $model->pk);
+        }
+
+        $qs = BookCategory::objects()->filter(['id__gt' => 0]);
+        $this->assertEquals(1, $qs[0]->pk);
+        $this->assertEquals(2, $qs[1]->pk);
+    }
+
+    public function testDataManager()
+    {
+        foreach (range(1, 5) as $i) {
+            (new BookCategory())->save();
+        }
+
+        $this->assertEquals(5, BookCategory::objects()->count());
+        $qs = BookCategory::objects()->all();
+        $this->assertEquals(5, count($qs));
+
+        // Test iterate manager
+        $qs = BookCategory::objects();
+        foreach ($qs as $i => $model) {
+            $this->assertEquals($i + 1, $model->pk);
+        }
         foreach ($qs as $i => $model) {
             $this->assertEquals($i + 1, $model->pk);
         }

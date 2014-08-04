@@ -157,7 +157,7 @@ abstract class Base implements ArrayAccess
             /* @var $field \Mindy\Orm\Fields\ManyToManyField|\Mindy\Orm\Fields\HasManyField */
             $field = $meta->getField($name);
             $field->setModel($this);
-            return $field->getManager()->getQuerySet();
+            return $field->getManager();
         }
 
         if (isset($this->_attributes[$name]) || array_key_exists($name, $this->_attributes)) {
