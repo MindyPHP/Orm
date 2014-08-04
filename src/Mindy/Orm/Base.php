@@ -20,7 +20,9 @@ use Mindy\Exception\InvalidParamException;
 use Mindy\Helper\Json;
 use Mindy\Helper\Traits\Configurator;
 use Mindy\Orm\Exception\InvalidConfigException;
+use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Query\ConnectionManager;
+use Mindy\Query\StaleObjectException;
 
 /**
  * Class Base
@@ -155,7 +157,7 @@ abstract class Base implements ArrayAccess
             /* @var $field \Mindy\Orm\Fields\ManyToManyField|\Mindy\Orm\Fields\HasManyField */
             $field = $meta->getField($name);
             $field->setModel($this);
-            return $field->getManager();
+            return $field->getManager()->getQuerySet();
         }
 
         if (isset($this->_attributes[$name]) || array_key_exists($name, $this->_attributes)) {
@@ -464,7 +466,7 @@ abstract class Base implements ArrayAccess
      * Returns the database connection used by this AR class.
      * By default, the "db" application component is used as the database connection.
      * You may override this method if you want to use a different database connection.
-     * @return Connection the database connection used by this AR class.
+     * @return \Mindy\Query\Connection the database connection used by this AR class.
      */
     public static function getDb()
     {
@@ -656,7 +658,9 @@ abstract class Base implements ArrayAccess
                 $field->setModel($this);
 
                 if (empty($value)) {
-                    $field->getManager()->clean();
+                    if($field instanceof ManyToManyField) {
+                        $field->getManager()->clean();
+                    }
                 } else {
                     $field->setValue($value);
                 }
@@ -1219,8 +1223,9 @@ abstract class Base implements ArrayAccess
      */
     public function getField($name, $throw = true)
     {
-        if (self::getMeta()->hasField($name)) {
-            return self::getMeta()->getField($name)->setModel($this);
+        $meta = self::getMeta();
+        if ($meta->hasField($name)) {
+            return $meta->getField($name)->setModel($this);
         }
 
         if ($throw) {

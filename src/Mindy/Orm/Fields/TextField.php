@@ -15,10 +15,17 @@
 namespace Mindy\Orm\Fields;
 
 
+use Mindy\Form\Fields\TextAreaField;
+
 class TextField extends Field
 {
     public function sqlType()
     {
         return 'text';
+    }
+
+    public function getFormField($form, $fieldClass = null)
+    {
+        return parent::getFormField($form, TextAreaField::className());
     }
 }

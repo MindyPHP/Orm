@@ -14,7 +14,7 @@
 
 namespace Mindy\Orm;
 
-use Mindy\Core\Interfaces\Arrayable;
+use Mindy\Helper\Interfaces\Arrayable;
 use Mindy\Query\Expression;
 
 class TreeQuerySet extends QuerySet

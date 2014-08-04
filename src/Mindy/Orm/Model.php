@@ -43,8 +43,8 @@ class Model extends Orm
         return $this->classNameShort();
     }
 
-    public function generateUrl($route, $data = null)
+    public function reverse($route, $data = null)
     {
-        return Mindy::app()->urlManager->createUrl($route, $data);
+        return Mindy::app()->urlManager->reverse($route, $data);
     }
 }

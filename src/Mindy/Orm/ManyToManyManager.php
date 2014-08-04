@@ -72,7 +72,7 @@ class ManyToManyManager extends RelatedManager
             throw new Exception('Unable to clean models: the primary key of ' . get_class($this->primaryModel) . ' is null.');
         }
 
-        $db = $this->primaryModel->getConnection();
+        $db = $this->primaryModel->getDb();
 
         /** @var $command \Mindy\Query\Command */
         $command = $db->createCommand()->delete($this->relatedTable, [

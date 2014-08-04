@@ -15,8 +15,11 @@
 namespace Mindy\Orm;
 
 use Exception;
+use IteratorAggregate;
+use Serializable;
+use Traversable;
 
-class Manager
+class Manager implements IteratorAggregate, Serializable
 {
     /**
      * @var \Mindy\Orm\Model
@@ -279,5 +282,42 @@ class Manager
     public function create(array $attributes)
     {
         return $this->getModel()->setData($attributes)->save();
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.0.0)<br/>
+     * Retrieve an external iterator
+     * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
+     * @return Traversable An instance of an object implementing <b>Iterator</b> or
+     * <b>Traversable</b>
+     */
+    public function getIterator()
+    {
+        return $this->getQuerySet();
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.1.0)<br/>
+     * String representation of object
+     * @link http://php.net/manual/en/serializable.serialize.php
+     * @return string the string representation of the object or null
+     */
+    public function serialize()
+    {
+        return $this->getQuerySet()->serialize();
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.1.0)<br/>
+     * Constructs the object
+     * @link http://php.net/manual/en/serializable.unserialize.php
+     * @param string $serialized <p>
+     * The string representation of the object.
+     * </p>
+     * @return Model[]
+     */
+    public function unserialize($serialized)
+    {
+        return $this->getQuerySet()->unserialize($serialized);
     }
 }

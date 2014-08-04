@@ -3,14 +3,18 @@
 namespace Mindy\Orm;
 
 use ArrayAccess;
+use ArrayIterator;
 use Countable;
 use Iterator;
+use IteratorAggregate;
 use Mindy\Exception\Exception;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
 use Mindy\Orm\Exception\ObjectDoesNotExist;
 use Mindy\Query\Query;
+use Serializable;
+use Traversable;
 
-class QuerySet extends Query implements Iterator, ArrayAccess, Countable
+class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serializable
 {
     /**
      * @var string the name of the ActiveRecord class.
@@ -1038,5 +1042,30 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable
         } else {
             return count($this->data);
         }
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.1.0)<br/>
+     * String representation of object
+     * @link http://php.net/manual/en/serializable.serialize.php
+     * @return string the string representation of the object or null
+     */
+    public function serialize()
+    {
+        return serialize($this->data);
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.1.0)<br/>
+     * Constructs the object
+     * @link http://php.net/manual/en/serializable.unserialize.php
+     * @param string $serialized <p>
+     * The string representation of the object.
+     * </p>
+     * @return Model[]
+     */
+    public function unserialize($serialized)
+    {
+        return $this->createModels(unserialize($serialized));
     }
 }

@@ -305,9 +305,10 @@ abstract class Field
             'name' => $this->name,
             'label' => $this->verboseName,
             'hint' => $this->helpText,
-            'html' => [
-                'multiple' => $this->value instanceof RelatedManager
-            ]
+
+//            'html' => [
+//                'multiple' => $this->value instanceof RelatedManager
+//            ]
         ]);
     }
 

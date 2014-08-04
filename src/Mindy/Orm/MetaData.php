@@ -18,6 +18,7 @@ namespace Mindy\Orm;
 use Mindy\Helper\Creator;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\HasManyField;
+use Mindy\Orm\Fields\ManyToManyField;
 
 class MetaData
 {
@@ -140,6 +141,7 @@ class MetaData
 
         $needPk = !$extra;
         $fkFields = [];
+        $m2mFields = [];
 
         foreach ($fields as $name => $config) {
             /* @var $field \Mindy\Orm\Fields\Field */
@@ -167,6 +169,7 @@ class MetaData
                 if (is_a($field, $className::$manyToManyField)) {
                     /* @var $field \Mindy\Orm\Fields\ManyToManyField */
                     $this->manyToManyFields[$name] = $field;
+                    $m2mFields[$name] = $field;
                 }
 
                 if (is_a($field, $className::$hasManyField)) {
@@ -217,6 +220,22 @@ class MetaData
             }
         }
 
+        if(!$extra) {
+            foreach ($m2mFields as $name => $field) {
+                $targetClass = $field->modelClass;
+                $metaInstance = $this->getInstance($targetClass);
+                $relatedName = $field->getRelatedName();
+
+                $m2mField = new ManyToManyField([
+                    'name' => $relatedName,
+                    'modelClass' => $className,
+                ]);
+                $m2mField->setModelClass($field->modelClass);
+
+                $metaInstance->initFields([$relatedName => $m2mField], true);
+            }
+        }
+
         foreach ($fkFields as $name => $field) {
             $targetClass = $field->modelClass;
             $metaInstance = $this->getInstance($targetClass);
@@ -229,9 +248,7 @@ class MetaData
             ]);
             $hasManyField->setModelClass($field->modelClass);
 
-            $metaInstance->initFields([
-                $relatedName => $hasManyField
-            ], true);
+            $metaInstance->initFields([$relatedName => $hasManyField], true);
         }
         return $fields;
     }
