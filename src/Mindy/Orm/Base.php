@@ -578,6 +578,11 @@ abstract class Base implements ArrayAccess
             $field->setModel($this);
             $field->onBeforeInsert();
         }
+        $this->onBeforeInsert();
+    }
+
+    protected function onBeforeInsert()
+    {
     }
 
     protected function onBeforeUpdateInternal()
@@ -591,6 +596,11 @@ abstract class Base implements ArrayAccess
             $field->setModel($this);
             $field->onBeforeUpdate();
         }
+        $this->onBeforeUpdate();
+    }
+
+    protected function onBeforeUpdate()
+    {
     }
 
     protected function onBeforeDeleteInternal()
@@ -604,6 +614,11 @@ abstract class Base implements ArrayAccess
             $field->setModel($this);
             $field->onBeforeDelete();
         }
+        $this->onBeforeDelete();
+    }
+
+    protected function onBeforeDelete()
+    {
     }
 
     protected function onAfterInsertInternal()
@@ -620,6 +635,11 @@ abstract class Base implements ArrayAccess
             $field->setModel($this);
             $field->onAfterInsert();
         }
+        $this->onAfterInsert();
+    }
+
+    protected function onAfterInsert()
+    {
     }
 
     protected function onAfterUpdateInternal()
@@ -633,6 +653,11 @@ abstract class Base implements ArrayAccess
             $field->setModel($this);
             $field->onAfterUpdate();
         }
+        $this->onAfterUpdate();
+    }
+
+    protected function onAfterUpdate()
+    {
     }
 
     protected function onAfterDeleteInternal()
@@ -646,6 +671,11 @@ abstract class Base implements ArrayAccess
             $field->setModel($this);
             $field->onAfterDelete();
         }
+        $this->onAfterDelete();
+    }
+
+    protected function onAfterDelete()
+    {
     }
 
     public function updateRelated()
