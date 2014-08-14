@@ -15,12 +15,14 @@
 namespace Mindy\Orm\Validator;
 
 
+use Modules\Core\CoreModule;
+
 class RequiredValidator extends Validator
 {
     public function validate($value)
     {
         if(empty($value)) {
-            $this->addError("Value cannot be empty");
+            $this->addError(CoreModule::t("Value cannot be empty"));
         }
 
         return $this->hasErrors() === false;

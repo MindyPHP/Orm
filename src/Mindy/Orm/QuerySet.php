@@ -1037,7 +1037,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
      */
     public function count($q = '*', $db = NULL)
     {
-        if(empty($this->data)) {
+        if(empty($this->_data)) {
             return $this->countInternal($q, $db);
         } else {
             return count($this->data);
