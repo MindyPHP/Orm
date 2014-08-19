@@ -71,9 +71,16 @@ class AutoSlugFieldTest extends DatabaseTestCase
         $threeLevelModel->save();
         $this->assertEquals('test1/test3/test4', $threeLevelModel->slug);
 
+        // Play with parent attribute, bro.
         $threeLevelModel->parent = null;
+        $this->assertNull($threeLevelModel->parent);
         $threeLevelModel->save();
         $this->assertEquals('test4', $threeLevelModel->slug);
+
+        $threeLevelModel->parent = $nestedTwo;
+        $this->assertEquals($nestedTwo->pk, $threeLevelModel->parent->pk);
+        $threeLevelModel->save();
+        $this->assertEquals('test1/test3/test4', $threeLevelModel->slug);
     }
 
     public function testReplace()
@@ -84,6 +91,12 @@ class AutoSlugFieldTest extends DatabaseTestCase
         $model = NestedModel::objects()->filter(['name' => 'test1'])->get();
         $model->slug = 'qwe';
         $this->assertEquals('test1', $model->getOldAttribute('slug'));
+        $this->assertEquals('qwe', $model->getAttribute('slug'));
+        $this->assertEquals('qwe', $model->slug);
+
+        $test2 = NestedModel::objects()->filter(['name' => 'test2'])->get();
+        $this->assertEquals('test1/test2', $test2->slug);
+
         $model->save();
 
         $this->assertEquals('qwe', $model->getOldAttribute('slug'));

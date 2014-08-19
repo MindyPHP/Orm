@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -15,7 +15,6 @@
 namespace Mindy\Orm\Fields;
 
 
-use Mindy\Form\Fields\ShortUrlField;
 use Mindy\Helper\Meta;
 use Mindy\Query\Expression;
 
@@ -32,48 +31,53 @@ class AutoSlugField extends CharField
 
     public function onBeforeInsert()
     {
-        $this->value = empty($this->value) ? $this->getModel()->{$this->source} : ltrim($this->value,  '/');
+        $this->value = empty($this->value) ? $this->getModel()->{$this->source} : ltrim($this->value, '/');
         $this->getModel()->setAttribute($this->name, $this->value);
     }
 
     public function onBeforeUpdate()
     {
-        $this->value = empty($this->value) ? $this->getModel()->{$this->source} : ltrim($this->value, '/');
-        $this->getModel()->setAttribute($this->name, $this->value);
-        $this->oldValue = $this->getModel()->getOldAttribute($this->name);
-
+        /** @var $model \Mindy\Orm\TreeModel */
         $model = $this->getModel();
-        $oldUrl = $model->getOldAttribute($this->name);
-        $url = $model->{$this->name};
-        $parent = $model->tree()->parent()->get();
-        if($parent) {
-            $url = $parent->{$this->name}  . '/' . $url;
-        }
 
-        // $alias = $model->tree()->getQuerySet()->getTableAlias();
+        // if remove parent (parent is null)
+        if (!$model->parent) {
+            if(strpos($model->{$this->name}, '/') === false) {
+                $url = $model->{$this->name};
+            } else {
+                $url = Meta::cleanString($model->{$this->source});
+            }
+
+            $model->setAttribute($this->name, $url);
+        } else {
+            $url = $model->{$this->name};
+
+            $url = $model->parent->{$this->name} . '/' . $url;
+            $model->setAttribute($this->name, $url);
+        }
 
         $model->tree()->descendants()->update([
-            $this->name => new Expression("REPLACE(`{$this->name}`, '{$oldUrl}', '{$url}')")
+            $this->name => new Expression("REPLACE(`{$this->name}`, '{$model->getOldAttribute($this->name)}', '{$url}')")
         ]);
-
-        if(!$model->parent) {
-            $slugs = explode('/', $url);
-            $model->{$this->name} = end($slugs);
-        }
     }
 
     public function getDbPrepValue()
     {
-        return $this->getRecursiveValue();
-    }
-
-    public function getRecursiveValue()
-    {
-        $slugs = [Meta::cleanString($this->getValue())];
-        if($parent = $this->getModel()->parent) {
-            $slugs[] = $parent->{$this->name};
+        /*
+         * Если передан уже конечный сформированный урл,
+         * то не пытаемся обработать его дальше
+         */
+        if(strpos($this->getValue(), '/') !== false) {
+            return $this->getValue();
+        } else {
+            $slugs = [
+                Meta::cleanString($this->getValue())
+            ];
+            if ($parent = $this->getModel()->parent) {
+                $slugs[] = $parent->{$this->name};
+            }
+            return implode('/', array_reverse($slugs));
         }
-        return implode('/', array_reverse($slugs));
     }
 
     public function getFormValue()
@@ -84,6 +88,6 @@ class AutoSlugField extends CharField
 
     public function getFormField($form, $fieldClass = null)
     {
-        return parent::getFormField($form, ShortUrlField::className());
+        return parent::getFormField($form, \Mindy\Form\Fields\ShortUrlField::className());
     }
 }

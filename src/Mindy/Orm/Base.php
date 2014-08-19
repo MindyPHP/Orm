@@ -306,13 +306,12 @@ abstract class Base implements ArrayAccess
      */
     public function setAttribute($name, $value)
     {
-        $meta = static::getMeta();
-
         if ($this->hasAttribute($name)) {
             if ($this->isPrimaryKey([$name])) {
                 $this->setIsNewRecord(true);
             }
 
+            $meta = static::getMeta();
             if ($meta->hasField($name) && $meta->hasExtraFields($name)) {
                 $field = $meta->getField($name);
                 $field->setValue($value);
@@ -592,8 +591,7 @@ abstract class Base implements ArrayAccess
             if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;
             }
-            $field->setValue($this->getAttribute($name));
-            $field->setModel($this);
+            $field->setModel($this)->setValue($this->getAttribute($name));
             $field->onBeforeUpdate();
         }
         $this->onBeforeUpdate();
@@ -705,14 +703,14 @@ abstract class Base implements ArrayAccess
         foreach ($values as $name => $value) {
             if ($meta->hasForeignField($name)) {
                 $field = $meta->getForeignField($name);
-                $field->setModel($this);
-                $field->setValue($value);
+                $field->setModel($this)->setValue($value);
                 $prepValues[$name] = $field->getDbPrepValue();
+
             } else if ($this->hasField($name)) {
                 $field = $this->getField($name);
-                $field->setModel($this);
-                $field->setValue($value);
+                $field->setModel($this)->setValue($value);
                 $prepValues[$name] = $field->getDbPrepValue();
+
             } else {
                 $prepValues[$name] = $value;
             }

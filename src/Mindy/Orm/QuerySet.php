@@ -266,10 +266,10 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
      * @param null $db
      * @return string
      */
-    public function getSql($db = null)
+    public function getSql()
     {
         $this->prepareConditions();
-        return parent::getSql($db);
+        return parent::getSql();
     }
 
     /**

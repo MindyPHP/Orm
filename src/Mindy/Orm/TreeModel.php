@@ -23,6 +23,7 @@ use Mindy\Query\Expression;
 /**
  * Class TreeModel
  * @method static \Mindy\Orm\TreeManager tree($instance = null)
+ * @method static \Mindy\Orm\Manager objects($instance = null)
  * @package Mindy\Orm
  */
 abstract class TreeModel extends Model
