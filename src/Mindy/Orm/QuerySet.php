@@ -294,7 +294,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
      * @param null|object $db
      * @return int
      */
-    public function countInternal($q = null, $db = null)
+    public function countInternal($q = null)
     {
         $this->prepareConditions();
         if (!$q) {
@@ -304,7 +304,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
                 $q = '*';
             }
         }
-        return parent::count($q, $db);
+        return parent::count($q);
     }
 
     /**
@@ -312,7 +312,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
      * @param null|object $db
      * @return string
      */
-    public function countSql($q = null, $db = null)
+    public function countSql($q = null)
     {
         $this->prepareConditions();
         if (!$q) {
@@ -322,7 +322,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
                 $q = '*';
             }
         }
-        return parent::countSql($q, $db);
+        return parent::countSql($q);
     }
 
     /**
@@ -906,8 +906,15 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
      */
     protected $_data = [];
 
+    /**
+     * @var \Mindy\Query\Command
+     */
     protected $command;
 
+    /**
+     * @param $command \Mindy\Query\Command
+     * @return $this
+     */
     protected function setCommand($command)
     {
         $this->command = $command;
@@ -917,6 +924,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
     protected function createModel($row)
     {
         $className = $this->modelClass;
+        /** @var $record Model */
         $record = new $className;
         $record->setAttributes($row);
         $record->setOldAttributes($row);
@@ -1035,12 +1043,13 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
     /**
      * @return int
      */
-    public function count($q = '*', $db = NULL)
+    public function count($q = '*')
     {
         if(empty($this->_data)) {
-            return $this->countInternal($q, $db);
+            // TODO return $this->countInternal($q);
+            return count($this->asArray()->all());
         } else {
-            return count($this->data);
+            return count($this->_data);
         }
     }
 
