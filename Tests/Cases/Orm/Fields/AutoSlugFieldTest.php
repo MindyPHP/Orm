@@ -70,6 +70,10 @@ class AutoSlugFieldTest extends DatabaseTestCase
         $threeLevelModel = new NestedModel(['name' => 'test4', 'parent' => $nestedTwo]);
         $threeLevelModel->save();
         $this->assertEquals('test1/test3/test4', $threeLevelModel->slug);
+
+        $threeLevelModel->parent = null;
+        $threeLevelModel->save();
+        $this->assertEquals('test4', $threeLevelModel->slug);
     }
 
     public function testReplace()

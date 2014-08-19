@@ -55,6 +55,11 @@ class AutoSlugField extends CharField
         $model->tree()->descendants()->update([
             $this->name => new Expression("REPLACE(`{$this->name}`, '{$oldUrl}', '{$url}')")
         ]);
+
+        if(!$model->parent) {
+            $slugs = explode('/', $url);
+            $model->{$this->name} = end($slugs);
+        }
     }
 
     public function getDbPrepValue()

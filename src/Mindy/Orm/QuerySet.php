@@ -1047,7 +1047,10 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
     {
         if(empty($this->_data)) {
             // TODO return $this->countInternal($q);
-            return count($this->asArray()->all());
+            $asArray = $this->asArray;
+            $cnt = count($this->asArray()->all());
+            $this->asArray = $asArray;
+            return $cnt;
         } else {
             return count($this->_data);
         }
