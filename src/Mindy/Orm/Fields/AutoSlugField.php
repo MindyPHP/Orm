@@ -43,20 +43,29 @@ class AutoSlugField extends CharField
         // if remove parent (parent is null)
         if (!$model->parent) {
             if(strpos($model->{$this->name}, '/') === false) {
-                $url = $model->{$this->name};
+                $url = Meta::cleanString($model->{$this->name});
             } else {
-                $url = Meta::cleanString($model->{$this->source});
+                if($model->{$this->name}) {
+                    $slugs = explode('/', $model->{$this->name});
+                    $url = end($slugs);
+                } else {
+                    $url = Meta::cleanString($model->{$this->source});
+                }
             }
 
             $model->setAttribute($this->name, $url);
         } else {
-            $url = $model->{$this->name};
-
-            $url = $model->parent->{$this->name} . '/' . $url;
+            $parentUrl = $model->parent->{$this->name};
+            $slugs = explode('/', $model->{$this->name});
+            $url = $parentUrl . '/' . end($slugs);
             $model->setAttribute($this->name, $url);
         }
 
-        $model->tree()->descendants()->update([
+        $model->tree()->filter([
+            'lft__gt' => $model->getOldAttribute('lft'),
+            'rgt__lt' => $model->getOldAttribute('rgt'),
+            'root' => $model->getOldAttribute('root')
+        ])->update([
             $this->name => new Expression("REPLACE(`{$this->name}`, '{$model->getOldAttribute($this->name)}', '{$url}')")
         ]);
     }

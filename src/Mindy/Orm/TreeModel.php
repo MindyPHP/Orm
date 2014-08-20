@@ -28,6 +28,8 @@ use Mindy\Query\Expression;
  */
 abstract class TreeModel extends Model
 {
+    public $fuckThemAll = [];
+
     public static function getFields()
     {
         return [
@@ -96,6 +98,13 @@ abstract class TreeModel extends Model
      */
     public function save(array $fields = [])
     {
+        $this->fuckThemAll = [
+            'lft' => $this->lft,
+            'rgt' => $this->rgt,
+            'level' => $this->level,
+            'root' => $this->root
+        ];
+
         if ($this->getIsNewRecord()) {
             if ($this->parent) {
                 $this->appendTo($this->parent);
@@ -270,11 +279,13 @@ abstract class TreeModel extends Model
         $right = $this->rgt;
         $levelDelta = 1 - $this->level;
         $delta = 1 - $left;
-        $this->objects()->filter([
-            'lft__gte' => $left,
-            'rgt__lte' => $right,
-            'root' => $this->root
-        ])->update([
+        $this->objects()
+            ->filter([
+                'lft__gte' => $left,
+                'rgt__lte' => $right,
+                'root' => $this->root
+            ])
+            ->update([
                 'lft' => new Expression('lft' . sprintf('%+d', $delta)),
                 'rgt' => new Expression('rgt' . sprintf('%+d', $delta)),
                 'level' => new Expression('level' . sprintf('%+d', $levelDelta)),
@@ -310,7 +321,7 @@ abstract class TreeModel extends Model
      */
     public function isRoot()
     {
-        return $this->level == 1;
+        return $this->getIsRoot();
     }
 
     /**
@@ -338,8 +349,14 @@ abstract class TreeModel extends Model
     private function shiftLeftRight($key, $delta)
     {
         foreach (['lft', 'rgt'] as $attribute) {
-            $this->objects()->filter([$attribute . '__gte' => $key, 'root' => $this->root])
-                ->update([$attribute => new Expression($attribute . sprintf('%+d', $delta))]);
+            $this->objects()
+                ->filter([
+                    $attribute . '__gte' => $key,
+                    'root' => $this->root
+                ])
+                ->update([
+                    $attribute => new Expression($attribute . sprintf('%+d', $delta))
+                ]);
         }
     }
 
@@ -347,10 +364,7 @@ abstract class TreeModel extends Model
      * @param TreeModel $target .
      * @param int $key .
      * @param int $levelUp .
-     * @param boolean $runValidation .
-     * @param array $attributes .
-     * @throws Exception.
-     * @throws \Exception.
+     * @throws \Exception .
      * @return boolean.
      */
     private function addNode($target, $key, $levelUp)
@@ -442,25 +456,30 @@ abstract class TreeModel extends Model
 
         if ($this->root !== $target->root) {
             foreach (['lft', 'rgt'] as $attribute) {
-                $this->objects()->filter([
-                    $attribute . '__gte' => $key,
-                    'root' => $target->root
-                ])->update([
+                $this->objects()
+                    ->filter([
+                        $attribute . '__gte' => $key,
+                        'root' => $target->root
+                    ])
+                    ->update([
                         $attribute => new Expression($attribute . sprintf('%+d', $right - $left + 1))
                     ]);
             }
 
             $delta = $key - $left;
-            $this->objects()->filter([
-                'lft__gte' => $left,
-                'rgt__lte' => $right,
-                'root' => $this->root
-            ])->update([
+            $this->objects()
+                ->filter([
+                    'lft__gte' => $left,
+                    'rgt__lte' => $right,
+                    'root' => $this->root
+                ])
+                ->update([
                     'lft' => new Expression('lft' . sprintf('%+d', $delta)),
                     'rgt' => new Expression('rgt' . sprintf('%+d', $delta)),
                     'level' => new Expression('level' . sprintf('%+d', $levelDelta)),
                     'root' => $target->root,
                 ]);
+
             $this->shiftLeftRight($right + 1, $left - $right - 1);
         }
 

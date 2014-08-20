@@ -10,6 +10,7 @@ use IteratorAggregate;
 use Mindy\Exception\Exception;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
 use Mindy\Orm\Exception\ObjectDoesNotExist;
+use Mindy\Query\ConnectionManager;
 use Mindy\Query\Query;
 use Serializable;
 use Traversable;
@@ -28,7 +29,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
      * @var boolean whether to return each record as an array. If false (default), an object
      * of [[modelClass]] will be created to represent each record.
      */
-    public $asArray;
+    protected $asArray;
 
     /**
      * @var string the SQL statement to be executed for retrieving AR records.
@@ -83,7 +84,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
      */
     private $_filterOrExclude = [];
 
-    protected function prepareCommand($db = null)
+    protected function prepareCommand()
     {
         $this->prepareConditions();
 
@@ -92,7 +93,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
         if ($this->_chainedHasMany && !$group) {
             $this->groupBy($this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey()));
         }
-        $command = $this->createCommand($db);
+        $command = $this->createCommand();
         $this->groupBy = $group;
         $this->setCommand($command);
         return $this;
@@ -100,13 +101,12 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
 
     /**
      * Executes query and returns all results as an array.
-     * @param Connection $db the DB connection used to create the DB command.
      * If null, the DB connection returned by [[modelClass]] will be used.
      * @return array the query results. If the query results in nothing, an empty array will be returned.
      */
-    public function all($db = null)
+    public function all()
     {
-        return $this->prepareCommand($db)->getData($this->asArray ? false : true);
+        return $this->prepareCommand()->getData($this->asArray ? false : true);
 
 //        $rows = $command->queryAll();
 //        if (!empty($rows)) {
@@ -171,21 +171,21 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
     public function update(array $attributes)
     {
         $this->prepareConditions(false);
-        return parent::updateAll($this->model->tableName(), $attributes, $this->model->getConnection());
+        return parent::updateAll($this->model->tableName(), $attributes);
     }
 
     public function updateSql(array $attributes)
     {
         $this->prepareConditions(false);
-        $command = $this->createCommand($this->model->getConnection());
+        $command = $this->createCommand();
         $command->update($this->model->tableName(), $attributes, $this->where, $this->params);
-        return $command->sql;
+        return $command->getRawSql();
     }
 
     public function updateCounters(array $counters)
     {
         $table = $this->model->tableName() . ' ' . $this->getTableAlias();
-        return parent::updateCountersInternal($table, $this->makeAliasAttributes($counters), $this->model->getConnection());
+        return parent::updateCountersInternal($table, $this->makeAliasAttributes($counters));
     }
 
     public function getOrCreate(array $attributes)
@@ -202,13 +202,12 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
 
     public function updateOrCreate(array $attributes, array $updateAttributes)
     {
+        /** @var Model $model */
         $model = $this->filter($attributes)->get();
-        if ($model) {
-            $model->setAttributes($updateAttributes);
-        } else {
+        if (!$model) {
             $model = $this->model;
-            $model->setAttributes($updateAttributes);
         }
+        $model->setAttributes($updateAttributes);
         $model->save();
         return $model;
     }
@@ -225,7 +224,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
         return $this;
     }
 
-    public function allSql($db = null)
+    public function allSql()
     {
         $this->prepareConditions();
 
@@ -233,7 +232,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
         if ($this->_chainedHasMany && !$group) {
             $this->groupBy($this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey()));
         }
-        $return = parent::allSql($db);
+        $return = parent::allSql();
         $this->groupBy = $group;
         return $return;
     }
@@ -263,7 +262,6 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
     }
 
     /**
-     * @param null $db
      * @return string
      */
     public function getSql()
@@ -291,7 +289,6 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
 
     /**
      * @param null|string $q
-     * @param null|object $db
      * @return int
      */
     public function countInternal($q = null)
@@ -309,7 +306,6 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
 
     /**
      * @param null|string $q
-     * @param null|object $db
      * @return string
      */
     public function countSql($q = null)
@@ -327,7 +323,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
 
     /**
      * Creates a DB command that can be used to execute this query.
-     * @param \Mindy\Query\Connection $db the DB connection used to create the DB command.
+     * @param string $db name of the DB connection used to create the DB command.
      * If null, the DB connection returned by [[modelClass]] will be used.
      * @return \Mindy\Query\Command the created DB command instance.
      */
@@ -335,9 +331,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
     {
         /** @var Orm $modelClass */
         $modelClass = $this->modelClass;
-        if ($db === null) {
-            $db = $modelClass::getConnection();
-        }
+        $db = ConnectionManager::getDb($db);
 
         $select = $this->select;
         $from = $this->from;
@@ -374,19 +368,17 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
 
     /**
      * Add chained relation
-     * @param array|string $key_chain
+     * @param array|string $keyChain
      * @param string $alias
      * @param object $model
      */
-    protected function addChain($key_chain, $alias, $model)
+    protected function addChain($keyChain, $alias, $model)
     {
-        if (is_array($key_chain))
-            $key_chain = $this->prefixToKey($key_chain);
+        if (is_array($keyChain)) {
+            $keyChain = $this->prefixToKey($keyChain);
+        }
 
-        $this->_chains[$key_chain] = array(
-            'alias' => $alias,
-            'model' => $model
-        );
+        $this->_chains[$keyChain] = ['alias' => $alias, 'model' => $model];
     }
 
     /**
@@ -424,22 +416,22 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
         $model = $this->model;
         $alias = $this->tableAlias;
 
-        $prefix_remains = array();
-        $chain_remains = array();
+        $prefixRemains = [];
+        $chainRemains = [];
 
         foreach ($prefix as $relation_name) {
             $chain[] = $relation_name;
             if ($founded = $this->getChain($chain)) {
                 $model = $founded['model'];
                 $alias = $founded['alias'];
-                $prefix_remains = array();
-                $chain_remains = $chain;
+                $prefixRemains = [];
+                $chainRemains = $chain;
             } else {
-                $prefix_remains[] = $relation_name;
+                $prefixRemains[] = $relation_name;
             }
         }
 
-        return [$model, $alias, $prefix_remains, $chain_remains];
+        return [$model, $alias, $prefixRemains, $chainRemains];
     }
 
     /**
@@ -483,28 +475,29 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
 
     /**
      * Returns chain if exists
-     * @param array|string $key_chain
+     * @param array|string $keyChain
      * @return null|array
      */
-    protected function getChain($key_chain)
+    protected function getChain($keyChain)
     {
-        if (is_array($key_chain))
-            $key_chain = $this->prefixToKey($key_chain);
+        if (is_array($keyChain))
+            $keyChain = $this->prefixToKey($keyChain);
 
-        if (isset($this->_chains[$key_chain])) {
-            return $this->_chains[$key_chain];
+        if (isset($this->_chains[$keyChain])) {
+            return $this->_chains[$keyChain];
         }
         return null;
     }
 
     /**
      * Returns chain alias
-     * @param array|string $key_chain
+     * @param array|string $keyChain
      * @return string
      */
-    protected function getChainAlias($key_chain)
+    protected function getChainAlias($keyChain)
     {
-        return ($chain = $this->getChain($key_chain)) ? $chain['alias'] : '';
+        $chain = $this->getChain($keyChain);
+        return $chain ? $chain['alias'] : '';
     }
 
     /**
@@ -551,6 +544,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
 
         foreach ($lookup->parse() as $data) {
             list($prefix, $field, $condition, $params) = $data;
+            /** @var Model $model */
             list($alias, $model) = $this->getOrCreateChainAlias($prefix);
 
             if ($field === 'pk') {
@@ -609,13 +603,13 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
      * @param array $query
      * @param $method
      * @param array $queryCondition
+     * @param bool $aliased
      * @return $this
      */
     public function buildCondition(array $query, $method, $queryCondition = [], $aliased = true)
     {
         list($condition, $params) = $this->parseLookup($query, $aliased);
         $this->$method(array_merge($queryCondition, $condition), $params);
-
         return $this;
     }
 
@@ -658,7 +652,6 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
     {
         $this->_filterOrExclude[] = $query;
         return $this;
-//        return $this->buildCondition($query, 'excludeOrWhere', ['and']);
     }
 
     /**
@@ -693,49 +686,6 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
         $this->asArray = $value;
         return $this;
     }
-
-
-    /**
-     * Converts found rows into model instances
-     * @param array $rows
-     * @return array|Orm[]
-     */
-//    private function createModels($rows)
-//    {
-//        $models = [];
-//        if ($this->asArray) {
-//            if ($this->indexBy === null) {
-//                return $rows;
-//            }
-//            foreach ($rows as $row) {
-//                if (is_string($this->indexBy)) {
-//                    $key = $row[$this->indexBy];
-//                } else {
-//                    $key = call_user_func($this->indexBy, $row);
-//                }
-//                $models[$key] = $row;
-//            }
-//        } else {
-//            /** @var Orm $class */
-//            $class = $this->modelClass;
-//            if ($this->indexBy === null) {
-//                foreach ($rows as $row) {
-//                    $models[] = $class::create($row);
-//                }
-//            } else {
-//                foreach ($rows as $row) {
-//                    $model = $class::create($row);
-//                    if (is_string($this->indexBy)) {
-//                        $key = $model->{$this->indexBy};
-//                    } else {
-//                        $key = call_user_func($this->indexBy, $model);
-//                    }
-//                    $models[$key] = $model;
-//                }
-//            }
-//        }
-//        return $models;
-//    }
 
     /**
      * Converts name => `name`, user.name => `user`.`name`
