@@ -23,7 +23,7 @@ class AutoSlugField extends CharField
     /**
      * @var string
      */
-    public $source;
+    public $source = 'name';
     /**
      * @var string|null
      */

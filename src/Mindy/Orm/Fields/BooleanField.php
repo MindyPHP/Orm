@@ -23,7 +23,7 @@ class BooleanField extends Field
 
     public function sql()
     {
-        return trim(sprintf('%s %s', $this->sqlType(), $this->sqlDefault()));
+        return trim(sprintf('%s %s %s', $this->sqlType(), $this->sqlNullable(), $this->sqlDefault()));
     }
 
     public function sqlType()
