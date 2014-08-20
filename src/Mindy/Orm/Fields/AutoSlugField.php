@@ -34,10 +34,13 @@ class AutoSlugField extends CharField
         $model = $this->getModel();
         $this->value = empty($this->value) ? $model->{$this->source} : ltrim($this->value, '/');
         if($model->parent) {
-            $model->setAttribute($this->name, $model->parent->{$this->name} . '/' . $this->value);
+            $url = $model->parent->{$this->name} . '/' . $this->value;
         } else {
-            $model->setAttribute($this->name, $this->value);
+            $url = $this->value;
         }
+
+        $url = '/' . ltrim($url, '/');
+        $model->setAttribute($this->name, $url);
     }
 
     public function onBeforeUpdate()
@@ -58,11 +61,13 @@ class AutoSlugField extends CharField
                 }
             }
 
+            $url = '/' . ltrim($url, '/');
             $model->setAttribute($this->name, $url);
         } else {
             $parentUrl = $model->parent->{$this->name};
             $slugs = explode('/', $model->{$this->name});
             $url = $parentUrl . '/' . end($slugs);
+            $url = '/' . ltrim($url, '/');
             $model->setAttribute($this->name, $url);
         }
 

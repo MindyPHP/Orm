@@ -15,15 +15,31 @@
 namespace Mindy\Orm\Fields;
 
 
+use Mindy\Query\ConnectionManager;
+
 class DateTimeField extends Field
 {
     public $autoNowAdd = false;
 
     public $autoNow = false;
 
+    public function onBeforeInsert()
+    {
+        if($this->autoNowAdd) {
+            $this->getModel()->setAttribute($this->name, $this->getValue());
+        }
+    }
+
+    public function onBeforeUpdate()
+    {
+        if($this->autoNow) {
+            $this->getModel()->setAttribute($this->name, $this->getValue());
+        }
+    }
+
     public function getValue()
     {
-        $db = $this->getModel()->getConnection()->getQueryBuilder();
+        $db = ConnectionManager::getDb()->getQueryBuilder();
         if(is_numeric($this->value) || $this->autoNowAdd && $this->getModel()->getIsNewRecord() || $this->autoNow) {
             return $db->convertToDateTime();
         } else {
@@ -39,5 +55,10 @@ class DateTimeField extends Field
     public function sqlDefault()
     {
         return $this->default === null ? '' : "DEFAULT '{$this->default}'";
+    }
+
+    public function sqlNullable()
+    {
+        return $this->autoNow ? 'NULL' : parent::sqlNullable();
     }
 }

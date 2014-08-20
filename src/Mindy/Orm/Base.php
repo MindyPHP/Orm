@@ -23,6 +23,7 @@ use Mindy\Orm\Exception\InvalidConfigException;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Query\ConnectionManager;
 use Mindy\Query\StaleObjectException;
+use ReflectionClass;
 
 /**
  * Class Base
@@ -458,7 +459,19 @@ abstract class Base implements ArrayAccess
         } else {
             $class = $normalizeClass;
         }
-        return "{{%" . trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', '_\0', $class)), '_') . "}}";
+        $tableName = self::normalizeTableName(self::getModuleName()) . '_' . self::normalizeTableName($class);
+        return "{{%" . $tableName . "}}";
+    }
+
+    public static function normalizeTableName($name)
+    {
+        return trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', '_\0', $name)), '_');
+    }
+
+    public static function getModuleName()
+    {
+        $object = new ReflectionClass(get_called_class());
+        return basename(dirname(dirname($object->getFilename())));
     }
 
     /**
@@ -686,7 +699,7 @@ abstract class Base implements ArrayAccess
                 $field->setModel($this);
 
                 if (empty($value)) {
-                    if($field instanceof ManyToManyField) {
+                    if ($field instanceof ManyToManyField) {
                         $field->getManager()->clean();
                     }
                 } else {

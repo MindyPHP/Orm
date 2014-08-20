@@ -20,19 +20,10 @@ use ReflectionObject;
 trait AppYiiCompatible
 {
     /**
-     * @return string
-     */
-    public function getModuleName()
-    {
-        $object = new ReflectionObject($this);
-        return basename(dirname(dirname($object->getFilename())));
-    }
-
-    /**
      * @return \Mindy\Base\Module
      */
     public function getModule()
     {
-        return Mindy::app()->getModule($this->getModuleName());
+        return Mindy::app()->getModule(self::getModuleName());
     }
 }
