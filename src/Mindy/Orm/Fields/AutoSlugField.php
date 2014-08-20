@@ -31,8 +31,13 @@ class AutoSlugField extends CharField
 
     public function onBeforeInsert()
     {
-        $this->value = empty($this->value) ? $this->getModel()->{$this->source} : ltrim($this->value, '/');
-        $this->getModel()->setAttribute($this->name, $this->value);
+        $model = $this->getModel();
+        $this->value = empty($this->value) ? $model->{$this->source} : ltrim($this->value, '/');
+        if($model->parent) {
+            $model->setAttribute($this->name, $model->parent->{$this->name} . '/' . $this->value);
+        } else {
+            $model->setAttribute($this->name, $this->value);
+        }
     }
 
     public function onBeforeUpdate()
@@ -68,25 +73,6 @@ class AutoSlugField extends CharField
         ])->update([
             $this->name => new Expression("REPLACE(`{$this->name}`, '{$model->getOldAttribute($this->name)}', '{$url}')")
         ]);
-    }
-
-    public function getDbPrepValue()
-    {
-        /*
-         * Если передан уже конечный сформированный урл,
-         * то не пытаемся обработать его дальше
-         */
-        if(strpos($this->getValue(), '/') !== false) {
-            return $this->getValue();
-        } else {
-            $slugs = [
-                Meta::cleanString($this->getValue())
-            ];
-            if ($parent = $this->getModel()->parent) {
-                $slugs[] = $parent->{$this->name};
-            }
-            return implode('/', array_reverse($slugs));
-        }
     }
 
     public function getFormValue()

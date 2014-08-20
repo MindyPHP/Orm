@@ -733,10 +733,10 @@ abstract class Base implements ArrayAccess
             }
         }
 
-        $values = $this->getDbPrepValues($values);
+        $dbValues = $this->getDbPrepValues($values);
 
         $db = static::getDb();
-        $command = $db->createCommand()->insert($this->tableName(), $values);
+        $command = $db->createCommand()->insert($this->tableName(), $dbValues);
         if (!$command->execute()) {
             return false;
         }
@@ -855,15 +855,14 @@ abstract class Base implements ArrayAccess
         }
         // We do not check the return value of updateAll() because it's possible
         // that the UPDATE statement doesn't change anything and thus returns 0.
-        $values = $this->getDbPrepValues($values);
-        $rows = $this->objects()->filter($condition)->update($values);
+        $dbValues = $this->getDbPrepValues($values);
+        $rows = $this->objects()->filter($condition)->update($dbValues);
 
         if ($lock !== null && !$rows) {
             throw new StaleObjectException('The object being updated is outdated.');
         }
 
         foreach ($values as $name => $value) {
-
             // o_O
             $this->_attributes[$name] = $value;
 
