@@ -101,7 +101,7 @@ class Manager implements IteratorAggregate, Serializable
 
     /**
      * @param array $q
-     * @return Orm|null
+     * @return TreeModel|Model|null
      */
     public function get(array $q = [])
     {

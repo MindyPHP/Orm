@@ -145,7 +145,21 @@ class ImageField extends FileField
         $value = $value ? $value : $this->getCleanValue();
         $dir = dirname($value);
         $filename = basename($value);
-        return ($dir ? $dir . DIRECTORY_SEPARATOR : '') . $prefix . $filename;
+        return ($dir ? $dir . DIRECTORY_SEPARATOR : '') . $this->preparePrefix($prefix) . $filename;
+    }
+
+    public function __get($name)
+    {
+        if(strpos($name, 'url_') === 0) {
+            return $this->sizeUrl(str_replace('url_', '', $name));
+        } else {
+            return parent::__getInternal($name);
+        }
+    }
+
+    protected function preparePrefix($prefix)
+    {
+        return rtrim($prefix, '_') . '_';
     }
 
     /**
@@ -154,7 +168,7 @@ class ImageField extends FileField
      */
     public function sizeUrl($prefix)
     {
-        $path = $this->sizeStoragePath($prefix);
+        $path = $this->sizeStoragePath($this->preparePrefix($prefix));
         return $this->getStorage()->url($path);
     }
 
