@@ -1283,12 +1283,13 @@ abstract class Base implements ArrayAccess
         return static::getMeta()->getManyFields();
     }
 
-    public function delete()
+    public function delete($sql = false)
     {
         $this->onBeforeDeleteInternal();
-        $result = $this->objects()->delete([
-            'pk' => $this->pk
-        ]);
+        if($sql) {
+            return $this->objects()->deleteSql(['pk' => $this->pk]);
+        }
+        $result = $this->objects()->delete(['pk' => $this->pk]);
         if ($result >= 1) {
             $this->onAfterDeleteInternal();
         }

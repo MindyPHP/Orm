@@ -27,9 +27,17 @@ class DatabaseTestCase extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->settings = require __DIR__ . '/config_local.php';
+        if(is_file(__DIR__ . '/config_local.php')) {
+            $this->settings = require __DIR__ . '/config_local.php';
+        } else {
+            $this->settings = [
+                'default' => [
+                    'class' => '\Mindy\Query\Connection',
+                    'dsn' => 'sqlite::memory:',
+                ]
+            ];
+        }
         $this->manager = new ConnectionManager(['databases' => $this->settings]);
-        $this->setConnection('mysql');
         $this->initModels($this->getModels());
     }
 
@@ -42,11 +50,6 @@ class DatabaseTestCase extends TestCase
     public function getModels()
     {
         return [];
-    }
-
-    public function setConnection($name)
-    {
-        $this->manager->setDefaultDatabase($name);
     }
 
     public function initModels(array $models)

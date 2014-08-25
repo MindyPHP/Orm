@@ -789,23 +789,21 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
 
     /**
      * @param string $column
-     * @param null $db
      * @return float|int
      */
-    public function sum($column, $db = null)
+    public function sum($column)
     {
         $this->prepareConditions();
         $column = $this->aliasColumn($column);
-        $value = parent::sum($column, $db);
+        $value = parent::sum($column);
         return $this->numval($value);
     }
 
     /**
      * @param string $column
-     * @param null $db
      * @return float|int
      */
-    public function average($column, $db = null)
+    public function average($column)
     {
         $this->prepareConditions();
         $column = $this->aliasColumn($column);
@@ -815,36 +813,42 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
 
     /**
      * @param string $column
-     * @param null $db
      * @return float|int
      */
-    public function min($column, $db = null)
+    public function min($column)
     {
         $this->prepareConditions();
         $column = $this->aliasColumn($column);
-        $value = parent::min($column, $db);
+        $value = parent::min($column);
         return $this->numval($value);
     }
 
     /**
      * @param string $column
-     * @param null $db
      * @return float|int
      */
-    public function max($column, $db = null)
+    public function max($column)
     {
         $this->prepareConditions();
         $column = $this->aliasColumn($column);
-        $value = parent::max($column, $db);
+        $value = parent::max($column);
         return $this->numval($value);
     }
 
-    public function delete($db = null)
+    public function delete()
     {
-        $this->prepareConditions();
-        $alias = $this->getTableAlias();
-        $tableName = $alias . " USING " . $this->model->tableName() . " AS " . $alias;
-        return $this->createCommand($db)->delete($tableName, $this->where, $this->params)->execute();
+        $this->prepareConditions(false);
+//        $alias = $this->getTableAlias();
+//        $tableName = $alias . " USING " . $this->model->tableName() . " AS " . $alias;
+        $tableName = $this->model->tableName();
+        return $this->createCommand()->delete($tableName, $this->where, $this->params)->execute();
+    }
+
+    public function deleteSql()
+    {
+        $this->prepareConditions(false);
+        $tableName = $this->model->tableName();
+        return $this->createCommand()->delete($tableName, $this->where, $this->params)->getRawSql();
     }
 
     /********************************************************

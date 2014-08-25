@@ -267,21 +267,24 @@ class Manager implements IteratorAggregate, Serializable
     public function delete(array $attributes = [])
     {
         $model = $this->getModel();
-        if($model->getIsNewRecord()) {
-            throw new Exception("The model can't be deleted because it is new.");
-        }
+        if(empty($attributes)) {
+            if ($model->getIsNewRecord()) {
+                throw new Exception("The model can't be deleted because it is new.");
+            }
 
-        if(!empty($attributes)) {
-            $qs = $this->filter($attributes);
-        } else {
-            $qs = $this->getQuerySet();
+            $attributes = ['pk' => $model->pk];
         }
-        return $qs->delete();
+        return $this->filter($attributes)->delete();
+    }
+
+    public function deleteSql(array $attributes = [])
+    {
+        return $this->getQuerySet()->deleteSql($attributes);
     }
 
     public function create(array $attributes)
     {
-        return $this->getModel()->setData($attributes)->save();
+        return $this->getModel()->setAttributes($attributes)->save();
     }
 
     /**

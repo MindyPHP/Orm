@@ -27,6 +27,10 @@ class MetaData
      */
     private static $instances = [];
     /**
+     * @var array
+     */
+    public $backwardFields = [];
+    /**
      * @var string
      */
     protected $modelClassName;
@@ -222,6 +226,7 @@ class MetaData
 
         if(!$extra) {
             foreach ($m2mFields as $name => $field) {
+                $this->backwardFields[] = $name;
                 $targetClass = $field->modelClass;
                 $metaInstance = $this->getInstance($targetClass);
                 $relatedName = $field->getRelatedName();
@@ -237,6 +242,7 @@ class MetaData
         }
 
         foreach ($fkFields as $name => $field) {
+            $this->backwardFields[] = $name;
             $targetClass = $field->modelClass;
             $metaInstance = $this->getInstance($targetClass);
             $relatedName = $field->getRelatedName();
@@ -308,5 +314,10 @@ class MetaData
     public function getExtraFields($name)
     {
         return $this->extFields[$name];
+    }
+
+    public function isBackwardField($name)
+    {
+        return in_array($name, $this->backwardFields);
     }
 }
