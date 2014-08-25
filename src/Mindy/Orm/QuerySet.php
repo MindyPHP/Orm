@@ -106,9 +106,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
      */
     public function all()
     {
-        $data = $this->prepareCommand()->getData($this->asArray ? false : true);
-        $this->_filterComplete = false;
-        return $data;
+        return $this->getData($this->asArray ? false : true);
 
 //        $rows = $command->queryAll();
 //        if (!empty($rows)) {
@@ -222,8 +220,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
      */
     public function paginate($page = 1, $pageSize = 10)
     {
-        $this->limit($pageSize)->offset($page > 1 ? $pageSize * ($page - 1) : 0);
-        return $this;
+        return $this->limit($pageSize)->offset($page > 1 ? $pageSize * ($page - 1) : 0);
     }
 
     public function allSql()
@@ -914,6 +911,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
             }
             $this->_data = $this->command->queryAll();
             $this->command = null;
+            $this->_filterComplete = false;
         }
         return $forceModels ? $this->createModels($this->_data) : $this->_data;
     }
@@ -1004,11 +1002,11 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
     public function count($q = '*')
     {
         if(empty($this->_data)) {
-            // TODO return $this->countInternal($q);
-            $asArray = $this->asArray;
-            $cnt = count($this->asArray()->all());
-            $this->asArray = $asArray;
-            return $cnt;
+            return $this->countInternal($q);
+//            $asArray = $this->asArray;
+//            $cnt = count($this->asArray()->all());
+//            $this->asArray = $asArray;
+//            return $cnt;
         } else {
             return count($this->_data);
         }
