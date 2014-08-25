@@ -28,8 +28,6 @@ use Mindy\Query\Expression;
  */
 abstract class TreeModel extends Model
 {
-    public $fuckThemAll = [];
-
     public static function getFields()
     {
         return [
@@ -98,13 +96,6 @@ abstract class TreeModel extends Model
      */
     public function save(array $fields = [])
     {
-        $this->fuckThemAll = [
-            'lft' => $this->lft,
-            'rgt' => $this->rgt,
-            'level' => $this->level,
-            'root' => $this->root
-        ];
-
         if ($this->getIsNewRecord()) {
             if ($this->parent) {
                 $this->appendTo($this->parent);

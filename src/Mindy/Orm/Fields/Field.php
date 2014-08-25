@@ -293,8 +293,10 @@ abstract class Field
             return null;
         }
 
-        if(!$fieldClass) {
+        if($fieldClass === null) {
             $fieldClass = $this->choices ? DropDownField::className() : CharField::className();
+        } elseif ($fieldClass === false) {
+            return null;
         }
 
         return Creator::createObject([

@@ -106,7 +106,9 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
      */
     public function all()
     {
-        return $this->prepareCommand()->getData($this->asArray ? false : true);
+        $data = $this->prepareCommand()->getData($this->asArray ? false : true);
+        $this->_filterComplete = false;
+        return $data;
 
 //        $rows = $command->queryAll();
 //        if (!empty($rows)) {
@@ -284,7 +286,9 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
         } elseif (count($rows) === 0) {
             return null;
         }
-        return $this->asArray ? array_shift($rows) : $this->createModel(array_shift($rows));
+        $result = $this->asArray ? array_shift($rows) : $this->createModel(array_shift($rows));
+        $this->_filterComplete = false;
+        return $result;
     }
 
     /**

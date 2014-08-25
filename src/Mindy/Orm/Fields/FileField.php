@@ -37,7 +37,7 @@ class FileField extends CharField
      * %O - Current object class (lower-based)
      * @var string
      */
-    public $uploadTo = 'models/%O/%Y-%m-%d/';
+    public $uploadTo = '%M/%O/%Y-%m-%d/';
 
     public $hashName = true;
 
@@ -67,8 +67,9 @@ class FileField extends CharField
      */
     public function getUrl()
     {
-        if ($this->value)
+        if ($this->value) {
             return $this->getStorage()->url($this->value);
+        }
         return null;
     }
 

@@ -76,7 +76,7 @@ class HasManyField extends RelatedField
     public function to()
     {
         if (!$this->to) {
-            $this->to = $this->getTable() . '_' . $this->getModel()->getPkName();
+            $this->to = $this->getModel()->getPkName();
         }
         return $this->to;
     }

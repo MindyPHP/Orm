@@ -29,25 +29,25 @@ class TreeQuerySet extends QuerySet
      */
     public function descendants($includeSelf = false, $depth = null)
     {
-        if ($includeSelf) {
-            $qs = $this->filter([
-                'lft__gte' => $this->model->lft,
-                'rgt__lte' => $this->model->rgt,
-                'root' => $this->model->root
-            ])->order(['lft']);
-        } else {
-            $qs = $this->filter([
-                'lft__gt' => $this->model->lft,
-                'rgt__lt' => $this->model->rgt,
-                'root' => $this->model->root
-            ])->order(['lft']);
+        $this->filter([
+            'lft__gt' => $this->model->lft,
+            'rgt__lt' => $this->model->rgt,
+            'root' => $this->model->root
+        ])->order(['lft']);
+
+        if ($includeSelf === false) {
+            $this->exclude([
+                'pk' => $this->model->pk
+            ]);
         }
 
         if ($depth !== null) {
-            $qs = $qs->filter(['level__lte' => $this->model->level + $depth]);
+            $this->filter([
+                'level__lte' => $this->model->level + $depth
+            ]);
         }
 
-        return $qs;
+        return $this;
     }
 
     /**
@@ -158,7 +158,7 @@ class TreeQuerySet extends QuerySet
     {
         $pkList = $this->valuesList(['parent_id'], true);
         $deleted = parent::delete($db);
-        if($deleted && !empty($pkList)) {
+        if ($deleted && !empty($pkList)) {
             $pkList = array_unique(array_filter($pkList));
             $this->where = [];
             $this->filter(['pk__in' => $pkList])->update([
@@ -181,7 +181,7 @@ class TreeQuerySet extends QuerySet
             // Node Stack. Used to help building the hierarchy
             $stack = [];
             foreach ($collection as $item) {
-                if($item instanceof Arrayable) {
+                if ($item instanceof Arrayable) {
                     $item = $item->toArray();
                 }
                 $item[$this->treeKey] = [];

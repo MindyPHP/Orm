@@ -61,4 +61,9 @@ class DateTimeField extends Field
     {
         return $this->autoNow ? 'NULL' : parent::sqlNullable();
     }
+
+    public function getFormField($form, $fieldClass = null)
+    {
+        return parent::getFormField($form, $this->autoNow || $this->autoNowAdd ? false : $fieldClass);
+    }
 }

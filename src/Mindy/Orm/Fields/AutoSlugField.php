@@ -32,7 +32,7 @@ class AutoSlugField extends CharField
     public function onBeforeInsert()
     {
         $model = $this->getModel();
-        $this->value = empty($this->value) ? $model->{$this->source} : ltrim($this->value, '/');
+        $this->value = empty($this->value) ? Meta::cleanString($model->{$this->source}) : ltrim($this->value, '/');
         if($model->parent) {
             $url = $model->parent->{$this->name} . '/' . $this->value;
         } else {
@@ -47,6 +47,11 @@ class AutoSlugField extends CharField
     {
         /** @var $model \Mindy\Orm\TreeModel */
         $model = $this->getModel();
+
+        // Случай когда обнулен slug, например из админки
+        if(empty($model->{$this->name})) {
+            $model->{$this->name} = Meta::cleanString($model->{$this->source});
+        }
 
         // if remove parent (parent is null)
         if (!$model->parent) {
