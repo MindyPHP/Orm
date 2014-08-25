@@ -16,7 +16,7 @@ namespace Mindy\Orm\Fields;
 
 use Mindy\Base\Mindy;
 use Mindy\Helper\Alias;
-use Mindy\Orm\Validator\FileExtensionValidator;
+use Mindy\Orm\Validator\FileValidator;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\Files\LocalFile;
 use Mindy\Storage\Files\UploadedFile;
@@ -41,7 +41,7 @@ class FileField extends CharField
 
     public $hashName = true;
 
-    public $cleanValue = 'NULL';
+    public $cleanValue = '';
     /**
      * List of allowed file types
      * @var array|null
@@ -53,7 +53,7 @@ class FileField extends CharField
         parent::__construct($options);
 
         $this->validators = array_merge([
-            new FileExtensionValidator($this->types)
+            new FileValidator($this->types)
         ], $this->validators);
     }
 
@@ -109,11 +109,6 @@ class FileField extends CharField
         return $this->getStorage()->path($this->value);
     }
 
-    public function getCleanValue()
-    {
-        return $this->value;
-    }
-
     public function getValue()
     {
         return $this->getUrl();
@@ -121,7 +116,7 @@ class FileField extends CharField
 
     public function delete()
     {
-        return $this->getStorage()->delete($this->getCleanValue());
+        return $this->getStorage()->delete($this->value);
     }
 
     /**
@@ -136,7 +131,7 @@ class FileField extends CharField
 
     public function getSize()
     {
-        return $this->getStorage()->size($this->getCleanValue());
+        return $this->getStorage()->size($this->value);
     }
 
     public function getOldValue()
@@ -148,9 +143,7 @@ class FileField extends CharField
     {
         if ($value == $this->cleanValue) {
             $this->value = null;
-        } else if (is_string($value)
-            || (is_array($value) && isset($value['tmp_name']) && $value['tmp_name'])
-        ) {
+        } else if (is_string($value) || (is_array($value) && isset($value['tmp_name']) && $value['tmp_name'])) {
             $this->value = $value;
         }
     }
@@ -192,5 +185,14 @@ class FileField extends CharField
             ]);
         }
         return rtrim($uploadTo, '/') . '/' . ($fileName ? $fileName : '');
+    }
+
+    public function isValid()
+    {
+        parent::isValid();
+        if(isset($this->value['error']) && $this->value['error'] == UPLOAD_ERR_NO_FILE && $this->null == false) {
+            $this->addErrors([$this->name . ' cannot be empty']);
+        }
+        return $this->hasErrors() === false;
     }
 }

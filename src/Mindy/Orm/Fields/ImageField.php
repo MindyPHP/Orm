@@ -109,7 +109,7 @@ class ImageField extends FileField
      */
     public function processSource($source)
     {
-        $ext = pathinfo($this->getCleanValue(), PATHINFO_EXTENSION);
+        $ext = pathinfo($this->value, PATHINFO_EXTENSION);
         foreach ($this->sizes as $prefix => $size) {
             $width = isset($size[0]) ? $size[0] : null;
             $height = isset($size[1]) ? $size[1] : null;
@@ -142,7 +142,7 @@ class ImageField extends FileField
      */
     public function sizeStoragePath($prefix, $value = null)
     {
-        $value = $value ? $value : $this->getCleanValue();
+        $value = $value ? $value : $this->value;
         $dir = dirname($value);
         $filename = basename($value);
         return ($dir ? $dir . DIRECTORY_SEPARATOR : '') . $this->preparePrefix($prefix) . $filename;
