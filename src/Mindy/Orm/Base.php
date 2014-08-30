@@ -1334,6 +1334,7 @@ abstract class Base implements ArrayAccess
     public static function create($row)
     {
         $className = self::className();
+        /** @var Base $record */
         $record = new $className;
         $record->setAttributes($row);
         $record->setOldAttributes($row);

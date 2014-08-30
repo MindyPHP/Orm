@@ -2,67 +2,53 @@
 
 namespace Mindy\Orm;
 
-use ArrayAccess;
-use ArrayIterator;
-use Countable;
-use Iterator;
-use IteratorAggregate;
 use Mindy\Exception\Exception;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
-use Mindy\Orm\Exception\ObjectDoesNotExist;
 use Mindy\Query\ConnectionManager;
-use Mindy\Query\Query;
-use Serializable;
-use Traversable;
 
-class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serializable
+class QuerySet extends QuerySetBase
 {
     /**
-     * @var string the name of the ActiveRecord class.
+     * @var null
      */
-    public $modelClass;
+    protected $_data = [];
+    /**
+     * @var \Mindy\Query\Command
+     */
+    protected $command;
     /**
      * @var array a list of relations that this query should be performed with
      */
     public $with;
     /**
-     * @var boolean whether to return each record as an array. If false (default), an object
-     * of [[modelClass]] will be created to represent each record.
-     */
-    protected $asArray;
-
-    /**
      * @var string the SQL statement to be executed for retrieving AR records.
      * This is set by [[QuerySet::createCommand()]].
      */
     public $sql;
-
     /**
      * Model receive
      * @var \Mindy\Orm\Model
      */
     public $model;
-
     /**
      * Chains of joins
      * @var array
      */
     private $_chains = array();
-
     /**
      * Has chained
      * @var bool
      */
     private $_chainedHasMany = false;
-
     /**
      * Counter of joined tables aliases
      * @var int
      */
     private $_aliasesCount = 0;
-
+    /**
+     * @var string
+     */
     protected $_tableAlias;
-
     /**
      * @var bool
      */
@@ -84,6 +70,9 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
      */
     private $_filterOrExclude = [];
 
+    /**
+     * @return $this
+     */
     protected function prepareCommand()
     {
         $this->prepareConditions();
@@ -154,7 +143,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
 
         if ($flat) {
             $flatArr = [];
-            foreach($rows as $item) {
+            foreach ($rows as $item) {
                 $flatArr = array_merge($flatArr, array_values($item));
             }
             return $flatArr;
@@ -238,20 +227,20 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
 
     protected function prepareConditions($aliased = true)
     {
-        if($this->_filterComplete === false) {
-            foreach($this->_filterAnd as $query) {
+        if ($this->_filterComplete === false) {
+            foreach ($this->_filterAnd as $query) {
                 $this->buildCondition($query, 'andWhere', ['and'], $aliased);
             }
 
-            foreach($this->_filterOr as $query) {
+            foreach ($this->_filterOr as $query) {
                 $this->buildCondition($query, 'orWhere', ['and'], $aliased);
             }
 
-            foreach($this->_filterExclude as $query) {
+            foreach ($this->_filterExclude as $query) {
                 $this->buildCondition($query, 'excludeWhere', ['and'], $aliased);
             }
 
-            foreach($this->_filterOrExclude as $query) {
+            foreach ($this->_filterOrExclude as $query) {
                 $this->buildCondition($query, 'excludeOrWhere', ['and'], $aliased);
             }
             $this->_filterComplete = true;
@@ -286,23 +275,6 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
         $result = $this->asArray ? array_shift($rows) : $this->createModel(array_shift($rows));
         $this->_filterComplete = false;
         return $result;
-    }
-
-    /**
-     * @param null|string $q
-     * @return int
-     */
-    public function countInternal($q = null)
-    {
-        $this->prepareConditions();
-        if (!$q) {
-            if ($this->_chainedHasMany) {
-                $q = 'DISTINCT ' . $this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey());
-            } else {
-                $q = '*';
-            }
-        }
-        return parent::count($q);
     }
 
     /**
@@ -553,7 +525,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
             }
 
             if (is_object($params) && get_class($params) == __CLASS__) {
-                if($condition != 'in') {
+                if ($condition != 'in') {
                     throw new Exception("QuerySet object can be used as a parameter only in case of 'in' condition");
                 } else {
                     $params->prepareConditions();
@@ -578,7 +550,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
                 }
             }
 
-            if($aliased) {
+            if ($aliased) {
                 if (strpos($field, '.') === false) {
                     if ($alias) {
                         $field = $alias . '.' . $field;
@@ -678,17 +650,6 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
     }
 
     /**
-     * Sets the [[asArray]] property.
-     * @param boolean $value whether to return the query results in terms of arrays instead of Active Records.
-     * @return static the query object itself
-     */
-    public function asArray($value = true)
-    {
-        $this->asArray = $value;
-        return $this;
-    }
-
-    /**
      * Converts name => `name`, user.name => `user`.`name`
      * @param string $name Column name
      * @param object|null $db Connection
@@ -733,16 +694,16 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
      */
     public function order($columns)
     {
-        if(!is_array($columns)) {
+        if (!is_array($columns)) {
             $columns = [$columns];
         }
         $cols = [];
-        foreach($columns as $column) {
+        foreach ($columns as $column) {
             $isReverse = strpos($column, '-') === 0;
-            if(str_replace('-', '', $column) == 'pk') {
+            if (str_replace('-', '', $column) == 'pk') {
                 $className = $this->modelClass;
                 $column = $className::getPkName();
-                if($isReverse) {
+                if ($isReverse) {
                     $column = '-' . $column;
                 }
             }
@@ -867,20 +828,6 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
         return $this->createCommand()->delete($tableName, $this->where, $this->params)->getRawSql();
     }
 
-    /********************************************************
-     * Iterators
-     ********************************************************/
-
-    /**
-     * @var null
-     */
-    protected $_data = [];
-
-    /**
-     * @var \Mindy\Query\Command
-     */
-    protected $command;
-
     /**
      * @param $command \Mindy\Query\Command
      * @return $this
@@ -891,37 +838,14 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
         return $this;
     }
 
-    protected function createModel($row)
-    {
-        $className = $this->modelClass;
-        /** @var $record Model */
-        $record = new $className;
-        $record->setAttributes($row);
-        $record->setOldAttributes($row);
-        return $record;
-    }
-
     /**
-     * Converts found rows into model instances
-     * @param array $rows
-     * @return array|Orm[]
-     */
-    protected function createModels($rows)
-    {
-        $models = [];
-        foreach ($rows as $row) {
-            $models[] = $this->createModel($row);
-        }
-        return $models;
-    }
-
-    /**
+     * @param bool $forceModels
      * @return array|Model[]
      */
     public function getData($forceModels = false)
     {
-        if(empty($this->_data)) {
-            if($this->command === null) {
+        if (empty($this->_data)) {
+            if ($this->command === null) {
                 $this->prepareCommand();
             }
             $this->_data = $this->command->queryAll();
@@ -932,123 +856,19 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
     }
 
     /**
-     * @return mixed|void
-     */
-    public function rewind()
-    {
-        return reset($this->_data);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function current()
-    {
-        $item = current($this->_data);
-        return $this->asArray ? $item : $this->createModel($item);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function key()
-    {
-        return key($this->_data);
-    }
-
-    /**
-     * @return mixed|void
-     */
-    public function next()
-    {
-        return next($this->_data);
-    }
-
-    /**
-     * @return bool
-     */
-    public function valid()
-    {
-        return key($this->_data) !== null;
-    }
-
-    /**
-     * @param mixed $offset
-     * @return bool
-     */
-    public function offsetExists($offset)
-    {
-        return isset($this->data[$offset]);
-    }
-
-    /**
-     * @param mixed $offset
-     * @return mixed
-     */
-    public function offsetGet($offset)
-    {
-        return $this->asArray ? $this->data[$offset] : $this->createModel($this->data[$offset]);
-    }
-
-    /**
-     * @param mixed $offset
-     * @param mixed $value
-     */
-    public function offsetSet($offset, $value)
-    {
-        if (is_null($offset)) {
-            $this->data[] = $value;
-        } else {
-            $this->data[$offset] = $value;
-        }
-    }
-
-    /**
-     * @param mixed $offset
-     */
-    public function offsetUnset($offset)
-    {
-        unset($this->data[$offset]);
-    }
-
-    /**
+     * @param string $q
      * @return int
      */
     public function count($q = '*')
     {
-        if(empty($this->_data)) {
-            return $this->countInternal($q);
-//            $asArray = $this->asArray;
-//            $cnt = count($this->asArray()->all());
-//            $this->asArray = $asArray;
-//            return $cnt;
-        } else {
-            return count($this->_data);
+        $this->prepareConditions();
+        if (!$q) {
+            if ($this->_chainedHasMany) {
+                $q = 'DISTINCT ' . $this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey());
+            } else {
+                $q = '*';
+            }
         }
-    }
-
-    /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * String representation of object
-     * @link http://php.net/manual/en/serializable.serialize.php
-     * @return string the string representation of the object or null
-     */
-    public function serialize()
-    {
-        return serialize($this->data);
-    }
-
-    /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * Constructs the object
-     * @link http://php.net/manual/en/serializable.unserialize.php
-     * @param string $serialized <p>
-     * The string representation of the object.
-     * </p>
-     * @return Model[]
-     */
-    public function unserialize($serialized)
-    {
-        return $this->createModels(unserialize($serialized));
+        return parent::count($q);
     }
 }

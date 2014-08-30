@@ -15,165 +15,42 @@
 namespace Mindy\Orm;
 
 
-use ArrayAccess;
-use Countable;
-use Iterator;
-use Mindy\Core\Object;
+use ArrayIterator;
+use Mindy\Helper\Traits\Configurator;
 
 /**
  * TODO unused prototype for next refactoring
  * Class DataIterator
  * @package Mindy\Orm
  */
-class DataIterator extends Object implements Iterator, ArrayAccess, Countable
+class DataIterator extends ArrayIterator
 {
+    use Configurator;
+
+    /**
+     * @var bool
+     */
+    public $asArray;
     /**
      * @var QuerySet
      */
     public $qs;
-    /**
-     * @var bool
-     */
-    public $asArray = false;
-    /**
-     * @var string|Model
-     */
-    public $modelClass;
-    /**
-     * @var Model[]
-     */
-    protected $_models = [];
-    /**
-     * @var null
-     */
-    protected $_data = [];
 
-    /**
-     * @param QuerySet $qs
-     * @param array $config
-     */
-    public function __construct(QuerySet $qs, $config = [])
+    public function __construct(array $data, array $options = [], $flags = 0)
     {
-        $this->qs = $qs;
-        parent::__construct($config);
+        parent::__construct($data, $flags);
+        $this->configure($options);
     }
 
-    protected function createModel($row)
-    {
-        $class = $this->modelClass;
-        return $class::create($row);
-    }
-
-    /**
-     * Converts found rows into model instances
-     * @param array $rows
-     * @return array|Orm[]
-     */
-    protected function createModels($rows)
-    {
-        $models = [];
-        foreach ($rows as $row) {
-            $models[] = $this->createModel($row);
-        }
-        return $models;
-    }
-
-    /**
-     * @return array|Model[]
-     */
-    public function getData()
-    {
-        if ($this->_data === null) {
-            $this->_data = $this->qs->all();
-        }
-        return $this->_data;
-    }
-
-    /**
-     * @return mixed|void
-     */
-    public function rewind()
-    {
-        return reset($this->_data);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function current()
-    {
-        $item = current($this->_data);
-        return $this->asArray ? $item : $this->createModel($item);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function key()
-    {
-        return key($this->_data);
-    }
-
-    /**
-     * @return mixed|void
-     */
-    public function next()
-    {
-        return next($this->_data);
-    }
-
-    /**
-     * @return bool
-     */
-    public function valid()
-    {
-        return key($this->_data) !== null;
-    }
-
-    /**
-     * @param mixed $offset
-     * @return bool
-     */
-    public function offsetExists($offset)
-    {
-        return isset($this->data[$offset]);
-    }
-
-    /**
-     * @param mixed $offset
-     * @return mixed
-     */
     public function offsetGet($offset)
     {
-        return $this->asArray ? $this->data[$offset] : $this->createModel($this->data[$offset]);
+        $item = parent::offsetGet($offset);
+        return $this->asArray ? $item : $this->qs->createModel($item);
     }
 
-    /**
-     * @param mixed $offset
-     * @param mixed $value
-     */
-    public function offsetSet($offset, $value)
+    public function current()
     {
-        if (is_null($offset)) {
-            $this->data[] = $value;
-        } else {
-            $this->data[$offset] = $value;
-        }
-    }
-
-    /**
-     * @param mixed $offset
-     */
-    public function offsetUnset($offset)
-    {
-        unset($this->data[$offset]);
-    }
-
-    /**
-     * @return int
-     */
-    public function count()
-    {
-        return count($this->data);
+        $item = parent::current();
+        return $this->asArray ? $item : $this->qs->createModel($item);
     }
 }
