@@ -106,6 +106,7 @@ class ManyToManyManager extends RelatedManager
 
         $db = $this->primaryModel->getDb();
         /** @var $command \Mindy\Query\Command */
+        $column = strtolower($this->primaryModel->classNameShort());
         $command = $db->createCommand()->$method($this->relatedTable, [
             $this->primaryModelColumn => $this->primaryModel->pk,
             $this->modelColumn => $model->pk,

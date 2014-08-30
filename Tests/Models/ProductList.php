@@ -42,9 +42,4 @@ class ProductList extends Model
             ]
         ];
     }
-
-    public static function tableName()
-    {
-        return '{{%product_list}}';
-    }
 }

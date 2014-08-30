@@ -120,7 +120,10 @@ class ManyToManyField extends RelatedField
     public function getRelatedModelColumn()
     {
         if (!$this->_relatedModelColumn) {
-            $this->_relatedModelColumn = $this->getRelatedTable() . '_' . $this->getRelatedModelPk();
+            $cls = $this->modelClass;
+            $tmp = explode('\\', $cls);
+            $column = $cls::normalizeTableName(end($tmp));
+            $this->_relatedModelColumn = $column . '_' . $this->getRelatedModelPk();
         }
         return $this->_relatedModelColumn;
     }
@@ -142,7 +145,10 @@ class ManyToManyField extends RelatedField
     public function getModelColumn()
     {
         if (!$this->_modelColumn) {
-            $this->_modelColumn = $this->getTable() . '_' . $this->getModelPk();
+            $cls = $this->ownerClassName;
+            $tmp = explode('\\', $cls);
+            $column = $cls::normalizeTableName(end($tmp));
+            $this->_modelColumn = $column . '_' . $this->getModelPk();
         }
         return $this->_modelColumn;
     }
@@ -153,14 +159,13 @@ class ManyToManyField extends RelatedField
      */
     public function getManager()
     {
-        $manager = new ManyToManyManager($this->getRelatedModel(), [
+        return new ManyToManyManager($this->getRelatedModel(), [
             'modelColumn' => $this->getRelatedModelColumn(),
             'primaryModelColumn' => $this->getModelColumn(),
 
             'primaryModel' => $this->getModel(),
             'relatedTable' => $this->getTableName()
         ]);
-        return $manager;
     }
 
     /**

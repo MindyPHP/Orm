@@ -823,7 +823,7 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
     {
         $this->prepareConditions();
         $column = $this->aliasColumn($column);
-        $value = parent::average($column, $db);
+        $value = parent::average($column);
         return $this->numval($value);
     }
 

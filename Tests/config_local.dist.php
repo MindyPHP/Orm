@@ -8,7 +8,7 @@ return [
         'password' => '123456',
         'charset' => 'utf8',
     ],
-    'sqlite' => [
+    'default' => [
         'class' => '\Mindy\Query\Connection',
         'dsn' => 'sqlite::memory:',
     ]

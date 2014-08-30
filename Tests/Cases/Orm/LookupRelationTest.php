@@ -81,7 +81,7 @@ class LookupRelationTest extends DatabaseTestCase
     public function testOneSimple()
     {
         $qs = Customer::objects()->filter(['user__username' => 'Anton']);
-        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}customer` `customer_1` LEFT JOIN `{$this->prefix}user` `user_2` ON `customer_1`.`user_id` = `user_2`.`id` WHERE (`user_2`.`username`='Anton')", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `tests_customer` `tests_customer_1` LEFT JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` WHERE (`tests_user_2`.`username`='Anton')", $qs->countSql());
         $this->assertEquals(2, $qs->count());
         $this->assertEquals(2, count($qs->all()));
     }
@@ -89,7 +89,7 @@ class LookupRelationTest extends DatabaseTestCase
     public function testOneLookup()
     {
         $qs = Customer::objects()->filter(['user__username__startswith' => 'A']);
-        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}customer` `customer_1` LEFT JOIN `{$this->prefix}user` `user_2` ON `customer_1`.`user_id` = `user_2`.`id` WHERE (`user_2`.`username` LIKE 'A%')", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `tests_customer` `tests_customer_1` LEFT JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` WHERE (`tests_user_2`.`username` LIKE 'A%')", $qs->countSql());
         $this->assertEquals(2, $qs->count());
         $this->assertEquals(2, count($qs->all()));
     }
@@ -97,7 +97,7 @@ class LookupRelationTest extends DatabaseTestCase
     public function testTwoSimple()
     {
         $qs = Customer::objects()->filter(['user__groups__name' => 'Administrators']);
-        $this->assertEquals("SELECT COUNT(DISTINCT `customer_1`.`id`) FROM `{$this->prefix}customer` `customer_1` LEFT JOIN `{$this->prefix}user` `user_2` ON `customer_1`.`user_id` = `user_2`.`id` LEFT JOIN `{$this->prefix}membership` `membership_3` ON `user_2`.`id` = `membership_3`.`user_id` LEFT JOIN `{$this->prefix}group` `group_4` ON `membership_3`.`group_id` = `group_4`.`id` WHERE (`group_4`.`name`='Administrators')", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(DISTINCT `tests_customer_1`.`id`) FROM `tests_customer` `tests_customer_1` LEFT JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` LEFT JOIN `tests_membership` `tests_membership_3` ON `tests_user_2`.`id` = `tests_membership_3`.`user_id` LEFT JOIN `tests_group` `tests_group_4` ON `tests_membership_3`.`group_id` = `tests_group_4`.`id` WHERE (`tests_group_4`.`name`='Administrators')", $qs->countSql());
         $this->assertEquals(3, $qs->count());
         $this->assertEquals(3, count($qs->all()));
     }
@@ -105,7 +105,7 @@ class LookupRelationTest extends DatabaseTestCase
     public function testTwoLookup()
     {
         $qs = Customer::objects()->filter(['user__groups__name__endswith' => 's']);
-        $this->assertEquals("SELECT COUNT(DISTINCT `customer_1`.`id`) FROM `{$this->prefix}customer` `customer_1` LEFT JOIN `{$this->prefix}user` `user_2` ON `customer_1`.`user_id` = `user_2`.`id` LEFT JOIN `{$this->prefix}membership` `membership_3` ON `user_2`.`id` = `membership_3`.`user_id` LEFT JOIN `{$this->prefix}group` `group_4` ON `membership_3`.`group_id` = `group_4`.`id` WHERE (`group_4`.`name` LIKE '%s')", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(DISTINCT `tests_customer_1`.`id`) FROM `tests_customer` `tests_customer_1` LEFT JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` LEFT JOIN `tests_membership` `tests_membership_3` ON `tests_user_2`.`id` = `tests_membership_3`.`user_id` LEFT JOIN `tests_group` `tests_group_4` ON `tests_membership_3`.`group_id` = `tests_group_4`.`id` WHERE (`tests_group_4`.`name` LIKE '%s')", $qs->countSql());
         $this->assertEquals(3, $qs->count());
         $this->assertEquals(3, count($qs->all()));
     }
@@ -113,8 +113,8 @@ class LookupRelationTest extends DatabaseTestCase
     public function testHasManySimple()
     {
         $qs = User::objects()->filter(['addresses__address__contains' => 'Anton']);
-        $this->assertEquals("SELECT COUNT(DISTINCT `user_1`.`id`) FROM `{$this->prefix}user` `user_1` LEFT JOIN `{$this->prefix}customer` `customer_2` ON `user_1`.`id` = `customer_2`.`user_id` WHERE (`customer_2`.`address` LIKE '%Anton%')", $qs->countSql());
-        $this->assertEquals("SELECT `user_1`.* FROM `{$this->prefix}user` `user_1` LEFT JOIN `{$this->prefix}customer` `customer_2` ON `user_1`.`id` = `customer_2`.`user_id` WHERE (`customer_2`.`address` LIKE '%Anton%') GROUP BY `user_1`.`id`", $qs->allSql());
+        $this->assertEquals("SELECT COUNT(DISTINCT `tests_user_1`.`id`) FROM `tests_user` `tests_user_1` LEFT JOIN `tests_customer` `tests_customer_2` ON `tests_user_1`.`id` = `tests_customer_2`.`user_id` WHERE (`tests_customer_2`.`address` LIKE '%Anton%')", $qs->countSql());
+        $this->assertEquals("SELECT `tests_user_1`.* FROM `tests_user` `tests_user_1` LEFT JOIN `tests_customer` `tests_customer_2` ON `tests_user_1`.`id` = `tests_customer_2`.`user_id` WHERE (`tests_customer_2`.`address` LIKE '%Anton%') GROUP BY `tests_user_1`.`id`", $qs->allSql());
         $this->assertEquals(1, $qs->count());
         $this->assertEquals(1, count($qs->all()));
     }
@@ -122,7 +122,7 @@ class LookupRelationTest extends DatabaseTestCase
     public function testTwoFilter()
     {
         $qs = Customer::objects()->filter(['user__username' => 'Max'])->filter(['user__pk' => '2']);
-        $this->assertEquals("SELECT COUNT(*) FROM `{$this->prefix}customer` `customer_1` LEFT JOIN `{$this->prefix}user` `user_2` ON `customer_1`.`user_id` = `user_2`.`id` WHERE ((`user_2`.`username`='Max')) AND ((`user_2`.`id`='2'))", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `tests_customer` `tests_customer_1` LEFT JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` WHERE ((`tests_user_2`.`username`='Max')) AND ((`tests_user_2`.`id`='2'))", $qs->countSql());
         $this->assertEquals(1, $qs->count());
         $this->assertEquals(1, count($qs->all()));
     }
@@ -130,7 +130,7 @@ class LookupRelationTest extends DatabaseTestCase
     public function testTwoChainedFilter()
     {
         $qs = Customer::objects()->filter(['user__username' => 'Max'])->filter(['user__groups__pk' => '1']);
-        $this->assertEquals("SELECT COUNT(DISTINCT `customer_1`.`id`) FROM `{$this->prefix}customer` `customer_1` LEFT JOIN `{$this->prefix}user` `user_2` ON `customer_1`.`user_id` = `user_2`.`id` LEFT JOIN `{$this->prefix}membership` `membership_3` ON `user_2`.`id` = `membership_3`.`user_id` LEFT JOIN `{$this->prefix}group` `group_4` ON `membership_3`.`group_id` = `group_4`.`id` WHERE ((`user_2`.`username`='Max')) AND ((`group_4`.`id`='1'))", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(DISTINCT `tests_customer_1`.`id`) FROM `tests_customer` `tests_customer_1` LEFT JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` LEFT JOIN `tests_membership` `tests_membership_3` ON `tests_user_2`.`id` = `tests_membership_3`.`user_id` LEFT JOIN `tests_group` `tests_group_4` ON `tests_membership_3`.`group_id` = `tests_group_4`.`id` WHERE ((`tests_user_2`.`username`='Max')) AND ((`tests_group_4`.`id`='1'))", $qs->countSql());
         $this->assertEquals(1, $qs->count());
         $this->assertEquals(1, count($qs->all()));
     }

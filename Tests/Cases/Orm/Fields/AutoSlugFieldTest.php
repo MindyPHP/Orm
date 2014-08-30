@@ -34,53 +34,53 @@ class AutoSlugFieldTest extends DatabaseTestCase
     public function testInit()
     {
         $rootModel = NestedModel::objects()->getOrCreate(['name' => 'test']);
-        $this->assertEquals('test', $rootModel->slug);
+        $this->assertEquals('/test', $rootModel->slug);
 
         $rootModelTwo = NestedModel::objects()->getOrCreate(['name' => 'test1']);
-        $this->assertEquals('test1', $rootModelTwo->slug);
+        $this->assertEquals('/test1', $rootModelTwo->slug);
 
         $nestedModel = NestedModel::objects()->getOrCreate(['name' => 'test2', 'parent' => $rootModelTwo]);
-        $this->assertEquals('test1/test2', $nestedModel->slug);
+        $this->assertEquals('/test1/test2', $nestedModel->slug);
 
         $nestedTwo = NestedModel::objects()->getOrCreate(['name' => 'test3', 'parent' => $rootModelTwo]);
-        $this->assertEquals('test1/test3', $nestedTwo->slug);
+        $this->assertEquals('/test1/test3', $nestedTwo->slug);
 
         $threeLevelModel = NestedModel::objects()->getOrCreate(['name' => 'test4', 'parent' => $nestedTwo]);
-        $this->assertEquals('test1/test3/test4', $threeLevelModel->slug);
+        $this->assertEquals('/test1/test3/test4', $threeLevelModel->slug);
     }
 
     public function testInitTwo()
     {
         $rootModel = new NestedModel(['name' => 'test']);
         $rootModel->save();
-        $this->assertEquals('test', $rootModel->slug);
+        $this->assertEquals('/test', $rootModel->slug);
 
         $rootModelTwo = new NestedModel(['name' => 'test1']);
         $rootModelTwo->save();
-        $this->assertEquals('test1', $rootModelTwo->slug);
+        $this->assertEquals('/test1', $rootModelTwo->slug);
 
         $nestedModel = new NestedModel(['name' => 'test2', 'parent' => $rootModelTwo]);
         $nestedModel->save();
-        $this->assertEquals('test1/test2', $nestedModel->slug);
+        $this->assertEquals('/test1/test2', $nestedModel->slug);
 
         $nestedTwo = new NestedModel(['name' => 'test3', 'parent' => $rootModelTwo]);
         $nestedTwo->save();
-        $this->assertEquals('test1/test3', $nestedTwo->slug);
+        $this->assertEquals('/test1/test3', $nestedTwo->slug);
 
         $threeLevelModel = new NestedModel(['name' => 'test4', 'parent' => $nestedTwo]);
         $threeLevelModel->save();
-        $this->assertEquals('test1/test3/test4', $threeLevelModel->slug);
+        $this->assertEquals('/test1/test3/test4', $threeLevelModel->slug);
 
         // Play with parent attribute, bro.
         $threeLevelModel->parent = null;
         $this->assertNull($threeLevelModel->parent);
         $threeLevelModel->save();
-        $this->assertEquals('test4', $threeLevelModel->slug);
+        $this->assertEquals('/test4', $threeLevelModel->slug);
 
         $threeLevelModel->parent = $nestedTwo;
         $this->assertEquals($nestedTwo->pk, $threeLevelModel->parent->pk);
         $threeLevelModel->save();
-        $this->assertEquals('test1/test3/test4', $threeLevelModel->slug);
+        $this->assertEquals('/test1/test3/test4', $threeLevelModel->slug);
     }
 
     public function testReplace()
@@ -90,32 +90,32 @@ class AutoSlugFieldTest extends DatabaseTestCase
 
         $model = NestedModel::objects()->filter(['name' => 'test1'])->get();
         $model->slug = 'qwe';
-        $this->assertEquals('test1', $model->getOldAttribute('slug'));
+        $this->assertEquals('/test1', $model->getOldAttribute('slug'));
         $this->assertEquals('qwe', $model->getAttribute('slug'));
         $this->assertEquals('qwe', $model->slug);
 
         $test2 = NestedModel::objects()->filter(['name' => 'test2'])->get();
-        $this->assertEquals('test1/test2', $test2->slug);
+        $this->assertEquals('/test1/test2', $test2->slug);
 
         $model->save();
 
-        $this->assertEquals('qwe', $model->getOldAttribute('slug'));
-        $this->assertEquals('qwe', $model->getAttribute('slug'));
-        $this->assertEquals('qwe', $model->slug);
+        $this->assertEquals('/qwe', $model->getOldAttribute('slug'));
+        $this->assertEquals('/qwe', $model->getAttribute('slug'));
+        $this->assertEquals('/qwe', $model->slug);
 
         $test2 = NestedModel::objects()->filter(['name' => 'test2'])->get();
-        $this->assertEquals('qwe/test2', $test2->slug);
+        $this->assertEquals('/qwe/test2', $test2->slug);
 
         $test3 = NestedModel::objects()->filter(['name' => 'test3'])->get();
-        $this->assertEquals('qwe/test3', $test3->slug);
+        $this->assertEquals('/qwe/test3', $test3->slug);
 
         $test4 = NestedModel::objects()->filter(['name' => 'test4'])->get();
-        $this->assertEquals('qwe/test3/test4', $test4->slug);
+        $this->assertEquals('/qwe/test3/test4', $test4->slug);
 
         $test3->slug = 'www';
         $test3->save(['slug']);
 
         $test4 = NestedModel::objects()->filter(['name' => 'test4'])->get();
-        $this->assertEquals('qwe/www/test4', $test4->slug);
+        $this->assertEquals('/qwe/www/test4', $test4->slug);
     }
 }

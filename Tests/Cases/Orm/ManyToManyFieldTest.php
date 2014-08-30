@@ -28,15 +28,13 @@ class ManyToManyFieldTest extends DatabaseTestCase
     {
         parent::setUp();
 
+        $this->dropModels([new Category, new ProductList, new Product]);
         $this->initModels([new Category, new ProductList, new Product]);
-
-        $model = new Category();
-        $this->prefix = $model->getConnection()->tablePrefix;
     }
 
     public function tearDown()
     {
-        $this->dropModels([new Category, new ProductList, new Product]);
+        // $this->dropModels([new Category, new ProductList, new Product]);
     }
 
     public function testSimple()
@@ -80,7 +78,7 @@ class ManyToManyFieldTest extends DatabaseTestCase
         $this->assertEquals(1, $new->pk);
 
         $this->assertEquals(
-            "SELECT `product_list_1`.* FROM `product_list` `product_list_1` JOIN `product_product_list` ON `product_product_list`.`product_list_id`=`product_list_1`.`id` WHERE (`product_product_list`.`product_id`='1')",
+            "SELECT `tests_product_list_1`.* FROM `tests_product_list` `tests_product_list_1` JOIN `tests_product_tests_product_list` ON `tests_product_tests_product_list`.`product_list_id`=`tests_product_list_1`.`id` WHERE (`tests_product_tests_product_list`.`product_id`='1')",
             $new->lists->allSql());
         $this->assertEquals(1, count($new->lists->all()));
     }

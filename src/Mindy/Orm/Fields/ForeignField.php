@@ -68,8 +68,7 @@ class ForeignField extends RelatedField
     {
         $modelClass = $this->modelClass;
         /** @var $modelClass \Mindy\Orm\Model */
-        $pk = $modelClass::primaryKey();
-        return array_shift($pk);
+        return $modelClass::getPkName();
     }
 
     public function fetch($value)
@@ -81,14 +80,16 @@ class ForeignField extends RelatedField
 
     public function getJoin()
     {
-        return [$this->getRelatedModel(),  [
-            [
-                'table' => $this->getRelatedTable(false),
-                // @TODO: chained with Sync - 40 line
-                'from' => $this->getRelatedTable() . '_id',
-                'to' => $this->getRelatedModel()->getPkName(),
-            ]
-        ]];
+        $cls = $this->modelClass;
+        $tmp = explode('\\', $cls);
+        $column = $cls::normalizeTableName(end($tmp));
+
+        return [$this->getRelatedModel(),  [[
+            'table' => $this->getRelatedTable(false),
+            // @TODO: chained with Sync - 40 line
+            'from' => $column . '_id',
+            'to' => $this->getRelatedModel()->getPkName(),
+        ]]];
     }
 
     public function getFormField($form, $fieldClass = null)

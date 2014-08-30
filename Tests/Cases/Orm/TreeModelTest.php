@@ -151,7 +151,7 @@ class TreeModelTest extends DatabaseTestCase
                     'level' => 1,
                     'root' => 1,
                     'name' => 'test',
-                    'slug' => 'test',
+                    'slug' => '/test',
                     'items' => [],
                 ],
                 [
@@ -162,7 +162,7 @@ class TreeModelTest extends DatabaseTestCase
                     'level' => 1,
                     'root' => 2,
                     'name' => 'test1',
-                    'slug' => 'test1',
+                    'slug' => '/test1',
                     'items' => [
                         [
                             'id' => 3,
@@ -172,7 +172,7 @@ class TreeModelTest extends DatabaseTestCase
                             'level' => 2,
                             'root' => 2,
                             'name' => 'test2',
-                            'slug' => 'test1/test2',
+                            'slug' => '/test1/test2',
                             'items' => [],
                         ],
                         [
@@ -183,7 +183,7 @@ class TreeModelTest extends DatabaseTestCase
                             'level' => 2,
                             'root' => 2,
                             'name' => 'test3',
-                            'slug' => 'test1/test3',
+                            'slug' => '/test1/test3',
                             'items' => [
                                 [
                                     'id' => 5,
@@ -193,7 +193,7 @@ class TreeModelTest extends DatabaseTestCase
                                     'level' => 3,
                                     'root' => 2,
                                     'name' => 'test4',
-                                    'slug' => 'test1/test3/test4',
+                                    'slug' => '/test1/test3/test4',
                                     'items' => [],
                                 ]
                             ]
