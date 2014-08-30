@@ -95,14 +95,7 @@ class QuerySet extends QuerySetBase
      */
     public function all()
     {
-        return $this->getData($this->asArray ? false : true);
-
-//        $rows = $command->queryAll();
-//        if (!empty($rows)) {
-//            return $this->createModels($rows);
-//        } else {
-//            return [];
-//        }
+        return $this->getData();
     }
 
     public function getTableAlias()
@@ -839,10 +832,9 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param bool $forceModels
      * @return array|Model[]
      */
-    public function getData($forceModels = false)
+    public function getData()
     {
         if (empty($this->_data)) {
             if ($this->command === null) {
@@ -852,7 +844,7 @@ class QuerySet extends QuerySetBase
             $this->command = null;
             $this->_filterComplete = false;
         }
-        return $forceModels ? $this->createModels($this->_data) : $this->_data;
+        return $this->asArray ? $this->_data : $this->createModels($this->_data);
     }
 
     /**
@@ -861,14 +853,18 @@ class QuerySet extends QuerySetBase
      */
     public function count($q = '*')
     {
-        $this->prepareConditions();
-        if (!$q) {
+        if(!empty($this->_data)) {
+            $count = count($this->_data);
+        } else {
+            $this->prepareConditions();
             if ($this->_chainedHasMany) {
                 $q = 'DISTINCT ' . $this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey());
             } else {
                 $q = '*';
             }
+            $this->select($q);
+            $count = parent::count($q);
         }
-        return parent::count($q);
+        return $count;
     }
 }

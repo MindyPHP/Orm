@@ -115,8 +115,8 @@ class LookupRelationTest extends DatabaseTestCase
         $qs = User::objects()->filter(['addresses__address__contains' => 'Anton']);
         $this->assertEquals("SELECT COUNT(DISTINCT `tests_user_1`.`id`) FROM `tests_user` `tests_user_1` LEFT JOIN `tests_customer` `tests_customer_2` ON `tests_user_1`.`id` = `tests_customer_2`.`user_id` WHERE (`tests_customer_2`.`address` LIKE '%Anton%')", $qs->countSql());
         $this->assertEquals("SELECT `tests_user_1`.* FROM `tests_user` `tests_user_1` LEFT JOIN `tests_customer` `tests_customer_2` ON `tests_user_1`.`id` = `tests_customer_2`.`user_id` WHERE (`tests_customer_2`.`address` LIKE '%Anton%') GROUP BY `tests_user_1`.`id`", $qs->allSql());
-        $this->assertEquals(1, $qs->count());
         $this->assertEquals(1, count($qs->all()));
+        $this->assertEquals(1, $qs->count());
     }
 
     public function testTwoFilter()

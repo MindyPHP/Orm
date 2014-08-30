@@ -21,7 +21,7 @@ use Mindy\Query\Query;
 use Serializable;
 use Traversable;
 
-class QuerySetBase extends Query implements IteratorAggregate, ArrayAccess, Serializable
+abstract class QuerySetBase extends Query implements IteratorAggregate, ArrayAccess, Serializable
 {
     /**
      * @var string the name of the ActiveRecord class.
@@ -36,6 +36,8 @@ class QuerySetBase extends Query implements IteratorAggregate, ArrayAccess, Seri
      * @var DataIterator
      */
     private $_iterator;
+
+    abstract public function getData();
 
     /**
      * Sets the [[asArray]] property.

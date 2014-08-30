@@ -41,16 +41,4 @@ class DataIterator extends ArrayIterator
         parent::__construct($data, $flags);
         $this->configure($options);
     }
-
-    public function offsetGet($offset)
-    {
-        $item = parent::offsetGet($offset);
-        return $this->asArray ? $item : $this->qs->createModel($item);
-    }
-
-    public function current()
-    {
-        $item = parent::current();
-        return $this->asArray ? $item : $this->qs->createModel($item);
-    }
 }
