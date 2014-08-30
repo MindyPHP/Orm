@@ -733,7 +733,22 @@ class QuerySet extends Query implements Iterator, ArrayAccess, Countable, Serial
      */
     public function order($columns)
     {
-        return $this->orderBy($columns);
+        if(!is_array($columns)) {
+            $columns = [$columns];
+        }
+        $cols = [];
+        foreach($columns as $column) {
+            $isReverse = strpos($column, '-') === 0;
+            if(str_replace('-', '', $column) == 'pk') {
+                $className = $this->modelClass;
+                $column = $className::getPkName();
+                if($isReverse) {
+                    $column = '-' . $column;
+                }
+            }
+            $cols[] = $column;
+        }
+        return $this->orderBy($cols);
     }
 
 

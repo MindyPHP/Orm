@@ -7,6 +7,8 @@ use Imagine\Image\Point;
 use Mindy\Orm\Traits\ImageProcess;
 use Mindy\Storage\Files\File;
 use Mindy\Form\Fields\ImageField as FormImageField;
+use Mindy\Storage\FileSystemStorage;
+use Mindy\Storage\MimiBoxStorage;
 
 
 class ImageField extends FileField
@@ -30,6 +32,12 @@ class ImageField extends FileField
      * @var array
      */
     public $sizes = [];
+
+    /**
+     * Force resize images
+     * @var bool
+     */
+    public $force = false;
 
     /**
      * Imagine default options
@@ -75,7 +83,9 @@ class ImageField extends FileField
      * Default resize method
      * @var string
      */
-    public $defaultResize = 'adaptiveResize';
+    public $defaultResize = 'adaptiveResizeFromTop';
+
+    public $storeOriginal = false;
 
     public function setFile(File $file, $name = null)
     {
@@ -83,12 +93,19 @@ class ImageField extends FileField
 
         if ($name) {
             $this->value = $this->makeFilePath($name);
-            $fileContent = file_get_contents($file->path);
-            $this->getStorage()->save($this->sizeStoragePath('original'), $fileContent);
+            $fileContent = $file->getContent();
 
-            $image = $this->getImagine()->load($fileContent);
-            $fileContent = $this->processSource($image);
-            $this->getStorage()->save($this->value, $fileContent);
+            if($this->getStorage() instanceof FileSystemStorage) {
+                // $this->getStorage()->save($this->sizeStoragePath('original'), $fileContent);
+
+                $image = $this->getImagine()->load($fileContent);
+                $fileContent = $this->processSource($image);
+                if($this->storeOriginal) {
+                    $this->getStorage()->save($this->value, $fileContent);
+                }
+            } elseif($this->getStorage() instanceof MimiBoxStorage) {
+                $this->getStorage()->save($this->value, $fileContent);
+            }
         }
 
         return $this->value;
@@ -131,7 +148,8 @@ class ImageField extends FileField
 
         if ($this->watermark) {
             $source = $this->applyWatermark($source, $this->watermark);
-        };
+        }
+
         return $source->get($ext, $this->options);
     }
 
@@ -140,12 +158,13 @@ class ImageField extends FileField
      * @param null $value
      * @return string
      */
-    public function sizeStoragePath($prefix, $value = null)
+    public function sizeStoragePath($prefix = null, $value = null)
     {
         $value = $value ? $value : $this->value;
         $dir = dirname($value);
         $filename = basename($value);
-        return ($dir ? $dir . DIRECTORY_SEPARATOR : '') . $this->preparePrefix($prefix) . $filename;
+        $prefix = $prefix === null ? '' : $this->preparePrefix($prefix);
+        return ($dir ? $dir . DIRECTORY_SEPARATOR : '') . $prefix . $filename;
     }
 
     public function __get($name)
@@ -168,7 +187,22 @@ class ImageField extends FileField
      */
     public function sizeUrl($prefix)
     {
-        $path = $this->sizeStoragePath($this->preparePrefix($prefix));
+        if($this->getStorage() instanceof MimiBoxStorage) {
+            $size = explode('x', $prefix);
+            if(count($size) > 1) {
+                list($width, $height) = $size;
+            } else {
+                $width = array_pop($size);
+                $height = 0;
+            }
+            $path = $this->sizeStoragePath();
+            $path .= "?width=" . $width . '&height=' . $height;
+            if($this->force) {
+                $path .= '&force=true';
+            }
+        } else {
+            $path = $this->sizeStoragePath($this->preparePrefix($prefix));
+        }
         return $this->getStorage()->url($path);
     }
 

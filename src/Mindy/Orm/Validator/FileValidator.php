@@ -26,7 +26,7 @@ class FileValidator extends Validator
             $filename = $value;
         }
 
-        $ext = pathinfo($filename, PATHINFO_EXTENSION);
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
         if ($ext && is_array($this->allowedTypes) && !in_array($ext, $this->allowedTypes)) {
             $this->addError("Is not a valid file type: " . $ext . '. ' . "Types allowed: " . implode(', ', $this->allowedTypes) . '.');
 

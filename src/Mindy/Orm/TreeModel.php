@@ -445,34 +445,35 @@ abstract class TreeModel extends Model
         $right = $this->rgt;
         $levelDelta = $target->level - $this->level + $levelUp;
 
-        if ($this->root !== $target->root) {
-            foreach (['lft', 'rgt'] as $attribute) {
-                $this->objects()
-                    ->filter([
-                        $attribute . '__gte' => $key,
-                        'root' => $target->root
-                    ])
-                    ->update([
-                        $attribute => new Expression($attribute . sprintf('%+d', $right - $left + 1))
-                    ]);
-            }
+        // TODO useless ?
+        // if ($this->root !== $target->root) {
 
-            $delta = $key - $left;
+        foreach (['lft', 'rgt'] as $attribute) {
             $this->objects()
                 ->filter([
-                    'lft__gte' => $left,
-                    'rgt__lte' => $right,
-                    'root' => $this->root
+                    $attribute . '__gte' => $key,
+                    'root' => $target->root
                 ])
                 ->update([
-                    'lft' => new Expression('lft' . sprintf('%+d', $delta)),
-                    'rgt' => new Expression('rgt' . sprintf('%+d', $delta)),
-                    'level' => new Expression('level' . sprintf('%+d', $levelDelta)),
-                    'root' => $target->root,
+                    $attribute => new Expression($attribute . sprintf('%+d', $right - $left + 1))
                 ]);
-
-            $this->shiftLeftRight($right + 1, $left - $right - 1);
         }
+
+        $delta = $key - $left;
+        $this->objects()
+            ->filter([
+                'lft__gte' => $left,
+                'rgt__lte' => $right,
+                'root' => $this->root
+            ])
+            ->update([
+                'lft' => new Expression('lft' . sprintf('%+d', $delta)),
+                'rgt' => new Expression('rgt' . sprintf('%+d', $delta)),
+                'level' => new Expression('level' . sprintf('%+d', $levelDelta)),
+                'root' => $target->root,
+            ]);
+
+        $this->shiftLeftRight($right + 1, $left - $right - 1);
 
         return true;
     }

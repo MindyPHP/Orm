@@ -22,6 +22,7 @@ class TreeQuerySet extends QuerySet
     protected $treeKey;
 
     /**
+     * TODO переписать логику на $includeSelf = true делать gte, lte иначе gt, lt соответственно
      * Named scope. Gets descendants for node.
      * @param bool $includeSelf
      * @param int $depth the depth.
@@ -30,8 +31,8 @@ class TreeQuerySet extends QuerySet
     public function descendants($includeSelf = false, $depth = null)
     {
         $this->filter([
-            'lft__gt' => $this->model->lft,
-            'rgt__lt' => $this->model->rgt,
+            'lft__gte' => $this->model->lft,
+            'rgt__lte' => $this->model->rgt,
             'root' => $this->model->root
         ])->order(['lft']);
 

@@ -18,6 +18,7 @@ use ArrayAccess;
 use Exception;
 use Mindy\Exception\InvalidParamException;
 use Mindy\Helper\Json;
+use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
 use Mindy\Orm\Exception\InvalidConfigException;
 use Mindy\Orm\Fields\ManyToManyField;
@@ -32,7 +33,7 @@ use ReflectionClass;
  */
 abstract class Base implements ArrayAccess
 {
-    use Configurator;
+    use Accessors, Configurator;
 
     /**
      * The insert operation. This is mainly used when overriding [[transactions()]] to specify which operations are transactional.
@@ -104,6 +105,7 @@ abstract class Base implements ArrayAccess
         if (!empty($attributes)) {
             $this->setAttributes($attributes);
         }
+        self::getMeta();
     }
 
     /**
@@ -167,7 +169,7 @@ abstract class Base implements ArrayAccess
             return $this->hasField($name) ? $this->getField($name)->default : null;
         }
 
-        throw new Exception("Getting unknown property " . get_class($this) . "::" . $name);
+        return $this->__getInternal($name);
     }
 
     /**

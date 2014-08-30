@@ -122,10 +122,7 @@ trait ImageProcess
                 $resizeHeight = round($toWidth / $fromWidth * $fromHeight);
                 $img = $img
                     ->resize(new Box($resizeWidth, $resizeHeight))
-                    ->crop(
-                        new Point(0, 0),
-                        new Box($toWidth, $toHeight)
-                    );
+                    ->crop(new Point(0, 0), new Box($toWidth, $toHeight));
             } else {
                 $img = $img->thumbnail($box, ManipulatorInterface::THUMBNAIL_OUTBOUND);
             }
