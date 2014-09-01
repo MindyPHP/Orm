@@ -103,6 +103,25 @@ class TreeModelTest extends DatabaseTestCase
         $model = NestedModel::tree()->get(['pk' => 2]);
         $this->assertEquals(3, $model->tree()->descendants()->count());
         $this->assertEquals(4, $model->tree()->descendants($includeSelf = true)->count());
+
+        // DELETE tests
+
+        $rootModelTwo = NestedModel::objects()->getOrCreate(['name' => 'test1']);
+        $this->assertEquals(2, $rootModelTwo->pk);
+        $this->assertEquals(1, $rootModelTwo->lft);
+        $this->assertEquals(8, $rootModelTwo->rgt);
+        $this->assertEquals(4, $rootModelTwo->delete());
+
+        $rootModel = NestedModel::objects()->getOrCreate(['name' => 'test']);
+        $this->assertEquals(1, $rootModel->pk);
+
+        $this->assertEquals(1, $rootModel->lft);
+        $this->assertEquals(2, $rootModel->rgt);
+        $this->assertEquals(1, $rootModel->level);
+        $this->assertEquals(1, $rootModel->root);
+        $this->assertNull($rootModel->parent);
+
+        $this->assertEquals(1, $rootModel->delete());
     }
 
     public function testUpdate()
