@@ -226,11 +226,11 @@ class MetaData
 
         if(!$extra) {
             foreach ($m2mFields as $name => $field) {
-                $this->backwardFields[] = $name;
                 $targetClass = $field->modelClass;
                 $metaInstance = $this->getInstance($targetClass);
                 $relatedName = $field->getRelatedName();
 
+                $this->backwardFields[] = $relatedName;
                 $m2mField = new ManyToManyField([
                     'name' => $relatedName,
                     'modelClass' => $className,
@@ -242,11 +242,11 @@ class MetaData
         }
 
         foreach ($fkFields as $name => $field) {
-            $this->backwardFields[] = $name;
             $targetClass = $field->modelClass;
             $metaInstance = $this->getInstance($targetClass);
             $relatedName = $field->getRelatedName();
 
+            $this->backwardFields[] = $relatedName;
             $hasManyField = new HasManyField([
                 'name' => $relatedName,
                 'modelClass' => $className,

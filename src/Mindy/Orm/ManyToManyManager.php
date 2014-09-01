@@ -59,9 +59,9 @@ class ManyToManyManager extends RelatedManager
         if ($this->_qs === null) {
             $qs = parent::getQuerySet();
             $qs->join('JOIN', $this->relatedTable, $this->makeOnJoin($qs));
-            $filter = [$this->escape($this->relatedTable) . '.' . $this->escape($this->primaryModelColumn) => $this->primaryModel->pk];
-            $qs = $qs->filter($filter);
-            $this->_qs = $qs;
+            $this->_qs = $qs->filter([
+                $this->escape($this->relatedTable) . '.' . $this->escape($this->primaryModelColumn) => $this->primaryModel->pk
+            ]);
         }
         return $this->_qs;
     }
