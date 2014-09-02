@@ -14,12 +14,13 @@
 
 namespace Mindy\Orm;
 
+use Countable;
 use Exception;
 use IteratorAggregate;
 use Serializable;
 use Traversable;
 
-class Manager implements IteratorAggregate, Serializable
+class Manager implements IteratorAggregate, Serializable, Countable
 {
     /**
      * @var \Mindy\Orm\Model
