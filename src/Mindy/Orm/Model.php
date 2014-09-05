@@ -15,27 +15,18 @@
 namespace Mindy\Orm;
 
 use Mindy\Base\Mindy;
+use Modules\Admin\AdminModule;
+use Modules\User\Components\UserActionsTrait;
 use \Yii;
 use Mindy\Orm\Traits\AppYiiCompatible;
 
 class Model extends Orm
 {
-    use AppYiiCompatible;
+    use AppYiiCompatible, UserActionsTrait;
 
     public function __toString()
     {
         return (string) $this->classNameShort();
-    }
-
-    /**
-     * @deprecated
-     * @param array $values
-     * @return $this
-     */
-    public function setData(array $values)
-    {
-        $this->setAttributes($values);
-        return $this;
     }
 
     public function getVerboseName()
@@ -46,5 +37,31 @@ class Model extends Orm
     public function reverse($route, $data = null)
     {
         return Mindy::app()->urlManager->reverse($route, $data);
+    }
+
+    public function recordActionInternal($owner, $text)
+    {
+        $url = method_exists($owner, 'getAbsoluteUrl') ? $owner->getAbsoluteUrl() : '#';
+        $module = $this->getModule();
+        $this->recordAction(AdminModule::t('{model} [[{url}|{name}]] ' . $text, [
+            '{model}' => $module->t($owner->classNameShort()),
+            '{url}' => $url,
+            '{name}' => (string) $owner
+        ]));
+    }
+
+    public function afterUpdate($owner)
+    {
+        $this->recordActionInternal($owner, 'was updated');
+    }
+
+    public function afterInsert($owner)
+    {
+        $this->recordActionInternal($owner, 'was created');
+    }
+
+    public function afterDelete($owner)
+    {
+        $this->recordActionInternal($owner, 'was deleted');
     }
 }

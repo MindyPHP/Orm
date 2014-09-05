@@ -518,6 +518,7 @@ class QuerySet extends QuerySetBase
             }
 
             if (is_object($params) && get_class($params) == __CLASS__) {
+                d($condition, $params);
                 if ($condition != 'in') {
                     throw new Exception("QuerySet object can be used as a parameter only in case of 'in' condition");
                 } else {

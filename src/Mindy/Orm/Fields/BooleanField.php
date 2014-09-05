@@ -41,6 +41,11 @@ class BooleanField extends Field
         return (bool)$this->value;
     }
 
+    public function getDbPrepValue()
+    {
+        return (bool)$this->value;
+    }
+
     public function getFormField($form, $fieldClass = null)
     {
         return parent::getFormField($form, CheckboxField::className());

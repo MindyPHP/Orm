@@ -24,6 +24,7 @@ use Mindy\Helper\Traits\Configurator;
 use Mindy\Orm\Model;
 use Mindy\Orm\RelatedManager;
 use Mindy\Orm\Validator\RequiredValidator;
+use Mindy\Query\ConnectionManager;
 
 abstract class Field
 {
@@ -190,7 +191,8 @@ abstract class Field
 
     public function sqlDefault()
     {
-        $default = $this->default ? 'TRUE' : 'FALSE';
+        $queryBuilder = ConnectionManager::getDb()->getQueryBuilder();
+        $default = $queryBuilder->convertToBoolean($this->default);
         return $this->default === null ? '' : "DEFAULT {$default}";
     }
 

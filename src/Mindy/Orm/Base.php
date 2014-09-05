@@ -16,6 +16,7 @@ namespace Mindy\Orm;
 
 use ArrayAccess;
 use Exception;
+use Mindy\Base\Mindy;
 use Mindy\Exception\InvalidParamException;
 use Mindy\Helper\Json;
 use Mindy\Helper\Traits\Accessors;
@@ -106,6 +107,82 @@ abstract class Base implements ArrayAccess
             $this->setAttributes($attributes);
         }
         self::getMeta();
+
+        $signal = Mindy::app()->signal;
+
+        $signal->handler($this, 'beforeValidate', [$this, 'beforeValidate']);
+        $signal->handler($this, 'afterValidate', [$this, 'afterValidate']);
+
+        $signal->handler($this, 'beforeUpdate', [$this, 'beforeUpdate']);
+        $signal->handler($this, 'afterUpdate', [$this, 'afterUpdate']);
+
+        $signal->handler($this, 'beforeDelete', [$this, 'beforeDelete']);
+        $signal->handler($this, 'afterDelete', [$this, 'afterDelete']);
+
+        $signal->handler($this, 'beforeInsert', [$this, 'beforeInsert']);
+        $signal->handler($this, 'afterInsert', [$this, 'afterInsert']);
+
+        $this->init();
+    }
+
+    /**
+     * @param $owner Model
+     */
+    public function beforeUpdate($owner)
+    {
+    }
+
+    /**
+     * @param $owner Model
+     */
+    public function afterUpdate($owner)
+    {
+    }
+
+    /**
+     * @param $owner Model
+     */
+    public function beforeDelete($owner)
+    {
+    }
+
+    /**
+     * @param $owner Model
+     */
+    public function afterDelete($owner)
+    {
+    }
+
+    /**
+     * @param $owner Model
+     */
+    public function beforeInsert($owner)
+    {
+    }
+
+    /**
+     * @param $owner Model
+     */
+    public function afterInsert($owner)
+    {
+    }
+
+    /**
+     * @param $owner Model
+     */
+    public function beforeValidate($owner)
+    {
+    }
+
+    /**
+     * @param $owner Model
+     */
+    public function afterValidate($owner)
+    {
+    }
+
+    public function init()
+    {
     }
 
     /**
@@ -592,11 +669,9 @@ abstract class Base implements ArrayAccess
             $field->setModel($this);
             $field->onBeforeInsert();
         }
-        $this->onBeforeInsert();
-    }
 
-    protected function onBeforeInsert()
-    {
+        $signal = Mindy::app()->signal;
+        $signal->send($this, 'beforeInsert', $this);
     }
 
     protected function onBeforeUpdateInternal()
@@ -609,11 +684,9 @@ abstract class Base implements ArrayAccess
             $field->setModel($this)->setValue($this->getAttribute($name));
             $field->onBeforeUpdate();
         }
-        $this->onBeforeUpdate();
-    }
 
-    protected function onBeforeUpdate()
-    {
+        $signal = Mindy::app()->signal;
+        $signal->send($this, 'beforeUpdate', $this);
     }
 
     protected function onBeforeDeleteInternal()
@@ -627,11 +700,9 @@ abstract class Base implements ArrayAccess
             $field->setModel($this);
             $field->onBeforeDelete();
         }
-        $this->onBeforeDelete();
-    }
 
-    protected function onBeforeDelete()
-    {
+        $signal = Mindy::app()->signal;
+        $signal->send($this, 'beforeDelete', $this);
     }
 
     protected function onAfterInsertInternal()
@@ -648,11 +719,9 @@ abstract class Base implements ArrayAccess
             $field->setModel($this);
             $field->onAfterInsert();
         }
-        $this->onAfterInsert();
-    }
 
-    protected function onAfterInsert()
-    {
+        $signal = Mindy::app()->signal;
+        $signal->send($this, 'afterInsert', $this);
     }
 
     protected function onAfterUpdateInternal()
@@ -666,11 +735,9 @@ abstract class Base implements ArrayAccess
             $field->setModel($this);
             $field->onAfterUpdate();
         }
-        $this->onAfterUpdate();
-    }
 
-    protected function onAfterUpdate()
-    {
+        $signal = Mindy::app()->signal;
+        $signal->send($this, 'afterUpdate', $this);
     }
 
     protected function onAfterDeleteInternal()
@@ -684,11 +751,9 @@ abstract class Base implements ArrayAccess
             $field->setModel($this);
             $field->onAfterDelete();
         }
-        $this->onAfterDelete();
-    }
 
-    protected function onAfterDelete()
-    {
+        $signal = Mindy::app()->signal;
+        $signal->send($this, 'afterDelete', $this);
     }
 
     public function updateRelated()
@@ -1229,8 +1294,10 @@ abstract class Base implements ArrayAccess
      */
     public function isValid()
     {
-        $meta = self::getMeta();
+        $signal = Mindy::app()->signal;
+        $signal->send($this, 'beforeValidate', $this);
 
+        $meta = self::getMeta();
         $this->clearErrors();
 
         /* @var $field \Mindy\Orm\Fields\Field */
@@ -1246,7 +1313,7 @@ abstract class Base implements ArrayAccess
                 }
             }
         }
-
+        $signal->send($this, 'afterValidate', $this);
         return $this->hasErrors() === false;
     }
 
@@ -1267,7 +1334,11 @@ abstract class Base implements ArrayAccess
     {
         $meta = self::getMeta();
         if ($meta->hasField($name)) {
-            return $meta->getField($name)->setModel($this);
+            $value = $this->getAttribute($name);
+            $field = $meta->getField($name);
+            $field->setModel($this);
+            $field->setValue($value);
+            return $field;
         }
 
         if ($throw) {
