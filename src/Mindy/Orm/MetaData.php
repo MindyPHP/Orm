@@ -301,6 +301,11 @@ class MetaData
         return $this->getField($name);
     }
 
+    public function getForeignFields()
+    {
+        return $this->foreignFields;
+    }
+
     public function getManyFields()
     {
         return $this->manyToManyFields;
