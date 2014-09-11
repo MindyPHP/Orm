@@ -297,7 +297,7 @@ class Manager implements IteratorAggregate, Serializable, Countable
      */
     public function getIterator()
     {
-        return $this->getQuerySet();
+        return $this->getQuerySet()->getIterator();
     }
 
     /**
