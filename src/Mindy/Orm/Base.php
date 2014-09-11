@@ -113,14 +113,11 @@ abstract class Base implements ArrayAccess
         $signal->handler($this, 'beforeValidate', [$this, 'beforeValidate']);
         $signal->handler($this, 'afterValidate', [$this, 'afterValidate']);
 
-        $signal->handler($this, 'beforeUpdate', [$this, 'beforeUpdate']);
-        $signal->handler($this, 'afterUpdate', [$this, 'afterUpdate']);
+        $signal->handler($this, 'beforeSave', [$this, 'beforeSave']);
+        $signal->handler($this, 'afterSave', [$this, 'afterSave']);
 
         $signal->handler($this, 'beforeDelete', [$this, 'beforeDelete']);
         $signal->handler($this, 'afterDelete', [$this, 'afterDelete']);
-
-        $signal->handler($this, 'beforeInsert', [$this, 'beforeInsert']);
-        $signal->handler($this, 'afterInsert', [$this, 'afterInsert']);
 
         $this->init();
     }
@@ -128,14 +125,14 @@ abstract class Base implements ArrayAccess
     /**
      * @param $owner Model
      */
-    public function beforeUpdate($owner)
+    public function beforeSave($owner, $isNew)
     {
     }
 
     /**
      * @param $owner Model
      */
-    public function afterUpdate($owner)
+    public function afterSave($owner, $isNew)
     {
     }
 
@@ -150,20 +147,6 @@ abstract class Base implements ArrayAccess
      * @param $owner Model
      */
     public function afterDelete($owner)
-    {
-    }
-
-    /**
-     * @param $owner Model
-     */
-    public function beforeInsert($owner)
-    {
-    }
-
-    /**
-     * @param $owner Model
-     */
-    public function afterInsert($owner)
     {
     }
 
@@ -671,7 +654,7 @@ abstract class Base implements ArrayAccess
         }
 
         $signal = Mindy::app()->signal;
-        $signal->send($this, 'beforeInsert', $this);
+        $signal->send($this, 'beforeSave', $this, true);
     }
 
     protected function onBeforeUpdateInternal()
@@ -686,7 +669,7 @@ abstract class Base implements ArrayAccess
         }
 
         $signal = Mindy::app()->signal;
-        $signal->send($this, 'beforeUpdate', $this);
+        $signal->send($this, 'beforeSave', $this, false);
     }
 
     protected function onBeforeDeleteInternal()
@@ -721,7 +704,7 @@ abstract class Base implements ArrayAccess
         }
 
         $signal = Mindy::app()->signal;
-        $signal->send($this, 'afterInsert', $this);
+        $signal->send($this, 'afterSave', $this, true);
     }
 
     protected function onAfterUpdateInternal()
@@ -737,7 +720,7 @@ abstract class Base implements ArrayAccess
         }
 
         $signal = Mindy::app()->signal;
-        $signal->send($this, 'afterUpdate', $this);
+        $signal->send($this, 'afterSave', $this, false);
     }
 
     protected function onAfterDeleteInternal()
