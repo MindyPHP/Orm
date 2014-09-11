@@ -228,33 +228,33 @@ class MetaData
             foreach ($m2mFields as $name => $field) {
                 $targetClass = $field->modelClass;
                 $metaInstance = $this->getInstance($targetClass);
-                $relatedName = $field->getRelatedName();
-
-                $this->backwardFields[] = $relatedName;
-                $m2mField = new ManyToManyField([
-                    'name' => $relatedName,
-                    'modelClass' => $className,
-                ]);
-                $m2mField->setModelClass($field->modelClass);
-
-                $metaInstance->initFields([$relatedName => $m2mField], true);
+                if(!$metaInstance->hasField($name)) {
+                    $relatedName = $field->getRelatedName();
+                    $this->backwardFields[] = $relatedName;
+                    $m2mField = new ManyToManyField([
+                        'name' => $relatedName,
+                        'modelClass' => $className,
+                    ]);
+                    $m2mField->setModelClass($field->modelClass);
+                    $metaInstance->initFields([$relatedName => $m2mField], true);
+                }
             }
         }
 
         foreach ($fkFields as $name => $field) {
             $targetClass = $field->modelClass;
             $metaInstance = $this->getInstance($targetClass);
-            $relatedName = $field->getRelatedName();
-
-            $this->backwardFields[] = $relatedName;
-            $hasManyField = new HasManyField([
-                'name' => $relatedName,
-                'modelClass' => $className,
-                'to' => $name . '_' . $targetClass::getPkName()
-            ]);
-            $hasManyField->setModelClass($field->modelClass);
-
-            $metaInstance->initFields([$relatedName => $hasManyField], true);
+            if(!$metaInstance->hasField($name)) {
+                $relatedName = $field->getRelatedName();
+                $this->backwardFields[] = $relatedName;
+                $hasManyField = new HasManyField([
+                    'name' => $relatedName,
+                    'modelClass' => $className,
+                    'to' => $name . '_' . $targetClass::getPkName()
+                ]);
+                $hasManyField->setModelClass($field->modelClass);
+                $metaInstance->initFields([$relatedName => $hasManyField], true);
+            }
         }
         return $fields;
     }

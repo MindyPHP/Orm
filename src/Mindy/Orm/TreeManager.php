@@ -39,7 +39,8 @@ class TreeManager extends Manager
      */
     public function descendants($includeSelf = false, $depth = null)
     {
-        return $this->getQuerySet()->descendants($includeSelf, $depth);
+        $this->getQuerySet()->descendants($includeSelf, $depth);
+        return $this;
     }
 
     /**
@@ -48,7 +49,8 @@ class TreeManager extends Manager
      */
     public function children($includeSelf = false)
     {
-        return $this->getQuerySet()->children($includeSelf);
+        $this->getQuerySet()->children($includeSelf);
+        return $this;
     }
 
     /**
@@ -58,7 +60,8 @@ class TreeManager extends Manager
      */
     public function ancestors($depth = null)
     {
-        return $this->getQuerySet()->ancestors($depth);
+        $this->getQuerySet()->ancestors($depth);
+        return $this;
     }
 
     /**
@@ -67,7 +70,8 @@ class TreeManager extends Manager
      */
     public function roots()
     {
-        return $this->getQuerySet()->roots();
+        $this->getQuerySet()->roots();
+        return $this;
     }
 
     /**
@@ -76,7 +80,8 @@ class TreeManager extends Manager
      */
     public function parent()
     {
-        return $this->getQuerySet()->parent();
+        $this->getQuerySet()->parent();
+        return $this;
     }
 
     /**
@@ -85,7 +90,8 @@ class TreeManager extends Manager
      */
     public function prev()
     {
-        return $this->getQuerySet()->prev();
+        $this->getQuerySet()->prev();
+        return $this;
     }
 
     /**
@@ -94,11 +100,13 @@ class TreeManager extends Manager
      */
     public function next()
     {
-        return $this->getQuerySet()->next();
+        $this->getQuerySet()->next();
+        return $this;
     }
 
     public function asTree($key = 'items')
     {
-        return $this->getQuerySet()->asTree($key);
+        $this->getQuerySet()->asTree($key);
+        return $this;
     }
 }

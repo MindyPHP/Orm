@@ -57,12 +57,22 @@ abstract class TreeModel extends Model
     }
 
     /**
+     * @param null $instance
      * @return TreeManager
      */
-    public static function treeManager($instance = null)
+    public static function objectsManager($instance = null)
     {
         $className = get_called_class();
         return new TreeManager($instance ? $instance : new $className);
+    }
+
+    /**
+     * @param null $instance
+     * @return TreeManager
+     */
+    public function treeManager($instance = null)
+    {
+        return $this->objectsManager($instance);
     }
 
     /**

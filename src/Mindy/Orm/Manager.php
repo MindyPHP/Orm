@@ -84,20 +84,22 @@ class Manager implements IteratorAggregate, Serializable, Countable
 
     /**
      * @param array $q
-     * @return \Mindy\Orm\QuerySet
+     * @return \Mindy\Orm\Manager
      */
     public function filter(array $q)
     {
-        return $this->getQuerySet()->filter($q);
+        $this->getQuerySet()->filter($q);
+        return $this;
     }
 
     /**
      * @param array $q
-     * @return \Mindy\Orm\QuerySet
+     * @return \Mindy\Orm\Manager
      */
     public function exclude(array $q)
     {
-        return $this->getQuerySet()->exclude($q);
+        $this->getQuerySet()->exclude($q);
+        return $this;
     }
 
     /**
@@ -106,15 +108,15 @@ class Manager implements IteratorAggregate, Serializable, Countable
      */
     public function get(array $q = [])
     {
-        return $this->filter($q)->get();
+        return $this->filter($q)->getQuerySet()->get();
     }
 
     /**
      * @return array
      */
-    public function all($db = null)
+    public function all()
     {
-        return $this->getQuerySet()->all($db);
+        return $this->getQuerySet()->all();
     }
 
     /**
