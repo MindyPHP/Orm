@@ -1152,7 +1152,7 @@ abstract class Base implements ArrayAccess
         $className = get_called_class();
         if (method_exists($className, $manager) && is_callable([$className, $manager])) {
             return call_user_func_array([$className, $manager], $args);
-        } elseif (method_exists($className, $manager) && is_callable([$className, $method])) {
+        } elseif (method_exists($className, $method) && is_callable([$className, $method])) {
             return call_user_func_array([$className, $method], $args);
         } else {
             throw new Exception("Call unknown method {$method}");
