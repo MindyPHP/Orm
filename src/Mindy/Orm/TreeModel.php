@@ -70,9 +70,9 @@ abstract class TreeModel extends Model
      * @param null $instance
      * @return TreeManager
      */
-    public function treeManager($instance = null)
+    public static function treeManager($instance = null)
     {
-        return $this->objectsManager($instance);
+        return self::objectsManager($instance);
     }
 
     /**
