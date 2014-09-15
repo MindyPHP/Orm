@@ -72,7 +72,7 @@ class TreeQuerySet extends QuerySet
             'lft__lt' => $this->model->lft,
             'rgt__gt' => $this->model->rgt,
             'root' => $this->model->root
-        ])->order(['lft']);
+        ])->order(['-lft']);
 
         if ($depth !== null) {
             $qs = $qs->filter(['level__gte' => $this->model->level + $depth]);
