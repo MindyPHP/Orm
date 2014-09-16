@@ -14,13 +14,14 @@
 
 namespace Mindy\Orm;
 
+use ArrayAccess;
 use Countable;
 use Exception;
 use IteratorAggregate;
 use Serializable;
 use Traversable;
 
-class Manager implements IteratorAggregate, Serializable, Countable
+class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
 {
     /**
      * @var \Mindy\Orm\Model
@@ -96,6 +97,37 @@ class Manager implements IteratorAggregate, Serializable, Countable
      * @param array $q
      * @return \Mindy\Orm\Manager
      */
+    public function orFilter(array $q)
+    {
+        $this->getQuerySet()->orFilter($q);
+        return $this;
+    }
+
+    /**
+     * @param array $q
+     * @return \Mindy\Orm\Manager
+     */
+    public function orExclude(array $q)
+    {
+        $this->getQuerySet()->orExclude($q);
+        return $this;
+    }
+
+    /**
+     * @param $columns
+     * @param null $option
+     * @return \Mindy\Orm\Manager
+     */
+    public function select($columns, $option = null)
+    {
+        $this->getQuerySet()->select($columns, $option);
+        return $this;
+    }
+
+    /**
+     * @param array $q
+     * @return \Mindy\Orm\Manager
+     */
     public function exclude(array $q)
     {
         $this->getQuerySet()->exclude($q);
@@ -128,12 +160,11 @@ class Manager implements IteratorAggregate, Serializable, Countable
     }
 
     /**
-     * @param array $q
      * @return string
      */
-    public function getSql(array $q)
+    public function getSql()
     {
-        return $this->filter($q)->getSql();
+        return $this->getQuerySet()->getSql();
     }
 
     /**
@@ -269,16 +300,8 @@ class Manager implements IteratorAggregate, Serializable, Countable
 
     public function delete(array $attributes = [])
     {
-        $model = $this->getModel();
-        if(empty($attributes)) {
-            if ($model->getIsNewRecord()) {
-                throw new Exception("The model can't be deleted because it is new.");
-            }
-
-            $attributes = ['pk' => $model->pk];
-        }
         $this->filter($attributes);
-        return $this->getQuerySet()->delete();
+        return $this->getQuerySet()->delete($attributes);
     }
 
     public function deleteSql(array $attributes = [])
@@ -326,5 +349,67 @@ class Manager implements IteratorAggregate, Serializable, Countable
     public function unserialize($serialized)
     {
         return $this->getQuerySet()->unserialize($serialized);
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.0.0)<br/>
+     * Whether a offset exists
+     * @link http://php.net/manual/en/arrayaccess.offsetexists.php
+     * @param mixed $offset <p>
+     * An offset to check for.
+     * </p>
+     * @return boolean true on success or false on failure.
+     * </p>
+     * <p>
+     * The return value will be casted to boolean if non-boolean was returned.
+     */
+    public function offsetExists($offset)
+    {
+        return $this->getQuerySet()->offsetExists($offset);
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.0.0)<br/>
+     * Offset to retrieve
+     * @link http://php.net/manual/en/arrayaccess.offsetget.php
+     * @param mixed $offset <p>
+     * The offset to retrieve.
+     * </p>
+     * @return mixed Can return all value types.
+     */
+    public function offsetGet($offset)
+    {
+        return $this->getQuerySet()->offsetGet($offset);
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.0.0)<br/>
+     * Offset to set
+     * @link http://php.net/manual/en/arrayaccess.offsetset.php
+     * @param mixed $offset <p>
+     * The offset to assign the value to.
+     * </p>
+     * @param mixed $value <p>
+     * The value to set.
+     * </p>
+     * @return void
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->getQuerySet()->offsetSet($offset);
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.0.0)<br/>
+     * Offset to unset
+     * @link http://php.net/manual/en/arrayaccess.offsetunset.php
+     * @param mixed $offset <p>
+     * The offset to unset.
+     * </p>
+     * @return void
+     */
+    public function offsetUnset($offset)
+    {
+        $this->getQuerySet()->offsetUnset($offset);
     }
 }

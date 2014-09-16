@@ -347,13 +347,8 @@ abstract class TreeModel extends Model
     {
         foreach (['lft', 'rgt'] as $attribute) {
             $this->objects()
-                ->filter([
-                    $attribute . '__gte' => $key,
-                    'root' => $this->root
-                ])
-                ->update([
-                    $attribute => new Expression($attribute . sprintf('%+d', $delta))
-                ]);
+                ->filter([$attribute . '__gte' => $key, 'root' => $this->root])
+                ->update([$attribute => new Expression($attribute . sprintf('%+d', $delta))]);
         }
     }
 
@@ -456,22 +451,13 @@ abstract class TreeModel extends Model
 
         foreach (['lft', 'rgt'] as $attribute) {
             $this->objects()
-                ->filter([
-                    $attribute . '__gte' => $key,
-                    'root' => $target->root
-                ])
-                ->update([
-                    $attribute => new Expression($attribute . sprintf('%+d', $right - $left + 1))
-                ]);
+                ->filter([$attribute . '__gte' => $key, 'root' => $target->root])
+                ->update([$attribute => new Expression($attribute . sprintf('%+d', $right - $left + 1))]);
         }
 
         $delta = $key - $left;
         $this->objects()
-            ->filter([
-                'lft__gte' => $left,
-                'rgt__lte' => $right,
-                'root' => $this->root
-            ])
+            ->filter(['lft__gte' => $left, 'rgt__lte' => $right, 'root' => $this->root])
             ->update([
                 'lft' => new Expression('lft' . sprintf('%+d', $delta)),
                 'rgt' => new Expression('rgt' . sprintf('%+d', $delta)),

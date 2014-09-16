@@ -22,7 +22,7 @@ use Mindy\Orm\Traits\AppYiiCompatible;
 
 class Model extends Orm
 {
-    use AppYiiCompatible, UserActionsTrait;
+    use AppYiiCompatible;
 
     public function __toString()
     {
@@ -43,25 +43,25 @@ class Model extends Orm
     {
         $url = method_exists($owner, 'getAbsoluteUrl') ? $owner->getAbsoluteUrl() : '#';
         $module = $this->getModule();
-        $this->recordAction(AdminModule::t('{model} [[{url}|{name}]] ' . $text, [
-            '{model}' => $module->t($owner->classNameShort()),
-            '{url}' => $url,
-            '{name}' => (string) $owner
-        ]));
+//        $this->recordAction(AdminModule::t('{model} [[{url}|{name}]] ' . $text, [
+//            '{model}' => $module->t($owner->classNameShort()),
+//            '{url}' => $url,
+//            '{name}' => (string) $owner
+//        ]));
     }
 
     public function afterUpdate($owner)
     {
-        $this->recordActionInternal($owner, 'was updated');
+//        $this->recordActionInternal($owner, 'was updated');
     }
 
     public function afterInsert($owner)
     {
-        $this->recordActionInternal($owner, 'was created');
+//        $this->recordActionInternal($owner, 'was created');
     }
 
     public function afterDelete($owner)
     {
-        $this->recordActionInternal($owner, 'was deleted');
+//        $this->recordActionInternal($owner, 'was deleted');
     }
 }

@@ -34,16 +34,15 @@ class TreeModelTest extends DatabaseTestCase
     public function testInit()
     {
         $model = new NestedModel;
-        $this->assertEquals(9, count($model->getFieldsInit()));
-
+        $this->assertTrue(array_key_exists("id", $model->getFieldsInit()));
         $this->assertTrue(array_key_exists("name", $model->getFieldsInit()));
-
+        $this->assertTrue(array_key_exists("slug", $model->getFieldsInit()));
         $this->assertTrue(array_key_exists("lft", $model->getFieldsInit()));
         $this->assertTrue(array_key_exists("rgt", $model->getFieldsInit()));
         $this->assertTrue(array_key_exists("level", $model->getFieldsInit()));
         $this->assertTrue(array_key_exists("root", $model->getFieldsInit()));
         $this->assertTrue(array_key_exists("parent", $model->getFieldsInit()));
-        $this->assertTrue(array_key_exists("slug", $model->getFieldsInit()));
+        $this->assertEquals(8, count($model->getFieldsInit()));
     }
 
     public function testInsert()

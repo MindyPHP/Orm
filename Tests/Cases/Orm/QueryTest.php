@@ -40,8 +40,7 @@ class QueryTest extends DatabaseTestCase
         ];
         $users = [];
         foreach($this->items as $item) {
-            $tmp = new User();
-            $tmp->setData($item);
+            $tmp = new User($item);
             $tmp->save();
             $users[] = $tmp;
         }

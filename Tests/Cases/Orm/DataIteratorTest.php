@@ -111,7 +111,8 @@ class DataIteratorTest extends DatabaseTestCase
     public function testDataQuerySet()
     {
         foreach (range(1, 5) as $i) {
-            (new BookCategory())->save();
+            $model = new BookCategory(['id' => $i]);
+            $model->save();
         }
 
         $qs = BookCategory::objects()->filter(['id__gt' => 0]);
@@ -150,7 +151,8 @@ class DataIteratorTest extends DatabaseTestCase
     public function testDataManager()
     {
         foreach (range(1, 5) as $i) {
-            (new BookCategory())->save();
+            $model = new BookCategory(['id' => $i]);
+            $model->save();
         }
 
         $this->assertEquals(5, BookCategory::objects()->count());

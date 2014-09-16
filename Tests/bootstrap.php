@@ -1,18 +1,24 @@
 <?php
 
-if(is_dir(__DIR__ . '/../vendor')) {
-    include(__DIR__ . '/../vendor/autoload.php');
+$vendorPath = __DIR__ . '/../vendor';
+if(is_dir($vendorPath)) {
+    include($vendorPath . '/autoload.php');
 } else {
-    require __DIR__ . '/../src.php';
+    $vendorPath = __DIR__ . '/../../../../vendor';
+    if(is_dir($vendorPath)) {
+        include($vendorPath . '/autoload.php');
+    } else {
+        require __DIR__ . '/../src.php';
+    }
 }
 
 require __DIR__ . '/TestCase.php';
 require __DIR__ . '/DatabaseTestCase.php';
 
 // Stupid composer
-require __DIR__ . '/../vendor/cebe/markdown/Parser.php';
-require __DIR__ . '/../vendor/cebe/markdown/Markdown.php';
-require __DIR__ . '/../vendor/cebe/markdown/GithubMarkdown.php';
+//require __DIR__ . '/../vendor/cebe/markdown/Parser.php';
+//require __DIR__ . '/../vendor/cebe/markdown/Markdown.php';
+//require __DIR__ . '/../vendor/cebe/markdown/GithubMarkdown.php';
 
 $models = glob(realpath(__DIR__) . '/Models/*.php');
 foreach($models as $model) {

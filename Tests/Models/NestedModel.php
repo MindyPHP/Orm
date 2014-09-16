@@ -24,7 +24,9 @@ class NestedModel extends TreeModel
     public static function getFields()
     {
         return array_merge(parent::getFields(), [
-            'name' => ['class' => CharField::className()],
+            'name' => [
+                'class' => CharField::className()
+            ],
             'slug' => [
                 'class' => AutoSlugField::className(),
                 'source' => 'name'

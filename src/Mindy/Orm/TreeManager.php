@@ -27,7 +27,7 @@ class TreeManager extends Manager
                 'model' => $this->getModel(),
                 'modelClass' => $this->getModel()->className()
             ]);
-            $this->_qs->order(['root', 'lft']);
+            $this->_qs->order(['lft']);
         }
         return $this->_qs;
     }

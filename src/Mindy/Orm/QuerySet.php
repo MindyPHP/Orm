@@ -517,10 +517,13 @@ class QuerySet extends QuerySetBase
                 $field = $model->getPkName();
             }
 
-            if (is_object($params) && get_class($params) == __CLASS__) {
+            if (is_object($params) && ($params instanceof QuerySet || $params instanceof Manager)) {
                 if ($condition != 'in') {
                     throw new Exception("QuerySet object can be used as a parameter only in case of 'in' condition");
                 } else {
+                    if($params instanceof Manager) {
+                        $params = $params->getQuerySet();
+                    }
                     $params->prepareConditions();
                 }
             }
@@ -607,7 +610,6 @@ class QuerySet extends QuerySetBase
     {
         $this->_filterExclude[] = $query;
         return $this;
-//        return $this->buildCondition($query, 'excludeWhere', ['and']);
     }
 
     /**

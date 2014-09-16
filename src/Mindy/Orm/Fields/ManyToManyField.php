@@ -246,8 +246,7 @@ class ManyToManyField extends RelatedField
         $class = $this->modelClass;
         $manager = $this->getManager();
         $manager->clean();
-        foreach ($value as $model) {
-            $linkModel = $model;
+        foreach ($value as $linkModel) {
             if (!is_a($linkModel, $this->modelClass)) {
                 $linkModel = $class::objects()->get(['pk' => $linkModel]);
             }
