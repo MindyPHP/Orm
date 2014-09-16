@@ -277,7 +277,8 @@ class Manager implements IteratorAggregate, Serializable, Countable
 
             $attributes = ['pk' => $model->pk];
         }
-        return $this->filter($attributes)->delete();
+        $this->filter($attributes);
+        return $this->getQuerySet()->delete();
     }
 
     public function deleteSql(array $attributes = [])
