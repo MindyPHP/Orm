@@ -20,6 +20,7 @@ use Mindy\Orm\Validator\FileValidator;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\Files\LocalFile;
 use Mindy\Storage\Files\UploadedFile;
+use Mindy\Form\Fields\FileField as FormFileField;
 
 class FileField extends CharField
 {
@@ -194,5 +195,10 @@ class FileField extends CharField
             $this->addErrors([$this->name . ' cannot be empty']);
         }
         return $this->hasErrors() === false;
+    }
+
+    public function getFormField($form, $fieldClass = null)
+    {
+        return parent::getFormField($form, FormFileField::className());
     }
 }
