@@ -1296,7 +1296,12 @@ abstract class Base implements ArrayAccess
                 continue;
             }
 
-            $field->setValue($this->getAttribute($name));
+            $value = $this->getAttribute($name);
+            // @TODO: fix me. This must be related from foreign field
+            if (is_a($field, self::$foreignField) && !$value){
+                $value = $this->getAttribute($name . '_id');
+            }
+            $field->setValue($value);
             if ($field->isValid() === false) {
                 foreach ($field->getErrors() as $error) {
                     $this->addError($name, $error);
