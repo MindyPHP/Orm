@@ -49,7 +49,6 @@ class EmailValidator extends Validator
      */
     public $enableIDN = false;
 
-
     public function validate($value)
     {
         // make sure string length is limited to avoid DOS attacks
