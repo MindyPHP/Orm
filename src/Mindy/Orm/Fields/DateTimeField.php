@@ -64,6 +64,6 @@ class DateTimeField extends Field
 
     public function getFormField($form, $fieldClass = null)
     {
-        return parent::getFormField($form, $fieldClass ? : DateTimeFieldForm::className());
+        return parent::getFormField($form, $fieldClass ? $fieldClass : DateTimeFieldForm::className());
     }
 }
