@@ -85,7 +85,7 @@ class ImageField extends FileField
      */
     public $defaultResize = 'adaptiveResizeFromTop';
 
-    public $storeOriginal = false;
+    public $storeOriginal = true;
 
     public function setFile(File $file, $name = null)
     {
