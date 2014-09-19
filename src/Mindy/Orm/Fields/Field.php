@@ -303,7 +303,7 @@ abstract class Field
 
         return Creator::createObject([
             'class' => $fieldClass,
-            'required' => $this->required,
+            'required' => $this->required || !$this->null,
             'form' => $form,
             'choices' => $this->choices,
             'name' => $this->name,
