@@ -446,27 +446,50 @@ abstract class TreeModel extends Model
         $right = $this->rgt;
         $levelDelta = $target->level - $this->level + $levelUp;
 
-        // TODO useless ?
-        // if ($this->root !== $target->root) {
+        // TODO useless ? Никакой тут не useless.
+        if ($this->root !== $target->root) {
+            foreach (['lft', 'rgt'] as $attribute) {
+                $this->objects()
+                    ->filter([$attribute . '__gte' => $key, 'root' => $target->root])
+                    ->update([$attribute => new Expression($attribute . sprintf('%+d', $right - $left + 1))]);
+            }
 
-        foreach (['lft', 'rgt'] as $attribute) {
+            $delta = $key - $left;
             $this->objects()
-                ->filter([$attribute . '__gte' => $key, 'root' => $target->root])
-                ->update([$attribute => new Expression($attribute . sprintf('%+d', $right - $left + 1))]);
+                ->filter(['lft__gte' => $left, 'rgt__lte' => $right, 'root' => $this->root])
+                ->update([
+                    'lft' => new Expression('lft' . sprintf('%+d', $delta)),
+                    'rgt' => new Expression('rgt' . sprintf('%+d', $delta)),
+                    'level' => new Expression('level' . sprintf('%+d', $levelDelta)),
+                    'root' => $target->root,
+                ]);
+
+            $this->shiftLeftRight($right + 1, $left - $right - 1);
+
+        } else {
+            $delta = $right-$left+1;
+            $this->shiftLeftRight($key,$delta);
+
+            if($left>=$key)
+            {
+                $left+=$delta;
+                $right+=$delta;
+            }
+
+            $this->objects()
+                ->filter(['lft__gte' => $left, 'rgt__lte' => $right, 'root' => $this->root])
+                ->update([
+                    'level' => new Expression('level' . sprintf('%+d', $levelDelta))
+                ]);
+
+            foreach (['lft', 'rgt'] as $attribute) {
+                $this->objects()
+                    ->filter([$attribute . '__gte' => $left, $attribute . '__lte' => $right, 'root' => $this->root])
+                    ->update([$attribute => new Expression($attribute . sprintf('%+d', $key-$left))]);
+            }
+
+            $this->shiftLeftRight($right+1,-$delta);
         }
-
-        $delta = $key - $left;
-        $this->objects()
-            ->filter(['lft__gte' => $left, 'rgt__lte' => $right, 'root' => $this->root])
-            ->update([
-                'lft' => new Expression('lft' . sprintf('%+d', $delta)),
-                'rgt' => new Expression('rgt' . sprintf('%+d', $delta)),
-                'level' => new Expression('level' . sprintf('%+d', $levelDelta)),
-                'root' => $target->root,
-            ]);
-
-        $this->shiftLeftRight($right + 1, $left - $right - 1);
-
         return true;
     }
 }
