@@ -16,7 +16,6 @@ namespace Mindy\Orm;
 
 use ArrayAccess;
 use Exception;
-use Mindy\Base\EventManager;
 use Mindy\Base\Mindy;
 use Mindy\Exception\InvalidParamException;
 use Mindy\Helper\Json;
@@ -109,7 +108,6 @@ abstract class Base implements ArrayAccess
         }
         self::getMeta();
 
-//        $signal = Mindy::app()->getComponent('signal');
         $signal = $this->getEventManager();
         $signal->handler($this, 'beforeValidate', [$this, 'beforeValidate']);
         $signal->handler($this, 'afterValidate', [$this, 'afterValidate']);
@@ -121,13 +119,9 @@ abstract class Base implements ArrayAccess
         $this->init();
     }
 
-    private $_eventManager;
     protected function getEventManager()
     {
-        if($this->_eventManager === null) {
-            $this->_eventManager = new EventManager();
-        }
-        return $this->_eventManager;
+        return Mindy::app()->getComponent('signal');
     }
 
     /**
