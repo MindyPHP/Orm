@@ -158,16 +158,41 @@ class TreeQuerySet extends QuerySet
     public function delete($db = null)
     {
         // All this needs global refactoring! Not use this! This crashes the tree!
-//        $pkList = $this->valuesList(['parent_id'], true);
+//        $data = $this->valuesList(['id', 'lft', 'rgt', 'root'], true);
         $deleted = parent::delete($db);
-//        if ($deleted && !empty($pkList)) {
-//            $pkList = array_unique(array_filter($pkList));
-//            $this->where = [];
-//            $this->filter(['pk__in' => $pkList])->update([
-//                'rgt' => new Expression('`lft`+1')
-//            ]);
+//        if ($deleted && !empty($data)) {
+//            $i = 0;
+//            $count = count($data);
+//            while ($i < $count) {
+//                $item = $data[$i];
+//                $data = $this->shiftLeftRight($item['rgt'] + 1, $item['lft'] - $item['rgt'] - 1, $item['root'], $data);
+//                unset($data[$i]);
+//                $i++;
+//            }
 //        }
         return $deleted;
+    }
+
+    /**
+     * @param int $key .
+     * @param int $delta .
+     * @param int $root .
+     * @param array $data .
+     * @return array
+     */
+    private function shiftLeftRight($key, $delta, $root, $data)
+    {
+        foreach (['lft', 'rgt'] as $attribute) {
+            $this->filter([$attribute . '__gte' => $key, 'root' => $root])
+                ->update([$attribute => new Expression($attribute . sprintf('%+d', $delta))]);
+
+            foreach ($data as &$item) {
+                if ($item[$attribute] >= $key) {
+                    $item[$attribute] += $delta;
+                }
+            }
+        }
+        return $data;
     }
 
     /**
@@ -209,17 +234,5 @@ class TreeQuerySet extends QuerySet
             }
         }
         return $trees;
-    }
-
-    /**
-     * @param int $key .
-     * @param int $delta .
-     */
-    private function shiftLeftRight($key, $delta)
-    {
-        foreach (['lft', 'rgt'] as $attribute) {
-            $this->filter([$attribute . '__gte' => $key, 'root' => $this->root])
-                ->update([$attribute => new Expression($attribute . sprintf('%+d', $delta))]);
-        }
     }
 }
