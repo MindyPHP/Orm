@@ -682,6 +682,7 @@ abstract class Base implements ArrayAccess
     protected function onBeforeDeleteInternal()
     {
         $meta = static::getMeta();
+
         foreach ($this->getFieldsInit() as $name => $field) {
             if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;

@@ -157,15 +157,16 @@ class TreeQuerySet extends QuerySet
      */
     public function delete($db = null)
     {
-        $pkList = $this->valuesList(['parent_id'], true);
+        // All this needs global refactoring! Not use this! This crashes the tree!
+//        $pkList = $this->valuesList(['parent_id'], true);
         $deleted = parent::delete($db);
-        if ($deleted && !empty($pkList)) {
-            $pkList = array_unique(array_filter($pkList));
-            $this->where = [];
-            $this->filter(['pk__in' => $pkList])->update([
-                'rgt' => new Expression('`lft`+1')
-            ]);
-        }
+//        if ($deleted && !empty($pkList)) {
+//            $pkList = array_unique(array_filter($pkList));
+//            $this->where = [];
+//            $this->filter(['pk__in' => $pkList])->update([
+//                'rgt' => new Expression('`lft`+1')
+//            ]);
+//        }
         return $deleted;
     }
 
@@ -208,5 +209,17 @@ class TreeQuerySet extends QuerySet
             }
         }
         return $trees;
+    }
+
+    /**
+     * @param int $key .
+     * @param int $delta .
+     */
+    private function shiftLeftRight($key, $delta)
+    {
+        foreach (['lft', 'rgt'] as $attribute) {
+            $this->filter([$attribute . '__gte' => $key, 'root' => $this->root])
+                ->update([$attribute => new Expression($attribute . sprintf('%+d', $delta))]);
+        }
     }
 }

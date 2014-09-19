@@ -138,7 +138,7 @@ abstract class TreeModel extends Model
     public function delete()
     {
         if ($this->isLeaf()) {
-            return parent::delete();
+            $result = parent::delete();
         } else {
             $result = $this->objects()->filter([
                 'lft__gte' => $this->lft,
@@ -146,7 +146,6 @@ abstract class TreeModel extends Model
                 'root' => $this->root
             ])->delete();
         }
-
         $this->shiftLeftRight($this->rgt + 1, $this->lft - $this->rgt - 1);
         return (bool) $result;
     }
