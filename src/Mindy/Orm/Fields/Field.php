@@ -24,6 +24,7 @@ use Mindy\Helper\Traits\Configurator;
 use Mindy\Orm\Model;
 use Mindy\Orm\RelatedManager;
 use Mindy\Orm\Validator\RequiredValidator;
+use Mindy\Orm\Validator\UniqueValidator;
 use Mindy\Query\ConnectionManager;
 
 abstract class Field
@@ -45,12 +46,20 @@ abstract class Field
     public $editable = true;
 
     public $choices = [];
-
+    /**
+     * @var \Mindy\Form\Validator\Validator[]
+     */
     public $validators = [];
 
     public $helpText;
 
+    public $unique = false;
+
+    public $primary = false;
+
     protected $name;
+
+    protected $ownerClassName;
 
     private $_validatorClass = '\Mindy\Orm\Validator\Validator';
 
@@ -59,10 +68,6 @@ abstract class Field
     private $_extraFields = [];
 
     private $_model;
-
-    public $primary = false;
-
-    protected $ownerClassName;
 
     /**
      * @return Field[]
@@ -96,6 +101,10 @@ abstract class Field
             $this->validators = array_merge([new RequiredValidator], $this->validators);
         }
 
+        if ($this->unique) {
+            $this->validators = array_merge([new UniqueValidator($this->name)], $this->validators);
+        }
+
         $this->init();
     }
 
@@ -127,12 +136,18 @@ abstract class Field
     public function setModel(Model $model)
     {
         $this->_model = $model;
+        foreach($this->validators as $validator) {
+            $validator->setModel($model);
+        }
         return $this;
     }
 
     public function setModelClass($className)
     {
         $this->ownerClassName = $className;
+        foreach($this->validators as $validator) {
+            $validator->setModel($className);
+        }
         return $this;
     }
 
@@ -232,6 +247,9 @@ abstract class Field
     public function setName($name)
     {
         $this->name = $name;
+        foreach($this->validators as $validator) {
+            $validator->setName($name);
+        }
         return $this;
     }
 
