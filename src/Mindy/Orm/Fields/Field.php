@@ -248,7 +248,9 @@ abstract class Field
     {
         $this->name = $name;
         foreach($this->validators as $validator) {
-            $validator->setName($name);
+            if (is_subclass_of($validator, $this->_validatorClass)) {
+                $validator->setName($name);
+            }
         }
         return $this;
     }
