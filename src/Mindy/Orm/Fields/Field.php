@@ -137,7 +137,9 @@ abstract class Field
     {
         $this->_model = $model;
         foreach($this->validators as $validator) {
-            $validator->setModel($model);
+            if (is_subclass_of($validator, $this->_validatorClass)) {
+                $validator->setModel($model);
+            }
         }
         return $this;
     }
@@ -146,7 +148,9 @@ abstract class Field
     {
         $this->ownerClassName = $className;
         foreach($this->validators as $validator) {
-            $validator->setModel($className);
+            if (is_subclass_of($validator, $this->_validatorClass)) {
+                $validator->setModel($className);
+            }
         }
         return $this;
     }
@@ -246,7 +250,9 @@ abstract class Field
     {
         $this->name = $name;
         foreach($this->validators as $validator) {
-            $validator->setName($name);
+            if (is_subclass_of($validator, $this->_validatorClass)) {
+                $validator->setName($name);
+            }
         }
         return $this;
     }
