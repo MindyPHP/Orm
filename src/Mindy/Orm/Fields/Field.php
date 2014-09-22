@@ -233,9 +233,7 @@ abstract class Field
             } else if (is_subclass_of($validator, $this->_validatorClass)) {
                 /* @var $validator \Mindy\Orm\Validator\Validator */
                 $validator->clearErrors();
-
-                $valid = $validator->validate($this->value);
-                if ($valid === false) {
+                if ($validator->validate($this->value) === false) {
                     $this->addErrors($validator->getErrors());
                 }
             }
@@ -319,6 +317,12 @@ abstract class Field
             return null;
         }
 
+        $validators = [];
+        if($form->hasField($this->name)) {
+            $field = $form->getField($this->name);
+            $validators = $field->validators;
+        }
+
         return Creator::createObject([
             'class' => $fieldClass,
             'required' => $this->required || !$this->null,
@@ -327,6 +331,7 @@ abstract class Field
             'name' => $this->name,
             'label' => $this->verboseName,
             'hint' => $this->helpText,
+            'validators' => array_merge($validators, $this->validators)
 
 //            'html' => [
 //                'multiple' => $this->value instanceof RelatedManager
