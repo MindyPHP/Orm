@@ -675,8 +675,12 @@ class QuerySet extends QuerySetBase
                 $column = substr($column, 1);
                 $sort = SORT_DESC;
             }
-
-            $column = $this->aliasColumn($column);
+            // @TODO: fast realization, need refactoring
+            if ($column != '?') {
+                $column = $this->aliasColumn($column);
+            }else{
+                $column = 'RAND()';
+            }
             $result[$column] = $sort;
         }
         return $result;
