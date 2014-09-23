@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -15,14 +15,14 @@
 namespace Mindy\Orm\Validator;
 
 
-use Modules\Core\CoreModule;
+use Mindy\Base\Mindy;
 
 class RequiredValidator extends Validator
 {
     public function validate($value)
     {
-        if(empty($value)) {
-            $this->addError(CoreModule::t("Value cannot be empty"));
+        if (empty($value)) {
+            $this->addError(Mindy::app()->t("Value cannot be empty", [], 'validation'));
         }
 
         return $this->hasErrors() === false;

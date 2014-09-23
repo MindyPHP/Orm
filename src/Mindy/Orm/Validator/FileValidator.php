@@ -8,6 +8,8 @@
 
 namespace Mindy\Orm\Validator;
 
+use Mindy\Base\Mindy;
+
 class FileValidator extends Validator
 {
     public $allowedTypes = null;
@@ -28,8 +30,10 @@ class FileValidator extends Validator
 
         $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
         if ($ext && is_array($this->allowedTypes) && !in_array($ext, $this->allowedTypes)) {
-            $this->addError("Is not a valid file type: " . $ext . '. ' . "Types allowed: " . implode(', ', $this->allowedTypes) . '.');
-
+            $this->addError(Mindy::app()->t("Is not a valid file type {type}. Types allowed: {allowed}", [
+                '{type}' => $ext,
+                '{allowed}' => implode(', ', $this->allowedTypes)
+            ], 'validation'));
         }
         return $this->hasErrors() === false;
     }

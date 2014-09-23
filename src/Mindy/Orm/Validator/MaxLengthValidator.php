@@ -15,6 +15,8 @@
 namespace Mindy\Orm\Validator;
 
 
+use Mindy\Base\Mindy;
+
 class MaxLengthValidator extends Validator
 {
     public $maxLength;
@@ -27,7 +29,7 @@ class MaxLengthValidator extends Validator
     public function validate($value)
     {
         if (mb_strlen($value, 'UTF-8') > $this->maxLength) {
-            $this->addError("Maximum length > {$this->maxLength}");
+            $this->addError(Mindy::app()->t("Maximum length is {length}", ['{length}' => $this->maxLength], 'validation'));
         }
 
         return $this->hasErrors() === false;
