@@ -21,7 +21,7 @@ class UniqueValidator extends Validator
     public function validate($value)
     {
         $modelClass = $this->getModel();
-        if (!$modelClass->getIsNewRecord()) {
+        if ($modelClass->getIsNewRecord()) {
             if ($modelClass::objects()->filter([$this->getName() => $value])->count() > 0) {
                 $this->addError(Mindy::app()->t("Value must be a unique", [], 'validation'));
             }
