@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -21,9 +21,10 @@ class UniqueValidator extends Validator
     public function validate($value)
     {
         $modelClass = $this->getModel();
-        $qs = $modelClass::objects()->filter([$this->getName() => $value]);
-        if($qs->count() > 0) {
-            $this->addError(Mindy::app()->t("Value must be a unique", [], 'validation'));
+        if (!$modelClass->getIsNewRecord()) {
+            if ($modelClass::objects()->filter([$this->getName() => $value])->count() > 0) {
+                $this->addError(Mindy::app()->t("Value must be a unique", [], 'validation'));
+            }
         }
 
         return $this->hasErrors() === false;
