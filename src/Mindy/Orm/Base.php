@@ -126,6 +126,7 @@ abstract class Base implements ArrayAccess
 
     /**
      * @param $owner Model
+     * @param $isNew
      */
     public function beforeSave($owner, $isNew)
     {
@@ -133,6 +134,7 @@ abstract class Base implements ArrayAccess
 
     /**
      * @param $owner Model
+     * @param $isNew
      */
     public function afterSave($owner, $isNew)
     {
