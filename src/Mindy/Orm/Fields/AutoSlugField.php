@@ -29,6 +29,24 @@ class AutoSlugField extends CharField
      */
     protected $oldValue;
 
+    public function uniqueUrl($url, $count = 0, $pk = null)
+    {
+        $model = $this->getModel();
+        $newUrl = $url;
+        if ($count) {
+            $newUrl .= '-' . $count;
+        }
+        $qs = $model::objects()->filter([$this->getName() => $newUrl]);
+        if ($pk) {
+            $qs = $qs->exclude(['pk' => $pk]);
+        }
+        if ($qs->count() > 0) {
+            $count++;
+            return $this->uniqueUrl($url, $count, $pk);
+        }
+        return $newUrl;
+    }
+
     public function onBeforeInsert()
     {
         $model = $this->getModel();
@@ -40,6 +58,8 @@ class AutoSlugField extends CharField
         }
 
         $url = '/' . ltrim($url, '/');
+        $url = $this->uniqueUrl($url);
+
         $model->setAttribute($this->name, $url);
     }
 
@@ -65,16 +85,16 @@ class AutoSlugField extends CharField
                     $url = Meta::cleanString($model->{$this->source});
                 }
             }
-
-            $url = '/' . ltrim($url, '/');
-            $model->setAttribute($this->name, $url);
         } else {
             $parentUrl = $model->parent->{$this->name};
             $slugs = explode('/', $model->{$this->name});
             $url = $parentUrl . '/' . end($slugs);
-            $url = '/' . ltrim($url, '/');
-            $model->setAttribute($this->name, $url);
         }
+
+        $url = '/' . ltrim($url, '/');
+        $url = $this->uniqueUrl($url, 0, $model->pk);
+
+        $model->setAttribute($this->name, $url);
 
         $model->tree()->filter([
             'lft__gt' => $model->getOldAttribute('lft'),
