@@ -58,7 +58,9 @@ class AutoSlugField extends CharField
         }
 
         $url = '/' . ltrim($url, '/');
-        $url = $this->uniqueUrl($url);
+        if ($this->unique) {
+            $url = $this->uniqueUrl($url);
+        }
 
         $model->setAttribute($this->name, $url);
     }
@@ -92,7 +94,9 @@ class AutoSlugField extends CharField
         }
 
         $url = '/' . ltrim($url, '/');
-        $url = $this->uniqueUrl($url, 0, $model->pk);
+        if ($this->unique) {
+            $url = $this->uniqueUrl($url, 0, $model->pk);
+        }
 
         $model->setAttribute($this->name, $url);
 
