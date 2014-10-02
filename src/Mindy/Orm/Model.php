@@ -50,9 +50,9 @@ class Model extends Orm
         ]));
     }
 
-    public function afterSave($owner)
+    public function afterSave($owner, $isNew)
     {
-        if ($owner->isNewRecord) {
+        if ($isNew) {
             $this->recordActionInternal($owner, 'was created');
         }else{
             $this->recordActionInternal($owner, 'was updated');
