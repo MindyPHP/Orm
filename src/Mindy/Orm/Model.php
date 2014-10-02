@@ -17,7 +17,6 @@ namespace Mindy\Orm;
 use Mindy\Base\Mindy;
 use Modules\Admin\AdminModule;
 use Modules\User\Components\UserActionsTrait;
-use \Yii;
 use Mindy\Orm\Traits\AppYiiCompatible;
 
 class Model extends Orm
