@@ -28,6 +28,7 @@ abstract class RelatedField extends IntField
     public $modelClass;
 
     protected $_model;
+
     protected $_relatedModel;
 
     public function getRelatedName()

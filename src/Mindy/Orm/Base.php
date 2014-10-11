@@ -124,6 +124,11 @@ abstract class Base implements ArrayAccess
         return Mindy::app()->getComponent('signal');
     }
 
+    public static function getCache()
+    {
+        return Mindy::app()->getComponent('cache');
+    }
+
     /**
      * @param $owner Model
      * @param $isNew
@@ -138,6 +143,7 @@ abstract class Base implements ArrayAccess
      */
     public function afterSave($owner, $isNew)
     {
+        self::getCache()->set($owner->className() . '_' . $owner->primaryKeyName(), $owner);
     }
 
     /**
@@ -152,6 +158,7 @@ abstract class Base implements ArrayAccess
      */
     public function afterDelete($owner)
     {
+        self::getCache()->remove($owner->className() . '_' . $owner->primaryKeyName());
     }
 
     /**
@@ -215,8 +222,8 @@ abstract class Base implements ArrayAccess
                 return $value;
             } else {
                 /* @var $field \Mindy\Orm\Fields\ForeignField */
-                $field = $meta->getForeignField($name);
-                return $field->fetch($value);
+                $field = $meta->getForeignField($name)->setValue($value);
+                return $field->getValue();
             }
         }
 
@@ -1295,7 +1302,7 @@ abstract class Base implements ArrayAccess
 
             $value = $this->getAttribute($name);
             // @TODO: fix me. This must be related from foreign field
-            if (is_a($field, self::$foreignField) && !$value){
+            if (is_a($field, self::$foreignField) && !$value) {
                 $value = $this->getAttribute($name . '_id');
             }
             $field->setValue($value);
@@ -1329,7 +1336,7 @@ abstract class Base implements ArrayAccess
             $value = $this->getAttribute($name);
             $field = $meta->getField($name);
             $field->setModel($this);
-            if($value) {
+            if ($value) {
                 $field->setValue($value);
             }
             return $field;
@@ -1396,8 +1403,22 @@ abstract class Base implements ArrayAccess
      * @param array $row attribute values (name => value)
      * @return \Mindy\Orm\Model the newly created active record.
      */
-    public static function create($row)
+    public static function create(array $row)
     {
+        $meta = self::getMeta();
+        foreach($meta->getRelatedFields() as $related) {
+            if(isset($row[$related])) {
+                $cls = $meta->getRelatedField($related)->getRelatedModel()->className();
+
+                $relatedAttributes = $row[$related];
+                d($relatedAttributes);
+                $cacheKey = $cls . '_' . $relatedAttributes[$cls::primaryKeyName()];
+                if(!self::getCache()->exists($cacheKey)) {
+                    self::getCache()->set($cacheKey, $cls::create($relatedAttributes));
+                }
+                unset($row[$related]);
+            }
+        }
         $className = self::className();
         /** @var Base $record */
         $record = new $className;

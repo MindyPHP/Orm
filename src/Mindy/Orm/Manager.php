@@ -38,6 +38,12 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
         $this->_model = $model;
     }
 
+    public function with(array $value)
+    {
+        $this->getQuerySet()->with($value);
+        return $this;
+    }
+
     /**
      * @return Model
      */
@@ -185,12 +191,12 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
     }
 
     /**
-     * @param mixed $q
      * @return \Mindy\Orm\QuerySet
      */
-    public function order($q)
+    public function order(array $columns)
     {
-        return $this->getQuerySet()->order($q);
+        $this->getQuerySet()->order($columns);
+        return $this;
     }
 
     /**

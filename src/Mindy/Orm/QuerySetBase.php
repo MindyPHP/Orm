@@ -16,6 +16,7 @@ namespace Mindy\Orm;
 
 use ArrayAccess;
 use IteratorAggregate;
+use Mindy\Base\Mindy;
 use Mindy\Query\Query;
 use Serializable;
 
@@ -37,6 +38,11 @@ abstract class QuerySetBase extends Query implements IteratorAggregate, ArrayAcc
 
     abstract public function getData();
 
+    protected function getEventManager()
+    {
+        return Mindy::app()->getComponent('signal');
+    }
+
     /**
      * Sets the [[asArray]] property.
      * @param boolean $value whether to return the query results in terms of arrays instead of Active Records.
@@ -52,7 +58,7 @@ abstract class QuerySetBase extends Query implements IteratorAggregate, ArrayAcc
      * @param $row array
      * @return Model
      */
-    public function createModel($row)
+    public function createModel(array $row)
     {
         /** @var Base $className */
         $className = $this->modelClass;

@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -15,9 +15,9 @@
 namespace Mindy\Orm;
 
 use Mindy\Base\Mindy;
+use Mindy\Orm\Traits\AppYiiCompatible;
 use Modules\Admin\AdminModule;
 use Modules\User\Components\UserActionsTrait;
-use Mindy\Orm\Traits\AppYiiCompatible;
 
 class Model extends Orm
 {
@@ -25,7 +25,7 @@ class Model extends Orm
 
     public function __toString()
     {
-        return (string) $this->classNameShort();
+        return (string)$this->classNameShort();
     }
 
     public function getVerboseName()
@@ -45,7 +45,7 @@ class Model extends Orm
         $this->recordAction(AdminModule::t('{model} [[{url}|{name}]] ' . $text, [
             '{model}' => $module->t($owner->classNameShort()),
             '{url}' => $url,
-            '{name}' => (string) $owner
+            '{name}' => (string)$owner
         ]));
     }
 
@@ -53,7 +53,7 @@ class Model extends Orm
     {
         if ($isNew) {
             $this->recordActionInternal($owner, 'was created');
-        }else{
+        } else {
             $this->recordActionInternal($owner, 'was updated');
         }
     }

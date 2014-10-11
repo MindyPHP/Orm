@@ -77,6 +77,36 @@ class MetaData
         return $this->primaryKeyField->getName();
     }
 
+    public function hasRelatedField($name)
+    {
+        return $this->hasManyToManyField($name) || $this->hasHasManyField($name) || $this->hasForeignField($name);
+    }
+
+    /**
+     * @param $name
+     * @return \Mindy\Orm\Fields\HasManyField|\Mindy\Orm\Fields\ManyToManyField|\Mindy\Orm\Fields\ForeignField|null
+     */
+    public function getRelatedField($name)
+    {
+        if($this->hasManyToManyField($name)) {
+            return $this->getManyToManyField($name);
+        } else if($this->hasHasManyField($name)) {
+            return $this->getHasManyField($name);
+        } else if($this->hasForeignField($name)) {
+            return $this->getForeignField($name);
+        }
+        return null;
+    }
+
+    /**
+     * TODO refactoring
+     * @return array
+     */
+    public function getRelatedFields()
+    {
+        return array_keys(array_merge(array_merge($this->hasManyFields, $this->manyToManyFields), array_flip($this->foreignFields)));
+    }
+
     /**
      * @param $name
      * @return bool
@@ -215,7 +245,7 @@ class MetaData
             $this->primaryKeyField = $autoField;
         }
 
-        foreach($fkFields as $name => $field) {
+        foreach ($fkFields as $name => $field) {
             // ForeignKey in self model
             if ($field->modelClass == $className) {
                 $this->foreignFields[$name . '_' . $this->primaryKeyField->getName()] = $name;
@@ -224,11 +254,11 @@ class MetaData
             }
         }
 
-        if(!$extra) {
+        if (!$extra) {
             foreach ($m2mFields as $name => $field) {
                 $targetClass = $field->modelClass;
                 $metaInstance = $this->getInstance($targetClass);
-                if(!$metaInstance->hasField($name)) {
+                if (!$metaInstance->hasField($name)) {
                     $relatedName = $field->getRelatedName();
                     $this->backwardFields[] = $relatedName;
                     $m2mField = new ManyToManyField([
@@ -244,7 +274,7 @@ class MetaData
         foreach ($fkFields as $name => $field) {
             $targetClass = $field->modelClass;
             $metaInstance = $this->getInstance($targetClass);
-            if(!$metaInstance->hasField($name)) {
+            if (!$metaInstance->hasField($name)) {
                 $relatedName = $field->getRelatedName();
                 $this->backwardFields[] = $relatedName;
                 $hasManyField = new HasManyField([
@@ -284,10 +314,10 @@ class MetaData
 
     public function hasForeignField($name)
     {
-        if(array_key_exists($name, $this->foreignFields)) {
+        if (array_key_exists($name, $this->foreignFields)) {
             $name = $this->foreignFields[$name];
         }
-        if($this->hasField($name)) {
+        if ($this->hasField($name)) {
             return $this->getField($name) instanceof ForeignField;
         }
         return false;
@@ -295,7 +325,7 @@ class MetaData
 
     public function getForeignField($name)
     {
-        if(array_key_exists($name, $this->foreignFields)) {
+        if (array_key_exists($name, $this->foreignFields)) {
             $name = $this->foreignFields[$name];
         }
         return $this->getField($name);
@@ -309,6 +339,16 @@ class MetaData
     public function getManyFields()
     {
         return $this->manyToManyFields;
+    }
+
+    public function getManyToManyField($name)
+    {
+        return $this->manyToManyFields[$name];
+    }
+
+    public function getHasManyField($name)
+    {
+        return $this->manyToManyFields[$name];
     }
 
     public function hasExtraFields($name)

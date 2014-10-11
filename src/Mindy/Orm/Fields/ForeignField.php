@@ -18,6 +18,7 @@ namespace Mindy\Orm\Fields;
 use InvalidArgumentException;
 use Mindy\Form\Fields\DropDownField;
 use Mindy\Orm\Orm;
+use Mindy\Orm\RelatedManager;
 use Mindy\Orm\Relation;
 
 class ForeignField extends RelatedField
@@ -47,6 +48,7 @@ class ForeignField extends RelatedField
             $value = null;
         }
         $this->value = $value;
+        return $this;
     }
 
     public function getOnDelete()
@@ -71,15 +73,9 @@ class ForeignField extends RelatedField
         return $modelClass::getPkName();
     }
 
-    public function fetch($value)
-    {
-        $modelClass = $this->modelClass;
-        /** @var $modelClass \Mindy\Orm\Model */
-        return $modelClass::objects()->filter(['pk' => $value])->get();
-    }
-
     public function getJoin()
     {
+        /** @var \Mindy\Orm\Model $cls */
         $cls = $this->modelClass;
         $tmp = explode('\\', $cls);
         $column = $cls::normalizeTableName(end($tmp));
@@ -92,8 +88,22 @@ class ForeignField extends RelatedField
         ]]];
     }
 
+    /**
+     * @return \Mindy\Orm\ManyToManyManager QuerySet of related objects
+     */
+    public function getManager()
+    {
+        $manager = new RelatedManager($this->getRelatedModel());
+        return $manager->filter(['pk' => $this->getValue()->pk]);
+    }
+
     public function getFormField($form, $fieldClass = null)
     {
         return parent::getFormField($form, DropDownField::className());
+    }
+
+    public function fetch($value)
+    {
+        // TODO: Implement fetch() method.
     }
 }

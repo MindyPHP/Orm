@@ -72,7 +72,7 @@ class ManyToManyField extends RelatedField
     /**
      * @var array
      */
-    public $params = [];
+    public $extra = [];
 
     /**
      * @var string
@@ -153,7 +153,6 @@ class ManyToManyField extends RelatedField
         return $this->_modelColumn;
     }
 
-
     /**
      * @return \Mindy\Orm\ManyToManyManager QuerySet of related objects
      */
@@ -162,9 +161,9 @@ class ManyToManyField extends RelatedField
         return new ManyToManyManager($this->getRelatedModel(), [
             'modelColumn' => $this->getRelatedModelColumn(),
             'primaryModelColumn' => $this->getModelColumn(),
-
             'primaryModel' => $this->getModel(),
-            'relatedTable' => $this->getTableName()
+            'relatedTable' => $this->getTableName(),
+            'extra' => $this->extra
         ]);
     }
 

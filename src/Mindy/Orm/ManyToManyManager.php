@@ -29,16 +29,18 @@ class ManyToManyManager extends RelatedManager
      * @var \Mindy\Orm\Model
      */
     public $primaryModel;
-
     /**
      * @var string
      */
     public $primaryModelColumn;
-
     /**
      * @var string
      */
     public $modelColumn;
+    /**
+     * @var array extra condition for join
+     */
+    public $extra = [];
 
     public function __construct(Model $model, array $config = [])
     {
@@ -62,6 +64,9 @@ class ManyToManyManager extends RelatedManager
             $this->_qs = $qs->filter([
                 $this->escape($this->relatedTable) . '.' . $this->escape($this->primaryModelColumn) => $this->primaryModel->pk
             ]);
+            if (!empty($this->extra)) {
+                $this->_qs->filter($this->extra);
+            }
         }
         return $this->_qs;
     }

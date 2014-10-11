@@ -2,8 +2,10 @@
 
 namespace Mindy\Orm;
 
+use Mindy\Base\Mindy;
 use Mindy\Exception\Exception;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
+use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Query\ConnectionManager;
 
 class QuerySet extends QuerySetBase
@@ -19,7 +21,7 @@ class QuerySet extends QuerySetBase
     /**
      * @var array a list of relations that this query should be performed with
      */
-    public $with;
+    public $with = [];
     /**
      * @var string the SQL statement to be executed for retrieving AR records.
      * This is set by [[QuerySet::createCommand()]].
@@ -70,6 +72,11 @@ class QuerySet extends QuerySetBase
      */
     private $_filterOrExclude = [];
 
+    public static function getCache()
+    {
+        return Mindy::app()->getComponent('cache');
+    }
+
     /**
      * @return $this
      */
@@ -101,9 +108,7 @@ class QuerySet extends QuerySetBase
     public function getTableAlias()
     {
         if (!$this->_tableAlias) {
-            $table_name = $this->model->tableName();
-            $table_name = $this->makeAliasKey($table_name);
-            $this->_tableAlias = $table_name;
+            $this->_tableAlias = $this->makeAliasKey($this->model->tableName());
         }
         return $this->_tableAlias;
     }
@@ -239,6 +244,12 @@ class QuerySet extends QuerySetBase
             $this->_filterComplete = true;
         }
 
+        if (!empty($this->with)) {
+            foreach ($this->with as $name) {
+                $this->getOrCreateChainAlias([$name], true);
+            }
+        }
+
         return $this;
     }
 
@@ -251,6 +262,14 @@ class QuerySet extends QuerySetBase
         return parent::getSql();
     }
 
+    public function getCacheKey()
+    {
+        return md5(serialize($this->_filterAnd) .
+            serialize($this->_filterOr) .
+            serialize($this->_filterExclude) .
+            serialize($this->_filterOrExclude));
+    }
+
     /**
      * Executes query and returns a single row of result.
      * @throws \Mindy\Orm\Exception\MultipleObjectsReturned
@@ -258,6 +277,15 @@ class QuerySet extends QuerySetBase
      */
     public function get()
     {
+        $cacheKey = $this->modelClass . '_' . $this->getCacheKey();
+        if ($this->asArray) {
+            $cacheKey .= '_array';
+        }
+
+        if (self::getCache()->exists($cacheKey)) {
+            return self::getCache()->get($cacheKey);
+        }
+
         $this->prepareConditions();
         $rows = $this->createCommand()->queryAll();
         if (count($rows) > 1) {
@@ -265,7 +293,10 @@ class QuerySet extends QuerySetBase
         } elseif (count($rows) === 0) {
             return null;
         }
-        $result = $this->asArray ? array_shift($rows) : $this->createModel(array_shift($rows));
+        $row = array_shift($rows);
+        $result = $this->asArray ? $row : $this->createModel($row);
+        self::getCache()->set($cacheKey, $result);
+
         $this->_filterComplete = false;
         return $result;
     }
@@ -350,11 +381,14 @@ class QuerySet extends QuerySetBase
     /**
      * Makes alias for joined table
      * @param $table
+     * @param bool $increment
      * @return string
      */
-    protected function makeAliasKey($table)
+    protected function makeAliasKey($table, $increment = true)
     {
-        $this->_aliasesCount += 1;
+        if ($increment) {
+            $this->_aliasesCount += 1;
+        }
         $table = str_replace(['{{', '}}', '%', '`'], '', $table);
         $table = strtolower($table) . '_' . $this->_aliasesCount;
         return $this->quoteColumnName($table);
@@ -385,15 +419,15 @@ class QuerySet extends QuerySetBase
         $prefixRemains = [];
         $chainRemains = [];
 
-        foreach ($prefix as $relation_name) {
-            $chain[] = $relation_name;
+        foreach ($prefix as $relationName) {
+            $chain[] = $relationName;
             if ($founded = $this->getChain($chain)) {
                 $model = $founded['model'];
                 $alias = $founded['alias'];
                 $prefixRemains = [];
                 $chainRemains = $chain;
             } else {
-                $prefixRemains[] = $relation_name;
+                $prefixRemains[] = $relationName;
             }
         }
 
@@ -404,23 +438,29 @@ class QuerySet extends QuerySetBase
      * Makes connection by chain (creates joins)
      * @param $prefix
      */
-    protected function makeChain($prefix)
+    protected function makeChain(array $prefix, $prefixedSelect = false)
     {
         // Searching closest already connected relation
         list($model, $alias, $prefix, $chain) = $this->searchChain($prefix);
 
-        foreach ($prefix as $relation_name) {
-            $chain[] = $relation_name;
-            $related_value = $model->getField($relation_name);
-            list($relatedModel, $joinTables) = $related_value->getJoin();
+        foreach ($prefix as $relationName) {
+            $chain[] = $relationName;
+            /** @var Model $model */
+            $relatedValue = $model->getField($relationName);
+
+            // TODO prefetch_related
+            if ($prefixedSelect && $relatedValue instanceof ManyToManyField) {
+                continue;
+            }
+            list($relatedModel, $joinTables) = $relatedValue->getJoin();
 
             foreach ($joinTables as $join) {
                 $type = isset($join['type']) ? $join['type'] : 'LEFT JOIN';
-                $new_alias = $this->makeAliasKey($join['table']);
-                $table = $join['table'] . ' ' . $new_alias;
+                $newAlias = $this->makeAliasKey($join['table']);
+                $table = $join['table'] . ' ' . $newAlias;
 
                 $from = $alias . '.' . $join['from'];
-                $to = $new_alias . '.' . $join['to'];
+                $to = $newAlias . '.' . $join['to'];
                 $on = $this->quoteColumnName($from) . ' = ' . $this->quoteColumnName($to);
 
                 $this->join($type, $table, $on);
@@ -430,7 +470,18 @@ class QuerySet extends QuerySetBase
                     $this->_chainedHasMany = true;
                 }
 
-                $alias = $new_alias;
+                $alias = $newAlias;
+            }
+
+            if ($prefixedSelect) {
+                $selectNames = [];
+                $selectRelatedNames = [];
+                foreach (array_keys($relatedModel->getTableSchema()->columns) as $item) {
+                    $selectRelatedNames[] = $alias . '.' . $this->quoteColumnName($item) . ' AS ' . strtolower($relatedModel->classNameShort()) . '__' . $item;
+                }
+                $oldSelect = $this->select;
+                $this->select(array_merge($selectNames, $selectRelatedNames));
+                $this->select = array_merge($this->select, $oldSelect);
             }
 
             $this->addChain($chain, $alias, $relatedModel);
@@ -455,6 +506,18 @@ class QuerySet extends QuerySetBase
         return null;
     }
 
+    public function with(array $value)
+    {
+        $fetch = [];
+        foreach ($value as $name) {
+            if ($this->model->getMeta()->hasRelatedField($name)) {
+                $fetch[] = $name;
+            }
+        }
+        $this->with = $fetch;
+        return $this;
+    }
+
     /**
      * Returns chain alias
      * @param array|string $keyChain
@@ -471,7 +534,7 @@ class QuerySet extends QuerySetBase
      * @param array $prefix
      * @return array
      */
-    protected function getOrCreateChainAlias(array $prefix)
+    protected function getOrCreateChainAlias(array $prefix, $prefixedSelect = false)
     {
         if (!$this->from) {
             $this->from($this->model->tableName() . ' ' . $this->tableAlias);
@@ -480,7 +543,7 @@ class QuerySet extends QuerySetBase
 
         if (count($prefix) > 0) {
             if (!($chain = $this->getChain($prefix))) {
-                $this->makeChain($prefix);
+                $this->makeChain($prefix, $prefixedSelect);
                 $chain = $this->getChain($prefix);
             }
 
@@ -497,7 +560,8 @@ class QuerySet extends QuerySetBase
      * >>> $user = User::objects()->get(['pk' => 1]);
      * >>> $pages = Page::object()->filter(['user__in' => [$user]])->all();
      * @param array $query
-     * @throws Exception
+     * @param bool $aliased
+     * @throws \Mindy\Exception\Exception
      * @return array
      */
     protected function parseLookup(array $query, $aliased = true)
@@ -521,7 +585,7 @@ class QuerySet extends QuerySetBase
                 if ($condition != 'in') {
                     throw new Exception("QuerySet object can be used as a parameter only in case of 'in' condition");
                 } else {
-                    if($params instanceof Manager) {
+                    if ($params instanceof Manager) {
                         $params = $params->getQuerySet();
                     }
                     $params->prepareConditions();
@@ -546,9 +610,11 @@ class QuerySet extends QuerySetBase
                 }
             }
 
-            if ($aliased) {
+            if ($aliased === true || is_string($aliased)) {
                 if (strpos($field, '.') === false) {
-                    if ($alias) {
+                    if (is_string($aliased)) {
+                        $field = $aliased . '.' . $field;
+                    } else if ($alias) {
                         $field = $alias . '.' . $field;
                     }
                 }
@@ -670,17 +736,11 @@ class QuerySet extends QuerySetBase
         $result = [];
         foreach ($columns as $column) {
             $sort = SORT_ASC;
-
             if (substr($column, 0, 1) == '-') {
                 $column = substr($column, 1);
                 $sort = SORT_DESC;
             }
-            // @TODO: fast realization, need refactoring
-            if ($column != '?') {
-                $column = $this->aliasColumn($column);
-            }else{
-                $column = 'RAND()';
-            }
+            $column = $column == '?' ? $this->getQueryBuilder()->getRandomOrder() : $this->aliasColumn($column);
             $result[$column] = $sort;
         }
         return $result;
@@ -691,17 +751,13 @@ class QuerySet extends QuerySetBase
      * @param $columns
      * @return static
      */
-    public function order($columns)
+    public function order(array $columns)
     {
-        if (!is_array($columns)) {
-            $columns = [$columns];
-        }
         $cols = [];
         foreach ($columns as $column) {
             $isReverse = strpos($column, '-') === 0;
             if (str_replace('-', '', $column) == 'pk') {
-                $className = $this->modelClass;
-                $column = $className::getPkName();
+                $column = $this->model->getPkName();
                 if ($isReverse) {
                     $column = '-' . $column;
                 }
@@ -738,13 +794,15 @@ class QuerySet extends QuerySetBase
     /**
      * Make aliased attributes
      * @param array $attributes
+     * @param null|string $alias
      * @return array new attributes with table aliases
      */
-    protected function makeAliasAttributes(array $attributes)
+    protected function makeAliasAttributes(array $attributes, $alias = null)
     {
+        $alias = $alias ? $alias : $this->getTableAlias();
         $new = [];
         foreach ($attributes as $key => $value) {
-            $new[$this->getTableAlias() . '.' . $key] = $value;
+            $new[$alias . '.' . $key] = $value;
         }
         return $new;
     }
@@ -846,7 +904,9 @@ class QuerySet extends QuerySetBase
             if ($this->command === null) {
                 $this->prepareCommand();
             }
-            $this->_data = $this->command->queryAll();
+            $data = $this->command->queryAll();
+            $this->_data = !empty($this->with) ? $this->populateWith($data) : $data;
+            $this->with = [];
             $this->command = null;
             $this->_filterComplete = false;
         }
@@ -859,7 +919,7 @@ class QuerySet extends QuerySetBase
      */
     public function count($q = '*')
     {
-        if(!empty($this->_data)) {
+        if (!empty($this->_data)) {
             $count = count($this->_data);
         } else {
             $this->prepareConditions();
@@ -872,5 +932,35 @@ class QuerySet extends QuerySetBase
             $count = parent::count($q);
         }
         return $count;
+    }
+
+    /**
+     * Convert array like:
+     * >>> ['developer__id' => '1', 'developer__name' = 'Valve']
+     * to:
+     * >>> ['developer' => ['id' => '1', 'name' => 'Valve']]
+     *
+     * @param $data
+     * @return array
+     */
+    private function populateWith($data)
+    {
+        $newData = [];
+        foreach ($data as $row) {
+            $tmp = [];
+            foreach ($row as $key => $value) {
+                if (strpos($key, '__') !== false) {
+                    list($prefix, $postfix) = explode('__', $key);
+                    if (!isset($tmp[$prefix])) {
+                        $tmp[$prefix] = [];
+                    }
+                    $tmp[$prefix][$postfix] = $value;
+                } else {
+                    $tmp[$key] = $value;
+                }
+            }
+            $newData[] = $tmp;
+        }
+        return $newData;
     }
 }
