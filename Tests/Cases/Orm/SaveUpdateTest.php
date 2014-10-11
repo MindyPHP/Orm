@@ -16,6 +16,7 @@ namespace Tests\Orm;
 
 
 use Tests\DatabaseTestCase;
+use Tests\Models\Solution;
 use Tests\Models\User;
 
 class SaveUpdateTest extends DatabaseTestCase
@@ -233,8 +234,6 @@ class SaveUpdateTest extends DatabaseTestCase
 
         $model->save();
 
-
-
         $finded = User::objects()->filter(['pk' => $model->pk])->get();
         $this->assertEquals('Vasya', $finded->username);
         $this->assertEquals($finded->getDirtyAttributes(), []);
@@ -243,6 +242,26 @@ class SaveUpdateTest extends DatabaseTestCase
         $this->assertEquals($finded->getDirtyAttributes(), [
             'username' => 'Max'
         ]);
+    }
 
+    /**
+     * https://github.com/studio107/Mindy_Query/issues/11
+     * Issue #11
+     */
+    public function testIssue11()
+    {
+        $this->initModels([new Solution]);
+        $modelOne = Solution::objects()->getOrCreate([
+            'status' => 1,
+            'name' => 'test',
+            'court' => 'qwe',
+            'question' => 'qwe',
+            'result' => 'qwe',
+            'content' => 'qwe',
+        ]);
+        $this->assertEquals(1, $modelOne->pk);
+        $sql = Solution::objects()->filter(['id' => '1'])->updateSql(['status' => 2]);
+        $this->assertEquals('UPDATE `tests_solution` SET `status`=2 WHERE (`id`=\'1\')', $sql);
+        $this->dropmodels([new Solution]);
     }
 }

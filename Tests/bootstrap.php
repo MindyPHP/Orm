@@ -1,17 +1,18 @@
 <?php
 
 $vendorPath = __DIR__ . '/../vendor';
-if(is_dir($vendorPath)) {
+if (is_dir($vendorPath)) {
     include($vendorPath . '/autoload.php');
 } else {
     $vendorPath = __DIR__ . '/../../../../vendor';
-    if(is_dir($vendorPath)) {
+    if (is_dir($vendorPath)) {
         include($vendorPath . '/autoload.php');
     } else {
         require __DIR__ . '/../src.php';
     }
 }
 
+require __DIR__ . '/app.php';
 require __DIR__ . '/TestCase.php';
 require __DIR__ . '/DatabaseTestCase.php';
 
@@ -21,13 +22,14 @@ require __DIR__ . '/DatabaseTestCase.php';
 //require __DIR__ . '/../vendor/cebe/markdown/GithubMarkdown.php';
 
 $models = glob(realpath(__DIR__) . '/Models/*.php');
-foreach($models as $model) {
-    include $model;
+foreach ($models as $model) {
+    include($model);
 }
 
 require __DIR__ . '/custom.php';
 
-function d() {
+function d()
+{
     $debug = debug_backtrace();
     $args = func_get_args();
     $data = array(
@@ -37,7 +39,7 @@ function d() {
             'line' => $debug[0]['line'],
         )
     );
-    if(class_exists('Mindy\Helper\Dumper')) {
+    if (class_exists('Mindy\Helper\Dumper')) {
         Mindy\Helper\Dumper::dump($data, 10);
     } else {
         var_dump($data);

@@ -23,11 +23,6 @@ class Model extends Orm
 {
     use AppYiiCompatible, UserActionsTrait;
 
-    public function __toString()
-    {
-        return (string)$this->classNameShort();
-    }
-
     public function getVerboseName()
     {
         return $this->classNameShort();

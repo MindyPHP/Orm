@@ -98,6 +98,10 @@ abstract class Base implements ArrayAccess
      */
     private $_errors = [];
 
+    private $_eventManager;
+
+    private static $_cache;
+
     /**
      * @param array $attributes
      */
@@ -121,12 +125,26 @@ abstract class Base implements ArrayAccess
 
     protected function getEventManager()
     {
-        return Mindy::app()->getComponent('signal');
+        if ($this->_eventManager === null) {
+            if (class_exists('\Mindy\Base\Mindy')) {
+                $this->_eventManager = \Mindy\Base\Mindy::app()->getComponent('signal');
+            } else {
+                $this->_eventManager = new \Mindy\Event\EventManager();
+            }
+        }
+        return $this->_eventManager;
     }
 
     public static function getCache()
     {
-        return Mindy::app()->getComponent('cache');
+        if (self::$_cache === null) {
+            if(class_exists('\Mindy\Base\Mindy')) {
+                self::$_cache = \Mindy\Base\Mindy::app()->getComponent('cache');
+            } else {
+                self::$_cache = new \Mindy\Cache\DummyCache;
+            }
+        }
+        return self::$_cache;
     }
 
     /**
