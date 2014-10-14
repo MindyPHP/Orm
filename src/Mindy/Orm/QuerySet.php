@@ -277,14 +277,13 @@ class QuerySet extends QuerySetBase
      */
     public function get()
     {
-        $cacheKey = $this->modelClass . '_' . $this->getCacheKey();
-        if ($this->asArray) {
-            $cacheKey .= '_array';
-        }
-
-        if (self::getCache()->exists($cacheKey)) {
-            return self::getCache()->get($cacheKey);
-        }
+//        $cacheKey = $this->modelClass . '_' . $this->getCacheKey();
+//        if ($this->asArray) {
+//            $cacheKey .= '_array';
+//        }
+//        if (self::getCache()->exists($cacheKey)) {
+//            return self::getCache()->get($cacheKey);
+//        }
 
         $this->prepareConditions();
         $rows = $this->createCommand()->queryAll();
@@ -295,7 +294,8 @@ class QuerySet extends QuerySetBase
         }
         $row = array_shift($rows);
         $result = $this->asArray ? $row : $this->createModel($row);
-        self::getCache()->set($cacheKey, $result);
+
+        // self::getCache()->set($cacheKey, $result);
 
         $this->_filterComplete = false;
         return $result;
