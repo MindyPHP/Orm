@@ -15,7 +15,9 @@
         "mindy/query": "dev-master",
         "mindy/logger": "dev-master",
         "mindy/helper": "dev-master",
-        "cebe/markdown": "*"
+        "cebe/markdown": "*",
+        "mindy/utils": "dev-master",
+        "mindy/event": "dev-master"
     },
     "require-dev": {
         "satooshi/php-coveralls": "dev-master"

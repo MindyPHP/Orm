@@ -304,6 +304,11 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
         return $this->getQuerySet()->update($attributes);
     }
 
+    public function updateSql(array $attributes)
+    {
+        return $this->getQuerySet()->updateSql($attributes);
+    }
+
     public function delete(array $attributes = [])
     {
         $this->filter($attributes);

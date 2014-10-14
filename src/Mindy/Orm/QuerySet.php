@@ -72,9 +72,18 @@ class QuerySet extends QuerySetBase
      */
     private $_filterOrExclude = [];
 
+    private static $_cache;
+
     public static function getCache()
     {
-        return Mindy::app()->getComponent('cache');
+        if (self::$_cache === null) {
+            if(class_exists('\Mindy\Base\Mindy')) {
+                self::$_cache = \Mindy\Base\Mindy::app()->getComponent('cache');
+            } else {
+                self::$_cache = new \Mindy\Cache\DummyCache;
+            }
+        }
+        return self::$_cache;
     }
 
     /**
