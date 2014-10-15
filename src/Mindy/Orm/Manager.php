@@ -16,7 +16,6 @@ namespace Mindy\Orm;
 
 use ArrayAccess;
 use Countable;
-use Exception;
 use IteratorAggregate;
 use Serializable;
 use Traversable;
@@ -69,6 +68,12 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
     public function asArray($value = true)
     {
         return $this->getQuerySet()->asArray($value);
+    }
+
+    public function using($db)
+    {
+        $this->getQuerySet()->using($db);
+        return $this;
     }
 
     /**

@@ -15,9 +15,7 @@
 namespace Tests;
 
 
-use Mindy\Orm\Model;
 use Mindy\Orm\Sync;
-use Mindy\Query\Connection;
 use Mindy\Query\ConnectionManager;
 
 class DatabaseTestCase extends TestCase
@@ -27,15 +25,20 @@ class DatabaseTestCase extends TestCase
     public function setUp()
     {
         parent::setUp();
-        if(is_file(__DIR__ . '/config_local.php')) {
-            $this->settings = require __DIR__ . '/config_local.php';
+
+        if (getenv('TRAVIS')) {
+            $this->settings = require __DIR__ . '/config_travis.php';
         } else {
-            $this->settings = [
-                'default' => [
-                    'class' => '\Mindy\Query\Connection',
-                    'dsn' => 'sqlite::memory:',
-                ]
-            ];
+            if (is_file(__DIR__ . '/config_local.php')) {
+                $this->settings = require __DIR__ . '/config_local.php';
+            } else {
+                $this->settings = [
+                    'default' => [
+                        'class' => '\Mindy\Query\Connection',
+                        'dsn' => 'sqlite::memory:',
+                    ]
+                ];
+            }
         }
         $this->manager = new ConnectionManager(['databases' => $this->settings]);
         $this->initModels($this->getModels());

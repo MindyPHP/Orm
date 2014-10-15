@@ -16,6 +16,7 @@ namespace Tests\Orm;
 
 
 use Tests\DatabaseTestCase;
+use Tests\Models\Category;
 use Tests\Models\Product;
 use Tests\TestCase;
 
@@ -25,12 +26,12 @@ class SettersGettersTest extends DatabaseTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->initModels([new Product]);
+        $this->initModels([new Product, new Category]);
     }
 
     public function tearDown()
     {
-        $this->dropModels([new Product]);
+        $this->dropModels([new Product, new Category]);
     }
 
     public function testSetters()
