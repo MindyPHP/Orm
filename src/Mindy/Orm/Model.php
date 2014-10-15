@@ -15,24 +15,29 @@
 namespace Mindy\Orm;
 
 use Mindy\Base\Mindy;
-use Mindy\Orm\Traits\AppYiiCompatible;
 use Modules\Admin\AdminModule;
 use Modules\User\Components\UserActionsTrait;
 
 class Model extends Orm
 {
-    use AppYiiCompatible;
-
     public function getVerboseName()
     {
         return $this->classNameShort();
     }
 
-//    public function reverse($route, $data = null)
-//    {
-//        return Mindy::app()->urlManager->reverse($route, $data);
-//    }
-//
+    /**
+     * @return \Mindy\Base\Module
+     */
+    public function getModule()
+    {
+        return Mindy::app()->getModule(self::getModuleName());
+    }
+
+    public function reverse($route, $data = null)
+    {
+        return Mindy::app()->urlManager->reverse($route, $data);
+    }
+
 //    public function recordActionInternal($owner, $text)
 //    {
 //        $url = method_exists($owner, 'getAbsoluteUrl') ? $owner->getAbsoluteUrl() : '#';
@@ -43,7 +48,7 @@ class Model extends Orm
 //            '{name}' => (string)$owner
 //        ]));
 //    }
-//
+
 //    public function afterSave($owner, $isNew)
 //    {
 //        if ($isNew) {
@@ -52,7 +57,7 @@ class Model extends Orm
 //            $this->recordActionInternal($owner, 'was updated');
 //        }
 //    }
-//
+
 //    public function afterDelete($owner)
 //    {
 //        $this->recordActionInternal($owner, 'was deleted');
