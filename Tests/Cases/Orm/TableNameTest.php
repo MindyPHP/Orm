@@ -22,6 +22,6 @@ class TableNameTest extends TestCase
 
     public function testWithoutNamespace()
     {
-        $this->assertEquals('{{%orm_without_namespace}}', WithoutNamespace::tableName());
+        $this->assertEquals('{{%mindy_orm_without_namespace}}', WithoutNamespace::tableName());
     }
 }

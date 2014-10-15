@@ -17,6 +17,7 @@
         "mindy/helper": "dev-master",
         "cebe/markdown": "*",
         "mindy/utils": "dev-master",
+        "mindy/locale": "dev-master",
         "mindy/event": "dev-master"
     },
     "require-dev": {

@@ -74,12 +74,12 @@ class OrderByLookupTest extends DatabaseTestCase
 
     public function testWithoutLookup()
     {
-        $users = User::objects()->order('-username')->all();
+        $users = User::objects()->order(['-username'])->all();
         $this->assertEquals(count($users), 2);
         $this->assertEquals($users[0]->username, 'Max');
         $this->assertEquals($users[1]->username, 'Anton');
 
-        $users = User::objects()->order('username')->all();
+        $users = User::objects()->order(['username'])->all();
         $this->assertEquals(count($users), 2);
         $this->assertEquals($users[0]->username, 'Anton');
         $this->assertEquals($users[1]->username, 'Max');

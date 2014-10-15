@@ -151,15 +151,13 @@ class TreeQuerySet extends QuerySet
     /**
      * Пересчитываем дерево после удаления моделей через
      * $modelClass::objects()->filter(['pk__in' => $data])->delete();
-     *
-     * @param null $db
      * @return int
      */
-    public function delete($db = null)
+    public function delete()
     {
         // All this needs global refactoring! Not use this! This crashes the tree!
 //        $data = $this->valuesList(['id', 'lft', 'rgt', 'root'], true);
-        $deleted = parent::delete($db);
+        $deleted = parent::delete();
 //        if ($deleted && !empty($data)) {
 //            $i = 0;
 //            $count = count($data);

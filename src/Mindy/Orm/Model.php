@@ -21,40 +21,40 @@ use Modules\User\Components\UserActionsTrait;
 
 class Model extends Orm
 {
-    use AppYiiCompatible, UserActionsTrait;
+    use AppYiiCompatible;
 
     public function getVerboseName()
     {
         return $this->classNameShort();
     }
 
-    public function reverse($route, $data = null)
-    {
-        return Mindy::app()->urlManager->reverse($route, $data);
-    }
-
-    public function recordActionInternal($owner, $text)
-    {
-        $url = method_exists($owner, 'getAbsoluteUrl') ? $owner->getAbsoluteUrl() : '#';
-        $module = $this->getModule();
-        $this->recordAction(AdminModule::t('{model} [[{url}|{name}]] ' . $text, [
-            '{model}' => $module->t($owner->classNameShort()),
-            '{url}' => $url,
-            '{name}' => (string)$owner
-        ]));
-    }
-
-    public function afterSave($owner, $isNew)
-    {
-        if ($isNew) {
-            $this->recordActionInternal($owner, 'was created');
-        } else {
-            $this->recordActionInternal($owner, 'was updated');
-        }
-    }
-
-    public function afterDelete($owner)
-    {
-        $this->recordActionInternal($owner, 'was deleted');
-    }
+//    public function reverse($route, $data = null)
+//    {
+//        return Mindy::app()->urlManager->reverse($route, $data);
+//    }
+//
+//    public function recordActionInternal($owner, $text)
+//    {
+//        $url = method_exists($owner, 'getAbsoluteUrl') ? $owner->getAbsoluteUrl() : '#';
+//        $module = $this->getModule();
+//        $this->recordAction(AdminModule::t('{model} [[{url}|{name}]] ' . $text, [
+//            '{model}' => $module->t($owner->classNameShort()),
+//            '{url}' => $url,
+//            '{name}' => (string)$owner
+//        ]));
+//    }
+//
+//    public function afterSave($owner, $isNew)
+//    {
+//        if ($isNew) {
+//            $this->recordActionInternal($owner, 'was created');
+//        } else {
+//            $this->recordActionInternal($owner, 'was updated');
+//        }
+//    }
+//
+//    public function afterDelete($owner)
+//    {
+//        $this->recordActionInternal($owner, 'was deleted');
+//    }
 }

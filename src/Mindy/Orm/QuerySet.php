@@ -2,7 +2,6 @@
 
 namespace Mindy\Orm;
 
-use Mindy\Base\Mindy;
 use Mindy\Exception\Exception;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
 use Mindy\Orm\Fields\ManyToManyField;
@@ -77,7 +76,7 @@ class QuerySet extends QuerySetBase
     public static function getCache()
     {
         if (self::$_cache === null) {
-            if(class_exists('\Mindy\Base\Mindy')) {
+            if (class_exists('\Mindy\Base\Mindy')) {
                 self::$_cache = \Mindy\Base\Mindy::app()->getComponent('cache');
             } else {
                 self::$_cache = new \Mindy\Cache\DummyCache;
@@ -250,6 +249,7 @@ class QuerySet extends QuerySetBase
             foreach ($this->_filterOrExclude as $query) {
                 $this->buildCondition($query, 'excludeOrWhere', ['and'], $aliased);
             }
+
             $this->_filterComplete = true;
         }
 
@@ -541,13 +541,16 @@ class QuerySet extends QuerySetBase
     /**
      * Get or create alias and related model by chain
      * @param array $prefix
+     * @param bool $prefixedSelect
      * @return array
      */
     protected function getOrCreateChainAlias(array $prefix, $prefixedSelect = false)
     {
         if (!$this->from) {
             $this->from($this->model->tableName() . ' ' . $this->tableAlias);
-            $this->select($this->tableAlias . '.*');
+            if (empty($this->select)) {
+                $this->select($this->tableAlias . '.*');
+            }
         }
 
         if (count($prefix) > 0) {
@@ -578,8 +581,8 @@ class QuerySet extends QuerySetBase
         $queryBuilder = $this->getQueryBuilder();
 
         $lookup = new LookupBuilder($query);
-        $lookup_query = [];
-        $lookup_params = [];
+        $lookupQuery = [];
+        $lookupParams = [];
 
         foreach ($lookup->parse() as $data) {
             list($prefix, $field, $condition, $params) = $data;
@@ -636,11 +639,11 @@ class QuerySet extends QuerySetBase
             } else {
                 list($query, $params) = $queryBuilder->$method($field, $params);
             }
-            $lookup_params = array_merge($lookup_params, $params);
-            $lookup_query[] = $query;
+            $lookupParams = array_merge($lookupParams, $params);
+            $lookupQuery[] = $query;
         }
 
-        return [$lookup_query, $lookup_params];
+        return [$lookupQuery, $lookupParams];
     }
 
     /**

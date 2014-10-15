@@ -43,13 +43,13 @@ class ValidationTest extends DatabaseTestCase
         $this->assertEquals([
             'username' => [
                 'NULL is not a string',
-                'Minimal length < 3'
+                'Minimal length is 3'
             ]
         ], $model->getErrors());
 
         $this->assertEquals([
             'NULL is not a string',
-            'Minimal length < 3'
+            'Minimal length is 3'
         ], $model->getErrors('username'));
 
         $model->clearErrors('username');
@@ -84,19 +84,19 @@ class ValidationTest extends DatabaseTestCase
         $this->assertEquals([
             'username' => [
                 'NULL is not a string',
-                'Minimal length < 3'
+                'Minimal length is 3'
             ]
         ], $model->getErrors());
 
         $nameField = $model->getField('username');
         $this->assertEquals([
             'NULL is not a string',
-            'Minimal length < 3'
+            'Minimal length is 3'
         ], $nameField->getErrors());
         $this->assertFalse($nameField->isValid());
         $this->assertEquals([
             'NULL is not a string',
-            'Minimal length < 3'
+            'Minimal length is 3'
         ], $nameField->getErrors());
 
         $model->username = 'hi';
@@ -108,14 +108,14 @@ class ValidationTest extends DatabaseTestCase
         $model->isValid();
         $this->assertEquals([
             'username' => [
-                'Maximum length > 20'
+                'Maximum length is 20'
             ]
         ], $model->getErrors());
 
         $model->isValid();
         $this->assertEquals([
             'username' => [
-                'Maximum length > 20'
+                'Maximum length is 20'
             ]
         ], $model->getErrors());
     }

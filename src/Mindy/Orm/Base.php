@@ -176,7 +176,7 @@ abstract class Base implements ArrayAccess
      */
     public function afterDelete($owner)
     {
-        self::getCache()->remove($owner->className() . '_' . $owner->primaryKeyName());
+        self::getCache()->delete($owner->className() . '_' . $owner->primaryKeyName());
     }
 
     /**

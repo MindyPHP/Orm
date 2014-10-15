@@ -15,10 +15,10 @@
 namespace Tests\Orm;
 
 use Tests\DatabaseTestCase;
-use Tests\Models\Group;
 use Tests\Models\Customer;
-use Tests\Models\User;
+use Tests\Models\Group;
 use Tests\Models\Membership;
+use Tests\Models\User;
 
 
 class SubqueriesTest extends DatabaseTestCase
@@ -74,8 +74,10 @@ class SubqueriesTest extends DatabaseTestCase
 
     public function testSubqueryIn()
     {
-        $group_qs = Group::objects()->filter(['id' => 1]);
-        $users = User::objects()->filter(['groups__pk__in' => $group_qs->select('id') ])->all();
+        $qs = Group::objects()->filter(['id' => 1]);
+        $users = User::objects()->filter([
+            'groups__pk__in' => $qs->select('id')
+        ])->all();
         $this->assertEquals(count($users), 1);
         $this->assertEquals($users[0]->username, 'Max');
     }

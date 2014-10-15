@@ -226,6 +226,8 @@ class TreeModelTest extends DatabaseTestCase
      */
     public function testFixIsLeaf()
     {
+        $this->markTestSkipped('See https://github.com/studio107/Mindy_Orm/issues/50');
+
         $root1 = NestedModel::objects()->getOrCreate(['name' => 'root1']);
         $root2 = NestedModel::objects()->getOrCreate(['name' => 'root2']);
         $nested = NestedModel::objects()->getOrCreate(['name' => 'nested', 'parent' => $root1]);

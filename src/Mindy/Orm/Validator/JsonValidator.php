@@ -14,14 +14,16 @@
 
 namespace Mindy\Orm\Validator;
 
-use Mindy\Base\Mindy;
+use Mindy\Locale\Translate;
 
 class JsonValidator extends Validator
 {
     public function validate($value)
     {
         if (is_object($value)) {
-            $this->addError(Mindy::app()->t("Not json serialize object: {type}" , ['type' => gettype($value)], 'validation'));
+            $this->addError(Translate::getInstance()->t("validator", "Not json serialize object: {type}" , [
+                'type' => gettype($value)
+            ]));
         }
 
         return $this->hasErrors() === false;
