@@ -937,7 +937,7 @@ class QuerySet extends QuerySetBase
             } else {
                 $q = '*';
             }
-            $this->select($q);
+            $this->select($this->select ? $this->select : $q);
             $count = parent::count($q);
         }
         return $count;
