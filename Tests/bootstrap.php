@@ -26,8 +26,6 @@ foreach ($models as $model) {
     include($model);
 }
 
-require __DIR__ . '/custom.php';
-
 function d()
 {
     $debug = debug_backtrace();
