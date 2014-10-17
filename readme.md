@@ -2,6 +2,10 @@
 
 [![Build Status](https://travis-ci.org/studio107/Mindy_Orm.svg)](https://travis-ci.org/studio107/Mindy_Orm)
 [![Coverage Status](https://img.shields.io/coveralls/studio107/Mindy_Orm.svg)](https://coveralls.io/r/studio107/Mindy_Orm)
+[![Latest Stable Version](https://poser.pugx.org/mindy/orm/v/stable.svg)](https://packagist.org/packages/mindy/orm)
+[![Total Downloads](https://poser.pugx.org/mindy/orm/downloads.svg)](https://packagist.org/packages/mindy/orm)
+[![Latest Unstable Version](https://poser.pugx.org/mindy/orm/v/unstable.svg)](https://packagist.org/packages/mindy/orm)
+[![License](https://poser.pugx.org/mindy/orm/license.svg)](https://packagist.org/packages/mindy/orm)
 
 ***Еще одна*** реализация Django ORM на PHP. На текущий момент находится в стадии активной доработки и не
 рекомендуется к использованию в `production` до версии ***1.0***.
