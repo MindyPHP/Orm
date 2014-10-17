@@ -26,13 +26,14 @@ use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Query\ConnectionManager;
 use Mindy\Query\StaleObjectException;
 use ReflectionClass;
+use Serializable;
 
 /**
  * Class Base
  * @package Mindy\Orm
  * @property boolean $isNewRecord Whether the record is new and should be inserted when calling [[save()]].
  */
-abstract class Base implements ArrayAccess
+abstract class Base implements ArrayAccess, Serializable
 {
     use Accessors, Configurator;
 
@@ -121,6 +122,11 @@ abstract class Base implements ArrayAccess
         $signal->handler($this, 'afterDelete', [$this, 'afterDelete']);
 
         $this->init();
+    }
+
+    public function __toString()
+    {
+        return $this->classNameShort();
     }
 
     protected function getEventManager()
@@ -1443,5 +1449,30 @@ abstract class Base implements ArrayAccess
         $record->setAttributes($row);
         $record->setOldAttributes($row);
         return $record;
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.1.0)<br/>
+     * String representation of object
+     * @link http://php.net/manual/en/serializable.serialize.php
+     * @return string the string representation of the object or null
+     */
+    public function serialize()
+    {
+        return serialize($this->_attributes);
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.1.0)<br/>
+     * Constructs the object
+     * @link http://php.net/manual/en/serializable.unserialize.php
+     * @param string $serialized <p>
+     * The string representation of the object.
+     * </p>
+     * @return void
+     */
+    public function unserialize($serialized)
+    {
+        $this->attributes(unserialize($serialized));
     }
 }
