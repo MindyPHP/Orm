@@ -14,7 +14,7 @@
 
 namespace Mindy\Orm\Validator;
 
-use Mindy\Base\Mindy;
+use Mindy\Locale\Translate;
 
 class UniqueValidator extends Validator
 {
@@ -23,7 +23,7 @@ class UniqueValidator extends Validator
         $modelClass = $this->getModel();
         if ($modelClass->getIsNewRecord()) {
             if ($modelClass::objects()->filter([$this->getName() => $value])->count() > 0) {
-                $this->addError(Mindy::app()->t("Value must be a unique", [], 'validation'));
+                $this->addError(Translate::getInstance()->t("Value must be a unique", [], 'validation'));
             }
         }
 

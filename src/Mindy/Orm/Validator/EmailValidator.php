@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -14,8 +14,7 @@
 
 namespace Mindy\Orm\Validator;
 
-
-use Mindy\Base\Mindy;
+use Mindy\Locale\Translate;
 
 class EmailValidator extends Validator
 {
@@ -69,8 +68,8 @@ class EmailValidator extends Validator
             }
         }
 
-        if(!$valid) {
-            $this->addError(Mindy::app()->t("Is not a valid email address", [], 'validation'));
+        if (!$valid) {
+            $this->addError(Translate::getInstance()->t('validation', "Is not a valid email address"));
         }
 
         return $this->hasErrors() === false;

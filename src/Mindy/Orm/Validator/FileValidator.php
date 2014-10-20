@@ -8,7 +8,7 @@
 
 namespace Mindy\Orm\Validator;
 
-use Mindy\Base\Mindy;
+use Mindy\Locale\Translate;
 
 class FileValidator extends Validator
 {
@@ -30,10 +30,10 @@ class FileValidator extends Validator
 
         $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
         if ($ext && is_array($this->allowedTypes) && !in_array($ext, $this->allowedTypes)) {
-            $this->addError(Mindy::app()->t("Is not a valid file type {type}. Types allowed: {allowed}", [
+            $this->addError(Translate::getInstance()->t('validation', "Is not a valid file type {type}. Types allowed: {allowed}", [
                 '{type}' => $ext,
                 '{allowed}' => implode(', ', $this->allowedTypes)
-            ], 'validation'));
+            ]));
         }
         return $this->hasErrors() === false;
     }
