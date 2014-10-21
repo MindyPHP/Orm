@@ -16,15 +16,15 @@ namespace Mindy\Orm;
 
 use ArrayAccess;
 use Exception;
-use Mindy\Base\Mindy;
 use Mindy\Exception\InvalidParamException;
+use Mindy\Exception\InvalidConfigException;
 use Mindy\Helper\Json;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
-use Mindy\Orm\Exception\InvalidConfigException;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Query\ConnectionManager;
 use Mindy\Query\StaleObjectException;
+use Mindy\Validation\Traits\ValidateObject;
 use ReflectionClass;
 use Serializable;
 
@@ -35,7 +35,7 @@ use Serializable;
  */
 abstract class Base implements ArrayAccess, Serializable
 {
-    use Accessors, Configurator;
+    use Accessors, Configurator, ValidateObject;
 
     /**
      * The insert operation. This is mainly used when overriding [[transactions()]] to specify which operations are transactional.
@@ -94,11 +94,6 @@ abstract class Base implements ArrayAccess, Serializable
 
     private $_related = [];
 
-    /**
-     * @var array validation errors (attribute name => array of errors)
-     */
-    private $_errors = [];
-
     private $_eventManager;
 
     private static $_cache;
@@ -144,7 +139,7 @@ abstract class Base implements ArrayAccess, Serializable
     public static function getCache()
     {
         if (self::$_cache === null) {
-            if(class_exists('\Mindy\Base\Mindy')) {
+            if (class_exists('\Mindy\Base\Mindy')) {
                 self::$_cache = \Mindy\Base\Mindy::app()->getComponent('cache');
             } else {
                 self::$_cache = new \Mindy\Cache\DummyCache;
@@ -1243,71 +1238,6 @@ abstract class Base implements ArrayAccess, Serializable
     }
 
     /**
-     * Adds a new error to the specified attribute.
-     * @param string $attribute attribute name
-     * @param string $error new error message
-     */
-    public function addError($attribute, $error = '')
-    {
-        $this->_errors[$attribute][] = $error;
-    }
-
-    /**
-     * Removes errors for all attributes or a single attribute.
-     * @param string $attribute attribute name. Use null to remove errors for all attribute.
-     */
-    public function clearErrors($attribute = null)
-    {
-        if ($attribute === null) {
-            $this->_errors = [];
-        } else {
-            unset($this->_errors[$attribute]);
-        }
-    }
-
-    /**
-     * Returns a value indicating whether there is any validation error.
-     * @param string|null $attribute attribute name. Use null to check all attributes.
-     * @return boolean whether there is any error.
-     */
-    public function hasErrors($attribute = null)
-    {
-        return $attribute === null ? !empty($this->_errors) : isset($this->_errors[$attribute]);
-    }
-
-    /**
-     * Returns the errors for all attribute or a single attribute.
-     * @param string $attribute attribute name. Use null to retrieve errors for all attributes.
-     * @property array An array of errors for all attributes. Empty array is returned if no error.
-     * The result is a two-dimensional array. See [[getErrors()]] for detailed description.
-     * @return array errors for all attributes or the specified attribute. Empty array is returned if no error.
-     * Note that when returning errors for all attributes, the result is a two-dimensional array, like the following:
-     *
-     * ~~~
-     * [
-     *     'username' => [
-     *         'Username is required.',
-     *         'Username must contain only word characters.',
-     *     ],
-     *     'email' => [
-     *         'Email address is invalid.',
-     *     ]
-     * ]
-     * ~~~
-     *
-     * @see getFirstErrors()
-     * @see getFirstError()
-     */
-    public function getErrors($attribute = null)
-    {
-        if ($attribute === null) {
-            return $this->_errors === null ? [] : $this->_errors;
-        } else {
-            return isset($this->_errors[$attribute]) ? $this->_errors[$attribute] : [];
-        }
-    }
-
-    /**
      * @return bool
      */
     public function isValid()
@@ -1430,14 +1360,14 @@ abstract class Base implements ArrayAccess, Serializable
     public static function create(array $row)
     {
         $meta = self::getMeta();
-        foreach($meta->getRelatedFields() as $related) {
-            if(isset($row[$related])) {
+        foreach ($meta->getRelatedFields() as $related) {
+            if (isset($row[$related])) {
                 $cls = $meta->getRelatedField($related)->getRelatedModel()->className();
 
                 $relatedAttributes = $row[$related];
                 d($relatedAttributes);
                 $cacheKey = $cls . '_' . $relatedAttributes[$cls::primaryKeyName()];
-                if(!self::getCache()->exists($cacheKey)) {
+                if (!self::getCache()->exists($cacheKey)) {
                     self::getCache()->set($cacheKey, $cls::create($relatedAttributes));
                 }
                 unset($row[$related]);

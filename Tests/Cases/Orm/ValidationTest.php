@@ -40,18 +40,8 @@ class ValidationTest extends DatabaseTestCase
         $this->assertFalse($model->isValid());
         $this->assertTrue($model->hasErrors());
         $this->assertTrue($model->hasErrors('username'));
-        $this->assertEquals([
-            'username' => [
-                'NULL is not a string',
-                'Minimal length is 3'
-            ]
-        ], $model->getErrors());
-
-        $this->assertEquals([
-            'NULL is not a string',
-            'Minimal length is 3'
-        ], $model->getErrors('username'));
-
+        $this->assertEquals(['username' => ['Minimal length is 3']], $model->getErrors());
+        $this->assertEquals(['Minimal length is 3'], $model->getErrors('username'));
         $model->clearErrors('username');
         $this->assertEquals([], $model->getErrors());
     }
@@ -59,19 +49,12 @@ class ValidationTest extends DatabaseTestCase
     public function testClosure()
     {
         $model = new Product();
+        $model->setAttributes(['name' => '12']);
         $this->assertFalse($model->isValid());
         $this->assertTrue($model->hasErrors());
         $this->assertTrue($model->hasErrors('name'));
-        $this->assertEquals([
-            'name' => [
-                'Minimal length < 3'
-            ]
-        ], $model->getErrors());
-
-        $this->assertEquals([
-            'Minimal length < 3'
-        ], $model->getErrors('name'));
-
+        $this->assertEquals(['name' => ['Minimal length < 3']], $model->getErrors());
+        $this->assertEquals(['Minimal length < 3'], $model->getErrors('name'));
         $model->clearErrors('name');
         $this->assertEquals([], $model->getErrors());
     }
@@ -81,23 +64,11 @@ class ValidationTest extends DatabaseTestCase
         /* @var $nameField \Mindy\Orm\Fields\Field */
         $model = new User();
         $this->assertFalse($model->isValid());
-        $this->assertEquals([
-            'username' => [
-                'NULL is not a string',
-                'Minimal length is 3'
-            ]
-        ], $model->getErrors());
-
+        $this->assertEquals(['username' => ['Minimal length is 3']], $model->getErrors());
         $nameField = $model->getField('username');
-        $this->assertEquals([
-            'NULL is not a string',
-            'Minimal length is 3'
-        ], $nameField->getErrors());
+        $this->assertEquals(['Minimal length is 3'], $nameField->getErrors());
         $this->assertFalse($nameField->isValid());
-        $this->assertEquals([
-            'NULL is not a string',
-            'Minimal length is 3'
-        ], $nameField->getErrors());
+        $this->assertEquals(['Minimal length is 3'], $nameField->getErrors());
 
         $model->username = 'hi';
         $this->assertEquals('hi', $model->username);
@@ -106,17 +77,8 @@ class ValidationTest extends DatabaseTestCase
 
         $model->username = 'This is very long name for bad validation example';
         $model->isValid();
-        $this->assertEquals([
-            'username' => [
-                'Maximum length is 20'
-            ]
-        ], $model->getErrors());
-
+        $this->assertEquals(['username' => ['Maximum length is 20']], $model->getErrors());
         $model->isValid();
-        $this->assertEquals([
-            'username' => [
-                'Maximum length is 20'
-            ]
-        ], $model->getErrors());
+        $this->assertEquals(['username' => ['Maximum length is 20']], $model->getErrors());
     }
 }

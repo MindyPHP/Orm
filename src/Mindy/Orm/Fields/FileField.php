@@ -16,7 +16,7 @@ namespace Mindy\Orm\Fields;
 
 use Mindy\Base\Mindy;
 use Mindy\Helper\Alias;
-use Mindy\Orm\Validator\FileValidator;
+use Mindy\Validation\FileValidator;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\Files\LocalFile;
 use Mindy\Storage\Files\UploadedFile;

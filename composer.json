@@ -18,7 +18,8 @@
         "cebe/markdown": "*",
         "mindy/utils": "dev-master",
         "mindy/locale": "dev-master",
-        "mindy/event": "dev-master"
+        "mindy/event": "dev-master",
+        "mindy/validation": "dev-master"
     },
     "require-dev": {
         "satooshi/php-coveralls": "dev-master"

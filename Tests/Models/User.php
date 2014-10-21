@@ -14,13 +14,11 @@
 
 namespace Tests\Models;
 
-
 use Mindy\Orm\Fields\CharField;
-use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Model;
-use Mindy\Orm\Validator\MaxLengthValidator;
-use Mindy\Orm\Validator\MinLengthValidator;
+use Mindy\Validation\MaxLengthValidator;
+use Mindy\Validation\MinLengthValidator;
 
 /**
  * Class User
