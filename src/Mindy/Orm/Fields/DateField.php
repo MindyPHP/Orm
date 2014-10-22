@@ -14,7 +14,6 @@
 
 namespace Mindy\Orm\Fields;
 
-
 class DateField extends Field
 {
     public function sqlType()
@@ -25,5 +24,10 @@ class DateField extends Field
     public function sqlDefault()
     {
         return $this->default === null ? '' : "DEFAULT '{$this->default}'";
+    }
+
+    public function getFormField($form, $fieldClass = null)
+    {
+        return parent::getFormField($form, \Mindy\Form\Fields\DateField::className());
     }
 }

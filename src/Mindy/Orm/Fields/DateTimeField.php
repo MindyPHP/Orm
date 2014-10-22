@@ -14,7 +14,6 @@
 
 namespace Mindy\Orm\Fields;
 
-use Mindy\Form\Fields\DateTimeField as DateTimeFieldForm;
 use Mindy\Query\ConnectionManager;
 
 class DateTimeField extends Field
@@ -64,6 +63,6 @@ class DateTimeField extends Field
 
     public function getFormField($form, $fieldClass = null)
     {
-        return parent::getFormField($form, $fieldClass ? $fieldClass : DateTimeFieldForm::className());
+        return parent::getFormField($form, \Mindy\Form\Fields\DateTimeField::className());
     }
 }
