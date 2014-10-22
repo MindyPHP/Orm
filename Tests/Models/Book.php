@@ -14,7 +14,6 @@
 
 namespace Tests\Models;
 
-
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Model;
 
@@ -27,12 +26,14 @@ class Book extends Model
                 'class' => ForeignField::className(),
                 'modelClass' => BookCategory::className(),
                 'null' => true,
+                'editable' => false
             ],
             'category_new' => [
                 'class' => ForeignField::className(),
                 'modelClass' => BookCategory::className(),
                 'null' => true,
-                'relatedName' => 'categories'
+                'relatedName' => 'categories',
+                'editable' => false
             ]
         ];
     }

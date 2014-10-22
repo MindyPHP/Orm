@@ -30,7 +30,16 @@ class Category extends Model
     public static function getFields()
     {
         return [
-            'name' => ['class' => CharField::className()],
+            'name' => [
+                'class' => CharField::className()
+            ],
+            'products' => [
+                'class' => HasManyField::className(),
+                'modelClass' => Product::className(),
+                'null' => true,
+                'relatedName' => 'category',
+                'editable' => false
+            ],
         ];
     }
 }

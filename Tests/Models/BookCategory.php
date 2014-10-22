@@ -14,10 +14,23 @@
 
 namespace Tests\Models;
 
-
+use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Model;
 
 class BookCategory extends Model
 {
-
+    public static function getFields()
+    {
+        return [
+            'category_set' => [
+                'class' => HasManyField::className(),
+                'modelClass' => Book::className(),
+            ],
+            'categories' => [
+                'class' => HasManyField::className(),
+                'modelClass' => Book::className(),
+                'relatedName' => 'category_new'
+            ]
+        ];
+    }
 }

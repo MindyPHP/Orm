@@ -10,7 +10,7 @@ class FieldsTest extends TestCase
     public function testInitialization()
     {
         $model = new Category();
-        $this->assertEquals(1, count($model->getFields()));
+        $this->assertEquals(2, count($model->getFields()));
         $this->assertEquals(3, count($model->getFieldsInit()));
     }
 

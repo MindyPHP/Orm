@@ -27,10 +27,6 @@ class MetaData
      */
     private static $instances = [];
     /**
-     * @var array
-     */
-    public $backwardFields = [];
-    /**
      * @var string
      */
     protected $modelClassName;
@@ -254,40 +250,6 @@ class MetaData
             }
         }
 
-        if (!$extra) {
-            foreach ($m2mFields as $name => $field) {
-                $targetClass = $field->modelClass;
-                $metaInstance = $this->getInstance($targetClass);
-                if (!$metaInstance->hasField($name)) {
-                    $relatedName = $field->getRelatedName();
-                    $this->backwardFields[] = $relatedName;
-                    $m2mField = new ManyToManyField([
-                        'name' => $relatedName,
-                        'modelClass' => $className,
-                    ]);
-                    $m2mField->setModelClass($field->modelClass);
-                    $metaInstance->initFields([$relatedName => $m2mField], true);
-                }
-            }
-        }
-
-        foreach ($fkFields as $name => $field) {
-            $targetClass = $field->modelClass;
-            $metaInstance = $this->getInstance($targetClass);
-            if (!$metaInstance->hasField($name)) {
-                $relatedName = $field->getRelatedName();
-                $this->backwardFields[] = $relatedName;
-                $hasManyField = new HasManyField([
-                    'name' => $relatedName,
-                    'modelClass' => $className,
-                    'to' => $name . '_' . $targetClass::getPkName(),
-                    'editable' => $field->editable
-                ]);
-                $hasManyField->setModelClass($field->modelClass);
-                $metaInstance->initFields([$relatedName => $hasManyField], true);
-            }
-        }
-
         return $fields;
     }
 
@@ -361,10 +323,5 @@ class MetaData
     public function getExtraFields($name)
     {
         return $this->extFields[$name];
-    }
-
-    public function isBackwardField($name)
-    {
-        return in_array($name, $this->backwardFields);
     }
 }
