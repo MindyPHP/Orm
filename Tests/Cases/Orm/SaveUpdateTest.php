@@ -250,6 +250,9 @@ class SaveUpdateTest extends DatabaseTestCase
      */
     public function testIssue11()
     {
+        // Fix hhvm test
+        date_default_timezone_set('UTC');
+
         $this->initModels([new Solution]);
         $modelOne = Solution::objects()->getOrCreate([
             'status' => 1,
