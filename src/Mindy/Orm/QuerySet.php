@@ -329,22 +329,20 @@ class QuerySet extends QuerySetBase
 
     /**
      * Creates a DB command that can be used to execute this query.
-     * @param string $db name of the DB connection used to create the DB command.
-     * If null, the DB connection returned by [[modelClass]] will be used.
      * @return \Mindy\Query\Command the created DB command instance.
      */
-    public function createCommand($db = null)
+    public function createCommand()
     {
         /** @var Orm $modelClass */
         $modelClass = $this->modelClass;
-        $db = ConnectionManager::getDb($db);
+        $db = $this->getDb();
 
         $select = $this->select;
         $from = $this->from;
 
         if ($this->from === null) {
             $tableName = $modelClass::tableName();
-            if ($this->select === null && !empty($this->join)) {
+            if (empty($this->select) && !empty($this->join)) {
                 $this->select = ["$tableName.*"];
             }
             $this->from = [$tableName];

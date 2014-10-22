@@ -14,22 +14,20 @@
 
 namespace Mindy\Orm\Fields;
 
-
 use Closure;
-use Mindy\Form\Fields\CharField;
-use Mindy\Form\Fields\DropDownField;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
 use Mindy\Orm\Model;
-use Mindy\Orm\RelatedManager;
-use Mindy\Orm\Validator\RequiredValidator;
-use Mindy\Orm\Validator\UniqueValidator;
 use Mindy\Query\ConnectionManager;
+use Mindy\Validation\Interfaces\IValidateField;
+use Mindy\Validation\RequiredValidator;
+use Mindy\Validation\Traits\ValidateField;
+use Mindy\Validation\UniqueValidator;
 
-abstract class Field
+abstract class Field implements IValidateField
 {
-    use Accessors, Configurator;
+    use Accessors, Configurator, ValidateField;
 
     public $verboseName = '';
 
@@ -46,10 +44,6 @@ abstract class Field
     public $editable = true;
 
     public $choices = [];
-    /**
-     * @var \Mindy\Form\Validator\Validator[]
-     */
-    public $validators = [];
 
     public $helpText;
 
@@ -61,9 +55,7 @@ abstract class Field
 
     protected $ownerClassName;
 
-    private $_validatorClass = '\Mindy\Orm\Validator\Validator';
-
-    private $_errors = [];
+    private $_validatorClass = '\Mindy\Validation\Validator';
 
     private $_extraFields = [];
 
@@ -113,30 +105,10 @@ abstract class Field
 
     }
 
-    public function clearErrors()
-    {
-        $this->_errors = [];
-    }
-
-    public function getErrors()
-    {
-        return $this->_errors;
-    }
-
-    public function hasErrors()
-    {
-        return !empty($this->_errors);
-    }
-
-    public function addErrors($errors)
-    {
-        $this->_errors = array_merge($this->_errors, $errors);
-    }
-
     public function setModel(Model $model)
     {
         $this->_model = $model;
-        foreach($this->validators as $validator) {
+        foreach ($this->validators as $validator) {
             if (is_subclass_of($validator, $this->_validatorClass)) {
                 $validator->setModel($model);
             }
@@ -147,7 +119,7 @@ abstract class Field
     public function setModelClass($className)
     {
         $this->ownerClassName = $className;
-        foreach($this->validators as $validator) {
+        foreach ($this->validators as $validator) {
             if (is_subclass_of($validator, $this->_validatorClass)) {
                 $validator->setModel($className);
             }
@@ -220,36 +192,10 @@ abstract class Field
         return $this->null ? 'NULL' : 'NOT NULL';
     }
 
-    public function isValid()
-    {
-        $this->clearErrors();
-        foreach ($this->validators as $validator) {
-            if ($validator instanceof Closure) {
-                /* @var $validator Closure */
-                $valid = $validator($this->value);
-                if ($valid !== true) {
-                    if (!is_array($valid)) {
-                        $valid = [$valid];
-                    }
-
-                    $this->addErrors($valid);
-                }
-            } else if (is_subclass_of($validator, $this->_validatorClass)) {
-                /* @var $validator \Mindy\Orm\Validator\Validator */
-                $validator->clearErrors();
-                if ($validator->validate($this->value) === false) {
-                    $this->addErrors($validator->getErrors());
-                }
-            }
-        }
-
-        return $this->hasErrors() === false;
-    }
-
     public function setName($name)
     {
         $this->name = $name;
-        foreach($this->validators as $validator) {
+        foreach ($this->validators as $validator) {
             if (is_subclass_of($validator, $this->_validatorClass)) {
                 $validator->setName($name);
             }
@@ -313,18 +259,18 @@ abstract class Field
 
     public function getFormField($form, $fieldClass = null)
     {
-        if($this->primary || $this->editable === false) {
+        if ($this->primary || $this->editable === false) {
             return null;
         }
 
-        if($fieldClass === null) {
-            $fieldClass = $this->choices ? DropDownField::className() : CharField::className();
+        if ($fieldClass === null) {
+            $fieldClass = $this->choices ? \Mindy\Form\Fields\DropDownField::className() : \Mindy\Form\Fields\CharField::className();
         } elseif ($fieldClass === false) {
             return null;
         }
 
         $validators = [];
-        if($form->hasField($this->name)) {
+        if ($form->hasField($this->name)) {
             $field = $form->getField($this->name);
             $validators = $field->validators;
         }

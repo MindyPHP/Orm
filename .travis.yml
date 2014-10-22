@@ -10,6 +10,7 @@ before_script:
   - composer self-update
   - composer install
   - composer install --dev --no-interaction
+  - mysql -e 'create database test;'
 
 script:
   - mkdir -p build/logs

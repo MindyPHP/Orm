@@ -14,7 +14,7 @@
 
 namespace Mindy\Orm\Fields;
 
-use Mindy\Orm\Validator\JsonValidator;
+use Mindy\Validation\JsonValidator;
 
 class JsonField extends TextField
 {

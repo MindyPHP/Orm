@@ -73,12 +73,12 @@ class LookupTest extends DatabaseTestCase
         $order->save();
 
         $model = new Category();
-        $this->prefix = $model->getConnection()->tablePrefix;
+        $this->prefix = $model->getDb()->tablePrefix;
     }
 
     public function tearDown()
     {
-        // $this->dropModels([new Order, new User, new Customer, new Product, new Category]);
+        $this->dropModels([new Order, new User, new Customer, new Product, new Category]);
     }
 
     public function testInit()
