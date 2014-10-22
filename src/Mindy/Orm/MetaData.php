@@ -271,21 +271,21 @@ class MetaData
             }
         }
 
-        foreach ($fkFields as $name => $field) {
-            $targetClass = $field->modelClass;
-            $metaInstance = $this->getInstance($targetClass);
-            if (!$metaInstance->hasField($name)) {
-                $relatedName = $field->getRelatedName();
-                $this->backwardFields[] = $relatedName;
-                $hasManyField = new HasManyField([
-                    'name' => $relatedName,
-                    'modelClass' => $className,
-                    'to' => $name . '_' . $targetClass::getPkName()
-                ]);
-                $hasManyField->setModelClass($field->modelClass);
-                $metaInstance->initFields([$relatedName => $hasManyField], true);
-            }
-        }
+//        foreach ($fkFields as $name => $field) {
+//            $targetClass = $field->modelClass;
+//            $metaInstance = $this->getInstance($targetClass);
+//            if (!$metaInstance->hasField($name)) {
+//                $relatedName = $field->getRelatedName();
+//                $this->backwardFields[] = $relatedName;
+//                $hasManyField = new HasManyField([
+//                    'name' => $relatedName,
+//                    'modelClass' => $className,
+//                    'to' => $name . '_' . $targetClass::getPkName()
+//                ]);
+//                $hasManyField->setModelClass($field->modelClass);
+//                $metaInstance->initFields([$relatedName => $hasManyField], true);
+//            }
+//        }
         return $fields;
     }
 
