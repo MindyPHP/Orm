@@ -21,6 +21,7 @@ use Mindy\Exception\InvalidConfigException;
 use Mindy\Helper\Json;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
+use Mindy\Locale\Translate;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Query\ConnectionManager;
 use Mindy\Query\StaleObjectException;
@@ -259,6 +260,12 @@ abstract class Base implements ArrayAccess, Serializable
             return $this->hasField($name) ? $this->getField($name)->default : null;
         }
 
+        if(!in_array($name, $this->attributes()) && $this->hasField($name)) {
+            throw new \Mindy\Query\Exception(Translate::getInstance()->t("orm", "'{name}' column is missing in database. Please check database structure", [
+                '{name}' => $name
+            ]));
+        }
+
         return $this->__getInternal($name);
     }
 
@@ -282,11 +289,8 @@ abstract class Base implements ArrayAccess, Serializable
 //            $value = $meta->getFileField($className, $name)->setValue($value);
 //        }
 
-        if ($meta->hasForeignField($name)) {
-            if (!$this->hasAttribute($name)) {
-                $name .= '_id';
-            }
-
+        if ($meta->hasForeignField($name) && !$this->hasAttribute($name)) {
+            $name .= '_id';
             if ($value instanceof Base) {
                 $value = $value->pk;
             }
