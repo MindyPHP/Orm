@@ -1259,6 +1259,7 @@ abstract class Base implements ArrayAccess, Serializable
             if (is_a($field, self::$foreignField) && !$value) {
                 $value = $this->getAttribute($name . '_id');
             }
+            $field->setModel($this);
             $field->setValue($value);
             if ($field->isValid() === false) {
                 foreach ($field->getErrors() as $error) {

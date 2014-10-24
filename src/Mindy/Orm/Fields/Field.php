@@ -109,7 +109,7 @@ abstract class Field implements IValidateField
     {
         $this->_model = $model;
         foreach ($this->validators as $validator) {
-            if (is_subclass_of($validator, $this->_validatorClass)) {
+            if ($validator instanceof \Mindy\Validation\Validator) {
                 $validator->setModel($model);
             }
         }

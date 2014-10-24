@@ -31,6 +31,22 @@ class Model extends Orm
         return Mindy::app()->getModule(self::getModuleName());
     }
 
+    public function getAdminNames($instance = null)
+    {
+        $module = $this->getModule();
+        $cls = self::classNameShort();
+        if ($instance) {
+            $updateTranslate = $module->t('Update ' . strtolower($cls) . ': {name}', ['{name}' => (string)$instance]);
+        } else {
+            $updateTranslate = $module->t('Update ' . strtolower($cls));
+        }
+        return [
+            $module->t($cls . 's'),
+            $module->t('Create ' . strtolower($cls)),
+            $updateTranslate,
+        ];
+    }
+
     public function reverse($route, $data = null)
     {
         return Mindy::app()->urlManager->reverse($route, $data);
