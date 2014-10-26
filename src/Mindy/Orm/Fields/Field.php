@@ -14,7 +14,6 @@
 
 namespace Mindy\Orm\Fields;
 
-use Closure;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
@@ -273,6 +272,13 @@ abstract class Field implements IValidateField
         if ($form->hasField($this->name)) {
             $field = $form->getField($this->name);
             $validators = $field->validators;
+        }
+
+        if ($this->null === false) {
+            $validator = new RequiredValidator;
+            $validator->setName($this->name);
+            $validator->setModel($this);
+            $validators[] = $validator;
         }
 
         return Creator::createObject([
