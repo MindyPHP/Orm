@@ -50,6 +50,8 @@ abstract class Field implements IValidateField
 
     public $primary = false;
 
+    public $autoFetch = false;
+
     protected $name;
 
     protected $ownerClassName;
@@ -274,7 +276,7 @@ abstract class Field implements IValidateField
             $validators = $field->validators;
         }
 
-        if ($this->null === false) {
+        if ($this->null === false && $this->autoFetch === false) {
             $validator = new RequiredValidator;
             $validator->setName($this->name);
             $validator->setModel($this);

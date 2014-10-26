@@ -22,6 +22,10 @@ class SlugField extends CharField
      * @var string
      */
     public $source = 'name';
+    /**
+     * @var bool
+     */
+    public $autoFetch = true;
 
     public function onBeforeInsert()
     {

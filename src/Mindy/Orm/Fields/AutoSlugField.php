@@ -25,6 +25,10 @@ class AutoSlugField extends CharField
      */
     public $source = 'name';
     /**
+     * @var bool
+     */
+    public $autoFetch = true;
+    /**
      * @var string|null
      */
     protected $oldValue;
