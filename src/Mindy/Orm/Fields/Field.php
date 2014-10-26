@@ -276,7 +276,7 @@ abstract class Field implements IValidateField
             $validators = $field->validators;
         }
 
-        if ($this->null === false && $this->autoFetch === false) {
+        if ($this->null === false && $this->autoFetch === false && ($this instanceof BooleanField) === false) {
             $validator = new RequiredValidator;
             $validator->setName($this->name);
             $validator->setModel($this);
