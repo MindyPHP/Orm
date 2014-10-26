@@ -52,6 +52,8 @@ class HasManyField extends RelatedField
 
     public $through;
 
+    public $null = true;
+
     public function init()
     {
 

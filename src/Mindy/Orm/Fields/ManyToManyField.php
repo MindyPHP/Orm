@@ -22,63 +22,54 @@ use Mindy\Orm\Model;
 
 class ManyToManyField extends RelatedField
 {
+    public $null = true;
+    /**
+     * @var array
+     */
+    public $extra = [];
     /**
      * @var null|string
      */
     public $through;
-
     /**
      * Related model class
      * @var string
      */
     public $modelClass;
-
     /**
      * Main model
      * @var \Mindy\Orm\Model
      */
     protected $_model;
-
     /**
      * Related model
      * @var \Mindy\Orm\Model
      */
     protected $_relatedModel;
-
     /**
      * Primary key name
      * @var string
      */
     protected $_modelPk;
-
     /**
      * Primary key name of the related model
      * @var string
      */
     protected $_relatedModelPk;
-
     /**
      * Model column in "link" table
      * @var string
      */
     protected $_modelColumn;
-
     /**
      * Related model column in "link" table
      * @var string
      */
     protected $_relatedModelColumn;
-
-    /**
-     * @var array
-     */
-    public $extra = [];
-
     /**
      * @var string
      */
     private $_tableName;
-
     /**
      * @var
      */
