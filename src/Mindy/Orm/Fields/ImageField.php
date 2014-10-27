@@ -49,7 +49,7 @@ class ImageField extends FileField
         'resolution-x' => 72,
         'resolution-y' => 72,
         'jpeg_quality' => 75,
-        'png_compression_level' => 9
+        'png_compression_level' => 0
     ];
 
     /**
