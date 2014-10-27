@@ -2,11 +2,12 @@
 
 namespace Mindy\Orm\Fields;
 
+use Exception;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\Point;
+use Mindy\Form\Fields\ImageField as FormImageField;
 use Mindy\Orm\Traits\ImageProcess;
 use Mindy\Storage\Files\File;
-use Mindy\Form\Fields\ImageField as FormImageField;
 use Mindy\Storage\FileSystemStorage;
 use Mindy\Storage\MimiBoxStorage;
 
@@ -95,15 +96,15 @@ class ImageField extends FileField
             $this->value = $this->makeFilePath($name);
             $fileContent = $file->getContent();
 
-            if($this->getStorage() instanceof FileSystemStorage) {
+            if ($this->getStorage() instanceof FileSystemStorage) {
                 // $this->getStorage()->save($this->sizeStoragePath('original'), $fileContent);
 
                 $image = $this->getImagine()->load($fileContent);
                 $fileContent = $this->processSource($image);
-                if($this->storeOriginal) {
+                if ($this->storeOriginal) {
                     $this->getStorage()->save($this->value, $fileContent);
                 }
-            } elseif($this->getStorage() instanceof MimiBoxStorage) {
+            } elseif ($this->getStorage() instanceof MimiBoxStorage) {
                 $this->getStorage()->save($this->value, $fileContent);
             }
         }
@@ -163,13 +164,16 @@ class ImageField extends FileField
         $value = $value ? $value : $this->value;
         $dir = dirname($value);
         $filename = basename($value);
+        if (strpos($prefix, 'x') !== false) {
+            $prefix = $this->findSizePrefix($prefix);
+        }
         $prefix = $prefix === null ? '' : $this->preparePrefix($prefix);
         return ($dir ? $dir . DIRECTORY_SEPARATOR : '') . $prefix . $filename;
     }
 
     public function __get($name)
     {
-        if(strpos($name, 'url_') === 0) {
+        if (strpos($name, 'url_') === 0) {
             return $this->sizeUrl(str_replace('url_', '', $name));
         } else {
             return parent::__getInternal($name);
@@ -187,9 +191,9 @@ class ImageField extends FileField
      */
     public function sizeUrl($prefix)
     {
-        if($this->getStorage() instanceof MimiBoxStorage) {
+        if ($this->getStorage() instanceof MimiBoxStorage) {
             $size = explode('x', $prefix);
-            if(count($size) > 1) {
+            if (count($size) > 1) {
                 list($width, $height) = $size;
             } else {
                 $width = array_pop($size);
@@ -197,7 +201,7 @@ class ImageField extends FileField
             }
             $path = $this->sizeStoragePath();
             $path .= "?width=" . $width . '&height=' . $height;
-            if($this->force) {
+            if ($this->force) {
                 $path .= '&force=true';
             }
         } else {
@@ -214,5 +218,22 @@ class ImageField extends FileField
     public function getFormField($form, $fieldClass = null)
     {
         return parent::getFormField($form, FormImageField::className());
+    }
+
+    private function findSizePrefix($prefix)
+    {
+        $newPrefix = null;
+        list($width, $height) = explode('x', trim($prefix, '_'));
+        foreach ($this->sizes as $sizePrefix => $size) {
+            list($sizeWidth, $sizeHeight) = $size;
+            if ($sizeWidth == $width && $sizeHeight == $height) {
+                $newPrefix = $sizePrefix;
+                break;
+            }
+        }
+        if ($newPrefix === null) {
+            throw new Exception("Prefix with width $width and height $height not found");
+        }
+        return $newPrefix;
     }
 }
