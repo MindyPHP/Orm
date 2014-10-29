@@ -31,6 +31,10 @@ class SlugField extends CharField
     {
         $model = $this->getModel();
         $this->value = empty($this->value) ? Meta::cleanString($model->{$this->source}) : $this->value;
+        $count = $model->objects()->filter([$this->source => $this->value])->count();
+        if ($count > 0) {
+            $this->value .= $count;
+        }
         $model->setAttribute($this->name, $this->value);
     }
 
