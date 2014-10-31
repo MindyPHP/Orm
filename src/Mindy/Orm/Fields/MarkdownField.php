@@ -14,14 +14,11 @@
 
 namespace Mindy\Orm\Fields;
 
-
-
-
 class MarkdownField extends TextField
 {
     public function setValue($value)
     {
-        foreach($this->getExtraFieldsInit() as $key => $field) {
+        foreach($this->getExtraFieldsInit() as  $field) {
             $field->setValue($value);
         }
         return parent::setValue($value);
@@ -31,8 +28,14 @@ class MarkdownField extends TextField
     {
         return [
             $this->name . '_html' => [
-                'class' => MarkdownHtmlField::className()
+                'class' => MarkdownHtmlField::className(),
+                'editable' => false
             ]
         ];
+    }
+
+    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\MarkdownField')
+    {
+        return parent::getFormField($form, $fieldClass);
     }
 }

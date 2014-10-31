@@ -15,8 +15,6 @@
 namespace Mindy\Orm\Fields;
 
 
-use Mindy\Form\Fields\TextAreaField;
-
 class TextField extends Field
 {
     public function sqlType()
@@ -24,8 +22,8 @@ class TextField extends Field
         return 'text';
     }
 
-    public function getFormField($form, $fieldClass = null)
+    public function getFormField($form, $fieldClass = 'Mindy\Form\Fields\TextAreaField')
     {
-        return parent::getFormField($form, TextAreaField::className());
+        return parent::getFormField($form, $fieldClass);
     }
 }
