@@ -1,9 +1,5 @@
 <?php
 
-include __DIR__ . '/src/Mindy/Orm/Validator/Validator.php';
-include __DIR__ . '/src/Mindy/Orm/Validator/MinLengthValidator.php';
-include __DIR__ . '/src/Mindy/Orm/Validator/EmailValidator.php';
-
 include __DIR__ . '/src/Mindy/Orm/Base.php';
 include __DIR__ . '/src/Mindy/Orm/Orm.php';
 include __DIR__ . '/src/Mindy/Orm/Model.php';
@@ -25,5 +21,3 @@ include __DIR__ . '/src/Mindy/Orm/Fields/JsonField.php';
 include __DIR__ . '/src/Mindy/Orm/Fields/RelatedField.php';
 include __DIR__ . '/src/Mindy/Orm/Fields/ForeignField.php';
 include __DIR__ . '/src/Mindy/Orm/Fields/ManyToManyField.php';
-
-include __DIR__ . '/src/Mindy/Orm/Traits/AppYiiCompatible.php';
