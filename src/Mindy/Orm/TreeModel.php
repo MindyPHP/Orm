@@ -16,9 +16,10 @@ namespace Mindy\Orm;
 
 
 use Exception;
-use Mindy\Orm\Fields\ForeignField;
+use Mindy\Orm\Fields\TreeForeignField;
 use Mindy\Orm\Fields\IntField;
 use Mindy\Query\Expression;
+use Mindy\Base\Mindy;
 
 /**
  * Class TreeModel
@@ -30,11 +31,13 @@ abstract class TreeModel extends Model
 {
     public static function getFields()
     {
+        $module = Mindy::app()->getModule(self::getModuleName());
         return [
             'parent' => [
-                'class' => ForeignField::className(),
+                'class' => TreeForeignField::className(),
                 'modelClass' => get_called_class(),
-                'null' => true
+                'null' => true,
+                'verboseName' => $module->t('Parent')
             ],
             'lft' => [
                 'class' => IntField::className(),

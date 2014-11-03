@@ -1370,7 +1370,6 @@ abstract class Base implements ArrayAccess, Serializable
                 $cls = $meta->getRelatedField($related)->getRelatedModel()->className();
 
                 $relatedAttributes = $row[$related];
-                d($relatedAttributes);
                 $cacheKey = $cls . '_' . $relatedAttributes[$cls::primaryKeyName()];
                 if (!self::getCache()->exists($cacheKey)) {
                     self::getCache()->set($cacheKey, $cls::create($relatedAttributes));

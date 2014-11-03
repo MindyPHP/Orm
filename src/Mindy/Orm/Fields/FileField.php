@@ -54,7 +54,7 @@ class FileField extends CharField
         parent::__construct($options);
 
         $this->validators = array_merge([
-            new FileValidator($this->types)
+            new FileValidator($this->null, $this->types)
         ], $this->validators);
     }
 

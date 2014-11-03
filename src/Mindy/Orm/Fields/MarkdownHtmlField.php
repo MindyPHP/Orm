@@ -18,7 +18,7 @@ use cebe\markdown\GithubMarkdown;
 
 class MarkdownHtmlField extends TextField
 {
-    public function getValue()
+    public function getDbPrepValue()
     {
         $parser = new GithubMarkdown();
         return (string)$parser->parse($this->value);

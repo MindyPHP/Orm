@@ -97,9 +97,9 @@ class ForeignField extends RelatedField
         return $manager->filter(['pk' => $this->getValue()->pk]);
     }
 
-    public function getFormField($form, $fieldClass = null)
+    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DropDownField')
     {
-        return parent::getFormField($form, DropDownField::className());
+        return parent::getFormField($form, $fieldClass);
     }
 
     public function fetch($value)

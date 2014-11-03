@@ -139,7 +139,7 @@ class TreeQuerySet extends QuerySet
     public function asTree($key = 'items')
     {
         $this->treeKey = $key;
-        return $this;
+        return $this->order(['root', 'lft']);
     }
 
     public function all($db = null)
