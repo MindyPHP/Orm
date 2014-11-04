@@ -127,14 +127,15 @@ abstract class Base implements ArrayAccess, Serializable
 
     protected function getEventManager()
     {
-        if ($this->_eventManager === null) {
+        static $eventManager;
+        if ($eventManager === null) {
             if (class_exists('\Mindy\Base\Mindy')) {
-                $this->_eventManager = \Mindy\Base\Mindy::app()->getComponent('signal');
+                $eventManager = \Mindy\Base\Mindy::app()->getComponent('signal');
             } else {
-                $this->_eventManager = new \Mindy\Event\EventManager();
+                $eventManager = new \Mindy\Event\EventManager();
             }
         }
-        return $this->_eventManager;
+        return $eventManager;
     }
 
     public static function getCache()
@@ -232,6 +233,7 @@ abstract class Base implements ArrayAccess, Serializable
 
         if ($meta->hasFileField($name)) {
             $fileField = $meta->getFileField($name);
+            $fileField->setModel($this);
             $fileField->value = $this->getAttribute($name);
             return $fileField;
         }
