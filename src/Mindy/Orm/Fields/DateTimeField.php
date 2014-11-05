@@ -18,6 +18,8 @@ use Mindy\Query\ConnectionManager;
 
 class DateTimeField extends Field
 {
+    public $autoFetch = true;
+
     public $autoNowAdd = false;
 
     public $autoNow = false;

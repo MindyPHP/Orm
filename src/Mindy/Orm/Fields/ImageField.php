@@ -98,7 +98,6 @@ class ImageField extends FileField
 
             if ($this->getStorage() instanceof FileSystemStorage) {
                 // $this->getStorage()->save($this->sizeStoragePath('original'), $fileContent);
-
                 $image = $this->getImagine()->load($fileContent);
                 $fileContent = $this->processSource($image);
                 if ($this->storeOriginal) {

@@ -16,6 +16,8 @@ namespace Mindy\Orm\Fields;
 
 class DateField extends Field
 {
+    public $autoFetch = true;
+
     public function sqlType()
     {
         return 'date';
