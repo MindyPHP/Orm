@@ -89,31 +89,15 @@ class FileField extends CharField
         return Mindy::app()->storage;
     }
 
-    public function getDbPrepValue()
-    {
-        if (is_null($this->value)) {
-            $this->deleteOld();
-        } else {
-            if (is_array($this->value)) {
-                $this->deleteOld();
-                $this->value = $this->setFile(new UploadedFile($this->value));
-            } else if (is_string($this->value) && is_file($this->value)) {
-                $this->deleteOld();
-                $this->value = $this->setFile(new LocalFile($this->value));
-            }
-        }
-        return $this->value;
-    }
-
     public function getPath()
     {
         return $this->getStorage()->path($this->value);
     }
 
-    public function getValue()
-    {
-        return $this->getUrl();
-    }
+//    public function getValue()
+//    {
+//        return $this->getUrl();
+//    }
 
     public function delete()
     {
@@ -142,11 +126,18 @@ class FileField extends CharField
 
     public function setValue($value)
     {
-        if ($value == $this->cleanValue) {
-            $this->value = null;
-        } else if (is_string($value) || (is_array($value) && isset($value['tmp_name']) && $value['tmp_name'])) {
-            $this->value = $value;
+        if (is_null($value)) {
+            $this->deleteOld();
+        } else {
+            if (is_array($value)) {
+                $this->deleteOld();
+                $value = $this->setFile(new UploadedFile($value));
+            } else if (is_string($value) && is_file($value)) {
+                $this->deleteOld();
+                $value = $this->setFile(new LocalFile($value));
+            }
         }
+        $this->value = $value;
     }
 
     /**

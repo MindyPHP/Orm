@@ -16,8 +16,8 @@ namespace Mindy\Orm;
 
 use ArrayAccess;
 use Exception;
-use Mindy\Exception\InvalidParamException;
 use Mindy\Exception\InvalidConfigException;
+use Mindy\Exception\InvalidParamException;
 use Mindy\Helper\Json;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
@@ -94,8 +94,6 @@ abstract class Base implements ArrayAccess, Serializable
     private $_oldAttributes;
 
     private $_related = [];
-
-    private $_eventManager;
 
     private static $_cache;
 
@@ -232,9 +230,8 @@ abstract class Base implements ArrayAccess, Serializable
         $meta = static::getMeta();
 
         if ($meta->hasFileField($name)) {
-            $fileField = $meta->getFileField($name);
-            $fileField->setModel($this);
-            $fileField->value = $this->getAttribute($name);
+            $fileField = $this->getField($name);
+            $fileField->setDbValue($this->getAttribute($name));
             return $fileField;
         }
 
@@ -262,7 +259,7 @@ abstract class Base implements ArrayAccess, Serializable
             return $this->hasField($name) ? $this->getField($name)->default : null;
         }
 
-        if(!in_array($name, $this->attributes()) && $this->hasField($name)) {
+        if (!in_array($name, $this->attributes()) && $this->hasField($name)) {
             throw new \Mindy\Query\Exception(Translate::getInstance()->t("orm", "'{name}' column is missing in database. Please check database structure", [
                 '{name}' => $name
             ]));
@@ -287,10 +284,6 @@ abstract class Base implements ArrayAccess, Serializable
 
         $meta = static::getMeta();
 
-//        if($meta->hasFileField($className, $name)) {
-//            $value = $meta->getFileField($className, $name)->setValue($value);
-//        }
-
         if ($meta->hasForeignField($name) && !$this->hasAttribute($name)) {
             $name .= '_id';
             if ($value instanceof Base) {
@@ -301,6 +294,12 @@ abstract class Base implements ArrayAccess, Serializable
         if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
             $this->_related[$name] = $value;
         } elseif ($this->hasAttribute($name)) {
+            if ($meta->hasFileField($name)) {
+                $field = $meta->getFileField($name);
+                $field->setValue($value);
+                $value = $field->getDbPrepValue();
+            }
+
             $this->setAttribute($name, $value);
         } else {
             throw new Exception("Setting unknown property " . get_class($this) . "::" . $name);
@@ -340,6 +339,7 @@ abstract class Base implements ArrayAccess, Serializable
     }
 
     /**
+     * TODO wtf, refactoring
      * Returns a value indicating whether the current record is new.
      * @return boolean whether the record is new and should be inserted when calling [[save()]].
      */
@@ -435,6 +435,16 @@ abstract class Base implements ArrayAccess, Serializable
             if ($this->hasField($name)) {
                 $this->$name = $value;
             } else if ($this->hasAttribute($name)) {
+                $this->setAttribute($name, $value);
+            }
+        }
+        return $this;
+    }
+
+    protected function setDbAttributes(array $attributes)
+    {
+        foreach ($attributes as $name => $value) {
+            if ($this->hasAttribute($name)) {
                 $this->setAttribute($name, $value);
             }
         }
@@ -605,7 +615,7 @@ abstract class Base implements ArrayAccess, Serializable
      */
     public function save(array $fields = [])
     {
-        return $this->getIsNewRecord() ? $this->insert($fields) : $this->update($fields) !== false;
+        return $this->getIsNewRecord() ? $this->insert($fields) : $this->update($fields) !== 0;
     }
 
     /**
@@ -657,7 +667,7 @@ abstract class Base implements ArrayAccess, Serializable
         $transaction = $db->beginTransaction();
         try {
             $result = $this->insertInternal($fields);
-            if ($result === false) {
+            if (!$result) {
                 $transaction->rollBack();
             } else {
                 $transaction->commit();
@@ -807,7 +817,6 @@ abstract class Base implements ArrayAccess, Serializable
 
             } else if ($this->hasField($name)) {
                 $field = $this->getField($name);
-                $field->setModel($this)->setValue($value);
                 $prepValues[$name] = $field->getDbPrepValue();
 
             } else {
@@ -918,7 +927,7 @@ abstract class Base implements ArrayAccess, Serializable
         $transaction = $db->beginTransaction();
         try {
             $result = $this->updateInternal($fields);
-            if ($result === false) {
+            if (!$result) {
                 $transaction->rollBack();
             } else {
                 $transaction->commit();
@@ -1288,6 +1297,8 @@ abstract class Base implements ArrayAccess, Serializable
 
     /**
      * @param $name
+     * @param bool $throw
+     * @throws \Exception
      * @return \Mindy\Orm\Fields\Field|null
      */
     public function getField($name, $throw = true)
@@ -1382,7 +1393,7 @@ abstract class Base implements ArrayAccess, Serializable
         $className = self::className();
         /** @var Base $record */
         $record = new $className;
-        $record->setAttributes($row);
+        $record->setDbAttributes($row);
         $record->setOldAttributes($row);
         return $record;
     }

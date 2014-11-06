@@ -23,6 +23,7 @@ use Mindy\Validation\Interfaces\IValidateField;
 use Mindy\Validation\RequiredValidator;
 use Mindy\Validation\Traits\ValidateField;
 use Mindy\Validation\UniqueValidator;
+use Mindy\Validation\Validator;
 
 abstract class Field implements IValidateField
 {
@@ -86,45 +87,57 @@ abstract class Field implements IValidateField
         return $this;
     }
 
-    public function __construct(array $config = [])
+    public function getValidators()
     {
-        $this->configure($config);
+        $model = $this->getModel();
 
-        if ($this->required) {
-            $this->validators = array_merge([new RequiredValidator], $this->validators);
+        $hasRequired = false;
+        $hasUnique = false;
+        foreach ($this->validators as $validator) {
+            if ($validator instanceof RequiredValidator) {
+                $hasRequired = true;
+            }
+            if ($validator instanceof UniqueValidator) {
+                $hasUnique = true;
+            }
+            if ($validator instanceof Validator) {
+                $validator->setModel($model);
+            }
+            $validator->setName($this->name);
         }
 
-        if ($this->unique) {
-            $this->validators = array_merge([new UniqueValidator($this->name)], $this->validators);
+        $attribute = $model->getAttribute($this->name);
+        if (
+            $hasRequired === false &&
+            ($this->required || $this->null === false && $this->default === null) &&
+            $model->getIsNewRecord() &&
+            empty($attribute)
+        ) {
+            $requiredValidator = new RequiredValidator;
+            $requiredValidator->setName($this->name);
+            $requiredValidator->setModel($model);
+            $this->validators = array_merge([$requiredValidator], $this->validators);
         }
 
-        $this->init();
-    }
+        if ($hasUnique === false && $this->unique) {
+            $uniqueValidator = new UniqueValidator($this->name);
+            $uniqueValidator->setName($this->name);
+            $uniqueValidator->setModel($model);
+            $this->validators = array_merge([$uniqueValidator], $this->validators);
+        }
 
-    public function init()
-    {
-
+        return $this->validators;
     }
 
     public function setModel(Model $model)
     {
         $this->_model = $model;
-        foreach ($this->validators as $validator) {
-            if ($validator instanceof \Mindy\Validation\Validator) {
-                $validator->setModel($model);
-            }
-        }
         return $this;
     }
 
     public function setModelClass($className)
     {
         $this->ownerClassName = $className;
-        foreach ($this->validators as $validator) {
-            if (is_subclass_of($validator, $this->_validatorClass)) {
-                $validator->setModel($className);
-            }
-        }
         return $this;
     }
 
@@ -144,6 +157,17 @@ abstract class Field implements IValidateField
     public function getDbPrepValue()
     {
         return $this->getValue();
+    }
+
+    public function cleanValue()
+    {
+        $this->value = null;
+    }
+
+    public function setDbValue($value)
+    {
+        $this->value = $value;
+        return $this;
     }
 
     public function setValue($value)
@@ -199,6 +223,7 @@ abstract class Field implements IValidateField
         foreach ($this->validators as $validator) {
             if (is_subclass_of($validator, $this->_validatorClass)) {
                 $validator->setName($name);
+                $validator->setModel($this->getModel());
             }
         }
         return $this;

@@ -118,7 +118,9 @@ class MetaData
      */
     public function getFileField($name)
     {
-        return $this->localFileFields[$name];
+        $field = $this->localFileFields[$name];
+        $field->cleanValue();
+        return $field;
     }
 
     public function hasForeignKey($name)
@@ -264,7 +266,9 @@ class MetaData
      */
     public function getField($name)
     {
-        return $this->allFields[$name];
+        $field = $this->allFields[$name];
+        $field->cleanValue();
+        return $field;
     }
 
     /**
