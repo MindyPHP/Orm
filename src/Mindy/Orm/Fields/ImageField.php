@@ -5,12 +5,10 @@ namespace Mindy\Orm\Fields;
 use Exception;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\Point;
-use Mindy\Form\Fields\ImageField as FormImageField;
 use Mindy\Orm\Traits\ImageProcess;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\FileSystemStorage;
 use Mindy\Storage\MimiBoxStorage;
-
 
 class ImageField extends FileField
 {
@@ -214,9 +212,9 @@ class ImageField extends FileField
         $this->deleteOld();
     }
 
-    public function getFormField($form, $fieldClass = null)
+    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\ImageField')
     {
-        return parent::getFormField($form, FormImageField::className());
+        return parent::getFormField($form, $fieldClass);
     }
 
     private function findSizePrefix($prefix)
