@@ -15,12 +15,11 @@
 namespace Mindy\Orm\Fields;
 
 use Mindy\Base\Mindy;
-use Mindy\Helper\Alias;
-use Mindy\Validation\FileValidator;
+use Mindy\Form\Fields\FileField as FormFileField;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\Files\LocalFile;
 use Mindy\Storage\Files\UploadedFile;
-use Mindy\Form\Fields\FileField as FormFileField;
+use Mindy\Validation\FileValidator;
 
 class FileField extends CharField
 {
@@ -128,16 +127,18 @@ class FileField extends CharField
     {
         if (is_null($value)) {
             $this->deleteOld();
+            $this->value = $value;
         } else {
-            if (is_array($value)) {
+            if (is_array($value) && isset($value['error']) && $value['error'] === UPLOAD_ERR_OK) {
                 $this->deleteOld();
                 $value = $this->setFile(new UploadedFile($value));
-            } else if (is_string($value) && is_file($value)) {
+                $this->value = $value;
+            } else if (is_string($value) && is_file($value)  && $value !== $this->value) {
                 $this->deleteOld();
                 $value = $this->setFile(new LocalFile($value));
+                $this->value = $value;
             }
         }
-        $this->value = $value;
     }
 
     /**
@@ -182,7 +183,7 @@ class FileField extends CharField
     public function isValid()
     {
         parent::isValid();
-        if(isset($this->value['error']) && $this->value['error'] == UPLOAD_ERR_NO_FILE && $this->null == false) {
+        if (isset($this->value['error']) && $this->value['error'] == UPLOAD_ERR_NO_FILE && $this->null == false) {
             $this->addErrors([$this->name . ' cannot be empty']);
         }
         return $this->hasErrors() === false;
