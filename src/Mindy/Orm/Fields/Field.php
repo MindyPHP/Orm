@@ -108,6 +108,7 @@ abstract class Field implements IValidateField
 
         $attribute = $model->getAttribute($this->name);
         if (
+            $this->autoFetch === false &&
             $hasRequired === false &&
             ($this->required || $this->null === false && $this->default === null) &&
             $model->getIsNewRecord() &&
