@@ -70,6 +70,7 @@ abstract class TreeModel extends Model
     }
 
     /**
+     * @DEPRECATED
      * @param null $instance
      * @return TreeManager
      */
