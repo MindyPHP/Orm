@@ -442,7 +442,7 @@ abstract class Base implements ArrayAccess, Serializable
         return $this;
     }
 
-    public function setDbAttributes(array $attributes)
+    protected function setDbAttributes(array $attributes)
     {
         foreach ($attributes as $name => $value) {
             if ($this->hasAttribute($name)) {
