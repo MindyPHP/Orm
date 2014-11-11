@@ -54,14 +54,14 @@ class AutoSlugField extends CharField
     public function onBeforeInsert()
     {
         $model = $this->getModel();
-        $this->value = empty($this->value) ? Meta::cleanString($model->{$this->source}) : ltrim($this->value, '/');
+        $value = empty($this->value) ? Meta::cleanString($model->{$this->source}) : ltrim($this->value, '/');
         if($model->parent) {
-            $url = $model->parent->{$this->name} . '/' . $this->value;
+            $url = $model->parent->{$this->name} . '/' . $value;
         } else {
-            $url = $this->value;
+            $url = $value;
         }
 
-        $url = ltrim($url, '/');
+        $url = '/' . ltrim($url, '/');
         if ($this->unique) {
             $url = $this->uniqueUrl($url);
         }

@@ -120,7 +120,9 @@ class FileField extends CharField
 
     public function getOldValue()
     {
-        return $this->getModel()->getOldAttribute($this->name);
+        if ($this->getModel()) {
+            return $this->getModel()->getOldAttribute($this->name);
+        }
     }
 
     public function setValue($value)
@@ -133,7 +135,7 @@ class FileField extends CharField
                 $this->deleteOld();
                 $value = $this->setFile(new UploadedFile($value));
                 $this->value = $value;
-            } else if (is_string($value) && is_file($value)  && $value !== $this->value) {
+            } else if (is_string($value) && is_file($value) && $value !== $this->value) {
                 $this->deleteOld();
                 $value = $this->setFile(new LocalFile($value));
                 $this->value = $value;
