@@ -1309,7 +1309,7 @@ abstract class Base implements ArrayAccess, Serializable
             $value = $this->getAttribute($name);
             $field = $meta->getField($name);
             $field->setModel($this);
-            if ($value) {
+            if ($value !== null) {
                 $field->setDbValue($value);
             }
             return $field;

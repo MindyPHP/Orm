@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -19,26 +19,18 @@ class IntField extends Field
 {
     public $length = 11;
 
-    public function getValue()
+    public function setDbPrepValue($value)
     {
-        if($this->value === null && $this->null === false) {
-            return $this->default;
-        } else {
-            return $this->value;
-        }
+        d($value);
     }
 
     public function setValue($value)
     {
-        if($this->null and is_null($value)) {
-            return $this->value = $value;
-        } else {
-            return $this->value = (int) $value;
-        }
+        $this->value = (int)$value;
     }
 
     public function sqlType()
     {
-        return 'int(' . (int) $this->length . ')';
+        return 'int(' . (int)$this->length . ')';
     }
 }
