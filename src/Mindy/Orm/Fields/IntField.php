@@ -19,11 +19,6 @@ class IntField extends Field
 {
     public $length = 11;
 
-    public function setDbPrepValue($value)
-    {
-        d($value);
-    }
-
     public function setValue($value)
     {
         $this->value = (int)$value;
