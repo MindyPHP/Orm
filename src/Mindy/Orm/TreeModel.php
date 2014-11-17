@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Nested set based on creocoder Yii2 Nested Set https://github.com/creocoder/yii2-nested-set-behavior
  *
@@ -16,10 +17,10 @@ namespace Mindy\Orm;
 
 
 use Exception;
-use Mindy\Orm\Fields\TreeForeignField;
-use Mindy\Orm\Fields\IntField;
-use Mindy\Query\Expression;
 use Mindy\Base\Mindy;
+use Mindy\Orm\Fields\IntField;
+use Mindy\Orm\Fields\TreeForeignField;
+use Mindy\Query\Expression;
 
 /**
  * Class TreeModel
@@ -41,15 +42,18 @@ abstract class TreeModel extends Model
             ],
             'lft' => [
                 'class' => IntField::className(),
-                'editable' => false
+                'editable' => false,
+                'null' => true
             ],
             'rgt' => [
                 'class' => IntField::className(),
-                'editable' => false
+                'editable' => false,
+                'null' => true
             ],
             'level' => [
                 'class' => IntField::className(),
-                'editable' => false
+                'editable' => false,
+                'null' => true
             ],
             'root' => [
                 'class' => IntField::className(),
@@ -122,7 +126,7 @@ abstract class TreeModel extends Model
                 $saved = parent::save($fields);
                 if ($this->parent) {
                     $this->moveAsLast($this->parent);
-                } else if ($this->isRoot() == false) {
+                } else if ($this->isRoot() == false || $this->isRebuildTree) {
                     $this->moveAsRoot();
                 }
                 $this->setAttributes($this->objects()->asArray()->filter(['pk' => $this->pk])->get());
@@ -132,6 +136,32 @@ abstract class TreeModel extends Model
         }
 
         return parent::save($fields);
+    }
+
+    public function saveRebuild()
+    {
+        $fields = ['lft', 'rgt', 'level', 'root'];
+
+        if ($this->parent == null) {
+            $this->lft = 1;
+            $this->rgt = 2;
+            $this->level = 0;
+            $this->root = $this->pk;
+            return parent::save($fields);
+        } else if ($this->parent->lft) {
+            $target = $this->parent;
+            $key = $target->rgt;
+
+            $this->root = $target->root;
+
+            $this->shiftLeftRight($key, 2);
+            $this->lft = $key;
+            $this->rgt = $key + 1;
+            $this->level = $target->level + 1;
+
+            return parent::save($fields);
+        }
+        return false;
     }
 
     /**
@@ -151,7 +181,7 @@ abstract class TreeModel extends Model
             ])->delete();
         }
         $this->shiftLeftRight($this->rgt + 1, $this->lft - $this->rgt - 1);
-        return (bool) $result;
+        return (bool)$result;
     }
 
     /**
@@ -449,7 +479,6 @@ abstract class TreeModel extends Model
         $right = $this->rgt;
         $levelDelta = $target->level - $this->level + $levelUp;
 
-        // TODO useless ? Никакой тут не useless.
         if ($this->root !== $target->root) {
             foreach (['lft', 'rgt'] as $attribute) {
                 $this->objects()
@@ -470,13 +499,12 @@ abstract class TreeModel extends Model
             $this->shiftLeftRight($right + 1, $left - $right - 1);
 
         } else {
-            $delta = $right-$left+1;
-            $this->shiftLeftRight($key,$delta);
+            $delta = $right - $left + 1;
+            $this->shiftLeftRight($key, $delta);
 
-            if($left>=$key)
-            {
-                $left+=$delta;
-                $right+=$delta;
+            if ($left >= $key) {
+                $left += $delta;
+                $right += $delta;
             }
 
             $this->objects()
@@ -488,10 +516,10 @@ abstract class TreeModel extends Model
             foreach (['lft', 'rgt'] as $attribute) {
                 $this->objects()
                     ->filter([$attribute . '__gte' => $left, $attribute . '__lte' => $right, 'root' => $this->root])
-                    ->update([$attribute => new Expression($attribute . sprintf('%+d', $key-$left))]);
+                    ->update([$attribute => new Expression($attribute . sprintf('%+d', $key - $left))]);
             }
 
-            $this->shiftLeftRight($right+1,-$delta);
+            $this->shiftLeftRight($right + 1, -$delta);
         }
         return true;
     }

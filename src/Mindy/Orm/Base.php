@@ -707,7 +707,7 @@ abstract class Base implements ArrayAccess, Serializable
     {
         $meta = static::getMeta();
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
+            if ($this->getPkName() == $name || $meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;
             }
             $field->setModel($this)->setValue($this->getAttribute($name));
@@ -723,7 +723,7 @@ abstract class Base implements ArrayAccess, Serializable
         $meta = static::getMeta();
 
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
+            if ($this->getPkName() == $name || $meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;
             }
             $field->setValue($this->getAttribute($name));
@@ -739,7 +739,7 @@ abstract class Base implements ArrayAccess, Serializable
     {
         $meta = static::getMeta();
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
+            if ($this->getPkName() == $name || $meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;
             } else if ($meta->hasForeignField($name)) {
                 $foreighField = $meta->getForeignField($name);
@@ -758,7 +758,7 @@ abstract class Base implements ArrayAccess, Serializable
     {
         $meta = static::getMeta();
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
+            if ($this->getPkName() == $name || $meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;
             }
             $field->setValue($this->getAttribute($name));
@@ -774,7 +774,7 @@ abstract class Base implements ArrayAccess, Serializable
     {
         $meta = static::getMeta();
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
+            if ($this->getPkName() == $name || $meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
                 continue;
             }
             $field->setValue($this->getAttribute($name));
@@ -948,12 +948,13 @@ abstract class Base implements ArrayAccess, Serializable
      * @see update()
      * @throws StaleObjectException
      */
-    protected function updateInternal($attributes = null)
+    protected function updateInternal(array $fields = [])
     {
-        $values = $this->getDirtyAttributes($attributes);
+        $values = $this->getDirtyAttributes($fields);
         if (empty($values)) {
             return 0;
         }
+
         $condition = $this->getOldPrimaryKey(true);
         $lock = $this->optimisticLock();
         if ($lock !== null) {
@@ -1236,12 +1237,12 @@ abstract class Base implements ArrayAccess, Serializable
 
         /* @var $field \Mindy\Orm\Fields\Field */
         foreach ($attributeNames as $name) {
-            $field = $this->getField($name);
-
-            if ($meta->hasManyToManyField($name) || $meta->hasHasManyField($name)) {
+            if ($this->getPkName() == $name || $meta->hasManyToManyField($name) || $meta->hasHasManyField($name)) {
                 continue;
             }
 
+            $field = $this->getField($name);
+            // TODO
             $field->setValue($this->getAttribute($name));
             if ($field->isValid() === false) {
                 foreach ($field->getErrors() as $error) {
@@ -1266,7 +1267,7 @@ abstract class Base implements ArrayAccess, Serializable
 
         /* @var $field \Mindy\Orm\Fields\Field */
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($meta->hasManyToManyField($name) || $meta->hasHasManyField($name)) {
+            if ($this->getPkName() == $name || $meta->hasManyToManyField($name) || $meta->hasHasManyField($name)) {
                 continue;
             }
 

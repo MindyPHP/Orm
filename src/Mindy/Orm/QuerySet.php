@@ -5,7 +5,6 @@ namespace Mindy\Orm;
 use Mindy\Exception\Exception;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
 use Mindy\Orm\Fields\ManyToManyField;
-use Mindy\Query\ConnectionManager;
 
 class QuerySet extends QuerySetBase
 {
@@ -763,18 +762,26 @@ class QuerySet extends QuerySetBase
      */
     public function order(array $columns)
     {
-        $cols = [];
+        $orderBy = [];
+        $meta = $this->model->getMeta();
         foreach ($columns as $column) {
             $isReverse = strpos($column, '-') === 0;
-            if (str_replace('-', '', $column) == 'pk') {
+            $t = str_replace('-', '', $column);
+            if ($t == 'pk') {
                 $column = $this->model->getPkName();
                 if ($isReverse) {
                     $column = '-' . $column;
                 }
             }
-            $cols[] = $column;
+            if ($meta->hasForeignField($t)) {
+                if ($meta->hasField($t)) {
+                    $column .= "_id";
+                }
+            }
+            $orderBy[] = $column;
         }
-        return $this->orderBy($cols);
+
+        return $this->orderBy($orderBy);
     }
 
 
