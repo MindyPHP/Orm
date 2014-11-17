@@ -136,12 +136,15 @@ class QuerySet extends QuerySetBase
         }
 
         $valuesSelect = [];
-        foreach ($fieldsList as $fieldName) {
-            $valuesSelect[] = $this->aliasColumn($fieldName) . ' AS ' . $fieldName;
+        foreach ($fieldsList as $name) {
+            if ($name == 'pk') {
+                $name = $this->model->getPkName();
+            }
+            $valuesSelect[] = $this->aliasColumn($name) . ' AS ' . $name;
         }
         $this->select = $valuesSelect;
 
-        $rows = $this->createCommand()->queryAll();
+        $rows = $this->asArray()->all();
 
         $this->groupBy = $group;
         $this->select = $select;

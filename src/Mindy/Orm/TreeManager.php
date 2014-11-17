@@ -34,8 +34,9 @@ class TreeManager extends Manager
 
     /**
      * Named scope. Gets descendants for node.
+     * @param bool $includeSelf
      * @param int $depth the depth.
-     * @return QuerySet
+     * @return $this
      */
     public function descendants($includeSelf = false, $depth = null)
     {
@@ -45,7 +46,8 @@ class TreeManager extends Manager
 
     /**
      * Named scope. Gets children for node (direct descendants only).
-     * @return QuerySet
+     * @param bool $includeSelf
+     * @return $this
      */
     public function children($includeSelf = false)
     {
@@ -56,7 +58,7 @@ class TreeManager extends Manager
     /**
      * Named scope. Gets ancestors for node.
      * @param int $depth the depth.
-     * @return QuerySet
+     * @return $this
      */
     public function ancestors($depth = null)
     {
@@ -66,7 +68,7 @@ class TreeManager extends Manager
 
     /**
      * Named scope. Gets root node(s).
-     * @return QuerySet
+     * @return $this
      */
     public function roots()
     {
@@ -76,7 +78,7 @@ class TreeManager extends Manager
 
     /**
      * Named scope. Gets parent of node.
-     * @return QuerySet
+     * @return $this
      */
     public function parent()
     {
@@ -86,7 +88,7 @@ class TreeManager extends Manager
 
     /**
      * Named scope. Gets previous sibling of node.
-     * @return QuerySet
+     * @return $this
      */
     public function prev()
     {
@@ -96,7 +98,7 @@ class TreeManager extends Manager
 
     /**
      * Named scope. Gets next sibling of node.
-     * @return QuerySet
+     * @return $this
      */
     public function next()
     {
@@ -104,6 +106,10 @@ class TreeManager extends Manager
         return $this;
     }
 
+    /**
+     * @param string $key
+     * @return $this
+     */
     public function asTree($key = 'items')
     {
         $this->getQuerySet()->asTree($key);

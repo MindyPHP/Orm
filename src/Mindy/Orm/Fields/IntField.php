@@ -14,7 +14,6 @@
 
 namespace Mindy\Orm\Fields;
 
-
 class IntField extends Field
 {
     public $length = 11;
