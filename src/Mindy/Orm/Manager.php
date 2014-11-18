@@ -411,7 +411,7 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
      */
     public function offsetSet($offset, $value)
     {
-        $this->getQuerySet()->offsetSet($offset);
+        $this->getQuerySet()->offsetSet($offset, $value);
     }
 
     /**
@@ -426,5 +426,11 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
     public function offsetUnset($offset)
     {
         $this->getQuerySet()->offsetUnset($offset);
+    }
+
+    public function addGroupBy($column)
+    {
+        $this->getQuerySet()->addGroupBy($column);
+        return $this;
     }
 }

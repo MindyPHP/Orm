@@ -982,4 +982,19 @@ class QuerySet extends QuerySetBase
         }
         return $newData;
     }
+
+    public function addGroupBy($columns)
+    {
+        if (!is_array($columns)) {
+            $columns = [$columns];
+        }
+        $newColumns = [];
+        foreach ($columns as $column) {
+            if ($column == 'pk') {
+                $column = $this->model->getPkName();
+            }
+            $newColumns[] = $this->quoteColumnName($this->tableAlias . '.' . $column);
+        }
+        return parent::addGroupBy($newColumns);
+    }
 }
