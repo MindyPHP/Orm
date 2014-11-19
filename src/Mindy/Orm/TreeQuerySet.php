@@ -63,22 +63,38 @@ class TreeQuerySet extends QuerySet
 
     /**
      * Named scope. Gets ancestors for node.
+     * @param bool $includeSelf
      * @param int $depth the depth.
      * @return QuerySet
      */
-    public function ancestors($depth = null)
+    public function ancestors($includeSelf = false, $depth = null)
     {
         $qs = $this->filter([
-            'lft__lt' => $this->model->lft,
-            'rgt__gt' => $this->model->rgt,
+            'lft__lte' => $this->model->lft,
+            'rgt__gte' => $this->model->rgt,
             'root' => $this->model->root
         ])->order(['-lft']);
 
+        if ($includeSelf === false) {
+            $this->exclude([
+                'pk' => $this->model->pk
+            ]);
+        }
+
         if ($depth !== null) {
-            $qs = $qs->filter(['level__gte' => $this->model->level + $depth]);
+            $qs = $qs->filter(['level__lte' => $this->model->level - $depth]);
         }
 
         return $qs;
+    }
+
+    /**
+     * @param bool $includeSelf
+     * @return QuerySet
+     */
+    public function parents($includeSelf = false)
+    {
+        return $this->ancestors($includeSelf, 1);
     }
 
     /**

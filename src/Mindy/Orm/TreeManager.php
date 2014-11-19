@@ -57,12 +57,23 @@ class TreeManager extends Manager
 
     /**
      * Named scope. Gets ancestors for node.
+     * @param bool $includeSelf
      * @param int $depth the depth.
      * @return $this
      */
-    public function ancestors($depth = null)
+    public function ancestors($includeSelf = false, $depth = null)
     {
-        $this->getQuerySet()->ancestors($depth);
+        $this->getQuerySet()->ancestors($includeSelf, $depth);
+        return $this;
+    }
+
+    /**
+     * @param bool $includeSelf
+     * @return $this
+     */
+    public function parents($includeSelf = false)
+    {
+        $this->getQuerySet()->parents($includeSelf);
         return $this;
     }
 

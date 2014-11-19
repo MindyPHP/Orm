@@ -433,7 +433,9 @@ abstract class Base implements ArrayAccess, Serializable
     public function setAttributes(array $attributes)
     {
         foreach ($attributes as $name => $value) {
-            if ($this->hasField($name)) {
+            if ($name == self::getPkName()) {
+                continue;
+            } else if ($this->hasField($name)) {
                 $this->$name = $value;
             } else if ($this->hasAttribute($name)) {
                 $this->setAttribute($name, $value);
