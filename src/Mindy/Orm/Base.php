@@ -618,7 +618,7 @@ abstract class Base implements ArrayAccess, Serializable
      */
     public function save(array $fields = [])
     {
-        return $this->getIsNewRecord() ? $this->insert($fields) : $this->update($fields) !== 0;
+        return $this->getIsNewRecord() ? $this->insert($fields) : $this->update($fields);
     }
 
     /**
@@ -954,7 +954,7 @@ abstract class Base implements ArrayAccess, Serializable
     {
         $values = $this->getDirtyAttributes($fields);
         if (empty($values)) {
-            return 0;
+            return true;
         }
 
         $condition = $this->getOldPrimaryKey(true);
@@ -983,7 +983,7 @@ abstract class Base implements ArrayAccess, Serializable
             }
         }
 
-        return $rows;
+        return $rows >= 0;
     }
 
     /**
