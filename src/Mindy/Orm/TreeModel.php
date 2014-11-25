@@ -32,7 +32,7 @@ abstract class TreeModel extends Model
     {
         $parent = 'Parent';
         if(class_exists('\Mindy\Base\Mindy')) {
-            $module = Mindy\Base\Mindy::app()->getModule(self::getModuleName());
+            $module = \Mindy\Base\Mindy::app()->getModule(self::getModuleName());
             $parent = $module->t('Parent');
         }
         return [
