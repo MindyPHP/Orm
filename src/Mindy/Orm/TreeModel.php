@@ -126,7 +126,7 @@ abstract class TreeModel extends Model
                 $saved = parent::save($fields);
                 if ($this->parent) {
                     $this->moveAsLast($this->parent);
-                } else if ($this->isRoot() == false || $this->isRebuildTree) {
+                } else if ($this->isRoot() == false) {
                     $this->moveAsRoot();
                 }
                 $this->setAttributes($this->objects()->asArray()->filter(['pk' => $this->pk])->get());
