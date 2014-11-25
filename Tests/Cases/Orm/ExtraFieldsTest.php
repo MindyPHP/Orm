@@ -46,7 +46,8 @@ class ExtraFieldsTest extends DatabaseTestCase
         $this->assertInstanceOf(MarkdownHtmlField::className(), $model->getField('content_html'));
 
         $model->content = "# Hello world";
-        $this->assertEquals("<h1>Hello world</h1>\n", $model->content_html);
+        $this->assertEquals("# Hello world", $model->content_html);
+        $this->assertEquals("<h1>Hello world</h1>\n", $model->getField('content_html')->getDbPrepValue());
         $model->save();
 
         $fetchModel = MarkdownModel::objects()->filter(['pk' => 1])->get();

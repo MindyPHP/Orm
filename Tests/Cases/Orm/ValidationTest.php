@@ -40,8 +40,14 @@ class ValidationTest extends DatabaseTestCase
         $this->assertFalse($model->isValid());
         $this->assertTrue($model->hasErrors());
         $this->assertTrue($model->hasErrors('username'));
-        $this->assertEquals(['username' => ['Minimal length is 3']], $model->getErrors());
-        $this->assertEquals(['Minimal length is 3'], $model->getErrors('username'));
+        $this->assertEquals(['username' => [
+            'username cannot be empty',
+            'Minimal length is 3',
+        ]], $model->getErrors());
+        $this->assertEquals([
+            'username cannot be empty',
+            'Minimal length is 3',
+        ], $model->getErrors('username'));
         $model->clearErrors('username');
         $this->assertEquals([], $model->getErrors());
     }
@@ -64,11 +70,20 @@ class ValidationTest extends DatabaseTestCase
         /* @var $nameField \Mindy\Orm\Fields\Field */
         $model = new User();
         $this->assertFalse($model->isValid());
-        $this->assertEquals(['username' => ['Minimal length is 3']], $model->getErrors());
+        $this->assertEquals(['username' => [
+            'username cannot be empty',
+            'Minimal length is 3',
+        ]], $model->getErrors());
         $nameField = $model->getField('username');
-        $this->assertEquals(['Minimal length is 3'], $nameField->getErrors());
+        $this->assertEquals([
+            'username cannot be empty',
+            'Minimal length is 3'
+        ], $nameField->getErrors());
         $this->assertFalse($nameField->isValid());
-        $this->assertEquals(['Minimal length is 3'], $nameField->getErrors());
+        $this->assertEquals([
+            'username cannot be empty',
+            'Minimal length is 3'
+        ], $nameField->getErrors());
 
         $model->username = 'hi';
         $this->assertEquals('hi', $model->username);
