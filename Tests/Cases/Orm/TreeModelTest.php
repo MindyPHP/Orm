@@ -169,7 +169,7 @@ class TreeModelTest extends DatabaseTestCase
                     'level' => 1,
                     'root' => 1,
                     'name' => 'test',
-                    'slug' => '/test',
+                    'slug' => 'test',
                     'items' => [],
                 ],
                 [
@@ -180,7 +180,7 @@ class TreeModelTest extends DatabaseTestCase
                     'level' => 1,
                     'root' => 2,
                     'name' => 'test1',
-                    'slug' => '/test1',
+                    'slug' => 'test1',
                     'items' => [
                         [
                             'id' => 3,
@@ -190,7 +190,7 @@ class TreeModelTest extends DatabaseTestCase
                             'level' => 2,
                             'root' => 2,
                             'name' => 'test2',
-                            'slug' => '/test1/test2',
+                            'slug' => 'test1/test2',
                             'items' => [],
                         ],
                         [
@@ -201,7 +201,7 @@ class TreeModelTest extends DatabaseTestCase
                             'level' => 2,
                             'root' => 2,
                             'name' => 'test3',
-                            'slug' => '/test1/test3',
+                            'slug' => 'test1/test3',
                             'items' => [
                                 [
                                     'id' => 5,
@@ -211,7 +211,7 @@ class TreeModelTest extends DatabaseTestCase
                                     'level' => 3,
                                     'root' => 2,
                                     'name' => 'test4',
-                                    'slug' => '/test1/test3/test4',
+                                    'slug' => 'test1/test3/test4',
                                     'items' => [],
                                 ]
                             ]
@@ -229,11 +229,14 @@ class TreeModelTest extends DatabaseTestCase
         $this->markTestSkipped('See https://github.com/studio107/Mindy_Orm/issues/50');
 
         $root1 = NestedModel::objects()->getOrCreate(['name' => 'root1']);
-        $root2 = NestedModel::objects()->getOrCreate(['name' => 'root2']);
-        $nested = NestedModel::objects()->getOrCreate(['name' => 'nested', 'parent' => $root1]);
+        $this->assertTrue(NestedModel::objects()->filter(['name' => 'root1'])->get()->getIsLeaf());
 
-        $this->assertFalse(NestedModel::objects()->filter(['name' => 'root1'])->get()->getIsLeaf());
+        $root2 = NestedModel::objects()->getOrCreate(['name' => 'root2']);
         $this->assertTrue(NestedModel::objects()->filter(['name' => 'root2'])->get()->getIsLeaf());
+
+        $nested = NestedModel::objects()->getOrCreate(['name' => 'nested', 'parent' => $root2]);
+        $this->assertTrue(NestedModel::objects()->filter(['name' => 'root1'])->get()->getIsLeaf());
+        $this->assertFalse(NestedModel::objects()->filter(['name' => 'root2'])->get()->getIsLeaf());
 
         $this->assertTrue(NestedModel::objects()->filter(['name' => 'nested'])->get()->getIsLeaf());
 

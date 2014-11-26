@@ -101,26 +101,30 @@ abstract class Field implements IValidateField
                 $hasUnique = true;
             }
             if ($validator instanceof Validator) {
-                $validator->setModel($model);
+                $validator->setName($this->name);
+                if ($model) {
+                    $validator->setModel($model);
+                }
             }
-            $validator->setName($this->name);
         }
 
-        $attribute = $model->getAttribute($this->name);
-        if (
-            $this->autoFetch === false &&
-            $hasRequired === false &&
-            ($this->required || $this->null === false && $this->default === null) &&
-            $model->getIsNewRecord() &&
-            empty($attribute)
-        ) {
-            $requiredValidator = new RequiredValidator;
-            $requiredValidator->setName($this->name);
-            $requiredValidator->setModel($model);
-            $this->validators = array_merge([$requiredValidator], $this->validators);
+        if($model) {
+            $attribute = $model->getAttribute($this->name);
+            if (
+                $this->autoFetch === false &&
+                $hasRequired === false &&
+                ($this->required || $this->null === false && $this->default === null) &&
+                $model->getIsNewRecord() &&
+                empty($attribute)
+            ) {
+                $requiredValidator = new RequiredValidator;
+                $requiredValidator->setName($this->name);
+                $requiredValidator->setModel($model);
+                $this->validators = array_merge([$requiredValidator], $this->validators);
+            }
         }
 
-        if ($hasUnique === false && $this->unique) {
+        if ($model && $hasUnique === false && $this->unique) {
             $uniqueValidator = new UniqueValidator($this->name);
             $uniqueValidator->setName($this->name);
             $uniqueValidator->setModel($model);

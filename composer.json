@@ -19,7 +19,8 @@
         "mindy/utils": "dev-master",
         "mindy/locale": "dev-master",
         "mindy/event": "dev-master",
-        "mindy/validation": "dev-master"
+        "mindy/validation": "dev-master",
+        "monolog/monolog": "*"
     },
     "require-dev": {
         "satooshi/php-coveralls": "dev-master"
