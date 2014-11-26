@@ -231,6 +231,7 @@ abstract class Base implements ArrayAccess, Serializable
 
         if ($meta->hasFileField($name)) {
             $fileField = $this->getField($name);
+            $fileField->setModel($this);
             $fileField->setDbValue($this->getAttribute($name));
             return $fileField;
         }
@@ -297,6 +298,7 @@ abstract class Base implements ArrayAccess, Serializable
             if ($meta->hasFileField($name)) {
                 $field = $meta->getFileField($name);
                 $field->setDbValue($this->getAttribute($name));
+                $field->setModel($this);
                 $field->setValue($value);
                 $value = $field->getDbPrepValue();
             }
@@ -1223,6 +1225,9 @@ abstract class Base implements ArrayAccess, Serializable
     public static function objectsManager($instance = null)
     {
         $className = get_called_class();
+        if ($className == 'Modules\Estate\Models\Estate') {
+            d(debug_backtrace());
+        }
         return new Manager($instance ? $instance : new $className);
     }
 
