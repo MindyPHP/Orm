@@ -1311,8 +1311,12 @@ abstract class Base implements ArrayAccess, Serializable
     {
         $meta = self::getMeta();
         if ($meta->hasField($name)) {
-            $value = $this->getAttribute($name);
             $field = $meta->getField($name);
+            if (!$this->hasAttribute($name) && $meta->hasForeignField($name)) {
+                $value = $this->getAttribute($name . '_id');
+            } else {
+                $value = $this->getAttribute($name);
+            }
             $field->setModel($this);
             if ($value !== null) {
                 $field->setDbValue($value);

@@ -212,7 +212,11 @@ class ManyToManyField extends RelatedField
     protected function preformatValue($value)
     {
         if (!is_array($value)) {
-            $value = [$value];
+            if (is_string($value) && strpos($value, ',') !== false) {
+                $value = explode(',', $value);
+            } else {
+                $value = [$value];
+            }
         }
 
         if (is_array($value) && count($value) > 0) {
