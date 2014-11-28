@@ -16,7 +16,6 @@ namespace Mindy\Orm\Fields;
 
 
 use InvalidArgumentException;
-use Mindy\Form\Fields\DropDownField;
 use Mindy\Orm\Orm;
 use Mindy\Orm\RelatedManager;
 use Mindy\Orm\Relation;
@@ -44,7 +43,7 @@ class ForeignField extends RelatedField
             $value = $modelClass::objects()->filter(['pk' => $value])->get();
         }
 
-        if(empty($value)) {
+        if (empty($value)) {
             $value = null;
         }
         $this->value = $value;
@@ -80,7 +79,7 @@ class ForeignField extends RelatedField
         $tmp = explode('\\', $cls);
         $column = $cls::normalizeTableName(end($tmp));
 
-        return [$this->getRelatedModel(),  [[
+        return [$this->getRelatedModel(), [[
             'table' => $this->getRelatedTable(false),
             // @TODO: chained with Sync - 40 line
             'from' => $column . '_id',
@@ -94,7 +93,12 @@ class ForeignField extends RelatedField
     public function getManager()
     {
         $manager = new RelatedManager($this->getRelatedModel());
-        return $manager->filter(['pk' => $this->getValue()->pk]);
+        $value = $this->getValue();
+        if (is_object($value)) {
+            return $value;
+        } else {
+            return $manager->filter(['pk' => $value]);
+        }
     }
 
     public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DropDownField')

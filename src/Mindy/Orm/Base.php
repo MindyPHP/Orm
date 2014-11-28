@@ -231,6 +231,7 @@ abstract class Base implements ArrayAccess, Serializable
 
         if ($meta->hasFileField($name)) {
             $fileField = $this->getField($name);
+            $fileField->setModel($this);
             $fileField->setDbValue($this->getAttribute($name));
             return $fileField;
         }
@@ -297,6 +298,7 @@ abstract class Base implements ArrayAccess, Serializable
             if ($meta->hasFileField($name)) {
                 $field = $meta->getFileField($name);
                 $field->setDbValue($this->getAttribute($name));
+                $field->setModel($this);
                 $field->setValue($value);
                 $value = $field->getDbPrepValue();
             }
@@ -1309,8 +1311,12 @@ abstract class Base implements ArrayAccess, Serializable
     {
         $meta = self::getMeta();
         if ($meta->hasField($name)) {
-            $value = $this->getAttribute($name);
             $field = $meta->getField($name);
+            if (!$this->hasAttribute($name) && $meta->hasForeignField($name)) {
+                $value = $this->getAttribute($name . '_id');
+            } else {
+                $value = $this->getAttribute($name);
+            }
             $field->setModel($this);
             if ($value !== null) {
                 $field->setDbValue($value);

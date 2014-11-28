@@ -70,6 +70,7 @@ class TreeForeignField extends ForeignField
             'name' => $this->name,
             'label' => $this->verboseName,
             'hint' => $this->helpText,
+            'value' => $this->getValue(),
             'validators' => array_merge($validators, $this->validators)
 
 //            'html' => [

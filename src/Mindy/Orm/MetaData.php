@@ -17,8 +17,6 @@ namespace Mindy\Orm;
 
 use Mindy\Helper\Creator;
 use Mindy\Orm\Fields\ForeignField;
-use Mindy\Orm\Fields\HasManyField;
-use Mindy\Orm\Fields\ManyToManyField;
 
 class MetaData
 {
@@ -84,11 +82,11 @@ class MetaData
      */
     public function getRelatedField($name)
     {
-        if($this->hasManyToManyField($name)) {
+        if ($this->hasManyToManyField($name)) {
             return $this->getManyToManyField($name);
-        } else if($this->hasHasManyField($name)) {
+        } else if ($this->hasHasManyField($name)) {
             return $this->getHasManyField($name);
-        } else if($this->hasForeignField($name)) {
+        } else if ($this->hasForeignField($name)) {
             return $this->getForeignField($name);
         }
         return null;
