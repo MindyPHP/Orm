@@ -108,9 +108,9 @@ class FileField extends CharField
      */
     public function deleteOld()
     {
-        if ($this->getOldValue()) {
-            $this->getStorage()->delete($this->getOldValue());
-        }
+//        if ($this->getOldValue()) {
+//            $this->getStorage()->delete($this->getOldValue());
+//        }
     }
 
     public function getSize()
@@ -135,7 +135,7 @@ class FileField extends CharField
                 $this->deleteOld();
                 $value = $this->setFile(new UploadedFile($value));
                 $this->value = $value;
-            } else if (is_string($value) && is_file($value) && $value !== $this->value) {
+            } else if (is_string($value) && $value !== $this->value && is_file($value)) {
                 $this->deleteOld();
                 $value = $this->setFile(new LocalFile($value));
                 $this->value = $value;
