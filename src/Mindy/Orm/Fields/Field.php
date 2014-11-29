@@ -108,7 +108,7 @@ abstract class Field implements IValidateField
             }
         }
 
-        if($model) {
+        if ($model) {
             $attribute = $model->getAttribute($this->name);
             if (
                 $this->autoFetch === false &&
