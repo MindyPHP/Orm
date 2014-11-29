@@ -35,7 +35,6 @@ class TreeForeignField extends ForeignField
                 $level = $model->level ? $model->level - 1 : $model->level;
                 $list[$model->pk] = $level ? str_repeat("..", $level) . ' ' . $model->name : $model->name;
             }
-
             return $list;
         };
 

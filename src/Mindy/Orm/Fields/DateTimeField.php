@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -26,14 +26,14 @@ class DateTimeField extends Field
 
     public function onBeforeInsert()
     {
-        if($this->autoNowAdd) {
+        if ($this->autoNowAdd) {
             $this->getModel()->setAttribute($this->name, $this->getValue());
         }
     }
 
     public function onBeforeUpdate()
     {
-        if($this->autoNow) {
+        if ($this->autoNow) {
             $this->getModel()->setAttribute($this->name, $this->getValue());
         }
     }
@@ -41,8 +41,8 @@ class DateTimeField extends Field
     public function getValue()
     {
         $db = ConnectionManager::getDb()->getQueryBuilder();
-        if(is_numeric($this->value) || $this->autoNowAdd && $this->getModel()->getIsNewRecord() || $this->autoNow) {
-            return $db->convertToDateTime();
+        if (is_numeric($this->value) || $this->autoNowAdd && $this->getModel()->getIsNewRecord() || $this->autoNow) {
+            return $db->convertToDateTime($this->value);
         } else {
             return $this->value;
         }
