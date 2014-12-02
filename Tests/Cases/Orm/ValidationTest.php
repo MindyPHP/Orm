@@ -41,11 +41,11 @@ class ValidationTest extends DatabaseTestCase
         $this->assertTrue($model->hasErrors());
         $this->assertTrue($model->hasErrors('username'));
         $this->assertEquals(['username' => [
-            'username cannot be empty',
+            '"username" cannot be empty',
             'Minimal length is 3',
         ]], $model->getErrors());
         $this->assertEquals([
-            'username cannot be empty',
+            '"username" cannot be empty',
             'Minimal length is 3',
         ], $model->getErrors('username'));
         $model->clearErrors('username');
@@ -71,17 +71,17 @@ class ValidationTest extends DatabaseTestCase
         $model = new User();
         $this->assertFalse($model->isValid());
         $this->assertEquals(['username' => [
-            'username cannot be empty',
+            '"username" cannot be empty',
             'Minimal length is 3',
         ]], $model->getErrors());
         $nameField = $model->getField('username');
         $this->assertEquals([
-            'username cannot be empty',
+            '"username" cannot be empty',
             'Minimal length is 3'
         ], $nameField->getErrors());
         $this->assertFalse($nameField->isValid());
         $this->assertEquals([
-            'username cannot be empty',
+            '"username" cannot be empty',
             'Minimal length is 3'
         ], $nameField->getErrors());
 
