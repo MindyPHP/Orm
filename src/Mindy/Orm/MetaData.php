@@ -60,6 +60,10 @@ class MetaData
      * @var array
      */
     protected $hasManyFields = [];
+    /**
+     * @var array
+     */
+    protected $attributes = [];
 
     public function __construct($className)
     {
@@ -156,10 +160,22 @@ class MetaData
     {
         if (!isset(self::$instances[$className])) {
             self::$instances[$className] = new self($className);
+            self::$instances[$className]->setAttributes();
             self::$instances[$className]->initFields();
         }
 
         return self::$instances[$className];
+    }
+
+    public function setAttributes()
+    {
+        $className = $this->modelClassName;
+        $this->attributes = array_keys($className::getTableSchema()->columns);
+    }
+
+    public function getAttributes()
+    {
+        return $this->attributes;
     }
 
     public function initFields(array $fields = [], $extra = false)

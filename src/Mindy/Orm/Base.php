@@ -97,6 +97,8 @@ abstract class Base implements ArrayAccess, Serializable
 
     private static $_cache;
 
+    protected $_attributesSchema = null;
+
     /**
      * @param array $attributes
      */
@@ -463,7 +465,7 @@ abstract class Base implements ArrayAccess, Serializable
      */
     public function attributes()
     {
-        return array_keys(static::getTableSchema()->columns);
+        return $this->getMeta()->getAttributes();
     }
 
     /**
