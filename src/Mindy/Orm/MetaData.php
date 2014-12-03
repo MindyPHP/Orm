@@ -64,6 +64,10 @@ class MetaData
      * @var array
      */
     protected $attributes = [];
+    /**
+     * @var array
+     */
+    protected $primaryKeys = null;
 
     public function __construct($className)
     {
@@ -147,13 +151,15 @@ class MetaData
 
     public function primaryKey()
     {
-        $primaryKeys = [];
-        foreach ($this->allFields as $name => $field) {
-            if ($field->primary) {
-                $primaryKeys[] = $name;
+        if (is_null($this->primaryKeys)) {
+            $this->primaryKeys = [];
+            foreach ($this->allFields as $name => $field) {
+                if ($field->primary) {
+                    $this->primaryKeys[] = $name;
+                }
             }
         }
-        return $primaryKeys;
+        return $this->primaryKeys;
     }
 
     public static function getInstance($className)

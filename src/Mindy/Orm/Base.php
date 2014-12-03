@@ -98,6 +98,10 @@ abstract class Base implements ArrayAccess, Serializable
     private static $_cache;
 
     protected $_attributesSchema = null;
+    /**
+     * @var \Mindy\Event\EventManager
+     */
+    private $_eventManager;
 
     /**
      * @param array $attributes
@@ -108,15 +112,6 @@ abstract class Base implements ArrayAccess, Serializable
             $this->setAttributes($attributes);
         }
         self::getMeta();
-
-        $signal = $this->getEventManager();
-        $signal->handler($this, 'beforeValidate', [$this, 'beforeValidate']);
-        $signal->handler($this, 'afterValidate', [$this, 'afterValidate']);
-        $signal->handler($this, 'beforeSave', [$this, 'beforeSave']);
-        $signal->handler($this, 'afterSave', [$this, 'afterSave']);
-        $signal->handler($this, 'beforeDelete', [$this, 'beforeDelete']);
-        $signal->handler($this, 'afterDelete', [$this, 'afterDelete']);
-
         $this->init();
     }
 
@@ -127,15 +122,14 @@ abstract class Base implements ArrayAccess, Serializable
 
     protected function getEventManager()
     {
-        static $eventManager;
-        if ($eventManager === null) {
+        if ($this->_eventManager === null) {
             if (class_exists('\Mindy\Base\Mindy')) {
-                $eventManager = \Mindy\Base\Mindy::app()->getComponent('signal');
+                $this->_eventManager = \Mindy\Base\Mindy::app()->getComponent('signal');
             } else {
-                $eventManager = new \Mindy\Event\EventManager();
+                $this->_eventManager = new \Mindy\Event\EventManager();
             }
         }
-        return $eventManager;
+        return $this->_eventManager;
     }
 
     public static function getCache()
