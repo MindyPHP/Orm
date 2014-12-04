@@ -63,7 +63,7 @@ class MetaData
     /**
      * @var array
      */
-    protected $attributes = [];
+    protected $attributes = null;
     /**
      * @var array
      */
@@ -166,21 +166,23 @@ class MetaData
     {
         if (!isset(self::$instances[$className])) {
             self::$instances[$className] = new self($className);
-            self::$instances[$className]->setAttributes();
             self::$instances[$className]->initFields();
         }
 
         return self::$instances[$className];
     }
 
-    public function setAttributes()
-    {
-        $className = $this->modelClassName;
-        $this->attributes = array_keys($className::getTableSchema()->columns);
-    }
-
+    /**
+     * @return array
+     * @throws \Mindy\Exception\InvalidConfigException
+     */
     public function getAttributes()
     {
+        if ($this->attributes === null) {
+            /** @var \Mindy\Orm\Model $className */
+            $className = $this->modelClassName;
+            $this->attributes = array_keys($className::getTableSchema()->columns);
+        }
         return $this->attributes;
     }
 
