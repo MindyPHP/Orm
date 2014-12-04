@@ -19,6 +19,7 @@ use Mindy\Form\Fields\FileField as FormFileField;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\Files\LocalFile;
 use Mindy\Storage\Files\UploadedFile;
+use Mindy\Storage\Files\RemoteFile;
 use Mindy\Validation\FileValidator;
 
 class FileField extends CharField
@@ -108,9 +109,9 @@ class FileField extends CharField
      */
     public function deleteOld()
     {
-//        if ($this->getOldValue()) {
-//            $this->getStorage()->delete($this->getOldValue());
-//        }
+        if ($this->getOldValue()) {
+            $this->getStorage()->delete($this->getOldValue());
+        }
     }
 
     public function getSize()
@@ -138,6 +139,10 @@ class FileField extends CharField
             } else if (is_string($value) && $value !== $this->value && is_file($value)) {
                 $this->deleteOld();
                 $value = $this->setFile(new LocalFile($value));
+                $this->value = $value;
+            } else if (is_a($value, 'Mindy\Storage\Files\RemoteFile') || is_a($value, 'Mindy\Storage\Files\LocalFile')) {
+                $this->deleteOld();
+                $value = $this->setFile($value);
                 $this->value = $value;
             }
         }
