@@ -145,11 +145,29 @@ abstract class Base implements ArrayAccess, Serializable
     }
 
     /**
+     * @param $owner \Mindy\Orm\Model
+     * @param $isNew
+     */
+    public static function beforeSaveExternal($owner, $isNew)
+    {
+        $owner->beforeSave($owner, $isNew);
+    }
+
+    /**
      * @param $owner Model
      * @param $isNew
      */
     public function beforeSave($owner, $isNew)
     {
+    }
+
+    /**
+     * @param $owner \Mindy\Orm\Model
+     * @param $isNew
+     */
+    public static function afterSaveExternal($owner, $isNew)
+    {
+        $owner->afterSave($owner, $isNew);
     }
 
     /**
@@ -162,11 +180,28 @@ abstract class Base implements ArrayAccess, Serializable
     }
 
     /**
+     * @param $owner \Mindy\Orm\Model
+     */
+    public static function beforeDeleteExternal($owner)
+    {
+        $owner->beforeDelete($owner);
+    }
+
+    /**
      * @param $owner Model
      */
     public function beforeDelete($owner)
     {
     }
+
+    /**
+     * @param $owner \Mindy\Orm\Model
+     */
+    public static function afterDeleteExternal($owner)
+    {
+        $owner->afterDelete($owner);
+    }
+
 
     /**
      * @param $owner Model
@@ -177,10 +212,26 @@ abstract class Base implements ArrayAccess, Serializable
     }
 
     /**
+     * @param $owner \Mindy\Orm\Model
+     */
+    public static function beforeValidateExternal($owner)
+    {
+        $owner->beforeValidate($owner);
+    }
+
+    /**
      * @param $owner Model
      */
     public function beforeValidate($owner)
     {
+    }
+
+    /**
+     * @param $owner \Mindy\Orm\Model
+     */
+    public static function afterValidateExternal($owner)
+    {
+        $owner->afterValidate($owner);
     }
 
     /**
