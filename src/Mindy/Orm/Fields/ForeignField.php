@@ -62,7 +62,11 @@ class ForeignField extends RelatedField
 
     public function getDbPrepValue()
     {
-        return $this->value && is_a($this->value, Orm::className()) ? $this->value->pk : $this->value;
+        if ($this->value && is_a($this->value, Orm::className())) {
+            return $this->value->pk;
+        } else {
+            return $this->value;
+        }
     }
 
     public function getForeignPrimaryKey()

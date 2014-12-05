@@ -60,7 +60,9 @@ abstract class Field implements IValidateField
     private $_validatorClass = '\Mindy\Validation\Validator';
 
     private $_extraFields = [];
-
+    /**
+     * @var \Mindy\Orm\Model
+     */
     private $_model;
 
     /**

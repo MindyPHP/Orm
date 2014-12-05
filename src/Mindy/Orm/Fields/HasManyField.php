@@ -79,7 +79,7 @@ class HasManyField extends RelatedField
     {
         if (!$this->to) {
             $target = $this->getModel();
-            $this->to = strtolower($target->classNameShort()) . '_' . $target->getPkName();
+            $this->to = $target->normalizeTableName($target->classNameShort()) . '_' . $target->getPkName();
         }
         return $this->to;
     }
