@@ -102,15 +102,15 @@ class FileField extends CharField
     {
         return $this->getStorage()->delete($this->value);
     }
-
+ 
     /**
      * Delete old file from storage (replacing or deleting old file)
      */
     public function deleteOld()
     {
-//        if ($this->getOldValue()) {
-//            $this->getStorage()->delete($this->getOldValue());
-//        }
+        if ($this->getOldValue()) {
+            $this->getStorage()->delete($this->getOldValue());
+        }
     }
 
     public function getSize()
