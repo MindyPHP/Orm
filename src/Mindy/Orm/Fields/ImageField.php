@@ -96,10 +96,18 @@ class ImageField extends FileField
 
             if ($this->getStorage() instanceof FileSystemStorage) {
                 // $this->getStorage()->save($this->sizeStoragePath('original'), $fileContent);
-                $image = $this->getImagine()->load($fileContent);
-                $fileContent = $this->processSource($image);
-                if ($this->storeOriginal) {
-                    $this->getStorage()->save($this->value, $fileContent);
+                try {
+                    $image = $this->getImagine()->load($fileContent);
+                } catch (Exception $e) {
+                    $image = null;
+                }
+                if ($image) {
+                    $fileContent = $this->processSource($image);
+                    if ($this->storeOriginal) {
+                        $this->getStorage()->save($this->value, $fileContent);
+                    }
+                } else {
+                    $this->value = null;
                 }
             } elseif ($this->getStorage() instanceof MimiBoxStorage) {
                 $this->getStorage()->save($this->value, $fileContent);
