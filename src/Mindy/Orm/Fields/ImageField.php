@@ -169,7 +169,10 @@ class ImageField extends FileField
         $value = $value ? $value : $this->value;
         $dir = dirname($value);
         $filename = basename($value);
-        if (strpos($prefix, 'x') !== false) {
+
+        // TODO ugly, refactor it
+        $size = explode('x', $prefix);
+        if (strpos($prefix, 'x') !== false && count($size) == 2 && is_numeric($size[0]) && is_numeric($size[1])) {
             $prefix = $this->findSizePrefix($prefix);
         }
         $prefix = $prefix === null ? '' : $this->preparePrefix($prefix);
@@ -210,11 +213,13 @@ class ImageField extends FileField
                 $path .= '&force=true';
             }
         } else {
-            $path = $this->sizeStoragePath($this->preparePrefix($prefix));
+            $path = $this->sizeStoragePath($prefix, false);
             if ($this->force && !is_file($this->getStorage()->path($path))) {
                 $absPath = $this->getStorage()->path($this->sizeStoragePath());
-                $image = $this->getImagine()->open($absPath);
-                $this->processSource($image);
+                if ($absPath) {
+                    $image = $this->getImagine()->open($absPath);
+                    $this->processSource($image);
+                }
             }
         }
         return $this->getStorage()->url($path);
@@ -230,7 +235,7 @@ class ImageField extends FileField
         return parent::getFormField($form, $fieldClass);
     }
 
-    private function findSizePrefix($prefix)
+    private function findSizePrefix($prefix, $throw = true)
     {
         $newPrefix = null;
         list($width, $height) = explode('x', trim($prefix, '_'));
@@ -241,9 +246,11 @@ class ImageField extends FileField
                 break;
             }
         }
-        if ($newPrefix === null) {
+
+        if ($newPrefix === null && $throw) {
             throw new Exception("Prefix with width $width and height $height not found");
         }
+
         return $newPrefix;
     }
 }
