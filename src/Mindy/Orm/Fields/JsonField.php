@@ -25,6 +25,6 @@ class JsonField extends TextField
 
     public function getDbPrepValue()
     {
-        return json_encode($this->value, true);
+        return is_string($this->value) ? $this->value : json_encode($this->value, true);
     }
 }
