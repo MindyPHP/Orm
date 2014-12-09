@@ -214,7 +214,7 @@ class ImageField extends FileField
             }
         } else {
             $path = $this->sizeStoragePath($prefix, false);
-            if ($this->force && !is_file($this->getStorage()->path($path))) {
+            if ($this->force || !is_file($this->getStorage()->path($path))) {
                 $absPath = $this->getStorage()->path($this->sizeStoragePath());
                 if ($absPath) {
                     $image = $this->getImagine()->open($absPath);
