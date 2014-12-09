@@ -14,7 +14,7 @@
 
 namespace Mindy\Orm\Fields;
 
-use Mindy\Exception\Exception;
+use Mindy\Helper\Json;
 use Mindy\Validation\JsonValidator;
 
 class JsonField extends TextField
@@ -26,19 +26,7 @@ class JsonField extends TextField
 
     public function decode($value)
     {
-        if (is_string($value)) {
-            /*
-             * Try decode json
-             */
-            $data = json_decode($value);
-            if (json_last_error() == JSON_ERROR_NONE) {
-                $this->value = $data;
-            } else {
-                throw new Exception("Cannot decode json value: {$this->value}");
-            }
-        } else {
-            $this->value = $value;
-        }
+        $this->value = is_string($value) ? Json::decode($value) : $value;
         return $this->value;
     }
 
@@ -59,6 +47,6 @@ class JsonField extends TextField
 
     public function getDbPrepValue()
     {
-        return is_string($this->value) ? $this->value : json_encode($this->value, true);
+        return is_string($this->value) ? $this->value : Json::encode($this->value);
     }
 }
