@@ -24,7 +24,7 @@ class JsonField extends TextField
         $this->validators = array_merge([new JsonValidator], $this->validators);
     }
 
-    public function decode($value)
+    private function decode($value)
     {
         $this->value = is_string($value) ? Json::decode($value) : $value;
         return $this->value;
