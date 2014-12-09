@@ -22,6 +22,7 @@ use Mindy\Helper\Json;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
 use Mindy\Locale\Translate;
+use Mindy\Orm\Fields\JsonField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Query\ConnectionManager;
 use Mindy\Query\StaleObjectException;
@@ -248,6 +249,13 @@ abstract class Base implements ArrayAccess, Serializable
             $field = $meta->getField($name);
             $field->setModel($this);
             return $field->getManager();
+        }
+
+        if ($meta->hasField($name) && is_a($this->getField($name), JsonField::className())) {
+            $field = $this->getField($name);
+            $field->setModel($this);
+            $field->setDbValue($this->getAttribute($name));
+            return $field->getValue();
         }
 
         if (isset($this->_attributes[$name]) || array_key_exists($name, $this->_attributes)) {
