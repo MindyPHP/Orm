@@ -35,16 +35,22 @@ class Model extends Orm
     {
         $module = $this->getModule();
         $cls = self::classNameShort();
+        $name = self::normalizeName($cls);
         if ($instance) {
-            $updateTranslate = $module->t('Update ' . strtolower($cls) . ': {name}', ['{name}' => (string)$instance]);
+            $updateTranslate = $module->t('Update ' . $name . ': {name}', ['{name}' => (string)$instance]);
         } else {
-            $updateTranslate = $module->t('Update ' . strtolower($cls));
+            $updateTranslate = $module->t('Update ' . $name);
         }
         return [
-            $module->t($cls . 's'),
-            $module->t('Create ' . strtolower($cls)),
+            $module->t(ucfirst($name . 's')),
+            $module->t('Create ' . $name),
             $updateTranslate,
         ];
+    }
+
+    public static function normalizeName($name)
+    {
+        return trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', ' \0', $name)), '_ ');
     }
 
     public function reverse($route, $data = null)

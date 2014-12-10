@@ -3,6 +3,7 @@
 namespace Mindy\Orm;
 
 use Mindy\Exception\Exception;
+use Mindy\Helper\Creator;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
 use Mindy\Orm\Fields\ManyToManyField;
 
@@ -110,6 +111,18 @@ class QuerySet extends QuerySetBase
     public function all()
     {
         return $this->getData();
+    }
+
+    public function batch($batchSize = 100)
+    {
+        return Creator::createObject([
+            'class' => BatchDataIterator::className(),
+            'query' => $this,
+            'batchSize' => $batchSize,
+            'db' => $this->getDb(),
+            'each' => false,
+            'asArray' => $this->asArray,
+        ]);
     }
 
     public function getTableAlias()

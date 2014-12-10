@@ -14,12 +14,10 @@
 
 namespace Mindy\Orm;
 
-
 use ArrayIterator;
 use Mindy\Helper\Traits\Configurator;
 
 /**
- * TODO unused prototype for next refactoring
  * Class DataIterator
  * @package Mindy\Orm
  */

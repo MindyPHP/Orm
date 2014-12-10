@@ -162,6 +162,11 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
         return $this->getQuerySet()->all();
     }
 
+    public function batch($batchSize = 100)
+    {
+        return $this->getQuerySet()->batch($batchSize);
+    }
+
     /**
      * @return mixed
      */
