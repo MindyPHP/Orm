@@ -48,8 +48,10 @@ class FileField extends CharField
      * @var array|null
      */
     public $types;
-
-    public $maxSize;
+    /**
+     * @var null|int maximum file size or null for unlimited. Default value 2 mb.
+     */
+    public $maxSize = 2097152;
 
     public function __construct(array $options = [])
     {
