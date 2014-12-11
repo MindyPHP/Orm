@@ -47,14 +47,16 @@ class FileField extends CharField
      * List of allowed file types
      * @var array|null
      */
-    public $types = null;
+    public $types;
+
+    public $maxSize;
 
     public function __construct(array $options = [])
     {
         parent::__construct($options);
 
         $this->validators = array_merge([
-            new FileValidator($this->null, $this->types)
+            new FileValidator($this->null, $this->types, $this->maxSize)
         ], $this->validators);
     }
 
