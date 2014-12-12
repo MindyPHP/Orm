@@ -8,6 +8,7 @@ use Imagine\Image\Point;
 use Mindy\Orm\Traits\ImageProcess;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\FileSystemStorage;
+use Mindy\Storage\Interfaces\IExternalStorage;
 use Mindy\Storage\MimiBoxStorage;
 
 class ImageField extends FileField
@@ -95,7 +96,6 @@ class ImageField extends FileField
             $fileContent = $file->getContent();
 
             if ($this->getStorage() instanceof FileSystemStorage) {
-                // $this->getStorage()->save($this->sizeStoragePath('original'), $fileContent);
                 try {
                     $image = $this->getImagine()->load($fileContent);
                 } catch (Exception $e) {
@@ -104,13 +104,13 @@ class ImageField extends FileField
                 if ($image) {
                     $fileContent = $this->processSource($image);
                     if ($this->storeOriginal) {
-                        $this->getStorage()->save($this->value, $fileContent);
+                        $this->value = $this->getStorage()->save($this->value, $fileContent);
                     }
                 } else {
                     $this->value = null;
                 }
-            } elseif ($this->getStorage() instanceof MimiBoxStorage) {
-                $this->getStorage()->save($this->value, $fileContent);
+            } elseif ($this->getStorage() instanceof IExternalStorage) {
+                $this->value = $this->getStorage()->save($this->value, $fileContent);
             }
         }
 
