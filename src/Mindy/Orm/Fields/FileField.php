@@ -16,6 +16,7 @@ namespace Mindy\Orm\Fields;
 
 use Mindy\Base\Mindy;
 use Mindy\Form\Fields\FileField as FormFileField;
+use Mindy\Locale\Translate;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\Files\LocalFile;
 use Mindy\Storage\Files\UploadedFile;
@@ -98,6 +99,11 @@ class FileField extends CharField
         return $this->getStorage()->path($this->value);
     }
 
+    public function getExtension()
+    {
+        return $this->getStorage()->extension($this->value);
+    }
+
 //    public function getValue()
 //    {
 //        return $this->getUrl();
@@ -164,7 +170,7 @@ class FileField extends CharField
         if ($name) {
             // Folder for upload
             $filePath = $this->makeFilePath($name);
-            if ($this->getStorage()->save($filePath, file_get_contents($file->path))) {
+            if ($filePath = $this->getStorage()->save($filePath, file_get_contents($file->path))) {
                 return $filePath;
             }
         }
@@ -195,7 +201,7 @@ class FileField extends CharField
     {
         parent::isValid();
         if (isset($this->value['error']) && $this->value['error'] == UPLOAD_ERR_NO_FILE && $this->null == false) {
-            $this->addErrors([$this->name . ' cannot be empty']);
+            $this->addErrors(Translate::getInstance()->t('validation', 'Cannot be empty'));
         }
         return $this->hasErrors() === false;
     }
@@ -203,5 +209,10 @@ class FileField extends CharField
     public function getFormField($form, $fieldClass = null)
     {
         return parent::getFormField($form, FormFileField::className());
+    }
+
+    public function onAfterDelete()
+    {
+        $this->deleteOld();
     }
 }
