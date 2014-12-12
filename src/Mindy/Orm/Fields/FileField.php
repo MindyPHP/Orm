@@ -16,6 +16,7 @@ namespace Mindy\Orm\Fields;
 
 use Mindy\Base\Mindy;
 use Mindy\Form\Fields\FileField as FormFileField;
+use Mindy\Locale\Translate;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\Files\LocalFile;
 use Mindy\Storage\Files\UploadedFile;
@@ -200,7 +201,7 @@ class FileField extends CharField
     {
         parent::isValid();
         if (isset($this->value['error']) && $this->value['error'] == UPLOAD_ERR_NO_FILE && $this->null == false) {
-            $this->addErrors([$this->name . ' cannot be empty']);
+            $this->addErrors(Translate::getInstance()->t('validation', 'Cannot be empty'));
         }
         return $this->hasErrors() === false;
     }
