@@ -87,9 +87,9 @@ class ManyToManyManager extends RelatedManager
         return $command->execute();
     }
 
-    public function link(Model $model)
+    public function link(Model $model, array $extra = [])
     {
-        return $this->linkUnlinkProcess($model, true);
+        return $this->linkUnlinkProcess($model, true, $extra);
     }
 
     public function unlink(Model $model)
@@ -97,7 +97,7 @@ class ManyToManyManager extends RelatedManager
         return $this->linkUnlinkProcess($model, false);
     }
 
-    protected function linkUnlinkProcess(Model $model, $link = true)
+    protected function linkUnlinkProcess(Model $model, $link = true, array $extra = [])
     {
         if ($this->primaryModel->pk === null) {
             throw new Exception('Unable to unlink models: the primary key of ' . get_class($this->primaryModel) . ' is null.');
@@ -111,11 +111,10 @@ class ManyToManyManager extends RelatedManager
 
         $db = $this->primaryModel->getDb();
         /** @var $command \Mindy\Query\Command */
-        $column = strtolower($this->primaryModel->classNameShort());
-        $command = $db->createCommand()->$method($this->relatedTable, [
+        $command = $db->createCommand()->$method($this->relatedTable, array_merge([
             $this->primaryModelColumn => $this->primaryModel->pk,
             $this->modelColumn => $model->pk,
-        ]);
+        ], $extra));
 
         return $command->execute();
     }
