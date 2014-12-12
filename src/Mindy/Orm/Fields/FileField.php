@@ -98,6 +98,11 @@ class FileField extends CharField
         return $this->getStorage()->path($this->value);
     }
 
+    public function getExtension()
+    {
+        return $this->getStorage()->extension($this->value);
+    }
+
 //    public function getValue()
 //    {
 //        return $this->getUrl();
