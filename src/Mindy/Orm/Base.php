@@ -985,9 +985,12 @@ abstract class Base implements ArrayAccess, Serializable
             // o_O
             $this->_attributes[$name] = $value;
 
+            // TODO if uncomment - dirtyAttributes works incorrectly
+            /*
             if (array_key_exists($name, $this->_attributes)) {
                 $this->_oldAttributes[$name] = $this->_attributes[$name];
             }
+            */
         }
 
         return $rows >= 0;
