@@ -323,7 +323,8 @@ abstract class Field implements IValidateField
             'name' => $this->name,
             'label' => $this->verboseName,
             'hint' => $this->helpText,
-            'validators' => array_merge($validators, $this->validators)
+            'validators' => array_merge($validators, $this->validators),
+            'value' => $this->default ? $this->default : null
 
 //            'html' => [
 //                'multiple' => $this->value instanceof RelatedManager

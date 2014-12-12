@@ -13,8 +13,14 @@
 
 namespace Mindy\Orm\Fields;
 
-class IpField 
-{
+use Mindy\Validation\IpValidator;
 
+class IpField extends CharField
+{
+    public $version = 4;
+
+    public function init()
+    {
+        $this->validators[] = new IpValidator($this->version);
+    }
 }
- 
