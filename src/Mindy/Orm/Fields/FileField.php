@@ -210,4 +210,9 @@ class FileField extends CharField
     {
         return parent::getFormField($form, FormFileField::className());
     }
+
+    public function onAfterDelete()
+    {
+        $this->deleteOld();
+    }
 }
