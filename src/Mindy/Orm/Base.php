@@ -732,11 +732,13 @@ abstract class Base implements ArrayAccess, Serializable
         $meta = static::getMeta();
 
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($this->getPkName() == $name || $meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
+            if ($this->getPkName() == $name || $meta->hasManyToManyField($name)) {
                 continue;
             }
             $field->setModel($this);
-            $field->setValue($this->getAttribute($name));
+            if (!$meta->hasHasManyField($name)) {
+                $field->setValue($this->getAttribute($name));
+            }
             $field->onBeforeDelete();
         }
 

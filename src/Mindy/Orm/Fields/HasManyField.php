@@ -116,4 +116,22 @@ class HasManyField extends RelatedField
     {
         return parent::getFormField($form, DropDownField::className());
     }
+
+    public function onBeforeDelete()
+    {
+        $model = $this->getRelatedModel();
+        $meta = $model->getMeta();
+        $foreignField = $meta->getForeignField($this->to());
+        $qs = $this->getManager()->getQuerySet();
+
+        /**
+         * If null is allowable, foreign field value should be set to null,
+         * otherwise the related objects should be deleted
+         */
+        if ($foreignField->null) {
+            $qs->update([$this->to() => null]);
+        } else {
+            $qs->delete();
+        }
+    }
 }
