@@ -320,6 +320,13 @@ abstract class Field implements IValidateField
             $validators[] = $validator;
         }
 
+        if ($this->unique) {
+            $validator = new UniqueValidator;
+            $validator->setName($this->name);
+            $validator->setModel($this);
+            $validators[] = $validator;
+        }
+
         return Creator::createObject([
             'class' => $fieldClass,
             'required' => !$this->canBeEmpty(),
