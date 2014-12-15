@@ -16,6 +16,7 @@ namespace Tests\Orm;
 
 
 use Tests\DatabaseTestCase;
+use Tests\Models\Customer;
 use Tests\Models\Solution;
 use Tests\Models\User;
 
@@ -24,12 +25,12 @@ class SaveUpdateTest extends DatabaseTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->initModels([new User]);
+        $this->initModels([new User, new Customer]);
     }
 
     public function tearDown()
     {
-        $this->dropModels([new User]);
+        $this->dropModels([new User, new Customer]);
     }
 
     public function testSave()
