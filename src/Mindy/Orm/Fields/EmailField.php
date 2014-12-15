@@ -23,7 +23,7 @@ class EmailField extends CharField
         parent::__construct($options);
 
         $this->validators = array_merge([
-            new EmailValidator()
+            new EmailValidator(!$this->canBeEmpty())
         ], $this->validators);
     }
 }

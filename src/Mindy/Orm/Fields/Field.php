@@ -322,7 +322,7 @@ abstract class Field implements IValidateField
 
         return Creator::createObject([
             'class' => $fieldClass,
-            'required' => $this->required || !$this->null,
+            'required' => !$this->canBeEmpty(),
             'form' => $form,
             'choices' => $this->choices,
             'name' => $this->name,
