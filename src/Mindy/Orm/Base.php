@@ -950,7 +950,9 @@ abstract class Base implements ArrayAccess, Serializable
         }
 
         $this->updateRelated();
+        $dirty = $this->getDirtyAttributes($fields);
         $this->onAfterUpdateInternal();
+        $this->setOldAttributes($dirty);
 
         return $result;
     }
