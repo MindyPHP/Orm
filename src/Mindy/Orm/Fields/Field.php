@@ -115,7 +115,7 @@ abstract class Field implements IValidateField
             if (
                 $this->autoFetch === false &&
                 $hasRequired === false &&
-                ($this->required || $this->null === false && $this->default === null) &&
+                !$this->canBeEmpty() &&
                 $model->getIsNewRecord() &&
                 empty($attribute)
             ) {
@@ -134,6 +134,11 @@ abstract class Field implements IValidateField
         }
 
         return $this->validators;
+    }
+
+    public function canBeEmpty()
+    {
+        return !$this->required && $this->null || !is_null($this->default);
     }
 
     public function setModel(Model $model)
