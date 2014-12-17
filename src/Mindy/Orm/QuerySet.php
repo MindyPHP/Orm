@@ -113,6 +113,10 @@ class QuerySet extends QuerySetBase
         return $this->getData();
     }
 
+    /**
+     * @param int $batchSize
+     * @return \Mindy\Orm\BatchDataIterator
+     */
     public function batch($batchSize = 100)
     {
         return Creator::createObject([

@@ -162,6 +162,10 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
         return $this->getQuerySet()->all();
     }
 
+    /**
+     * @param int $batchSize
+     * @return \Mindy\Orm\BatchDataIterator
+     */
     public function batch($batchSize = 100)
     {
         return $this->getQuerySet()->batch($batchSize);
