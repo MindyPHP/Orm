@@ -14,7 +14,6 @@
 
 namespace Mindy\Orm\Fields;
 
-
 class TextField extends Field
 {
     public function sqlType()
