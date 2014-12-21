@@ -944,7 +944,7 @@ abstract class Base implements ArrayAccess, Serializable
             } else {
                 $transaction->rollBack();
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -969,8 +969,8 @@ abstract class Base implements ArrayAccess, Serializable
         }
 
         // Work incorrecly, see https://github.com/studio107/Mindy_Orm/issues/64
-        // $condition = $this->getOldPrimaryKey(true);
-        $condition = $this->getPrimaryKey(true);
+        $condition = $this->getOldPrimaryKey(true);
+//        $condition = $this->getPrimaryKey(true);
 
         $lock = $this->optimisticLock();
         if ($lock !== null) {

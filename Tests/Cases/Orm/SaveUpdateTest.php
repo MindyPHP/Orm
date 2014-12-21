@@ -269,22 +269,27 @@ class SaveUpdateTest extends DatabaseTestCase
         $this->dropmodels([new Solution]);
     }
 
-    public function testSetAttributes()
+    // https://github.com/studio107/Mindy_Orm/issues/65
+    public function testSetAttributesIssue65()
     {
         $model = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
         $this->assertFalse($model->getIsNewRecord());
         $this->assertEquals('Max', $model->username);
         $this->assertEquals('VeryGoodP@ssword', $model->password);
         $this->assertEquals(1, $model->pk);
-
-        $model->setAttributes([
-            'username' => 'foo'
-        ]);
+        $model->setAttributes(['username' => 'foo']);
         $saved = $model->save(['username']);
         $this->assertTrue($saved);
         $this->assertEquals('foo', $model->username);
 
+        // Test
         $user = User::objects()->get(['pk' => 1]);
         $this->assertEquals('foo', $user->username);
+        $user->setAttributes(['username' => 'bar']);
+        $this->assertEquals('bar', $user->username);
+        $this->assertEquals(['username' => 'bar'], $user->getDirtyAttributes());
+        $saved = $user->save(['username']);
+        $this->assertEquals('bar', $user->username);
+        $this->assertTrue($saved);
     }
 }
