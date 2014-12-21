@@ -287,9 +287,15 @@ class SaveUpdateTest extends DatabaseTestCase
         $this->assertEquals('foo', $user->username);
         $user->setAttributes(['username' => 'bar']);
         $this->assertEquals('bar', $user->username);
-        $this->assertEquals(['username' => 'bar'], $user->getDirtyAttributes());
+        $this->assertEquals(['username' => 'bar'], $user->getDirtyAttributes(['username']));
         $saved = $user->save(['username']);
         $this->assertEquals('bar', $user->username);
+        $this->assertTrue($saved);
+
+        $user->setAttributes(['password' => 1]);
+        $this->assertEquals(['password' => 1], $user->getDirtyAttributes(['password']));
+        $user->save(['password']);
+        $this->assertEquals(1, $user->password);
         $this->assertTrue($saved);
     }
 }
