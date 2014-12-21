@@ -268,4 +268,23 @@ class SaveUpdateTest extends DatabaseTestCase
         $this->assertEquals('UPDATE `tests_solution` SET `status`=2 WHERE (`id`=\'1\')', $sql);
         $this->dropmodels([new Solution]);
     }
+
+    public function testSetAttributes()
+    {
+        $model = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
+        $this->assertFalse($model->getIsNewRecord());
+        $this->assertEquals('Max', $model->username);
+        $this->assertEquals('VeryGoodP@ssword', $model->password);
+        $this->assertEquals(1, $model->pk);
+
+        $model->setAttributes([
+            'username' => 'foo'
+        ]);
+        $saved = $model->save(['username']);
+        $this->assertTrue($saved);
+        $this->assertEquals('foo', $model->username);
+
+        $user = User::objects()->get(['pk' => 1]);
+        $this->assertEquals('foo', $user->username);
+    }
 }

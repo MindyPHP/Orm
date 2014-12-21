@@ -443,10 +443,8 @@ abstract class Base implements ArrayAccess, Serializable
             if ($name == self::getPkName()) {
                 continue;
             } else if ($this->hasField($name)) {
-                $this->setOldAttribute($name, $this->getAttribute($name));
                 $this->$name = $value;
             } else if ($this->hasAttribute($name)) {
-                $this->setOldAttribute($name, $this->getAttribute($name));
                 $this->setAttribute($name, $value);
             }
         }
