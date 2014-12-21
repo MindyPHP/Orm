@@ -443,8 +443,10 @@ abstract class Base implements ArrayAccess, Serializable
             if ($name == self::getPkName()) {
                 continue;
             } else if ($this->hasField($name)) {
+                $this->setOldAttribute($name, $this->getAttribute($name));
                 $this->$name = $value;
             } else if ($this->hasAttribute($name)) {
+                $this->setOldAttribute($name, $this->getAttribute($name));
                 $this->setAttribute($name, $value);
             }
         }
@@ -939,10 +941,10 @@ abstract class Base implements ArrayAccess, Serializable
         $transaction = $db->beginTransaction();
         try {
             $result = $this->updateInternal($fields);
-            if (!$result) {
-                $transaction->rollBack();
-            } else {
+            if ($result) {
                 $transaction->commit();
+            } else {
+                $transaction->rollBack();
             }
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -968,7 +970,10 @@ abstract class Base implements ArrayAccess, Serializable
             return true;
         }
 
-        $condition = $this->getOldPrimaryKey(true);
+        // Work incorrecly, see https://github.com/studio107/Mindy_Orm/issues/64
+        // $condition = $this->getOldPrimaryKey(true);
+        $condition = $this->getPrimaryKey(true);
+
         $lock = $this->optimisticLock();
         if ($lock !== null) {
             if (!isset($values[$lock])) {
