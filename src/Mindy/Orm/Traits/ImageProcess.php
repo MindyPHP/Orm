@@ -19,6 +19,7 @@ use Imagine\Image\ImagineInterface;
 use Imagine\Image\ManipulatorInterface;
 use Imagine\Image\Point;
 use Mindy\Exception\Exception;
+use Mindy\Helper\Alias;
 
 
 trait ImageProcess
@@ -134,7 +135,8 @@ trait ImageProcess
     public function applyWatermark($source, $options)
     {
         if ($options && is_array($options) && isset($options['file']) && isset($options['position'])) {
-            $watermark = $this->getImagine()->open($options['file']);
+            $file = Alias::get('www') . DIRECTORY_SEPARATOR . $options['file'];
+            $watermark = $this->getImagine()->open($file);
             $position = $options['position'];
 
             $x = 0;
