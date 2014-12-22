@@ -129,8 +129,10 @@ class ImageField extends FileField
 
     /**
      * @param $source
+     * @param bool $force
+     * @return
      */
-    public function processSource($source)
+    public function processSource($source, $force = false)
     {
         $ext = pathinfo($this->value, PATHINFO_EXTENSION);
         foreach ($this->sizes as $prefix => $size) {
@@ -148,7 +150,7 @@ class ImageField extends FileField
                 if ($watermark) {
                     $newSource = $this->applyWatermark($newSource, $watermark);
                 }
-                $this->getStorage()->save($this->sizeStoragePath($prefix), $newSource->get($ext, $options), true);
+                $this->getStorage()->save($this->sizeStoragePath($prefix), $newSource->get($ext, $options), $force);
             }
         }
 
@@ -218,7 +220,7 @@ class ImageField extends FileField
                 $absPath = $this->getStorage()->path($this->sizeStoragePath());
                 if ($absPath) {
                     $image = $this->getImagine()->open($absPath);
-                    $this->processSource($image);
+                    $this->processSource($image, true);
                 }
             }
         }
