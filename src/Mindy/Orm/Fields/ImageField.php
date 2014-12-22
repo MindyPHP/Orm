@@ -148,7 +148,7 @@ class ImageField extends FileField
                 if ($watermark) {
                     $newSource = $this->applyWatermark($newSource, $watermark);
                 }
-                $this->getStorage()->save($this->sizeStoragePath($prefix), $newSource->get($ext, $options));
+                $this->getStorage()->save($this->sizeStoragePath($prefix), $newSource->get($ext, $options), true);
             }
         }
 
