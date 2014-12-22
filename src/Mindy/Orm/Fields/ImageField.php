@@ -54,16 +54,18 @@ class ImageField extends FileField
     /**
      * @var array|null
      *
+     * File MUST be described relative to "www" directory!
+     * 
      * example
      * [
-     *  'file' => 'static.images.watermark.png',
+     *  'file' => 'static/images/watermark.png',
      *  'position' => [200,100]
      * ]
      *
      * OR
      *
      * [
-     *  'file' => 'static.images.watermark.png',
+     *  'file' => 'static/images/watermark.png',
      *  'position' => 'top'
      * ]
      *
