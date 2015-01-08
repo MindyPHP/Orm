@@ -11,22 +11,23 @@ if ($debug) {
     ini_set('error_reporting', -1);
 }
 
-//$app = \Mindy\Base\Mindy::getInstance([
-//    'basePath' => dirname(__FILE__) . '/../',
-//    'name' => 'Mindy',
-//    'language' => 'ru',
-//    'sourceLanguage' => 'en',
-//    'charset' => 'utf-8',
-//    'managers' => [],
-//    'components' => [
-//        'db' => [
-//            'class' => '\Mindy\Query\ConnectionManager',
-//            'databases' => require_once('config_local.php')
-//        ],
-//        'cache' => [
-//            'class' => '\Mindy\Cache\DummyCache'
-//        ],
-//    ],
-//    'preload' => ['log', 'db'],
-//    'modules' => []
-//]);
+$app = \Mindy\Base\Mindy::getInstance([
+    'basePath' => dirname(__FILE__) . '/protected',
+    'name' => 'Mindy',
+    'locale' => [
+        'language' => 'en',
+        'sourceLanguage' => 'en',
+        'charset' => 'utf-8',
+    ],
+    'components' => [
+        'db' => [
+            'class' => '\Mindy\Query\ConnectionManager',
+            'databases' => require_once('config_local.php')
+        ],
+        'cache' => [
+            'class' => '\Mindy\Cache\DummyCache'
+        ],
+    ],
+    'preload' => ['log', 'db'],
+    'modules' => []
+]);

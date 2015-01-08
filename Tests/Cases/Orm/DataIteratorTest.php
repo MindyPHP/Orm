@@ -17,9 +17,8 @@ namespace Tests\Orm;
 use ArrayAccess;
 use ArrayIterator;
 use IteratorAggregate;
-use Tests\DatabaseTestCase;
+use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\BookCategory;
-use Traversable;
 
 class Cls implements IteratorAggregate, ArrayAccess
 {
@@ -32,7 +31,7 @@ class Cls implements IteratorAggregate, ArrayAccess
 
     public function getIterator()
     {
-        if(!$this->_iterator) {
+        if (!$this->_iterator) {
             $this->_iterator = new ArrayIterator($this->_data);
         }
         return $this->_iterator;
@@ -177,7 +176,7 @@ class DataIteratorTest extends DatabaseTestCase
     {
         $cls = new Cls([1, 2, 3]);
         $t = 1;
-        foreach($cls as $i) {
+        foreach ($cls as $i) {
             $this->assertEquals($t, $i);
             $t++;
         }

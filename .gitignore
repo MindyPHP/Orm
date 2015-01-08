@@ -9,5 +9,6 @@ composer.lock
 vendor
 Tests/config_local.php
 test.php
+phpunit.phar
 
 *.swp

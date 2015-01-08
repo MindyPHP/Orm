@@ -14,12 +14,11 @@
 
 namespace Tests\Orm;
 
-use Tests\DatabaseTestCase;
+use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Group;
 use Tests\Models\Customer;
 use Tests\Models\User;
 use Tests\Models\Membership;
-
 
 class OrderByLookupTest extends DatabaseTestCase
 {

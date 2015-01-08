@@ -14,7 +14,7 @@
 
 namespace Tests\Orm;
 
-use Tests\DatabaseTestCase;
+use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Customer;
 use Tests\Models\Group;
 use Tests\Models\Membership;

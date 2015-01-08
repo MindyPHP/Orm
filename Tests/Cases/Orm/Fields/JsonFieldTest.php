@@ -16,7 +16,7 @@ namespace Tests\Orm\Fields;
 
 
 use Mindy\Orm\Fields\JsonField;
-use Tests\TestCase;
+use Mindy\Tests\TestCase;
 
 class Test
 {

@@ -3,7 +3,7 @@
 namespace Tests\Orm;
 
 use Tests\Models\Category;
-use Tests\TestCase;
+use Mindy\Tests\TestCase;
 
 class FieldsTest extends TestCase
 {

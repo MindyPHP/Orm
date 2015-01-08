@@ -3,6 +3,7 @@
     "homepage": "https://github.com/studio107/Mindy_Orm",
     "version": "1.0.0",
     "license": "MIT",
+    "minimum-stability": "dev",
     "autoload": {
         "psr-0": {
             "": "src/"
@@ -23,11 +24,7 @@
         "monolog/monolog": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "3.7.32",
-        "phpunit/php-invoker": "1.1.3",
-        "phpunit/dbunit": "1.3.1",
-        "phpunit/phpunit-selenium": "1.3.3",
-        "phpunit/phpunit-story": "1.0.2",
+        "mindy/tests": "dev-master",
         "satooshi/php-coveralls": "dev-master"
     },
     "authors": [{

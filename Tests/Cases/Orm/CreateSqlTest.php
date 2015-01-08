@@ -2,7 +2,7 @@
 
 namespace Tests\Orm;
 
-use Tests\DatabaseTestCase;
+use Mindy\Tests\DatabaseTestCase;
 
 class CreateSqlTest extends DatabaseTestCase
 {

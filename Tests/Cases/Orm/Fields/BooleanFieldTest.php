@@ -14,10 +14,8 @@
 
 namespace Tests\Orm\Fields;
 
-
 use Mindy\Orm\Fields\BooleanField;
-use Tests\TestCase;
-
+use Mindy\Tests\TestCase;
 
 class BooleanFieldTest extends TestCase
 {

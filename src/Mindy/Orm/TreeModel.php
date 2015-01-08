@@ -31,9 +31,11 @@ abstract class TreeModel extends Model
     public static function getFields()
     {
         $parent = 'Parent';
-        if(class_exists('\Mindy\Base\Mindy')) {
-            $module = \Mindy\Base\Mindy::app()->getModule(self::getModuleName());
-            $parent = $module->t('Parent');
+        if (class_exists('\Mindy\Base\Mindy')) {
+            if (\Mindy\Base\Mindy::app()->hasModule(self::getModuleName())) {
+                $module = \Mindy\Base\Mindy::app()->getModule(self::getModuleName());
+                $parent = $module->t('Parent');
+            }
         }
         return [
             'parent' => [

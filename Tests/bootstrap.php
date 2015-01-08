@@ -13,7 +13,6 @@ if (is_dir($vendorPath)) {
 }
 
 require __DIR__ . '/app.php';
-require __DIR__ . '/TestCase.php';
 require __DIR__ . '/DatabaseTestCase.php';
 
 // Stupid composer

@@ -14,12 +14,10 @@
 
 namespace Tests\Orm;
 
-
-use Tests\DatabaseTestCase;
+use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Category;
 use Tests\Models\Product;
 use Tests\Models\User;
-use Tests\TestCase;
 
 class ValidationTest extends DatabaseTestCase
 {

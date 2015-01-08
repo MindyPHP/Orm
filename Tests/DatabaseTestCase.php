@@ -17,6 +17,7 @@ namespace Tests;
 
 use Mindy\Orm\Sync;
 use Mindy\Query\ConnectionManager;
+use Mindy\Tests\TestCase;
 
 class DatabaseTestCase extends TestCase
 {

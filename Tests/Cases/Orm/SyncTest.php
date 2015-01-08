@@ -14,14 +14,12 @@
 
 namespace Tests\Orm;
 
-
 use Mindy\Orm\Sync;
-use Tests\DatabaseTestCase;
+use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Category;
 use Tests\Models\Product;
 use Tests\Models\ProductList;
 use Tests\Models\User;
-
 
 class SyncTest extends DatabaseTestCase
 {

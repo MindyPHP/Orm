@@ -14,12 +14,10 @@
 
 namespace Tests\Orm;
 
-
-use Tests\DatabaseTestCase;
+use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Category;
 use Tests\Models\Product;
 use Tests\TestCase;
-
 
 class SettersGettersTest extends DatabaseTestCase
 {

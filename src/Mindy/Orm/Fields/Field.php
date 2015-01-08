@@ -190,6 +190,7 @@ abstract class Field implements IValidateField
     public function getOptions()
     {
         return [
+            'sqlType' => $this->sqlType(),
             'null' => $this->null,
             'default' => $this->default,
             'length' => $this->length,

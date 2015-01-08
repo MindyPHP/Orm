@@ -14,8 +14,7 @@
 
 namespace Tests\Orm;
 
-
-use Tests\DatabaseTestCase;
+use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\User;
 
 class RefacrotingTest extends DatabaseTestCase

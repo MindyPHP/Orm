@@ -14,20 +14,25 @@
 
 namespace Tests\Orm;
 
-use Tests\DatabaseTestCase;
+use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Customer;
 use Tests\Models\Group;
 use Tests\Models\Membership;
 use Tests\Models\User;
 
-
 class AggregationTest extends DatabaseTestCase
 {
     public function setUp()
     {
+        $this->basePath = realpath(__DIR__ . '/../../protected');
         parent::setUp();
 
-        $this->initModels([new User, new Group, new Membership, new Customer]);
+        $this->initModels([
+            new User,
+            new Group,
+            new Membership,
+            new Customer
+        ]);
 
         $group = new Group();
         $group->name = 'Administrators';

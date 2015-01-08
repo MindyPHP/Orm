@@ -14,10 +14,8 @@
 
 namespace Tests\Orm;
 
-
-use Tests\DatabaseTestCase;
+use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Hits;
-use Tests\Models\User;
 
 class UpdateCountersTest extends DatabaseTestCase
 {

@@ -18,9 +18,14 @@
     </php>
 
     <testsuites>
-        <testsuite name="Base">
+        <testsuite name="Orm">
             <directory>Tests/Cases/Orm/</directory>
+        </testsuite>
+        <testsuite name="Orm_Fields">
             <directory>Tests/Cases/Orm/Fields/</directory>
+        </testsuite>
+        <testsuite name="Orm_Migration">
+            <directory>Tests/Cases/Migration/</directory>
         </testsuite>
     </testsuites>
 

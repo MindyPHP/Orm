@@ -14,8 +14,7 @@
 
 namespace Tests\Orm;
 
-
-use Tests\DatabaseTestCase;
+use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\NestedModel;
 
 class TreeModelTest extends DatabaseTestCase

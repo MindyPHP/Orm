@@ -13,7 +13,7 @@
 
 namespace Tests\Orm;
 
-use Tests\DatabaseTestCase;
+use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Category;
 use Tests\Models\Customer;
 use Tests\Models\Order;

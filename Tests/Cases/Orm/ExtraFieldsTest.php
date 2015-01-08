@@ -14,12 +14,10 @@
 
 namespace Tests\Orm;
 
-
 use Mindy\Orm\Fields\MarkdownField;
 use Mindy\Orm\Fields\MarkdownHtmlField;
-use Tests\DatabaseTestCase;
+use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\MarkdownModel;
-
 
 class ExtraFieldsTest extends DatabaseTestCase
 {

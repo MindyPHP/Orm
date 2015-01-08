@@ -4,9 +4,7 @@ namespace Tests\Orm;
 
 use Tests\Models\Product;
 use Tests\Models\ProductList;
-use Tests\TestCase;
-use WithoutNamespace;
-
+use Mindy\Tests\TestCase;
 
 class TableNameTest extends TestCase
 {
