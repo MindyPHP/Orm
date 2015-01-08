@@ -132,7 +132,11 @@ class Migration
     public function save()
     {
         if ($this->hasChanges()) {
-            if (file_put_contents($this->_path . DIRECTORY_SEPARATOR . $this->generateName(), $this->exportFields()) === false) {
+            $path = $this->_path . DIRECTORY_SEPARATOR . $this->generateName();
+            if (file_exists($path)) {
+                throw new Exception("File $path exists");
+            }
+            if (file_put_contents($path, $this->exportFields()) === false) {
                 throw new Exception("Failed to save migration");
             }
             return true;

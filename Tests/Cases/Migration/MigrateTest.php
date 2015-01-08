@@ -60,9 +60,11 @@ class MigrateTest extends DatabaseTestCase
         parent::setUp();
 
         $this->migrationPath = realpath(__DIR__ . '/../../protected/migration');
+        if (is_dir($this->migrationPath)) {
+            File::removeDirectory($this->migrationPath);
+        }
+        mkdir($this->migrationPath, 0777, true);
         $this->m = new Migration(new Test, $this->migrationPath);
-        File::removeDirectory($this->migrationPath);
-        mkdir($this->migrationPath);
     }
 
     public function testNameGeneration()
@@ -83,13 +85,16 @@ class MigrateTest extends DatabaseTestCase
         $this->assertTrue($this->m->hasChanges());
         $this->assertTrue($this->m->save());
 
+        $this->assertEquals(1, count($this->m->getMigrations()));
+
         $this->assertFalse($this->m->hasChanges());
 
         $this->m = new Migration(new TestChanged, $this->migrationPath);
         $this->m->setName('Test');
 
         $this->assertTrue($this->m->hasChanges());
-        $this->m->save();
+        sleep(1);
+        $this->assertTrue($this->m->save());
 
         $this->assertEquals(2, count($this->m->getMigrations()));
     }
