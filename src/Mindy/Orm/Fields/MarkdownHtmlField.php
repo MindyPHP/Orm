@@ -21,6 +21,8 @@ class MarkdownHtmlField extends TextField
     public function getDbPrepValue()
     {
         $parser = new GithubMarkdown();
+        $parser->enableNewlines = true;
+        $parser->html5 = true;
         return (string)$parser->parse($this->value);
     }
 }
