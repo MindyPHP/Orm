@@ -99,7 +99,7 @@ class Migration
      */
     public function exportFields()
     {
-        return Json::encode($this->getFields());
+        return Json::encode($this->getFields(), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
     }
 
     public function getMigrations()
