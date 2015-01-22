@@ -172,7 +172,8 @@ class ImageField extends FileField
     {
         $value = $value ? $value : $this->value;
         $dir = dirname($value);
-        $filename = basename($value);
+        // $filename = basename($value);
+        $filename = ltrim(str_replace($dir, '', $value), '/');
 
         // TODO ugly, refactor it
         $size = explode('x', $prefix);
