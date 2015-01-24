@@ -21,7 +21,7 @@ class TreeForeignField extends ForeignField
 {
     public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DropDownField', array $extra = [])
     {
-        $model = $this->getModel();
+        $model = $this->getRelatedModel();
         $choices = function () use ($model) {
             $list = ['' => ''];
 

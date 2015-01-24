@@ -172,8 +172,10 @@ class ImageField extends FileField
     public function sizeStoragePath($prefix = null, $value = null)
     {
         $value = $value ? $value : $this->value;
-        $dir = dirname($value);
-        $filename = basename($value);
+        $dir = mb_substr_count($value, '/', 'UTF-8') > 0 ? dirname($value) : '';
+        // TODO not working with cyrillic
+        // $filename = basename($value);
+        $filename = ltrim(str_replace($dir, '', $value), '/');
 
         // TODO ugly, refactor it
         $size = explode('x', $prefix);
