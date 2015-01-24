@@ -1014,4 +1014,9 @@ class QuerySet extends QuerySetBase
         }
         return parent::addGroupBy($newColumns);
     }
+
+    public function truncate()
+    {
+        return $this->createCommand()->truncateTable($this->model->tableName())->execute();
+    }
 }

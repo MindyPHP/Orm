@@ -47,7 +47,8 @@ class ImageField extends FileField
         'resolution-units' => ImageInterface::RESOLUTION_PIXELSPERINCH,
         'resolution-x' => 72,
         'resolution-y' => 72,
-        'jpeg_quality' => 75,
+        'jpeg_quality' => 100,
+        'quality' => 100,
         'png_compression_level' => 0
     ];
 
@@ -234,9 +235,9 @@ class ImageField extends FileField
         $this->deleteOld();
     }
 
-    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\ImageField')
+    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\ImageField', array $extra = [])
     {
-        return parent::getFormField($form, $fieldClass);
+        return parent::getFormField($form, $fieldClass, $extra);
     }
 
     private function findSizePrefix($prefix, $throw = true)

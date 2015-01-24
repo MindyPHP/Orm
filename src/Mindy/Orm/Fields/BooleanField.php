@@ -46,8 +46,8 @@ class BooleanField extends Field
         return (bool)$this->value;
     }
 
-    public function getFormField($form, $fieldClass = null)
+    public function getFormField($form, $fieldClass = null, array $extra = [])
     {
-        return parent::getFormField($form, CheckboxField::className());
+        return parent::getFormField($form, CheckboxField::className(), $extra);
     }
 }

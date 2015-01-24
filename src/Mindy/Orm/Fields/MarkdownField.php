@@ -34,8 +34,8 @@ class MarkdownField extends TextField
         ];
     }
 
-    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\MarkdownField')
+    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\MarkdownField', array $extra = [])
     {
-        return parent::getFormField($form, $fieldClass);
+        return parent::getFormField($form, $fieldClass, $extra);
     }
 }

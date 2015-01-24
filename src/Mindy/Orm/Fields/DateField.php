@@ -28,8 +28,8 @@ class DateField extends Field
         return $this->default === null ? '' : "DEFAULT '{$this->default}'";
     }
 
-    public function getFormField($form, $fieldClass = null)
+    public function getFormField($form, $fieldClass = null, array $extra = [])
     {
-        return parent::getFormField($form, \Mindy\Form\Fields\DateField::className());
+        return parent::getFormField($form, \Mindy\Form\Fields\DateField::className(), $extra);
     }
 }

@@ -19,7 +19,7 @@ use Mindy\Validation\RequiredValidator;
 
 class TreeForeignField extends ForeignField
 {
-    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DropDownField')
+    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DropDownField', array $extra = [])
     {
         $model = $this->getModel();
         $choices = function () use ($model) {
@@ -61,7 +61,7 @@ class TreeForeignField extends ForeignField
             $validators[] = $validator;
         }
 
-        return Creator::createObject([
+        return Creator::createObject(array_merge([
             'class' => $fieldClass,
             'required' => $this->required || !$this->null,
             'form' => $form,
@@ -75,6 +75,6 @@ class TreeForeignField extends ForeignField
 //            'html' => [
 //                'multiple' => $this->value instanceof RelatedManager
 //            ]
-        ]);
+        ], $extra));
     }
 }

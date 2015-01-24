@@ -17,8 +17,8 @@ namespace Mindy\Orm\Fields;
 
 class PasswordField extends CharField
 {
-    public function getFormField($form, $fieldClass = null)
+    public function getFormField($form, $fieldClass = null, array $extra = [])
     {
-        return parent::getFormField($form, \Mindy\Form\Fields\PasswordField::className());
+        return parent::getFormField($form, \Mindy\Form\Fields\PasswordField::className(), $extra);
     }
 }

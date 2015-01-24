@@ -87,6 +87,11 @@ class Migration
         $fields = [];
         $modelFields = $this->_model->getFieldsInit();
         foreach ($modelFields as $name => $field) {
+            if ($field->sqlType() !== false) {
+                if (is_a($field, ForeignField::className())) {
+                    $name .= "_id";
+                }
+            }
             $fields[$name] = array_merge($field->getOptions(), [
                 'hash' => $field->hash()
             ]);

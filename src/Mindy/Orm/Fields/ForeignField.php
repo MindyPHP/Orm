@@ -105,9 +105,9 @@ class ForeignField extends RelatedField
         }
     }
 
-    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DropDownField')
+    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DropDownField', array $extra = [])
     {
-        return parent::getFormField($form, $fieldClass);
+        return parent::getFormField($form, $fieldClass, $extra);
     }
 
     public function fetch($value)

@@ -21,8 +21,8 @@ class TextField extends Field
         return 'text';
     }
 
-    public function getFormField($form, $fieldClass = 'Mindy\Form\Fields\TextAreaField')
+    public function getFormField($form, $fieldClass = 'Mindy\Form\Fields\TextAreaField', array $extra = [])
     {
-        return parent::getFormField($form, $fieldClass);
+        return parent::getFormField($form, $fieldClass, $extra);
     }
 }

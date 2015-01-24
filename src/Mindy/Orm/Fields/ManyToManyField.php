@@ -275,8 +275,8 @@ class ManyToManyField extends RelatedField
         // TODO: Implement fetch() method.
     }
 
-    public function getFormField($form, $fieldClass = null)
+    public function getFormField($form, $fieldClass = null, array $extra = [])
     {
-        return parent::getFormField($form, DropDownField::className());
+        return parent::getFormField($form, DropDownField::className(), $extra);
     }
 }

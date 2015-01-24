@@ -296,7 +296,7 @@ abstract class Field implements IValidateField
 
     }
 
-    public function getFormField($form, $fieldClass = null)
+    public function getFormField($form, $fieldClass = null, array $extra = [])
     {
         if ($this->primary || $this->editable === false) {
             return null;
@@ -328,7 +328,7 @@ abstract class Field implements IValidateField
             $validators[] = $validator;
         }
 
-        return Creator::createObject([
+        return Creator::createObject(array_merge([
             'class' => $fieldClass,
             'required' => !$this->canBeEmpty(),
             'form' => $form,
@@ -342,7 +342,7 @@ abstract class Field implements IValidateField
 //            'html' => [
 //                'multiple' => $this->value instanceof RelatedManager
 //            ]
-        ]);
+        ], $extra));
     }
 
     abstract public function sqlType();

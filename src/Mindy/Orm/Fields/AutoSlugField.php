@@ -119,8 +119,8 @@ class AutoSlugField extends CharField
         return end($slugs);
     }
 
-    public function getFormField($form, $fieldClass = null)
+    public function getFormField($form, $fieldClass = null, array $extra = [])
     {
-        return parent::getFormField($form, \Mindy\Form\Fields\ShortUrlField::className());
+        return parent::getFormField($form, \Mindy\Form\Fields\ShortUrlField::className(), $extra);
     }
 }

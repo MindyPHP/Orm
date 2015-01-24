@@ -19,9 +19,10 @@ use Mindy\Form\Fields\FileField as FormFileField;
 use Mindy\Locale\Translate;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\Files\LocalFile;
-use Mindy\Storage\Files\UploadedFile;
 use Mindy\Storage\Files\RemoteFile;
+use Mindy\Storage\Files\UploadedFile;
 use Mindy\Validation\FileValidator;
+use Mindy\Helper\File as FileHelper;
 
 class FileField extends CharField
 {
@@ -41,9 +42,6 @@ class FileField extends CharField
      */
     public $uploadTo = '%M/%O/%Y-%m-%d/';
 
-    public $hashName = true;
-
-    public $cleanValue = '';
     /**
      * List of allowed file types
      * @var array|null
@@ -113,7 +111,7 @@ class FileField extends CharField
     {
         return $this->getStorage()->delete($this->value);
     }
- 
+
     /**
      * Delete old file from storage (replacing or deleting old file)
      */
@@ -206,9 +204,16 @@ class FileField extends CharField
         return $this->hasErrors() === false;
     }
 
-    public function getFormField($form, $fieldClass = null)
+    public function getFormField($form, $fieldClass = null, array $extra = [])
     {
-        return parent::getFormField($form, FormFileField::className());
+        $types = [];
+        foreach($this->types as $type) {
+            $types[] = FileHelper::getMimeTypeByExtension($type);
+        }
+        $extra = array_merge($extra, [
+            'html' => ['accept' => implode('|', $types)]
+        ]);
+        return parent::getFormField($form, FormFileField::className(), $extra);
     }
 
     public function onAfterDelete()

@@ -442,4 +442,9 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
         $this->getQuerySet()->addGroupBy($column);
         return $this;
     }
+
+    public function truncate()
+    {
+        return $this->getQuerySet()->truncate();
+    }
 }
