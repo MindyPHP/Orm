@@ -16,10 +16,12 @@ namespace Mindy\Orm\Fields;
 
 
 use Mindy\Helper\Meta;
+use Mindy\Orm\Traits\UniqueUrl;
 use Mindy\Query\Expression;
 
 class AutoSlugField extends CharField
 {
+    use UniqueUrl;
     /**
      * @var string
      */
@@ -33,24 +35,7 @@ class AutoSlugField extends CharField
      */
     protected $oldValue;
 
-    public function uniqueUrl($url, $count = 0, $pk = null)
-    {
-        $model = $this->getModel();
-        $newUrl = $url;
-        if ($count) {
-            $newUrl .= '-' . $count;
-        }
-        $qs = $model::objects()->filter([$this->getName() => $newUrl]);
-        if ($pk) {
-            $qs = $qs->exclude(['pk' => $pk]);
-        }
-        if ($qs->count() > 0) {
-            $count++;
-            return $this->uniqueUrl($url, $count, $pk);
-        }
-        return $newUrl;
-    }
-
+    
     public function onBeforeInsert()
     {
         $model = $this->getModel();
