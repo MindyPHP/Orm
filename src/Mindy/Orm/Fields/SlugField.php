@@ -15,9 +15,11 @@
 namespace Mindy\Orm\Fields;
 
 use Mindy\Helper\Meta;
+use Mindy\Orm\Traits\UniqueUrl;
 
 class SlugField extends CharField
 {
+    use UniqueUrl;
     /**
      * @var string
      */
@@ -31,9 +33,8 @@ class SlugField extends CharField
     {
         $model = $this->getModel();
         $this->value = empty($this->value) ? Meta::cleanString($model->{$this->source}) : $this->value;
-        $count = $model->objects()->filter([$this->source => $this->value])->count();
-        if ($count > 0) {
-            $this->value .= $count;
+        if ($this->unique) {
+            $this->value = $this->uniqueUrl($this->value);
         }
         $model->setAttribute($this->name, $this->value);
     }
@@ -45,8 +46,11 @@ class SlugField extends CharField
 
         // Случай когда обнулен slug, например из админки
         if (empty($model->{$this->name})) {
-            $model->{$this->name} = Meta::cleanString($model->{$this->source});
+            $this->value = Meta::cleanString($model->{$this->source});
         }
-        $model->setAttribute($this->name, Meta::cleanString($model->{$this->name}));
+        if ($this->unique) {
+            $this->value = $this->uniqueUrl($this->value, 0, $model->pk);
+        }
+        $model->setAttribute($this->name, $this->value);
     }
 }
