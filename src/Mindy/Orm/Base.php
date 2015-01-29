@@ -121,6 +121,18 @@ abstract class Base implements ArrayAccess, Serializable
         return $this->classNameShort();
     }
 
+    protected function getLogger()
+    {
+        if ($this->_logger === null) {
+            if (class_exists('\Mindy\Base\Mindy')) {
+                $this->_logger = \Mindy\Base\Mindy::app()->getComponent('logger');
+            } else {
+                $this->_logger = new \Mindy\Logger\LoggerManager();
+            }
+        }
+        return $this->_logger;
+    }
+
     protected function getEventManager()
     {
         if ($this->_eventManager === null) {
@@ -667,7 +679,7 @@ abstract class Base implements ArrayAccess, Serializable
     public function insert(array $fields = [])
     {
         if (!empty($fields) && !$this->validate($fields)) {
-            // Yii::info('Model not inserted due to validation error.', __METHOD__);
+            $this->getLogger()->error("Model not inserted due to validation error.", ['method' => __METHOD__]);
             return false;
         }
         $db = static::getDb();
