@@ -4,22 +4,22 @@
     "version": "0.1",
     "license": "MIT",
     "autoload": {
-        "psr-0": {
-            "": "src/"
+        "psr-4": {
+            "Mindy\\Orm\\": "src/Mindy/Orm"
         }
     },
     "require": {
         "php": ">=5.4",
-        "mindy/exception": "dev-master",
-        "mindy/cache": "dev-master",
-        "mindy/query": "dev-master",
-        "mindy/logger": "dev-master",
-        "mindy/helper": "dev-master",
+        "mindy/exception": "0.1",
+        "mindy/cache": "0.1",
+        "mindy/query": "0.1",
+        "mindy/logger": "0.1",
+        "mindy/helper": "0.1",
         "cebe/markdown": "*",
-        "mindy/utils": "dev-master",
-        "mindy/locale": "dev-master",
-        "mindy/event": "dev-master",
-        "mindy/validation": "dev-master",
+        "mindy/utils": "0.1",
+        "mindy/locale": "0.1",
+        "mindy/event": "0.1",
+        "mindy/validation": "0.1",
         "monolog/monolog": "*"
     },
     "require-dev": {
