@@ -26,7 +26,7 @@ class DecimalField extends Field
 
     public function setValue($value)
     {
-        if ($this->null and is_null($value)) {
+        if (is_null($value)) {
             return $this->value = $value;
         } else {
             return $this->value = round($value, $this->scale);
