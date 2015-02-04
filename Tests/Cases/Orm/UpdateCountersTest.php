@@ -33,6 +33,7 @@ class UpdateCountersTest extends DatabaseTestCase
 
     public function testSave()
     {
+        $this->markTestSkipped("https://github.com/studio107/Mindy/issues/11");
         $model = new Hits();
         $model->save();
         $this->assertEquals(1, $model->pk);

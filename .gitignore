@@ -8,7 +8,6 @@ build
 composer.lock
 vendor
 Tests/protected/*
-Tests/config_local.php
 test.php
 phpunit.phar
 
