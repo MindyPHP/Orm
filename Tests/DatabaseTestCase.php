@@ -31,7 +31,6 @@ class DatabaseTestCase extends TestCase
             $this->settings = require __DIR__ . '/config_travis.php';
         } else {
             if (is_file(__DIR__ . '/config_local.php')) {
-                die(1);
                 $this->settings = require __DIR__ . '/config_local.php';
             } else {
                 $this->settings = [
