@@ -4,7 +4,7 @@ return [
     'default' => [
         'class' => '\Mindy\Query\Connection',
         'dsn' => 'mysql:host=127.0.0.1;dbname=test',
-        'username' => 'travis',
+        'username' => 'root',
         'charset' => 'utf8',
     ],
     'sqlite' => [
