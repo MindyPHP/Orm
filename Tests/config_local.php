@@ -5,7 +5,7 @@ return [
         'class' => '\Mindy\Query\Connection',
         'dsn' => 'mysql:host=localhost;dbname=tmp',
         'username' => 'root',
-        'password' => '',
+        'password' => '123456',
         'charset' => 'utf8',
     ],
     'sqlite' => [
