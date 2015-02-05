@@ -27,6 +27,15 @@ $app = \Mindy\Base\Mindy::getInstance([
         'cache' => [
             'class' => '\Mindy\Cache\DummyCache'
         ],
+        'logger' => [
+            'class' => '\Mindy\Logger\LoggerManager',
+            'handlers' => [
+                'null' => [
+                    'class' => '\Mindy\Logger\Handler\NullHandler',
+                    'level' => 'ERROR'
+                ],
+            ],
+        ],
     ],
     'preload' => ['log', 'db'],
     'modules' => []
