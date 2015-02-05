@@ -11,6 +11,7 @@ before_script:
   - composer install
   - composer install --dev --no-interaction
   - mysql -e 'create database test;'
+  - echo "USE mysql;\nUPDATE user SET password=PASSWORD('123456') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
 
 script:
   - mkdir -p build/logs
