@@ -559,11 +559,11 @@ abstract class Base implements ArrayAccess, Serializable
     public static function getTableSchema()
     {
         $schema = static::getDb()->getTableSchema(static::tableName());
-        if ($schema !== null) {
-            return $schema;
-        } else {
+        if ($schema === null) {
             throw new InvalidConfigException("The table does not exist: " . static::tableName());
         }
+
+        return $schema;
     }
 
     /**

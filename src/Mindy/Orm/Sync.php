@@ -80,6 +80,7 @@ class Sync
             }
         }
         $command->dropTable($model->tableName())->execute();
+        $this->db->getTableSchema($model->tableName(), true);
 
         try {
             // checkIntegrity is not supported by SQLite
@@ -169,6 +170,7 @@ class Sync
 
         foreach ($this->_models as $model) {
             $this->createIndexes($model);
+            $this->db->getTableSchema($model->tableName(), true);
         }
 
         return $this;

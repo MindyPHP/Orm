@@ -14,7 +14,7 @@
 
 namespace Tests\Orm;
 
-use Mindy\Tests\DatabaseTestCase;
+use Tests\DatabaseTestCase;
 use Tests\Models\Customer;
 use Tests\Models\Group;
 use Tests\Models\Membership;
@@ -22,17 +22,20 @@ use Tests\Models\User;
 
 class AggregationTest extends DatabaseTestCase
 {
-    public function setUp()
+    public function getModels()
     {
-        $this->basePath = realpath(__DIR__ . '/../../protected');
-        parent::setUp();
-
-        $this->initModels([
+        return [
             new User,
             new Group,
             new Membership,
             new Customer
-        ]);
+        ];
+    }
+
+    public function setUp()
+    {
+        parent::setUp();
+        $this->basePath = realpath(__DIR__ . '/../../protected');
 
         $group = new Group();
         $group->name = 'Administrators';
@@ -71,11 +74,6 @@ class AggregationTest extends DatabaseTestCase
         $max_home->address = "Max home";
         $max_home->user = $max;
         $max_home->save();
-    }
-
-    public function tearDown()
-    {
-        $this->dropModels([new User, new Group, new Membership, new Customer]);
     }
 
     public function testMin()
