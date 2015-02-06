@@ -198,8 +198,12 @@ class QuerySet extends QuerySetBase
 
     public function updateCounters(array $counters)
     {
+        /*
         $table = $this->model->tableName() . ' ' . $this->getTableAlias();
         return parent::updateCountersInternal($table, $this->makeAliasAttributes($counters));
+        */
+        $table = $this->model->tableName();
+        return parent::updateCountersInternal($table, $counters);
     }
 
     public function getOrCreate(array $attributes)
