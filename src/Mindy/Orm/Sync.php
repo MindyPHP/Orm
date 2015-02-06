@@ -17,6 +17,7 @@ namespace Mindy\Orm;
 
 use Mindy\Exception\NotSupportedException;
 use Mindy\Query\ConnectionManager;
+use PDO;
 
 class Sync
 {
@@ -80,7 +81,6 @@ class Sync
             }
         }
         $command->dropTable($model->tableName())->execute();
-        $this->db->getTableSchema($model->tableName(), true);
 
         try {
             // checkIntegrity is not supported by SQLite
@@ -170,7 +170,6 @@ class Sync
 
         foreach ($this->_models as $model) {
             $this->createIndexes($model);
-            $this->db->getTableSchema($model->tableName(), true);
         }
 
         return $this;
@@ -203,6 +202,9 @@ class Sync
         if ($tableName === null) {
             $tableName = $model->tableName();
         }
-        return !is_null($this->db->getTableSchema($tableName, true));
+        $schema = $this->db->schema;
+        $rawTableName = $schema->getRawTableName($tableName);
+        $tables = $schema->getTableNames('', true);
+        return in_array($rawTableName, $tables);
     }
 }
