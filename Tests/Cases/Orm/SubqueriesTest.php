@@ -14,13 +14,13 @@
 
 namespace Tests\Orm;
 
-use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Customer;
 use Tests\Models\Group;
 use Tests\Models\Membership;
 use Tests\Models\User;
+use Tests\OrmDatabaseTestCase;
 
-class SubqueriesTest extends DatabaseTestCase
+abstract class SubqueriesTest extends OrmDatabaseTestCase
 {
     public function setUp()
     {

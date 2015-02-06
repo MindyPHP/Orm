@@ -16,7 +16,7 @@ namespace Tests\Orm\Sqlite;
 
 
 use Mindy\Query\ConnectionManager;
-use Tests\DatabaseTestCase;
+use Tests\OrmDatabaseTestCase;
 use Tests\Models\Category;
 use Tests\Models\Customer;
 use Tests\Models\Order;
@@ -25,8 +25,10 @@ use Tests\Models\ProductList;
 use Tests\Models\User;
 
 
-class LookupTest extends DatabaseTestCase
+class LookupTest extends OrmDatabaseTestCase
 {
+    public $driver = 'sqlite';
+
     public $prefix = '';
 
     public function setUp()

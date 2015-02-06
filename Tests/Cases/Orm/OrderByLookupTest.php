@@ -14,19 +14,22 @@
 
 namespace Tests\Orm;
 
-use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Group;
 use Tests\Models\Customer;
 use Tests\Models\User;
 use Tests\Models\Membership;
+use Tests\OrmDatabaseTestCase;
 
-class OrderByLookupTest extends DatabaseTestCase
+abstract class OrderByLookupTest extends OrmDatabaseTestCase
 {
+    protected function getModels()
+    {
+        return [new User, new Group, new Membership, new Customer];
+    }
+
     public function setUp()
     {
         parent::setUp();
-
-        $this->initModels([new User, new Group, new Membership, new Customer]);
 
         $group = new Group();
         $group->name = 'Administrators';
@@ -64,11 +67,6 @@ class OrderByLookupTest extends DatabaseTestCase
         $max_home->address = "Max home";
         $max_home->user = $max;
         $max_home->save();
-    }
-
-    public function tearDown()
-    {
-        $this->dropModels([new User, new Group, new Membership, new Customer]);
     }
 
     public function testWithoutLookup()

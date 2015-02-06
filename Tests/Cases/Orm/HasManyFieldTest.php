@@ -14,17 +14,15 @@
 
 namespace Tests\Orm;
 
-use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Category;
-use Tests\Models\HasManyModel;
-use Tests\Models\FkModel;
 use Tests\Models\Product;
+use Tests\OrmDatabaseTestCase;
 
-class HasManyFieldTest extends DatabaseTestCase
+abstract class HasManyFieldTest extends OrmDatabaseTestCase
 {
     public function getModels()
     {
-        return [new Product(), new Category()];
+        return [new Product, new Category];
     }
 
     public function testSimple()

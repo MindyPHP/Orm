@@ -1,9 +1,6 @@
 <?php
 /**
- * 
- *
  * All rights reserved.
- * 
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -14,20 +11,14 @@
 
 namespace Tests\Orm;
 
-use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\NestedModel;
+use Tests\OrmDatabaseTestCase;
 
-class TreeModelTest extends DatabaseTestCase
+abstract class TreeModelTest extends OrmDatabaseTestCase
 {
-    public function setUp()
+    protected function getModels()
     {
-        parent::setUp();
-        $this->initModels([new NestedModel]);
-    }
-
-    public function tearDown()
-    {
-        $this->dropModels([new NestedModel]);
+        return [new NestedModel];
     }
 
     public function testInit()
@@ -160,64 +151,64 @@ class TreeModelTest extends DatabaseTestCase
 
         $data = NestedModel::tree()->asTree()->all();
         $this->assertEquals([
-                [
-                    'id' => 1,
-                    'parent_id' => null,
-                    'lft' => 1,
-                    'rgt' => 2,
-                    'level' => 1,
-                    'root' => 1,
-                    'name' => 'test',
-                    'slug' => 'test',
-                    'items' => [],
-                ],
-                [
-                    'id' => 2,
-                    'parent_id' => null,
-                    'lft' => 1,
-                    'rgt' => 8,
-                    'level' => 1,
-                    'root' => 2,
-                    'name' => 'test1',
-                    'slug' => 'test1',
-                    'items' => [
-                        [
-                            'id' => 3,
-                            'parent_id' => 2,
-                            'lft' => 2,
-                            'rgt' => 3,
-                            'level' => 2,
-                            'root' => 2,
-                            'name' => 'test2',
-                            'slug' => 'test1/test2',
-                            'items' => [],
-                        ],
-                        [
-                            'id' => 4,
-                            'parent_id' => 2,
-                            'lft' => 4,
-                            'rgt' => 7,
-                            'level' => 2,
-                            'root' => 2,
-                            'name' => 'test3',
-                            'slug' => 'test1/test3',
-                            'items' => [
-                                [
-                                    'id' => 5,
-                                    'parent_id' => 4,
-                                    'lft' => 5,
-                                    'rgt' => 6,
-                                    'level' => 3,
-                                    'root' => 2,
-                                    'name' => 'test4',
-                                    'slug' => 'test1/test3/test4',
-                                    'items' => [],
-                                ]
+            [
+                'id' => 1,
+                'parent_id' => null,
+                'lft' => 1,
+                'rgt' => 2,
+                'level' => 1,
+                'root' => 1,
+                'name' => 'test',
+                'slug' => 'test',
+                'items' => [],
+            ],
+            [
+                'id' => 2,
+                'parent_id' => null,
+                'lft' => 1,
+                'rgt' => 8,
+                'level' => 1,
+                'root' => 2,
+                'name' => 'test1',
+                'slug' => 'test1',
+                'items' => [
+                    [
+                        'id' => 3,
+                        'parent_id' => 2,
+                        'lft' => 2,
+                        'rgt' => 3,
+                        'level' => 2,
+                        'root' => 2,
+                        'name' => 'test2',
+                        'slug' => 'test1/test2',
+                        'items' => [],
+                    ],
+                    [
+                        'id' => 4,
+                        'parent_id' => 2,
+                        'lft' => 4,
+                        'rgt' => 7,
+                        'level' => 2,
+                        'root' => 2,
+                        'name' => 'test3',
+                        'slug' => 'test1/test3',
+                        'items' => [
+                            [
+                                'id' => 5,
+                                'parent_id' => 4,
+                                'lft' => 5,
+                                'rgt' => 6,
+                                'level' => 3,
+                                'root' => 2,
+                                'name' => 'test4',
+                                'slug' => 'test1/test3/test4',
+                                'items' => [],
                             ]
                         ]
                     ]
                 ]
-            ], $data);
+            ]
+        ], $data);
     }
 
     /**

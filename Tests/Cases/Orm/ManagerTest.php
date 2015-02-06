@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -14,16 +14,19 @@
 
 namespace Tests\Orm;
 
-use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Category;
+use Tests\OrmDatabaseTestCase;
 
-class ManagerTest extends DatabaseTestCase
+abstract class ManagerTest extends OrmDatabaseTestCase
 {
+    protected function getModels()
+    {
+        return [new Category];
+    }
+
     public function setUp()
     {
         parent::setUp();
-
-        $this->initModels([new Category]);
 
         $model_one = new Category();
         $model_one->name = 'one';
@@ -32,11 +35,6 @@ class ManagerTest extends DatabaseTestCase
         $model_two = new Category();
         $model_two->name = 'two';
         $model_two->save();
-    }
-
-    public function tearDown()
-    {
-        $this->dropModels([new Category]);
     }
 
     public function testAll()

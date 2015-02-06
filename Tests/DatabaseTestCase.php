@@ -14,14 +14,14 @@
 
 namespace Tests;
 
-
-use Mindy\Orm\Sync;
 use Mindy\Query\ConnectionManager;
-use Mindy\Tests\TestCase;
+use Mindy\Tests\DatabaseTestCase;
 
-class DatabaseTestCase extends TestCase
+class OrmDatabaseTestCase extends DatabaseTestCase
 {
     public $settings = [];
+
+    public $driver = 'default';
 
     public function setUp()
     {
@@ -42,31 +42,8 @@ class DatabaseTestCase extends TestCase
             }
         }
         $this->manager = new ConnectionManager(['databases' => $this->settings]);
+        ConnectionManager::$defaultDatabase = $this->driver;
         $this->initModels($this->getModels());
-    }
-
-    public function tearDown()
-    {
-        $this->dropModels($this->getModels());
-        parent::tearDown();
-    }
-
-    public function getModels()
-    {
-        return [];
-    }
-
-    public function initModels(array $models)
-    {
-        $sync = new Sync($models);
-        $sync->delete();
-        $sync->create();
-    }
-
-    public function dropModels(array $models)
-    {
-        $sync = new Sync($models);
-        $sync->delete();
     }
 
     public function getConnectionType()

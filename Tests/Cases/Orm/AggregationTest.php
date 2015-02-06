@@ -14,13 +14,13 @@
 
 namespace Tests\Orm;
 
-use Tests\DatabaseTestCase;
 use Tests\Models\Customer;
 use Tests\Models\Group;
 use Tests\Models\Membership;
 use Tests\Models\User;
+use Tests\OrmDatabaseTestCase;
 
-class AggregationTest extends DatabaseTestCase
+abstract class AggregationTest extends OrmDatabaseTestCase
 {
     public function getModels()
     {

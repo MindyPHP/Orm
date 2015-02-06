@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -14,7 +14,6 @@
 
 namespace Tests\Models;
 
-
 use Mindy\Orm\Manager;
 use Mindy\Orm\Model;
 
@@ -22,7 +21,7 @@ class InstanceTestModel extends Model
 {
     public static function objectsManager($instance = null)
     {
-        if($instance) {
+        if ($instance) {
             return 123;
         }
         $className = get_called_class();

@@ -15,10 +15,18 @@ if (is_dir($vendorPath)) {
 require __DIR__ . '/app.php';
 require __DIR__ . '/DatabaseTestCase.php';
 
-// Stupid composer
-//require __DIR__ . '/../vendor/cebe/markdown/Parser.php';
-//require __DIR__ . '/../vendor/cebe/markdown/Markdown.php';
-//require __DIR__ . '/../vendor/cebe/markdown/GithubMarkdown.php';
+require __DIR__ . '/Cases/Orm/AggregationTest.php';
+require __DIR__ . '/Cases/Orm/BasicTest.php';
+require __DIR__ . '/Cases/Orm/HasManyFieldTest.php';
+require __DIR__ . '/Cases/Orm/LookupRelationTest.php';
+require __DIR__ . '/Cases/Orm/ManagerTest.php';
+require __DIR__ . '/Cases/Orm/ManyToManyFieldTest.php';
+require __DIR__ . '/Cases/Orm/OrderByLookupTest.php';
+require __DIR__ . '/Cases/Orm/QueryTest.php';
+require __DIR__ . '/Cases/Orm/SaveUpdateTest.php';
+require __DIR__ . '/Cases/Orm/SubqueriesTest.php';
+require __DIR__ . '/Cases/Orm/SyncTest.php';
+require __DIR__ . '/Cases/Orm/TreeModelTest.php';
 
 $models = glob(realpath(__DIR__) . '/Models/*.php');
 foreach ($models as $model) {

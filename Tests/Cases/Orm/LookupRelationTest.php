@@ -14,13 +14,13 @@
 
 namespace Tests\Orm;
 
-use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Customer;
 use Tests\Models\Group;
 use Tests\Models\Membership;
 use Tests\Models\User;
+use Tests\OrmDatabaseTestCase;
 
-class LookupRelationTest extends DatabaseTestCase
+abstract class LookupRelationTest extends OrmDatabaseTestCase
 {
     public $prefix = '';
 

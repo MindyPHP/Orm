@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -14,22 +14,16 @@
 
 namespace Tests\Orm;
 
-use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Customer;
 use Tests\Models\Solution;
 use Tests\Models\User;
+use Tests\OrmDatabaseTestCase;
 
-class SaveUpdateTest extends DatabaseTestCase
+abstract class SaveUpdateTest extends OrmDatabaseTestCase
 {
-    public function setUp()
+    protected function getModels()
     {
-        parent::setUp();
-        $this->initModels([new User, new Customer]);
-    }
-
-    public function tearDown()
-    {
-        $this->dropModels([new User, new Customer]);
+        return [new User, new Customer];
     }
 
     public function testSave()

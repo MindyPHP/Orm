@@ -14,21 +14,24 @@
 
 namespace Tests\Orm;
 
-use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Customer;
 use Tests\Models\Group;
 use Tests\Models\Membership;
 use Tests\Models\User;
+use Tests\OrmDatabaseTestCase;
 
-class QueryTest extends DatabaseTestCase
+abstract class QueryTest extends OrmDatabaseTestCase
 {
     public $prefix = '';
+
+    protected function getModels()
+    {
+        return [new User, new Group, new Membership, new Customer];
+    }
 
     public function setUp()
     {
         parent::setUp();
-
-        $this->initModels([new User, new Group, new Membership, new Customer]);
 
         $group = new Group();
         $group->name = 'test';
@@ -52,43 +55,33 @@ class QueryTest extends DatabaseTestCase
         }
 
         $model = new User();
-        $this->prefix = $model->getConnection()->tablePrefix;
-    }
-
-    public function tearDown()
-    {
-        $this->dropModels([new User, new Group, new Membership, new Customer]);
+        $this->prefix = $model->getDb()->tablePrefix;
     }
 
     public function testFind()
     {
         $qs = User::objects();
         $this->assertEquals(2, $qs->count());
-        $this->assertEquals([
-            [
-                'id' => 1,
-                'username' => 'Anton',
-                'password' => 'VeryGoodPassWord'
-            ],
-            [
-                'id' => 2,
-                'username' => 'Max',
-                'password' => 'The6estP@$$w0rd'
-            ]
-        ], $qs->asArray()->all());
+        $this->assertEquals([[
+            'id' => 1,
+            'username' => 'Anton',
+            'password' => 'VeryGoodPassWord'
+        ], [
+            'id' => 2,
+            'username' => 'Max',
+            'password' => 'The6estP@$$w0rd'
+        ]], $qs->asArray()->all());
     }
 
     public function testFindWhere()
     {
         $qs = User::objects();
         $this->assertEquals(1, $qs->filter(['username' => 'Max'])->count());
-        $this->assertEquals([
-            [
-                'id' => 2,
-                'username' => 'Max',
-                'password' => 'The6estP@$$w0rd'
-            ]
-        ], $qs->asArray()->all());
+        $this->assertEquals([[
+            'id' => 2,
+            'username' => 'Max',
+            'password' => 'The6estP@$$w0rd'
+        ]], $qs->asArray()->all());
     }
 
     public function testExclude()

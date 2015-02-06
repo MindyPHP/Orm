@@ -15,20 +15,14 @@
 namespace Tests\Orm\Fields;
 
 
-use Tests\DatabaseTestCase;
+use Tests\OrmDatabaseTestCase;
 use Tests\Models\NestedModel;
 
-class AutoSlugFieldTest extends DatabaseTestCase
+class AutoSlugFieldTest extends OrmDatabaseTestCase
 {
-    public function setUp()
+    protected function getModels()
     {
-        parent::setUp();
-        $this->initModels([new NestedModel]);
-    }
-
-    public function tearDown()
-    {
-        $this->dropModels([new NestedModel]);
+        return [new NestedModel];
     }
 
     public function testInit()

@@ -21,15 +21,9 @@ use Tests\Models\User;
 
 class ValidationTest extends DatabaseTestCase
 {
-    public function setUp()
+    protected function getModels()
     {
-        parent::setUp();
-        $this->initModels([new User, new Product, new Category]);
-    }
-
-    public function tearDown()
-    {
-        $this->dropModels([new User, new Product, new Category]);
+        return [new User, new Product, new Category];
     }
 
     public function testClass()

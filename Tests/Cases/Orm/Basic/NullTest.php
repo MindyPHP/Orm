@@ -22,10 +22,14 @@ use Tests\Models\User;
 
 class NullTest extends DatabaseTestCase
 {
+    protected function getModels()
+    {
+        return [new Order, new User, new Category, new Customer, new Product];
+    }
+
     public function setUp()
     {
         parent::setUp();
-        $this->initModels([new Order, new User, new Category, new Customer, new Product]);
 
         $category = new Category;
         $category->name = 'test';
@@ -67,12 +71,6 @@ class NullTest extends DatabaseTestCase
 
         $order2->products = $products;
         $order2->save();
-    }
-
-    public function tearDown()
-    {
-        parent::tearDown();
-        $this->dropModels([new Order, new User, new Category, new Customer, new Product]);
     }
 
     public function testIsNull()

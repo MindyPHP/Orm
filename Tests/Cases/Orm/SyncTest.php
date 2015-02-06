@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -15,15 +15,15 @@
 namespace Tests\Orm;
 
 use Mindy\Orm\Sync;
-use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Category;
 use Tests\Models\Product;
 use Tests\Models\ProductList;
 use Tests\Models\User;
+use Tests\OrmDatabaseTestCase;
 
-class SyncTest extends DatabaseTestCase
+abstract class SyncTest extends OrmDatabaseTestCase
 {
-    public function testPk()
+    public function testSync()
     {
         $product = new Product();
         $this->assertEquals(6, count($product->getFieldsInit()));
@@ -38,21 +38,21 @@ class SyncTest extends DatabaseTestCase
         $sync = new Sync($models);
         $sync->delete();
 
-        foreach($models as $model) {
+        foreach ($models as $model) {
             $this->assertFalse($sync->hasTable($model));
         }
 
         // Create all tables. If table exists - skip.
         $sync->create();
 
-        foreach($models as $model) {
+        foreach ($models as $model) {
             $this->assertTrue($sync->hasTable($model));
         }
 
         // Remove all tables. If table does not exists - skip.
         $sync->delete();
 
-        foreach($models as $model) {
+        foreach ($models as $model) {
             $this->assertFalse($sync->hasTable($model));
         }
     }

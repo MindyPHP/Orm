@@ -14,20 +14,18 @@
 
 namespace Tests\Orm\Mysql;
 
-
-use Mindy\Orm\LookupBuilder;
-use Mindy\Query\ConnectionManager;
-use Tests\DatabaseTestCase;
 use Tests\Models\Category;
 use Tests\Models\Customer;
 use Tests\Models\Order;
 use Tests\Models\Product;
-use Tests\Models\User;
 use Tests\Models\ProductList;
+use Tests\Models\User;
+use Tests\OrmDatabaseTestCase;
 
-
-class LookupTest extends DatabaseTestCase
+class LookupTest extends OrmDatabaseTestCase
 {
+    public $driver = 'mysql';
+
     public $prefix = 'tests_';
 
     public function setUp()
@@ -55,7 +53,7 @@ class LookupTest extends DatabaseTestCase
         $customer->save();
 
         $products = [];
-        foreach([1, 2, 3, 4, 5] as $i) {
+        foreach ([1, 2, 3, 4, 5] as $i) {
             $product = new Product;
             $product->name = $i;
             $product->price = $i;
