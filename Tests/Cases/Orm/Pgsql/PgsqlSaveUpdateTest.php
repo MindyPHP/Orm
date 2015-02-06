@@ -11,7 +11,7 @@
  * @date 06/02/15 18:08
  */
 
-namespace Tests\Cases\Orm\Sqlite;
+namespace Tests\Cases\Orm\Pgsql;
 
 use Tests\Orm\SaveUpdateTest;
 

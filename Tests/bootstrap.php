@@ -16,6 +16,7 @@ require __DIR__ . '/app.php';
 require __DIR__ . '/DatabaseTestCase.php';
 
 require __DIR__ . '/Cases/Orm/AggregationTest.php';
+require __DIR__ . '/Cases/Orm/AutoSlugFieldTest.php';
 require __DIR__ . '/Cases/Orm/BasicTest.php';
 require __DIR__ . '/Cases/Orm/HasManyFieldTest.php';
 require __DIR__ . '/Cases/Orm/LookupRelationTest.php';

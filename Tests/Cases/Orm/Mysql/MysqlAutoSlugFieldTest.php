@@ -13,8 +13,9 @@
 
 namespace Tests\Cases\Orm\Mysql;
 
-class MysqlAutoSlugFieldTest 
-{
+use Tests\Orm\AutoSlugFieldTest;
 
+class MysqlAutoSlugFieldTest extends AutoSlugFieldTest
+{
+    public $driver = 'mysql';
 }
- 

@@ -13,8 +13,9 @@
 
 namespace Tests\Cases\Orm\Pgsql;
 
-class PgsqlAutoSlugFieldTest 
-{
+use Tests\Orm\AutoSlugFieldTest;
 
+class PgsqlAutoSlugFieldTest extends AutoSlugFieldTest
+{
+    public $driver = 'pgsql';
 }
- 

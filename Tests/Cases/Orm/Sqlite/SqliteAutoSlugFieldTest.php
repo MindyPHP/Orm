@@ -13,8 +13,9 @@
 
 namespace Tests\Cases\Orm\Sqlite;
 
-class SqliteAutoSlugFieldTest 
-{
+use Tests\Orm\AutoSlugFieldTest;
 
+class SqliteAutoSlugFieldTest extends AutoSlugFieldTest
+{
+    public $driver = 'sqlite';
 }
- 

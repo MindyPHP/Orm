@@ -12,13 +12,13 @@
  * @date 27/05/14.05.2014 18:02
  */
 
-namespace Tests\Orm\Fields;
+namespace Tests\Orm;
 
 
 use Tests\OrmDatabaseTestCase;
 use Tests\Models\NestedModel;
 
-class AutoSlugFieldTest extends OrmDatabaseTestCase
+abstract class AutoSlugFieldTest extends OrmDatabaseTestCase
 {
     protected function getModels()
     {
