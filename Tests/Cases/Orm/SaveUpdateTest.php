@@ -74,39 +74,39 @@ abstract class SaveUpdateTest extends OrmDatabaseTestCase
 
     public function testUpdate()
     {
-        $model = new User();
+        $foo = new User();
 
-        $this->assertTrue($model->getIsNewRecord());
-        $model->username = 'Anton';
-        $model->password = 'VeryGoodP@ssword';
+        $this->assertTrue($foo->getIsNewRecord());
+        $foo->username = 'Anton';
+        $foo->password = 'VeryGoodP@ssword';
 
-        $this->assertTrue($model->getIsNewRecord());
-        $saved = $model->save();
+        $this->assertTrue($foo->getIsNewRecord());
+        $saved = $foo->save();
 
-        $this->assertFalse($model->getIsNewRecord());
+        $this->assertFalse($foo->getIsNewRecord());
 
-        $this->assertEquals(1, $model->pk);
+        $this->assertEquals(1, $foo->pk);
         $this->assertTrue($saved);
 
-        $model = new User();
+        $bar = new User();
 
-        $this->assertTrue($model->getIsNewRecord());
+        $this->assertTrue($bar->getIsNewRecord());
 
-        $model->username = 'Max';
-        $model->password = 'VeryGoodP@ssword';
+        $bar->username = 'Max';
+        $bar->password = 'VeryGoodP@ssword';
 
-        $this->assertTrue($model->getIsNewRecord());
+        $this->assertTrue($bar->getIsNewRecord());
 
-        $saved = $model->save();
+        $saved = $bar->save();
 
-        $this->assertFalse($model->getIsNewRecord());
+        $this->assertFalse($bar->getIsNewRecord());
 
         $this->assertTrue($saved);
         $this->assertEquals(2, User::objects()->count());
-        $this->assertFalse($model->getIsNewRecord());
+        $this->assertFalse($bar->getIsNewRecord());
 
-        $this->assertEquals('Max', $model->username);
-        $this->assertEquals('VeryGoodP@ssword', $model->password);
+        $this->assertEquals('Max', $bar->username);
+        $this->assertEquals('VeryGoodP@ssword', $bar->password);
 
         $tmpFind = User::objects()->get(['id' => 1]);
 
@@ -116,13 +116,14 @@ abstract class SaveUpdateTest extends OrmDatabaseTestCase
         $this->assertEquals('VeryGoodP@ssword', $tmpFind->password);
 
         $updated = User::objects()->filter(['id' => 1])->update(['username' => 'Unknown']);
-        $model = User::objects()->get(['pk' => 1]);
-        $this->assertEquals('Unknown', $model->username);
+        $foo = User::objects()->get(['pk' => 1]);
+        $this->assertEquals('Unknown', $foo->username);
+        $this->assertEquals('Max', $bar->username);
         $this->assertEquals(1, $updated);
 
         $this->assertEquals(2, User::objects()->count());
         // Max already has username `Unknown`
-        $updated = User::objects()->filter(['id__gte' => 0])->update(['username' => 'Unknown']);
+        $updated = User::objects()->filter(['id__gt' => 1])->update(['username' => 'Unknown']);
         $this->assertEquals(1, $updated);
 
         $this->assertEquals(2, User::objects()->count());
