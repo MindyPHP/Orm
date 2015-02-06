@@ -14,7 +14,6 @@
 
 namespace Tests\Orm;
 
-use Mindy\Query\ConnectionManager;
 use Tests\DatabaseTestCase;
 use Tests\Models\Customer;
 use Tests\Models\Group;
