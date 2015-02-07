@@ -15,9 +15,13 @@
 namespace Mindy\Orm\Fields;
 
 
+use Mindy\Query\ConnectionManager;
+
 class AutoField extends IntField
 {
     public $primary = true;
+
+    public $null = true;
 
     public function sql()
     {
@@ -28,4 +32,19 @@ class AutoField extends IntField
     {
         return 'pk';
     }
+
+    /**
+     * TODO
+     * @return null|string
+     * @throws \Mindy\Query\Exception\UnknownDatabase
+     */
+    /*
+    public function getDbPrepValue()
+    {
+        $db = ConnectionManager::getDb();
+        $table = $this->getModel()->tableName();
+        $rawTable = $db->schema->getRawTableName($table);
+        return "nextval('$rawTable'::regclass)";
+    }
+    */
 }

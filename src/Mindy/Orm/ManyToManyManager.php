@@ -16,6 +16,7 @@ namespace Mindy\Orm;
 
 use Mindy\Exception\Exception;
 use Mindy\Helper\Creator;
+use Mindy\Query\ConnectionManager;
 
 class ManyToManyManager extends RelatedManager
 {
@@ -24,6 +25,10 @@ class ManyToManyManager extends RelatedManager
      * @var string
      */
     public $relatedTable;
+    /**
+     * @var string
+     */
+    public $relatedTableAlias;
     /**
      * Main model
      * @var \Mindy\Orm\Model
@@ -51,18 +56,21 @@ class ManyToManyManager extends RelatedManager
     // TODO: ugly, refactor me
     public function makeOnJoin($qs)
     {
-        $from = $this->escape($this->relatedTable) . '.' . $this->escape($this->modelColumn);
-        $to = $this->escape($qs->tableAlias) . '.' . $this->escape($this->getModel()->getPkName());
+        $db = ConnectionManager::getDb();
+        $from = $this->relatedTableAlias . '.' . $db->schema->quoteColumnName($this->modelColumn);
+        $to = $db->schema->quoteTableName($qs->tableAlias) . '.' . $db->schema->quoteColumnName($this->getModel()->getPkName());
         return $from . '=' . $to;
     }
 
     public function getQuerySet()
     {
+        $db = ConnectionManager::getDb();
         if ($this->_qs === null) {
             $qs = parent::getQuerySet();
-            $qs->join('JOIN', $this->relatedTable, $this->makeOnJoin($qs));
+            $this->relatedTableAlias = $qs->makeAliasKey($this->relatedTable);
+            $qs->join('JOIN', $this->relatedTable . ' ' . $this->relatedTableAlias, $this->makeOnJoin($qs));
             $this->_qs = $qs->filter([
-                $this->escape($this->relatedTable) . '.' . $this->escape($this->primaryModelColumn) => $this->primaryModel->pk
+                $this->relatedTableAlias . '.' . $db->schema->quoteColumnName($this->primaryModelColumn) => $this->primaryModel->pk
             ]);
             if (!empty($this->extra)) {
                 $this->_qs->filter($this->extra);

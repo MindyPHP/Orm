@@ -25,6 +25,6 @@ class IntField extends Field
 
     public function sqlType()
     {
-        return 'int(' . (int)$this->length . ')';
+        return 'integer(' . (int)$this->length . ')';
     }
 }

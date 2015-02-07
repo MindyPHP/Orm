@@ -14,6 +14,7 @@
 
 namespace Tests\Orm;
 
+use Mindy\Query\ConnectionManager;
 use Tests\Models\Customer;
 use Tests\Models\Solution;
 use Tests\Models\User;
@@ -259,7 +260,13 @@ abstract class SaveUpdateTest extends OrmDatabaseTestCase
         ]);
         $this->assertEquals(1, $modelOne->pk);
         $sql = Solution::objects()->filter(['id' => '1'])->updateSql(['status' => 2]);
-        $this->assertEquals('UPDATE `tests_solution` SET `status`=2 WHERE (`id`=\'1\')', $sql);
+
+        $db = ConnectionManager::getDb();
+        $tableSql = $db->schema->quoteColumnName('tests_solution');
+        $statusSql = $db->schema->quoteColumnName('status');
+        $idSql = $db->schema->quoteColumnName('id');
+
+        $this->assertEquals("UPDATE $tableSql SET $statusSql=2 WHERE ($idSql='1')", $sql);
         $this->dropmodels([new Solution]);
     }
 

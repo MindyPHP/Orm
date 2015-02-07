@@ -14,6 +14,7 @@
 
 namespace Tests\Orm;
 
+use Mindy\Query\ConnectionManager;
 use Tests\Models\Category;
 use Tests\Models\Group;
 use Tests\Models\Membership;
@@ -25,6 +26,8 @@ use Tests\OrmDatabaseTestCase;
 abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
 {
     public $prefix = '';
+
+    public $manySql = "SELECT `tests_product_list_1`.* FROM `tests_product_list` `tests_product_list_1` JOIN `tests_product_tests_product_list` ON `tests_product_tests_product_list`.`product_list_id`=`tests_product_list_1`.`id` WHERE (`tests_product_tests_product_list`.`product_id`='1')";
 
     protected function getModels()
     {
@@ -71,16 +74,14 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
         $list->products->link($product);
 
         $this->assertEquals(1, ProductList::objects()->count());
-        // $this->assertEquals(1, count($product->lists->all()));
+        $this->assertEquals(1, count($product->lists->all()));
 
         $new = Product::objects()->get(['id' => 1]);
         $this->assertFalse($new->getIsNewRecord());
         $this->assertEquals(1, $new->id);
         $this->assertEquals(1, $new->pk);
 
-        $this->assertEquals(
-            "SELECT `tests_product_list_1`.* FROM `tests_product_list` `tests_product_list_1` JOIN `tests_product_tests_product_list` ON `tests_product_tests_product_list`.`product_list_id`=`tests_product_list_1`.`id` WHERE (`tests_product_tests_product_list`.`product_id`='1')",
-            $new->lists->allSql());
+        $this->assertEquals($this->manySql, $new->lists->allSql());
         $this->assertEquals(1, count($new->lists->all()));
     }
 
@@ -102,7 +103,6 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
         $this->assertTrue($user->save());
 
         $this->assertEquals(0, count($group->users->all()));
-
 
         $group->users->link($user);
         $this->assertEquals(1, count($group->users->all()));

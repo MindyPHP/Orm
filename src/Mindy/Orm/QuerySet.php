@@ -95,7 +95,7 @@ class QuerySet extends QuerySetBase
         // @TODO: hardcode, refactoring
         $group = $this->groupBy;
         if ($this->_chainedHasMany && !$group) {
-            $this->groupBy($this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey()));
+            $this->groupBy($this->quoteColumnName($this->tableAlias) . '.' . $this->quoteColumnName($this->retreivePrimaryKey()));
         }
         $command = $this->createCommand();
         $this->groupBy = $group;
@@ -149,7 +149,7 @@ class QuerySet extends QuerySetBase
 
         $group = $this->groupBy;
         if ($this->_chainedHasMany && !$group) {
-            $this->groupBy($this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey()));
+            $this->groupBy($this->quoteColumnName($this->tableAlias) . '.' . $this->quoteColumnName($this->retreivePrimaryKey()));
         }
 
         $valuesSelect = [];
@@ -247,7 +247,7 @@ class QuerySet extends QuerySetBase
 
         $group = $this->groupBy;
         if ($this->_chainedHasMany && !$group) {
-            $this->groupBy($this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey()));
+            $this->groupBy($this->quoteColumnName($this->tableAlias) . '.' . $this->quoteColumnName($this->retreivePrimaryKey()));
         }
         $return = parent::allSql();
         $this->groupBy = $group;
@@ -414,7 +414,7 @@ class QuerySet extends QuerySetBase
      * @param bool $increment
      * @return string
      */
-    protected function makeAliasKey($table, $increment = true)
+    public function makeAliasKey($table, $increment = true)
     {
         if ($increment) {
             $this->_aliasesCount += 1;
@@ -527,12 +527,14 @@ class QuerySet extends QuerySetBase
      */
     protected function getChain($keyChain)
     {
-        if (is_array($keyChain))
+        if (is_array($keyChain)) {
             $keyChain = $this->prefixToKey($keyChain);
+        }
 
         if (isset($this->_chains[$keyChain])) {
             return $this->_chains[$keyChain];
         }
+
         return null;
     }
 
@@ -746,15 +748,11 @@ class QuerySet extends QuerySetBase
     /**
      * Converts name => `name`, user.name => `user`.`name`
      * @param string $name Column name
-     * @param object|null $db Connection
      * @return string Quoted column name
      */
-    public function quoteColumnName($name, $db = null)
+    public function quoteColumnName($name)
     {
-        if (!$db) {
-            $db = $this->getDb();
-        }
-        return $db->quoteColumnName($name);
+        return $this->getDb()->quoteColumnName($name);
     }
 
     /**

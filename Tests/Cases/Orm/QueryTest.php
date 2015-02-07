@@ -14,6 +14,7 @@
 
 namespace Tests\Orm;
 
+use Mindy\Query\ConnectionManager;
 use Tests\Models\Customer;
 use Tests\Models\Group;
 use Tests\Models\Membership;
@@ -86,16 +87,27 @@ abstract class QueryTest extends OrmDatabaseTestCase
 
     public function testExclude()
     {
+        $db = ConnectionManager::getDb();
+        $tableSql = $db->schema->quoteColumnName('tests_user');
+        $tableAliasSql = $db->schema->quoteColumnName('tests_user_1');
+        $usernameSql = $db->schema->quoteColumnName('username');
+
         $qs = User::objects()->filter(['username' => 'Anton'])->exclude(['username' => 'Max']);
         $this->assertEquals(1, $qs->count());
-        $this->assertEquals("SELECT COUNT(*) FROM `tests_user` `tests_user_1` WHERE ((`tests_user_1`.`username`='Anton')) AND (NOT ((`tests_user_1`.`username`='Max')))", $qs->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM $tableSql $tableAliasSql WHERE (($tableAliasSql.$usernameSql='Anton')) AND (NOT (($tableAliasSql.$usernameSql='Max')))", $qs->countSql());
     }
 
     public function testOrExclude()
     {
         $qs = User::objects()->exclude(['username' => 'Max'])->orExclude(['username' => 'Anton']);
         $this->assertEquals(2, $qs->count());
-        $this->assertEquals("SELECT COUNT(*) FROM `tests_user` `tests_user_1` WHERE (NOT ((`tests_user_1`.`username`='Max'))) OR (NOT ((`tests_user_1`.`username`='Anton')))", $qs->countSql());
+
+        $db = ConnectionManager::getDb();
+        $tableSql = $db->schema->quoteColumnName('tests_user');
+        $tableAliasSql = $db->schema->quoteColumnName('tests_user_1');
+        $usernameSql = $db->schema->quoteColumnName('username');
+
+        $this->assertEquals("SELECT COUNT(*) FROM $tableSql $tableAliasSql WHERE (NOT (($tableAliasSql.$usernameSql='Max'))) OR (NOT (($tableAliasSql.$usernameSql='Anton')))", $qs->countSql());
     }
 
     public function testExactQs()

@@ -68,7 +68,7 @@ class Sync
 
         try {
             // checkIntegrity is not supported by SQLite
-            $command->checkIntegrity(false)->execute();
+            // $command->checkIntegrity(false)->execute();
         } catch (NotSupportedException $e) {
 
         }
@@ -84,7 +84,7 @@ class Sync
 
         try {
             // checkIntegrity is not supported by SQLite
-            $command->checkIntegrity(true)->execute();
+            // $this->db->createCommand()->checkIntegrity(true)->execute();
         } catch (NotSupportedException $e) {
 
         }
@@ -99,7 +99,7 @@ class Sync
 
         try {
             // checkIntegrity is not supported by SQLite
-            $command->checkIntegrity(false)->execute();
+            // $command->checkIntegrity(false)->execute();
         } catch (NotSupportedException $e) {
 
         }
@@ -123,7 +123,7 @@ class Sync
 
         try {
             // checkIntegrity is not supported by SQLite
-            $command->checkIntegrity(true)->execute();
+            // $command->checkIntegrity(true)->execute();
         } catch (NotSupportedException $e) {
 
         }
@@ -138,7 +138,7 @@ class Sync
 
         try {
             // checkIntegrity is not supported by SQLite
-            $command->checkIntegrity(false)->execute();
+            // $command->checkIntegrity(false)->execute();
         } catch (NotSupportedException $e) {
 
         }
@@ -154,7 +154,7 @@ class Sync
 
         try {
             // checkIntegrity is not supported by SQLite
-            $command->checkIntegrity(true)->execute();
+            // $command->checkIntegrity(true)->execute();
         } catch (NotSupportedException $e) {
 
         }

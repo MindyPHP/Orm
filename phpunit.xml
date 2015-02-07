@@ -18,24 +18,24 @@
     </php>
 
     <testsuites>
-        <testsuite name="Orm/Sqlite">
-            <directory>Tests/Cases/Orm/Sqlite/</directory>
-        </testsuite>
-        <testsuite name="Orm/Mysql">
-            <directory>Tests/Cases/Orm/Mysql/</directory>
-        </testsuite>
+        <!--<testsuite name="Orm/Sqlite">-->
+            <!--<directory>Tests/Cases/Orm/Sqlite/</directory>-->
+        <!--</testsuite>-->
+        <!--<testsuite name="Orm/Mysql">-->
+            <!--<directory>Tests/Cases/Orm/Mysql/</directory>-->
+        <!--</testsuite>-->
         <testsuite name="Orm/Pgsql">
             <directory>Tests/Cases/Orm/Pgsql/</directory>
         </testsuite>
-        <testsuite name="Orm/Fields">
-            <directory>Tests/Cases/Orm/Fields/</directory>
-        </testsuite>
-        <testsuite name="Orm/Migration">
-            <directory>Tests/Cases/Migration/</directory>
-        </testsuite>
-        <testsuite name="Orm/Validation">
-            <directory>Tests/Cases/Validation/</directory>
-        </testsuite>
+        <!--<testsuite name="Orm/Fields">-->
+            <!--<directory>Tests/Cases/Orm/Fields/</directory>-->
+        <!--</testsuite>-->
+        <!--<testsuite name="Orm/Migration">-->
+            <!--<directory>Tests/Cases/Migration/</directory>-->
+        <!--</testsuite>-->
+        <!--<testsuite name="Orm/Validation">-->
+            <!--<directory>Tests/Cases/Validation/</directory>-->
+        <!--</testsuite>-->
     </testsuites>
 
     <groups>

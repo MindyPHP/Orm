@@ -14,6 +14,7 @@
 
 namespace Tests\Orm;
 
+use Mindy\Query\ConnectionManager;
 use Tests\Models\Category;
 use Tests\Models\Product;
 use Tests\OrmDatabaseTestCase;
@@ -36,7 +37,12 @@ abstract class HasManyFieldTest extends OrmDatabaseTestCase
         $category_animals->name = 'Animals';
         $category_animals->save();
 
-        $this->assertEquals("SELECT COUNT(*) FROM `tests_product` `tests_product_1` WHERE (`tests_product_1`.`category_id`='1')", $category_toys->products->countSql());
+        $db = ConnectionManager::getDb();
+        $tableSql = $db->schema->quoteColumnName('tests_product');
+        $tableAliasSql = $db->schema->quoteColumnName('tests_product_1');
+        $categoryIdSql = $db->schema->quoteColumnName('category_id');
+
+        $this->assertEquals("SELECT COUNT(*) FROM $tableSql $tableAliasSql WHERE ($tableAliasSql.$categoryIdSql='1')", $category_toys->products->countSql());
         $this->assertEquals(0, $category_toys->products->count());
 
         $product_bear = new Product([
