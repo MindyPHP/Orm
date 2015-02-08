@@ -12,7 +12,7 @@
  * @date 04/01/14.01.2014 00:53
  */
 
-namespace Tests\Orm\Sqlite;
+namespace Tests\Orm;
 
 
 use Mindy\Query\ConnectionManager;
@@ -25,31 +25,25 @@ use Tests\Models\ProductList;
 use Tests\Models\User;
 
 
-class LookupTest extends OrmDatabaseTestCase
+abstract class LookupTest extends OrmDatabaseTestCase
 {
-    public $driver = 'sqlite';
-
     public $prefix = '';
 
-    public function setUp()
+    protected function getModels()
     {
-        $this->manager = new ConnectionManager([
-            'databases' => [
-                'default' => [
-                    'class' => '\Mindy\Query\Connection',
-                    'dsn' => 'sqlite::memory:',
-                ]
-            ]
-        ]);
-
-        $this->initModels([
+        return [
             new Order,
             new User,
             new Customer,
             new Product,
             new Category,
             new ProductList
-        ]);
+        ];
+    }
+
+    public function setUp()
+    {
+        parent::setUp();
 
         $category = new Category;
         $category->name = 'test';
@@ -89,18 +83,7 @@ class LookupTest extends OrmDatabaseTestCase
         $order->save();
 
         $model = new Category();
-        $this->prefix = $model->getConnection()->tablePrefix;
-    }
-
-    public function tearDown()
-    {
-        $this->dropModels([
-            new Order,
-            new User,
-            new Customer,
-            new Product,
-            new Category
-        ]);
+        $this->prefix = $model->getDb()->tablePrefix;
     }
 
     public function testInit()

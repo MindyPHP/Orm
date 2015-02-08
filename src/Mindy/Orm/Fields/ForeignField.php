@@ -96,13 +96,10 @@ class ForeignField extends RelatedField
      */
     public function getManager()
     {
+        // TODO move query to fetch method
         $manager = new RelatedManager($this->getRelatedModel());
         $value = $this->getValue();
-        if (is_object($value)) {
-            return $value;
-        } else {
-            return $manager->filter(['pk' => $value]);
-        }
+        return is_object($value) ? $value : $manager->filter(['pk' => $value]);
     }
 
     public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DropDownField', array $extra = [])

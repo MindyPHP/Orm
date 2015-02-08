@@ -83,46 +83,57 @@ abstract class LookupRelationTest extends OrmDatabaseTestCase
             [
                 Customer::className(),
                 ['user__username' => 'Anton'],
-                "SELECT COUNT(*) FROM `tests_customer` `tests_customer_1` LEFT JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` WHERE (`tests_user_2`.`username`='Anton')",
+                "SELECT COUNT(*) FROM `tests_customer` `tests_customer_1` LEFT OUTER JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` WHERE (`tests_user_2`.`username`='Anton')",
                 2
             ],
             [
                 Customer::className(),
                 ['user__username__startswith' => 'A'],
-                "SELECT COUNT(*) FROM `tests_customer` `tests_customer_1` LEFT JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` WHERE (`tests_user_2`.`username` LIKE 'A%')",
+                "SELECT COUNT(*) FROM `tests_customer` `tests_customer_1` LEFT OUTER JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` WHERE (`tests_user_2`.`username` LIKE 'A%')",
                 2
             ],
             [
                 Customer::className(),
                 ['user__groups__name' => 'Administrators'],
-                "SELECT COUNT(DISTINCT `tests_customer_1`.`id`) FROM `tests_customer` `tests_customer_1` LEFT JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` LEFT JOIN `tests_membership` `tests_membership_3` ON `tests_user_2`.`id` = `tests_membership_3`.`user_id` LEFT JOIN `tests_group` `tests_group_4` ON `tests_membership_3`.`group_id` = `tests_group_4`.`id` WHERE (`tests_group_4`.`name`='Administrators')",
+                "SELECT COUNT(DISTINCT `tests_customer_1`.`id`) FROM `tests_customer` `tests_customer_1` LEFT OUTER JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` LEFT OUTER JOIN `tests_membership` `tests_membership_3` ON `tests_user_2`.`id` = `tests_membership_3`.`user_id` LEFT OUTER JOIN `tests_group` `tests_group_4` ON `tests_membership_3`.`group_id` = `tests_group_4`.`id` WHERE (`tests_group_4`.`name`='Administrators')",
                 3
             ],
             [
                 Customer::className(),
                 ['user__groups__name__endswith' => 's'],
-                "SELECT COUNT(DISTINCT `tests_customer_1`.`id`) FROM `tests_customer` `tests_customer_1` LEFT JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` LEFT JOIN `tests_membership` `tests_membership_3` ON `tests_user_2`.`id` = `tests_membership_3`.`user_id` LEFT JOIN `tests_group` `tests_group_4` ON `tests_membership_3`.`group_id` = `tests_group_4`.`id` WHERE (`tests_group_4`.`name` LIKE '%s')",
+                "SELECT COUNT(DISTINCT `tests_customer_1`.`id`) FROM `tests_customer` `tests_customer_1` LEFT OUTER JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` LEFT OUTER JOIN `tests_membership` `tests_membership_3` ON `tests_user_2`.`id` = `tests_membership_3`.`user_id` LEFT OUTER JOIN `tests_group` `tests_group_4` ON `tests_membership_3`.`group_id` = `tests_group_4`.`id` WHERE (`tests_group_4`.`name` LIKE '%s')",
                 3
             ],
             [
                 User::className(),
                 ['addresses__address__contains' => 'Anton'],
-                "SELECT COUNT(DISTINCT `tests_user_1`.`id`) FROM `tests_user` `tests_user_1` LEFT JOIN `tests_customer` `tests_customer_2` ON `tests_user_1`.`id` = `tests_customer_2`.`user_id` WHERE (`tests_customer_2`.`address` LIKE '%Anton%')",
+                "SELECT COUNT(DISTINCT `tests_user_1`.`id`) FROM `tests_user` `tests_user_1` LEFT OUTER JOIN `tests_customer` `tests_customer_2` ON `tests_user_1`.`id` = `tests_customer_2`.`user_id` WHERE (`tests_customer_2`.`address` LIKE '%Anton%')",
                 1
             ],
             [
                 Customer::className(),
                 ['user__username' => 'Max', 'user__pk' => '2'],
-                "SELECT COUNT(*) FROM `tests_customer` `tests_customer_1` LEFT JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` WHERE ((`tests_user_2`.`username`='Max')) AND ((`tests_user_2`.`id`='2'))",
+                "SELECT COUNT(*) FROM `tests_customer` `tests_customer_1` LEFT OUTER JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` WHERE (`tests_user_2`.`username`='Max') AND (`tests_user_2`.`id`='2')",
                 1
             ],
             [
                 Customer::className(),
                 ['user__username' => 'Max', 'user__groups__pk' => '1'],
-                "SELECT COUNT(DISTINCT `tests_customer_1`.`id`) FROM `tests_customer` `tests_customer_1` LEFT JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` LEFT JOIN `tests_membership` `tests_membership_3` ON `tests_user_2`.`id` = `tests_membership_3`.`user_id` LEFT JOIN `tests_group` `tests_group_4` ON `tests_membership_3`.`group_id` = `tests_group_4`.`id` WHERE ((`tests_user_2`.`username`='Max')) AND ((`tests_group_4`.`id`='1'))",
+                "SELECT COUNT(DISTINCT `tests_customer_1`.`id`) FROM `tests_customer` `tests_customer_1` LEFT OUTER JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` LEFT OUTER JOIN `tests_membership` `tests_membership_3` ON `tests_user_2`.`id` = `tests_membership_3`.`user_id` LEFT OUTER JOIN `tests_group` `tests_group_4` ON `tests_membership_3`.`group_id` = `tests_group_4`.`id` WHERE (`tests_user_2`.`username`='Max') AND (`tests_group_4`.`id`='1')",
                 1
             ]
         ];
+    }
+
+    public function testLookupsClean()
+    {
+        $filter = ['user__groups__name__endswith' => 's'];
+//        $sql = "SELECT COUNT(DISTINCT `tests_customer_1`.`id`) FROM `tests_customer` `tests_customer_1` LEFT OUTER JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` LEFT OUTER JOIN `tests_membership` `tests_membership_3` ON `tests_user_2`.`id` = `tests_membership_3`.`user_id` LEFT OUTER JOIN `tests_group` `tests_group_4` ON `tests_membership_3`.`group_id` = `tests_group_4`.`id` WHERE (`tests_group_4`.`name` LIKE '%s')";
+        $count = 3;
+        $qs = Customer::objects()->filter($filter);
+//        $this->assertEquals($sql, $qs->countSql());
+        $this->assertEquals($count, $qs->count());
+        $this->assertEquals($count, count($qs->all()));
     }
 
     /**

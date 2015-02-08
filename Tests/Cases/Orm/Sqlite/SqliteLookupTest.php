@@ -1,7 +1,6 @@
 <?php
+
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
@@ -9,12 +8,14 @@
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
- * @date 04/01/14.01.2014 03:42
+ * @date 08/02/15 14:33
  */
 
-namespace Mindy\Orm;
+namespace Tests\Cases\Orm\Sqlite;
 
-class RelatedManager extends Manager
+use Tests\Orm\LookupTest;
+
+class SqliteLookupTest extends LookupTest
 {
-
+    public $driver = 'sqlite';
 }

@@ -15,7 +15,6 @@
 namespace Mindy\Orm\Fields;
 
 use Exception;
-use Mindy\Form\Fields\DropDownField;
 use Mindy\Orm\HasManyManager;
 
 class HasManyField extends RelatedField
@@ -112,11 +111,6 @@ class HasManyField extends RelatedField
         return;
     }
 
-    public function getFormField($form, $fieldClass = null, array $extra = [])
-    {
-        return parent::getFormField($form, DropDownField::className(), $extra);
-    }
-
     public function onBeforeDelete()
     {
         $model = $this->getRelatedModel();
@@ -133,5 +127,16 @@ class HasManyField extends RelatedField
         } else {
             $qs->delete();
         }
+    }
+
+    /**
+     * @param $form
+     * @param null $fieldClass
+     * @param array $extra
+     * @return \Mindy\Form\Fields\DropDownField
+     */
+    public function getFormField($form, $fieldClass = null, array $extra = [])
+    {
+        return parent::getFormField($form, \Mindy\Form\Fields\DropDownField::className(), $extra);
     }
 }

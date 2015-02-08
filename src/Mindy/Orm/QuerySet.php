@@ -35,7 +35,7 @@ class QuerySet extends QuerySetBase
      * Chains of joins
      * @var array
      */
-    private $_chains = array();
+    private $_chains = [];
     /**
      * Has chained
      * @var bool
@@ -94,13 +94,22 @@ class QuerySet extends QuerySetBase
 
         // @TODO: hardcode, refactoring
         $group = $this->groupBy;
-        if ($this->_chainedHasMany && !$group) {
+        if ($this->_chainedHasMany && !$group && $group !== false) {
             $this->groupBy($this->quoteColumnName($this->tableAlias) . '.' . $this->quoteColumnName($this->retreivePrimaryKey()));
         }
         $command = $this->createCommand();
         $this->groupBy = $group;
         $this->setCommand($command);
         return $this;
+    }
+
+    public function join($type, $table, $on = '', $params = [])
+    {
+        $query = parent::join($type, $table, $on, $params);
+//        if ($this->_chainedHasMany) {
+//            $this->groupBy($this->quoteColumnName($this->tableAlias) . '.' . $this->quoteColumnName($this->retreivePrimaryKey()));
+//        }
+        return $query;
     }
 
     /**
@@ -148,9 +157,9 @@ class QuerySet extends QuerySetBase
         $select = $this->select;
 
         $group = $this->groupBy;
-        if ($this->_chainedHasMany && !$group) {
-            $this->groupBy($this->quoteColumnName($this->tableAlias) . '.' . $this->quoteColumnName($this->retreivePrimaryKey()));
-        }
+//        if ($this->_chainedHasMany && !$group) {
+//            $this->groupBy($this->quoteColumnName($this->tableAlias) . '.' . $this->quoteColumnName($this->retreivePrimaryKey()));
+//        }
 
         $valuesSelect = [];
         foreach ($fieldsList as $name) {
@@ -244,11 +253,41 @@ class QuerySet extends QuerySetBase
     public function allSql()
     {
         $this->prepareConditions();
-
         $group = $this->groupBy;
-        if ($this->_chainedHasMany && !$group) {
-            $this->groupBy($this->quoteColumnName($this->tableAlias) . '.' . $this->quoteColumnName($this->retreivePrimaryKey()));
+
+        if ($this->_chainedHasMany) {
+            if ($this->getDb()->getSchema() instanceof \Mindy\Query\Pgsql\Schema) {
+                $pk = $this->quoteColumnName($this->retreivePrimaryKey());
+                $this->distinct([
+                    $this->_tableAlias . '.' . $pk => $this->_tableAlias . '.' . $pk
+                ]);
+                $orderBy = $this->orderBy;
+                if ($orderBy) {
+                    $this->orderBy = array_merge([$this->_tableAlias . '.' . $pk => SORT_ASC], $orderBy);
+                }
+                $this->from = '(' . parent::allSql() . ') ' . $this->quoteColumnName("_tmp");
+                $this->select = '*';
+                $this->groupBy = null;
+                $this->where = [];
+
+                if ($orderBy) {
+                    $orderFields = [];
+                    foreach ($orderBy as $field => $order) {
+                        $tmp = explode('.', $field);
+                        $name = str_replace('"', '', end($tmp));
+                        $orderFields[$this->quoteColumnName("_tmp") . '.' . $this->quoteColumnName($name)] = $order;
+                    }
+                    $this->orderBy = $orderFields;
+                }
+                $this->distinct = null;
+                $this->join = [];
+                return parent::allSql();
+            }
         }
+
+//        if ($this->_chainedHasMany && !$group) {
+//            $this->groupBy($this->quoteColumnName($this->tableAlias) . '.' . $this->quoteColumnName($this->retreivePrimaryKey()));
+//        }
         $return = parent::allSql();
         $this->groupBy = $group;
         return $return;
@@ -334,23 +373,6 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param null|string $q
-     * @return string
-     */
-    public function countSql($q = null)
-    {
-        $this->prepareConditions();
-        if (!$q) {
-            if ($this->_chainedHasMany) {
-                $q = 'DISTINCT ' . $this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey());
-            } else {
-                $q = '*';
-            }
-        }
-        return parent::countSql($q);
-    }
-
-    /**
      * Creates a DB command that can be used to execute this query.
      * @return \Mindy\Query\Command the created DB command instance.
      */
@@ -405,7 +427,10 @@ class QuerySet extends QuerySetBase
             $keyChain = $this->prefixToKey($keyChain);
         }
 
-        $this->_chains[$keyChain] = ['alias' => $alias, 'model' => $model];
+        $this->_chains[$keyChain] = [
+            'alias' => $alias,
+            'model' => $model
+        ];
     }
 
     /**
@@ -419,9 +444,9 @@ class QuerySet extends QuerySetBase
         if ($increment) {
             $this->_aliasesCount += 1;
         }
-        $table = str_replace(['{{', '}}', '%', '`'], '', $table);
-        $table = strtolower($table) . '_' . $this->_aliasesCount;
-        return $this->quoteColumnName($table);
+        $schema = $this->getDb()->getSchema();
+        $table = $schema->getRawTableName($table);
+        return $schema->quoteTableName($table . '_' . $this->_aliasesCount);
     }
 
     /**
@@ -482,10 +507,10 @@ class QuerySet extends QuerySetBase
             if ($prefixedSelect && $relatedValue instanceof ManyToManyField) {
                 continue;
             }
-            list($relatedModel, $joinTables) = $relatedValue->getJoin();
 
+            list($relatedModel, $joinTables) = $relatedValue->getJoin();
             foreach ($joinTables as $join) {
-                $type = isset($join['type']) ? $join['type'] : 'LEFT JOIN';
+                $type = isset($join['type']) ? $join['type'] : 'LEFT OUTER JOIN';
                 $newAlias = $this->makeAliasKey($join['table']);
                 $table = $join['table'] . ' ' . $newAlias;
 
@@ -506,7 +531,9 @@ class QuerySet extends QuerySetBase
             if ($prefixedSelect) {
                 $selectNames = [];
                 $selectRelatedNames = [];
-                foreach (array_keys($relatedModel->getTableSchema()->columns) as $item) {
+                /** @var \Mindy\Orm\Model $relatedModel */
+                $columnNames = $relatedModel->getTableSchema()->getColumnNames();
+                foreach ($columnNames as $item) {
                     $selectRelatedNames[] = $alias . '.' . $this->quoteColumnName($item) . ' AS ' . strtolower($relatedModel->classNameShort()) . '__' . $item;
                 }
                 $oldSelect = $this->select;
@@ -583,7 +610,10 @@ class QuerySet extends QuerySetBase
             }
 
             if ($chain) {
-                return [$chain['alias'], $chain['model']];
+                return [
+                    $chain['alias'],
+                    $chain['model']
+                ];
             }
         }
 
@@ -730,8 +760,7 @@ class QuerySet extends QuerySetBase
      */
     public function excludeWhere($condition, $params = [])
     {
-        $condition = ['not', $condition];
-        return parent::andWhere($condition, $params);
+        return parent::andWhere(['not', $condition], $params);
     }
 
     /**
@@ -741,8 +770,7 @@ class QuerySet extends QuerySetBase
      */
     public function excludeOrWhere($condition, $params = [])
     {
-        $condition = ['not', $condition];
-        return parent::orWhere($condition, $params);
+        return parent::orWhere(['not', $condition], $params);
     }
 
     /**
@@ -789,13 +817,12 @@ class QuerySet extends QuerySetBase
         foreach ($columns as $column) {
             $isReverse = strpos($column, '-') === 0;
             $t = str_replace('-', '', $column);
-            if ($t == 'pk') {
+            if ($t === 'pk') {
                 $column = $this->model->getPkName();
                 if ($isReverse) {
                     $column = '-' . $column;
                 }
-            }
-            if ($meta->hasForeignField($t)) {
+            } else if ($meta->hasForeignField($t)) {
                 if ($meta->hasField($t)) {
                     $column .= "_id";
                 }
@@ -803,7 +830,19 @@ class QuerySet extends QuerySetBase
             $orderBy[] = $column;
         }
 
-        return $this->orderBy($orderBy);
+        $this->orderBy($orderBy);
+        if ($this->getDb()->getSchema() instanceof \Mindy\Query\Pgsql\Schema) {
+            $orderFields = array_keys($this->orderBy);
+            $this->select = array_merge($this->select, $orderFields);
+            $tableSchema = $this->getDb()->getSchema()->getTableSchema($this->model->tableName());
+            $groupFields = [];
+            foreach ($tableSchema->getColumnNames() as $name) {
+                $groupFields[] = $this->_tableAlias . '.' . $this->quoteColumnName($name);
+            }
+            $this->groupBy(array_merge($orderFields, $groupFields));
+        }
+
+        return $this;
     }
 
 
@@ -853,11 +892,7 @@ class QuerySet extends QuerySetBase
      */
     public function numval($value)
     {
-        if (strpos($value, '.') !== false) {
-            return floatval($value);
-        } else {
-            return intval($value);
-        }
+        return strpos($value, '.') !== false ? floatval($value) : intval($value);
     }
 
     /**
@@ -867,8 +902,7 @@ class QuerySet extends QuerySetBase
     public function sum($column)
     {
         $this->prepareConditions();
-        $column = $this->aliasColumn($column);
-        $value = parent::sum($column);
+        $value = parent::sum($this->aliasColumn($column));
         return $this->numval($value);
     }
 
@@ -879,8 +913,7 @@ class QuerySet extends QuerySetBase
     public function average($column)
     {
         $this->prepareConditions();
-        $column = $this->aliasColumn($column);
-        $value = parent::average($column);
+        $value = parent::average($this->aliasColumn($column));
         return $this->numval($value);
     }
 
@@ -891,8 +924,7 @@ class QuerySet extends QuerySetBase
     public function min($column)
     {
         $this->prepareConditions();
-        $column = $this->aliasColumn($column);
-        $value = parent::min($column);
+        $value = parent::min($this->aliasColumn($column));
         return $this->numval($value);
     }
 
@@ -903,8 +935,7 @@ class QuerySet extends QuerySetBase
     public function max($column)
     {
         $this->prepareConditions();
-        $column = $this->aliasColumn($column);
-        $value = parent::max($column);
+        $value = parent::max($this->aliasColumn($column));
         return $this->numval($value);
     }
 
@@ -941,6 +972,35 @@ class QuerySet extends QuerySetBase
     {
         if (empty($this->_data)) {
             if ($this->command === null) {
+                if ($this->_chainedHasMany) {
+                    if ($this->getDb()->getSchema() instanceof \Mindy\Query\Pgsql\Schema) {
+                        $pk = $this->quoteColumnName($this->retreivePrimaryKey());
+                        $this->distinct([
+                            $this->_tableAlias . '.' . $pk => $this->_tableAlias . '.' . $pk
+                        ]);
+                        $orderBy = $this->orderBy;
+                        if ($orderBy) {
+                            $this->orderBy = array_merge([$this->_tableAlias . '.' . $pk => SORT_ASC], $orderBy);
+                        }
+                        $this->from = '(' . parent::allSql() . ') ' . $this->quoteColumnName("_tmp");
+                        $this->select = '*';
+                        $this->groupBy = false;
+                        $this->where = [];
+
+                        if ($orderBy) {
+                            $orderFields = [];
+                            foreach ($orderBy as $field => $order) {
+                                $tmp = explode('.', $field);
+                                $name = str_replace('"', '', end($tmp));
+                                $orderFields[$this->quoteColumnName("_tmp") . '.' . $this->quoteColumnName($name)] = $order;
+                            }
+                            $this->orderBy = $orderFields;
+                        }
+                        $this->distinct = null;
+                        $this->join = [];
+                    }
+                }
+
                 $this->prepareCommand();
             }
             $data = $this->command->queryAll();
@@ -953,23 +1013,35 @@ class QuerySet extends QuerySetBase
     }
 
     /**
+     * @param null|string $q
+     * @return string
+     */
+    public function countSql($q = '*')
+    {
+        $this->prepareConditions();
+        if ($this->_chainedHasMany && $this->distinct !== false) {
+            $this->distinct();
+            $q = $this->quoteColumnName($this->tableAlias) . '.' . $this->quoteColumnName($this->retreivePrimaryKey());
+        }
+        return parent::countSql($q);
+    }
+
+    /**
      * @param string $q
      * @return int
      */
     public function count($q = '*')
     {
         if (!empty($this->_data)) {
-            $count = count($this->_data);
+            return count($this->_data);
         } else {
             $this->prepareConditions();
-            if ($this->_chainedHasMany) {
-                $q = 'DISTINCT ' . $this->quoteColumnName($this->tableAlias . '.' . $this->retreivePrimaryKey());
-            } else {
-                $q = '*';
+            if ($this->_chainedHasMany && $this->distinct !== false) {
+                $this->distinct();
+                $q = $this->quoteColumnName($this->tableAlias) . '.' . $this->quoteColumnName($this->retreivePrimaryKey());
             }
-            $count = parent::count($q);
+            return parent::count($q);
         }
-        return $count;
     }
 
     /**
@@ -1017,8 +1089,25 @@ class QuerySet extends QuerySetBase
         return parent::addGroupBy($newColumns);
     }
 
+    /**
+     * Truncate table
+     * @return int
+     * @throws \Mindy\Query\Exception
+     */
     public function truncate()
     {
         return $this->createCommand()->truncateTable($this->model->tableName())->execute();
+    }
+
+    public function distinct($fields = true)
+    {
+        parent::distinct($fields);
+        return $this;
+    }
+
+    public function group($fields)
+    {
+        $this->groupBy = $fields;
+        return $this;
     }
 }

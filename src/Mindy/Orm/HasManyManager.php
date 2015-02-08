@@ -54,6 +54,9 @@ class HasManyManager extends RelatedManager
             $this->_qs = $qs->filter(array_merge([
                 $this->to => $this->primaryModel->{$this->from}
             ], $this->extra));
+            if ($this->primaryModel->getIsNewRecord()) {
+                $this->_qs->distinct();
+            }
         }
         return $this->_qs;
     }

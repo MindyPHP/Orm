@@ -28,10 +28,12 @@ abstract class HasManyFieldTest extends OrmDatabaseTestCase
 
     public function testSimple()
     {
-        $category_toys = new Category([
+        $categoryToys = new Category([
             'name' => 'Toys'
         ]);
-        $category_toys->save();
+        $this->assertTrue($categoryToys->getIsNewRecord());
+        $categoryToys->save();
+        $this->assertFalse($categoryToys->getIsNewRecord());
 
         $category_animals = new Category();
         $category_animals->name = 'Animals';
@@ -42,18 +44,18 @@ abstract class HasManyFieldTest extends OrmDatabaseTestCase
         $tableAliasSql = $db->schema->quoteColumnName('tests_product_1');
         $categoryIdSql = $db->schema->quoteColumnName('category_id');
 
-        $this->assertEquals("SELECT COUNT(*) FROM $tableSql $tableAliasSql WHERE ($tableAliasSql.$categoryIdSql='1')", $category_toys->products->countSql());
-        $this->assertEquals(0, $category_toys->products->count());
+        $this->assertEquals("SELECT COUNT(*) FROM $tableSql $tableAliasSql WHERE ($tableAliasSql.$categoryIdSql='1')", $categoryToys->products->countSql());
+        $this->assertEquals(0, $categoryToys->products->count());
 
         $product_bear = new Product([
-            'category' => $category_toys,
+            'category' => $categoryToys,
             'name' => 'Bear',
             'price' => 100,
             'description' => 'Funny white bear'
         ]);
         $product_bear->save();
 
-        $this->assertEquals(1, $category_toys->products->count());
+        $this->assertEquals(1, $categoryToys->products->count());
 
         $product_rabbit = new Product([
             'category' => $category_animals,
@@ -63,12 +65,12 @@ abstract class HasManyFieldTest extends OrmDatabaseTestCase
         ]);
         $product_rabbit->save();
 
-        $this->assertEquals(1, $category_toys->products->count());
+        $this->assertEquals(1, $categoryToys->products->count());
 
-        $product_rabbit->category = $category_toys;
+        $product_rabbit->category = $categoryToys;
         $product_rabbit->save();
 
-        $this->assertEquals(2, $category_toys->products->count());
+        $this->assertEquals(2, $categoryToys->products->count());
     }
 
     public function testThrough()

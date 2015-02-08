@@ -15,6 +15,7 @@
 namespace Mindy\Orm\Fields;
 
 use Mindy\Exception\Exception;
+use Mindy\Query\ConnectionManager;
 
 abstract class RelatedField extends IntField
 {
@@ -61,20 +62,14 @@ abstract class RelatedField extends IntField
     {
         $ownerClassName = $this->ownerClassName;
         $tableName = $ownerClassName::tableName();
-        return $clean ? $this->cleanTableName($tableName) : $tableName;
+        $schema = ConnectionManager::getDb()->getSchema();
+        return $clean ? $schema->getRawTableName($tableName) : $tableName;
     }
 
     public function getRelatedTable($clean = true)
     {
         $tableName = $this->getRelatedModel()->tableName();
-        return $clean ? $this->cleanTableName($tableName) : $tableName;
-    }
-
-    public function cleanTableName($tableName)
-    {
-        if ($tableName) {
-            return str_replace(['{{', '}}', '%', '`'], '', $tableName);
-        };
-        return '';
+        $schema = ConnectionManager::getDb()->getSchema();
+        return $clean ? $schema->getRawTableName($tableName) : $tableName;
     }
 }

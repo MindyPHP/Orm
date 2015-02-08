@@ -447,4 +447,14 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
     {
         return $this->getQuerySet()->truncate();
     }
+
+    public function distinct($fields = true)
+    {
+        return $this->getQuerySet()->distinct($fields);
+    }
+
+    public function group($fields)
+    {
+        return $this->getQuerySet()->group($fields);
+    }
 }

@@ -20,6 +20,7 @@ require __DIR__ . '/Cases/Orm/AutoSlugFieldTest.php';
 require __DIR__ . '/Cases/Orm/BasicTest.php';
 require __DIR__ . '/Cases/Orm/HasManyFieldTest.php';
 require __DIR__ . '/Cases/Orm/LookupRelationTest.php';
+require __DIR__ . '/Cases/Orm/LookupTest.php';
 require __DIR__ . '/Cases/Orm/ManagerTest.php';
 require __DIR__ . '/Cases/Orm/ManyToManyFieldTest.php';
 require __DIR__ . '/Cases/Orm/OrderByLookupTest.php';

@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -14,8 +14,6 @@
 
 namespace Mindy\Orm\Fields;
 
-
-use Mindy\Query\ConnectionManager;
 
 class AutoField extends IntField
 {
