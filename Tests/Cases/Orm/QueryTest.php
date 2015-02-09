@@ -120,4 +120,28 @@ abstract class QueryTest extends OrmDatabaseTestCase
         $customer = Customer::objects()->filter(['user' => $user])->get();
         $this->assertEquals(1, $customer->pk);
     }
+
+    public function testMax()
+    {
+        $this->assertEquals(2, User::objects()->max('id'));
+        $this->assertEquals(1, User::objects()->filter(['username' => 'Anton'])->max('id'));
+    }
+
+    public function testMin()
+    {
+        $this->assertEquals(1, User::objects()->min('id'));
+        $this->assertEquals(2, User::objects()->filter(['username' => 'Max'])->min('id'));
+    }
+
+    public function testAverage()
+    {
+        $this->assertEquals(1.5, User::objects()->average('id'));
+        $this->assertEquals(1, User::objects()->filter(['username' => 'Anton'])->average('id'));
+    }
+
+    public function testSum()
+    {
+        $this->assertEquals(3, User::objects()->sum('id'));
+        $this->assertEquals(1, User::objects()->filter(['username' => 'Anton'])->sum('id'));
+    }
 }

@@ -15,6 +15,7 @@
 namespace Mindy\Orm\Fields;
 
 use Mindy\Exception\Exception;
+use Mindy\Orm\QuerySet;
 use Mindy\Query\ConnectionManager;
 
 abstract class RelatedField extends IntField
@@ -40,10 +41,7 @@ abstract class RelatedField extends IntField
         return $this->relatedName;
     }
 
-    public function getJoin()
-    {
-        throw new Exception('Not implemented');
-    }
+    abstract public function getJoin();
 
     abstract public function fetch($value);
 
@@ -71,5 +69,29 @@ abstract class RelatedField extends IntField
         $tableName = $this->getRelatedModel()->tableName();
         $schema = ConnectionManager::getDb()->getSchema();
         return $clean ? $schema->getRawTableName($tableName) : $tableName;
+    }
+
+    public function processQuerySet(QuerySet $qs, $alias, $autoGroup = true)
+    {
+        list($relatedModel, $joinTables) = $this->getJoin();
+        foreach ($joinTables as $join) {
+            $type = isset($join['type']) ? $join['type'] : 'LEFT OUTER JOIN';
+            $newAlias = $qs->makeAliasKey($join['table']);
+            $table = $join['table'] . ' ' . $newAlias;
+
+            $from = $alias . '.' . $join['from'];
+            $to = $newAlias . '.' . $join['to'];
+            $on = $qs->quoteColumnName($from) . ' = ' . $qs->quoteColumnName($to);
+
+            $qs->join($type, $table, $on);
+
+            // Has many relations (we must work only with current model lines - exclude duplicates)
+//            if (isset($join['group']) && ($join['group']) && !$this->_chainedHasMany) {
+//                $this->_chainedHasMany = true;
+//            }
+
+            $alias = $newAlias;
+        }
+        return [$relatedModel, $alias];
     }
 }

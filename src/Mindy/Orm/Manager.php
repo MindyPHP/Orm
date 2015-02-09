@@ -70,6 +70,11 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
         return $this->getQuerySet()->asArray($value);
     }
 
+    public function asSql($value = true)
+    {
+        return $this->getQuerySet()->asSql($value);
+    }
+
     public function using($db)
     {
         $this->getQuerySet()->using($db);
@@ -224,15 +229,6 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
     }
 
     /**
-     * @param $q
-     * @return int
-     */
-    public function sum($q)
-    {
-        return $this->getQuerySet()->sum($q);
-    }
-
-    /**
      * @param $limit
      * @return static
      */
@@ -263,6 +259,15 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
      * @param $q
      * @return int
      */
+    public function averageSql($q)
+    {
+        return $this->getQuerySet()->averageSql($q);
+    }
+
+    /**
+     * @param $q
+     * @return int
+     */
     public function min($q)
     {
         return $this->getQuerySet()->min($q);
@@ -272,9 +277,45 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
      * @param $q
      * @return int
      */
+    public function minSql($q)
+    {
+        return $this->getQuerySet()->minSql($q);
+    }
+
+    /**
+     * @param $q
+     * @return int
+     */
     public function max($q)
     {
         return $this->getQuerySet()->max($q);
+    }
+
+    /**
+     * @param $q
+     * @return int
+     */
+    public function maxSql($q)
+    {
+        return $this->getQuerySet()->maxSql($q);
+    }
+
+    /**
+     * @param $q
+     * @return int
+     */
+    public function sum($q)
+    {
+        return $this->getQuerySet()->sum($q);
+    }
+
+    /**
+     * @param $q
+     * @return int
+     */
+    public function sumSql($q)
+    {
+        return $this->getQuerySet()->sumSql($q);
     }
 
     /**

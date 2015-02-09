@@ -18,6 +18,7 @@ use Exception;
 use Mindy\Orm\ManyToManyManager;
 use Mindy\Orm\MetaData;
 use Mindy\Orm\Model;
+use Mindy\Orm\QuerySet;
 
 class ManyToManyField extends RelatedField
 {
@@ -283,5 +284,33 @@ class ManyToManyField extends RelatedField
     public function getFormField($form, $fieldClass = null, array $extra = [])
     {
         return parent::getFormField($form, \Mindy\Form\Fields\DropDownField::className(), $extra);
+    }
+
+    public function processQuerySet(QuerySet $qs, $alias, $autoGroup = true)
+    {
+        $grouped = false;
+        list($relatedModel, $joinTables) = $this->getJoin();
+        foreach ($joinTables as $join) {
+            $type = isset($join['type']) ? $join['type'] : 'LEFT OUTER JOIN';
+            $newAlias = $qs->makeAliasKey($join['table']);
+            $table = $join['table'] . ' ' . $newAlias;
+
+            $from = $alias . '.' . $join['from'];
+            $to = $newAlias . '.' . $join['to'];
+            $on = $qs->quoteColumnName($from) . ' = ' . $qs->quoteColumnName($to);
+
+            $qs->join($type, $table, $on);
+
+            // Has many relations (we must work only with current model lines - exclude duplicates)
+            if ($grouped === false) {
+                if ($autoGroup) {
+                    $qs->group([$this->getModel()->getPkName()]);
+                }
+                $grouped = true;
+            }
+
+            $alias = $newAlias;
+        }
+        return [$relatedModel, $alias];
     }
 }

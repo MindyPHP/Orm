@@ -41,6 +41,8 @@ abstract class AutoSlugFieldTest extends OrmDatabaseTestCase
 
         $threeLevelModel = NestedModel::objects()->getOrCreate(['name' => 'test4', 'parent' => $nestedTwo]);
         $this->assertEquals('test1/test3/test4', $threeLevelModel->slug);
+
+        $this->assertEquals(5, NestedModel::objects()->count());
     }
 
     public function testInitTwo()

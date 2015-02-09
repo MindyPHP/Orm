@@ -136,7 +136,7 @@ abstract class Base implements ArrayAccess, Serializable
     protected function getEventManager()
     {
         if ($this->_eventManager === null) {
-            if (class_exists('\Mindy\Base\Mindy')) {
+            if (class_exists('\Mindy\Base\Mindy') && \Mindy\Base\Mindy::app()) {
                 $this->_eventManager = \Mindy\Base\Mindy::app()->getComponent('signal');
             } else {
                 $this->_eventManager = new \Mindy\Event\EventManager();

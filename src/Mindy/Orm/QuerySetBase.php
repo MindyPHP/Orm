@@ -32,6 +32,10 @@ abstract class QuerySetBase extends Query implements IteratorAggregate, ArrayAcc
      */
     protected $asArray;
     /**
+     * @var boolean whether to return statement as an sql.
+     */
+    protected $asSql;
+    /**
      * @var DataIterator
      */
     private $_iterator;
@@ -51,6 +55,17 @@ abstract class QuerySetBase extends Query implements IteratorAggregate, ArrayAcc
     public function asArray($value = true)
     {
         $this->asArray = $value;
+        return $this;
+    }
+
+    /**
+     * Sets the [[asArray]] property.
+     * @param boolean $value whether to return the query results in terms of arrays instead of Active Records.
+     * @return static the query object itself
+     */
+    public function asSql($value = true)
+    {
+        $this->asSql = $value;
         return $this;
     }
 

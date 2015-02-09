@@ -56,6 +56,7 @@ class HasManyManager extends RelatedManager
             ], $this->extra));
             if ($this->primaryModel->getIsNewRecord()) {
                 $this->_qs->distinct();
+                ;
             }
         }
         return $this->_qs;

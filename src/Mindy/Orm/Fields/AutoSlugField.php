@@ -17,6 +17,7 @@ namespace Mindy\Orm\Fields;
 
 use Mindy\Helper\Meta;
 use Mindy\Orm\Traits\UniqueUrl;
+use Mindy\Query\ConnectionManager;
 use Mindy\Query\Expression;
 
 class AutoSlugField extends CharField
@@ -89,12 +90,16 @@ class AutoSlugField extends CharField
 
         $model->setAttribute($this->name, $url);
 
+        $schema = ConnectionManager::getDb()->getSchema();
         $model->tree()->filter([
             'lft__gt' => $model->getOldAttribute('lft'),
             'rgt__lt' => $model->getOldAttribute('rgt'),
             'root' => $model->getOldAttribute('root')
         ])->update([
-            $this->name => new Expression("REPLACE(`{$this->name}`, '{$model->getOldAttribute($this->name)}', '{$url}')")
+            $this->name => new Expression("REPLACE(" . $schema->quoteColumnName($this->name) . ", :from, :to)", [
+                ':from' => $model->getOldAttribute($this->name),
+                ':to' => $url,
+            ])
         ]);
     }
 
