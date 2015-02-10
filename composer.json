@@ -1,7 +1,7 @@
 {
     "name": "mindy/orm",
     "homepage": "https://github.com/studio107/Mindy_Orm",
-    "version": "0.9.3",
+    "version": "0.9.4",
     "license": "MIT",
     "autoload": {
         "psr-4": {
@@ -10,16 +10,16 @@
     },
     "require": {
         "php": ">=5.4",
-        "mindy/exception": "0.1",
-        "mindy/cache": "0.2",
+        "mindy/exception": "0.*",
+        "mindy/cache": "0.*",
         "mindy/query": "0.3",
-        "mindy/logger": "1.0.3",
-        "mindy/helper": "0.1",
+        "mindy/logger": "1.*",
+        "mindy/helper": "0.*",
         "cebe/markdown": "*",
-        "mindy/utils": "0.1",
-        "mindy/locale": "0.1",
-        "mindy/event": "0.1",
-        "mindy/validation": "0.1",
+        "mindy/utils": "0.*",
+        "mindy/locale": "0.*",
+        "mindy/event": "0.*",
+        "mindy/validation": "0.*",
         "monolog/monolog": "*"
     },
     "require-dev": {
