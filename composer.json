@@ -20,6 +20,7 @@
         "mindy/locale": "0.*",
         "mindy/event": "0.*",
         "mindy/validation": "0.*",
+        "imagine/imagine": "v0.5.0",
         "monolog/monolog": "*"
     },
     "require-dev": {
