@@ -171,15 +171,6 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
     }
 
     /**
-     * @param array $q
-     * @return string
-     */
-    public function getSql(array $q = [])
-    {
-        return $this->filter($q)->getQuerySet()->getSql();
-    }
-
-    /**
      * @return array
      */
     public function all()
