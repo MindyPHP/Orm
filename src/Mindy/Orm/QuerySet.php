@@ -514,7 +514,8 @@ class QuerySet extends QuerySetBase
                 /** @var \Mindy\Orm\Model $relatedModel */
                 $columnNames = $relatedModel->getTableSchema()->getColumnNames();
                 foreach ($columnNames as $item) {
-                    $selectRelatedNames[] = $alias . '.' . $this->quoteColumnName($item) . ' AS ' . strtolower($relatedModel->classNameShort()) . '__' . $item;
+                    $normalName = trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', '_\0', $relatedModel->classNameShort())), '_');
+                    $selectRelatedNames[] = $alias . '.' . $this->quoteColumnName($item) . ' AS ' . $normalName . '__' . $item;
                 }
                 $oldSelect = $this->select;
                 $this->select(array_merge($selectNames, $selectRelatedNames));

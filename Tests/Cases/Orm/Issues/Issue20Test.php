@@ -75,7 +75,7 @@ class Issue20Test extends OrmDatabaseTestCase
         $data = $qs->with(['model_tyre'])->asArray()->all();
         $this->assertEquals([
             [
-                'modeltyre' => [
+                'model_tyre' => [
                     'id' => 1,
                     'name' => 'Nordman 4',
                     'tyre_id' => 1
