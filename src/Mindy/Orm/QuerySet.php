@@ -315,12 +315,6 @@ class QuerySet extends QuerySetBase
             $this->_filterComplete = true;
         }
 
-        if (!empty($this->with)) {
-            foreach ($this->with as $name) {
-                $this->getOrCreateChainAlias([$name], true);
-            }
-        }
-
         return $this;
     }
 
@@ -560,6 +554,13 @@ class QuerySet extends QuerySetBase
             }
         }
         $this->with = $fetch;
+
+        if (!empty($this->with)) {
+            foreach ($this->with as $name) {
+                $this->getOrCreateChainAlias([$name], true);
+            }
+        }
+
         return $this;
     }
 

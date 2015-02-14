@@ -34,7 +34,13 @@
             <directory>Tests/Cases/Migration/</directory>
         </testsuite>
         <testsuite name="Orm/Validation">
-            <directory>Tests/Cases/Validation/</directory>
+            <directory>Tests/Cases/Orm/Validation/</directory>
+        </testsuite>
+        <testsuite name="Orm/Basic">
+            <directory>Tests/Cases/Orm/Basic/</directory>
+        </testsuite>
+        <testsuite name="Orm/Issues">
+            <directory>Tests/Cases/Orm/Issues/</directory>
         </testsuite>
     </testsuites>
 

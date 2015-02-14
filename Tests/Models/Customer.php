@@ -35,7 +35,9 @@ class Customer extends Model
                 'modelClass' => User::className(),
                 'relatedName' => 'addresses'
             ],
-            'address' => ['class' => TextField::className()]
+            'address' => [
+                'class' => TextField::className()
+            ]
         ];
     }
 }

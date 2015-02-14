@@ -100,14 +100,14 @@ abstract class OrderByLookupTest extends OrmDatabaseTestCase
     public function testHasManyLookup()
     {
         $users = User::objects()->order(['-addresses__address'])->all();
-//        $this->assertEquals(2, count($users));
-//        $this->assertEquals($users[0]->username, 'Max');
-//        $this->assertEquals($users[1]->username, 'Anton');
-//
-//        $addresses = User::objects()->order(['addresses__address'])->all();
-//        $this->assertEquals(2, count($users));
-//        $this->assertEquals($addresses[0]->username, 'Anton');
-//        $this->assertEquals($addresses[1]->username, 'Max');
+        $this->assertEquals(2, count($users));
+        $this->assertEquals($users[0]->username, 'Max');
+        $this->assertEquals($users[1]->username, 'Anton');
+
+        $addresses = User::objects()->order(['addresses__address'])->all();
+        $this->assertEquals(2, count($users));
+        $this->assertEquals($addresses[0]->username, 'Anton');
+        $this->assertEquals($addresses[1]->username, 'Max');
     }
 
     public function testManyToManyLookup()
