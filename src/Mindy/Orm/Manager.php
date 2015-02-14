@@ -160,6 +160,15 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
     }
 
     /**
+     * @param array $q
+     * @return string
+     */
+    public function getSql(array $q = [])
+    {
+        return $this->filter($q)->getQuerySet()->getSql();
+    }
+
+    /**
      * @return array
      */
     public function all()
@@ -182,14 +191,6 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
     public function count()
     {
         return $this->getQuerySet()->count();
-    }
-
-    /**
-     * @return string
-     */
-    public function getSql()
-    {
-        return $this->getQuerySet()->getSql();
     }
 
     /**
@@ -225,7 +226,8 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
      */
     public function paginate($page, $pageSize = 10)
     {
-        return $this->getQuerySet()->paginate($page, $pageSize);
+        $this->getQuerySet()->paginate($page, $pageSize);
+        return $this;
     }
 
     /**
@@ -234,7 +236,8 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
      */
     public function limit($limit)
     {
-        return $this->getQuerySet()->limit($limit);
+        $this->getQuerySet()->limit($limit);
+        return $this;
     }
 
     /**
@@ -243,7 +246,8 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
      */
     public function offset($offset)
     {
-        return $this->getQuerySet()->offset($offset);
+        $this->getQuerySet()->offset($offset);
+        return $this;
     }
 
     /**

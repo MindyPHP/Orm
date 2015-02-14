@@ -5,6 +5,8 @@ namespace Mindy\Orm;
 use Mindy\Exception\Exception;
 use Mindy\Helper\Creator;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
+use Mindy\Orm\Fields\ForeignField;
+use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
 
 class QuerySet extends QuerySetBase
@@ -324,7 +326,9 @@ class QuerySet extends QuerySetBase
     public function getSql()
     {
         $this->prepareConditions();
-        return parent::getSql();
+        $sql = parent::getSql();
+        $this->_filterComplete = true;
+        return $sql;
     }
 
     public function getCacheKey()
@@ -505,25 +509,27 @@ class QuerySet extends QuerySetBase
                 continue;
             }
 
-            list($relatedModel, $newAlias) = $relatedValue->processQuerySet($this, $alias, $autoGroup);
-            $alias = $newAlias;
+            if ($relatedValue instanceof ForeignField || $relatedValue instanceof HasManyField) {
+                list($relatedModel, $newAlias) = $relatedValue->processQuerySet($this, $alias, $autoGroup);
+                $alias = $newAlias;
 
-            if ($prefixedSelect) {
-                $selectNames = [];
-                $selectRelatedNames = [];
-                /** @var \Mindy\Orm\Model $relatedModel */
-                $columnNames = $relatedModel->getTableSchema()->getColumnNames();
-                foreach ($columnNames as $item) {
-                    $selectRelatedNames[] = $alias . '.' . $this->quoteColumnName($item) . ' AS ' . strtolower($relatedModel->classNameShort()) . '__' . $item;
+                if ($prefixedSelect) {
+                    $selectNames = [];
+                    $selectRelatedNames = [];
+                    /** @var \Mindy\Orm\Model $relatedModel */
+                    $columnNames = $relatedModel->getTableSchema()->getColumnNames();
+                    foreach ($columnNames as $item) {
+                        $selectRelatedNames[] = $alias . '.' . $this->quoteColumnName($item) . ' AS ' . strtolower($relatedModel->classNameShort()) . '__' . $item;
+                    }
+                    $oldSelect = $this->select;
+                    $this->select(array_merge($selectNames, $selectRelatedNames));
+                    $this->select = array_merge($this->select, $oldSelect);
                 }
-                $oldSelect = $this->select;
-                $this->select(array_merge($selectNames, $selectRelatedNames));
-                $this->select = array_merge($this->select, $oldSelect);
+
+                $this->addChain($chain, $alias, $relatedModel);
+
+                $model = $relatedModel;
             }
-
-            $this->addChain($chain, $alias, $relatedModel);
-
-            $model = $relatedModel;
         }
     }
 
