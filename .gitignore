@@ -1,5 +1,5 @@
 .DS_Store
-
+.phpcomplete_extended
 .idea
 *.iml
 
