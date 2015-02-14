@@ -288,8 +288,8 @@ abstract class LookupTest extends OrmDatabaseTestCase
     public function testAllSql()
     {
         $qs = Product::objects()->filter(['id' => 1]);
-        $this->assertEquals("SELECT `tests_product_1`.* FROM `tests_product` `tests_product_1` WHERE (`tests_product_1`.`id`=1)", $qs->getSql());
-        $this->assertEquals("SELECT `tests_product_1`.* FROM `tests_product` `tests_product_1` WHERE (`tests_product_1`.`id`=1)", $qs->allSql());
-        $this->assertEquals("SELECT COUNT(*) FROM `tests_product` `tests_product_1` WHERE (`tests_product_1`.`id`=1)", $qs->countSql());
+        $this->assertEquals("SELECT `tests_product_1`.* FROM `tests_product` `tests_product_1` WHERE ((`tests_product_1`.`id`=1))", $qs->getSql());
+        $this->assertEquals("SELECT `tests_product_1`.* FROM `tests_product` `tests_product_1` WHERE ((`tests_product_1`.`id`=1))", $qs->allSql());
+        $this->assertEquals("SELECT COUNT(*) FROM `tests_product` `tests_product_1` WHERE ((`tests_product_1`.`id`=1))", $qs->countSql());
     }
 }
