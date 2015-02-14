@@ -33,7 +33,8 @@ class Customer extends Model
             'user' => [
                 'class' => ForeignField::className(),
                 'modelClass' => User::className(),
-                'relatedName' => 'addresses'
+                'relatedName' => 'addresses',
+                'null' => true
             ],
             'address' => [
                 'class' => TextField::className()

@@ -1216,7 +1216,20 @@ abstract class Base implements ArrayAccess, Serializable
             }
         } else {
             foreach ($this->_attributes as $name => $value) {
-                if (isset($fields[$name]) && (!array_key_exists($name, $this->_oldAttributes) || $value !== $this->_oldAttributes[$name])) {
+                $nameFk = null;
+                if ($this->getMeta()->hasForeignField($name)) {
+                    $nameFk = $this->getMeta()->getForeignKey($name);
+                }
+                if (
+                    (
+                        isset($fields[$name]) ||
+                        $nameFk && isset($fields[$nameFk])
+                    ) &&
+                    (
+                        !array_key_exists($name, $this->_oldAttributes) ||
+                        $value !== $this->_oldAttributes[$name]
+                    )
+                ) {
                     $attributes[$name] = $value;
                 }
             }
