@@ -14,6 +14,8 @@
 namespace Tests\Cases\Orm\Issues;
 
 use Tests\Models\Customer;
+use Tests\Models\ModelTyre;
+use Tests\Models\Tyre;
 use Tests\Models\User;
 use Tests\OrmDatabaseTestCase;
 
@@ -23,7 +25,7 @@ class Issue20Test extends OrmDatabaseTestCase
 
     protected function getModels()
     {
-        return [new User, new Customer];
+        return [new User, new Customer, new Tyre, new ModelTyre];
     }
 
     public function setUp()
@@ -43,6 +45,45 @@ class Issue20Test extends OrmDatabaseTestCase
             'user' => $user,
             'address' => 'address'
         ]))->save();
+
+        $tyre = new Tyre();
+        $tyre->save();
+
+        $modelTyre = new ModelTyre([
+            'tyre' => $tyre,
+            'name' => 'Nordman 4'
+        ]);
+        $modelTyre->save();
+
+        $modelTyre = new ModelTyre([
+            'tyre' => $tyre,
+            'name' => 'Nordman 3'
+        ]);
+        $modelTyre->save();
+
+        $modelTyre = new ModelTyre([
+            'tyre' => $tyre,
+            'name' => 'Nordman 2'
+        ]);
+        $modelTyre->save();
+    }
+
+    public function testIssue20_2()
+    {
+        $filter = ['model_tyre__name' => 'Nordman 4'];
+        $qs = Tyre::objects()->getQuerySet()->filter($filter);
+        $data = $qs->with(['model_tyre'])->asArray()->all();
+        $this->assertEquals([
+            [
+                'modeltyre' => [
+                    'id' => 1,
+                    'name' => 'Nordman 4',
+                    'tyre_id' => 1
+                ],
+                'id' => 1,
+                'tyre_id' => 1
+            ]
+        ], $data);
     }
 
     public function testIssue20()
