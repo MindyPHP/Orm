@@ -1163,7 +1163,6 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * TODO refact
      * @param $fields
      * @return $this
      */
@@ -1173,6 +1172,9 @@ class QuerySet extends QuerySetBase
             if (strpos($fields, '.') !== false) {
                 $this->groupBy[] = $this->quoteColumnName($fields);
             } else {
+                if ($fields == 'pk') {
+                    $fields = $this->retreivePrimaryKey();
+                }
                 $this->groupBy[] = $this->_tableAlias . '.' . $this->quoteColumnName($fields);
             }
         } else if (is_array($fields)) {
@@ -1180,6 +1182,9 @@ class QuerySet extends QuerySetBase
                 if (strpos($field, '.') !== false) {
                     $this->groupBy[] = $this->quoteColumnName($field);
                 } else {
+                    if ($fields == 'pk') {
+                        $fields = $this->retreivePrimaryKey();
+                    }
                     $this->groupBy[] = $this->_tableAlias . '.' . $this->quoteColumnName($field);
                 }
             }
