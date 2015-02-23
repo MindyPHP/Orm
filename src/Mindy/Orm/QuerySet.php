@@ -7,6 +7,10 @@ use Mindy\Helper\Creator;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
 use Mindy\Orm\Fields\ManyToManyField;
 
+/**
+ * Class QuerySet
+ * @package Mindy\Orm
+ */
 class QuerySet extends QuerySetBase
 {
     /**

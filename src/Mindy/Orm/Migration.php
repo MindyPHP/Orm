@@ -1,16 +1,5 @@
 <?php
 
-/**
- * All rights reserved.
- *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 08/01/15 14:34
- */
-
 namespace Mindy\Orm;
 
 use Exception;
@@ -19,6 +8,10 @@ use Mindy\Helper\Traits\Accessors;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\ManyToManyField;
 
+/**
+ * Class Migration
+ * @package Mindy\Orm
+ */
 class Migration
 {
     use Accessors;

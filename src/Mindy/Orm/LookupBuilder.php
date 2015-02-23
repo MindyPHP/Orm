@@ -1,21 +1,13 @@
 <?php
-/**
- *
- *
- * All rights reserved.
- *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 03/03/14.03.2014 19:13
- */
 
 namespace Mindy\Orm;
 
 use Mindy\Exception\Exception;
 
+/**
+ * Class LookupBuilder
+ * @package Mindy\Orm
+ */
 class LookupBuilder
 {
     public $query = [];

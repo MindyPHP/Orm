@@ -1,16 +1,4 @@
 <?php
-/**
- *
- *
- * All rights reserved.
- *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 03/01/14.01.2014 21:58
- */
 
 namespace Mindy\Orm\Fields;
 
@@ -25,6 +13,10 @@ use Mindy\Validation\Traits\ValidateField;
 use Mindy\Validation\UniqueValidator;
 use Mindy\Validation\Validator;
 
+/**
+ * Class Field
+ * @package Mindy\Orm
+ */
 abstract class Field implements IValidateField
 {
     use Accessors, Configurator, ValidateField;

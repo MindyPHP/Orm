@@ -1,22 +1,14 @@
 <?php
-/**
- *
- *
- * All rights reserved.
- *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 17/04/14.04.2014 17:18
- */
 
 namespace Mindy\Orm;
 
 use Mindy\Helper\Interfaces\Arrayable;
 use Mindy\Query\Expression;
 
+/**
+ * Class TreeQuerySet
+ * @package Mindy\Orm
+ */
 class TreeQuerySet extends QuerySet
 {
     protected $treeKey;

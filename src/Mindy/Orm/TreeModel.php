@@ -1,18 +1,5 @@
 <?php
 
-/**
- * Nested set based on creocoder Yii2 Nested Set https://github.com/creocoder/yii2-nested-set-behavior
- *
- * All rights reserved.
- *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 17/04/14.04.2014 14:15
- */
-
 namespace Mindy\Orm;
 
 use Exception;
@@ -21,6 +8,7 @@ use Mindy\Orm\Fields\TreeForeignField;
 use Mindy\Query\Expression;
 
 /**
+ * Nested set based on creocoder Yii2 Nested Set https://github.com/creocoder/yii2-nested-set-behavior
  * Class TreeModel
  * @method static \Mindy\Orm\TreeManager tree($instance = null)
  * @method static \Mindy\Orm\Manager objects($instance = null)

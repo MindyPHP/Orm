@@ -1,16 +1,4 @@
 <?php
-/**
- * 
- *
- * All rights reserved.
- * 
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 30/08/14.08.2014 17:59
- */
 
 namespace Mindy\Orm;
 
@@ -20,6 +8,10 @@ use Mindy\Base\Mindy;
 use Mindy\Query\Query;
 use Serializable;
 
+/**
+ * Class QuerySetBase
+ * @package Mindy\Orm
+ */
 abstract class QuerySetBase extends Query implements IteratorAggregate, ArrayAccess, Serializable
 {
     /**

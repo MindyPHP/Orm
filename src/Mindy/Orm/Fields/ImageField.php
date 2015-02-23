@@ -11,6 +11,10 @@ use Mindy\Storage\FileSystemStorage;
 use Mindy\Storage\Interfaces\IExternalStorage;
 use Mindy\Storage\MimiBoxStorage;
 
+/**
+ * Class ImageField
+ * @package Mindy\Orm
+ */
 class ImageField extends FileField
 {
     use ImageProcess;

@@ -1,22 +1,14 @@
 <?php
-/**
- *
- *
- * All rights reserved.
- *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 27/05/14.05.2014 16:43
- */
 
 namespace Mindy\Orm\Fields;
 
 use Mindy\Helper\Meta;
 use Mindy\Orm\Traits\UniqueUrl;
 
+/**
+ * Class SlugField
+ * @package Mindy\Orm
+ */
 class SlugField extends CharField
 {
     use UniqueUrl;

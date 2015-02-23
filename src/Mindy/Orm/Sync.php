@@ -1,24 +1,14 @@
 <?php
-/**
- *
- *
- * All rights reserved.
- *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 24/02/14.02.2014 20:27
- */
 
 namespace Mindy\Orm;
 
-
 use Mindy\Exception\NotSupportedException;
 use Mindy\Query\ConnectionManager;
-use PDO;
 
+/**
+ * Class Sync
+ * @package Mindy\Orm
+ */
 class Sync
 {
     private $_models = [];

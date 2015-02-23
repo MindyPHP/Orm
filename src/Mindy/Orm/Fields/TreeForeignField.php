@@ -1,22 +1,14 @@
 <?php
-/**
- * 
- *
- * All rights reserved.
- * 
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 03/11/14.11.2014 18:01
- */
 
 namespace Mindy\Orm\Fields;
 
 use Mindy\Helper\Creator;
 use Mindy\Validation\RequiredValidator;
 
+/**
+ * Class TreeForeignField
+ * @package Mindy\Orm
+ */
 class TreeForeignField extends ForeignField
 {
     public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DropDownField', array $extra = [])

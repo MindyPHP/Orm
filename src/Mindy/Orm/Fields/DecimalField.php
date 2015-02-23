@@ -4,7 +4,7 @@ namespace Mindy\Orm\Fields;
 
 /**
  * Class DecimalField
- * @package Mindy\Orm\Fields
+ * @package Mindy\Orm
  */
 class DecimalField extends Field
 {
