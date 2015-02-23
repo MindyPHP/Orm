@@ -6,7 +6,7 @@ use Mindy\Form\Fields\CheckboxField;
 
 /**
  * Class BooleanField
- * @package Mindy\Orm\Fields
+ * @package Mindy\Orm
  */
 class BooleanField extends Field
 {

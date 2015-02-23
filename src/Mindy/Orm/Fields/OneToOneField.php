@@ -4,7 +4,7 @@ namespace Mindy\Orm\Fields;
 
 /**
  * Class OneToOneField
- * @package Mindy\Orm\Fields
+ * @package Mindy\Orm
  */
 class OneToOneField extends ForeignField
 {
