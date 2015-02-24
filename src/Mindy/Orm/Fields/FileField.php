@@ -43,6 +43,10 @@ class FileField extends CharField
      * @var null|int maximum file size or null for unlimited. Default value 2 mb.
      */
     public $maxSize = 2097152;
+    /**
+     * @var bool convert file name to md5
+     */
+    public $MD5Name = true;
 
     public function __construct(array $options = [])
     {

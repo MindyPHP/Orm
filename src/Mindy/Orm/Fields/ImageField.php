@@ -36,13 +36,11 @@ class ImageField extends FileField
      * @var array
      */
     public $sizes = [];
-
     /**
      * Force resize images
      * @var bool
      */
     public $force = false;
-
     /**
      * Imagine default options
      * @var array
@@ -55,7 +53,6 @@ class ImageField extends FileField
         'quality' => 100,
         'png_compression_level' => 0
     ];
-
     /**
      * @var array|null
      *
@@ -79,24 +76,28 @@ class ImageField extends FileField
      * top, top-left, top-right, bottom, bottom-left, bottom-right, left, right, center
      */
     public $watermark = null;
-
     /**
      * All supported image types
      * @var array|null
      */
     public $types = ['jpg', 'jpeg', 'png', 'gif'];
-
     /**
      * Default resize method
      * @var string
      */
     public $defaultResize = 'adaptiveResizeFromTop';
-
+    /**
+     * @var bool
+     */
     public $storeOriginal = true;
 
     public function setFile(File $file, $name = null)
     {
         $name = $name ? $name : $file->name;
+        if ($this->MD5Name) {
+            $ext = pathinfo($name, PATHINFO_EXTENSION);
+            $name = md5(str_replace("." . $ext, "", $name)) . '.' . $ext;
+        }
 
         if ($name) {
             $this->value = $this->makeFilePath($name);
@@ -157,7 +158,7 @@ class ImageField extends FileField
                 if ($watermark) {
                     $newSource = $this->applyWatermark($newSource, $watermark);
                 }
-                $this->getStorage()->save($this->sizeStoragePath($prefix), $newSource->get($ext, $options), $force);
+                $this->getStorage()->save($this->sizeStoragePath($prefix, $this->value), $newSource->get($ext, $options), $force);
             }
         }
 
@@ -173,9 +174,8 @@ class ImageField extends FileField
      * @param null $value
      * @return string
      */
-    public function sizeStoragePath($prefix = null, $value = null)
+    public function sizeStoragePath($prefix, $value)
     {
-        $value = $value ? $value : $this->value;
         $dir = mb_substr_count($value, '/', 'UTF-8') > 0 ? dirname($value) : '';
         // TODO not working with cyrillic
         // $filename = basename($value);
@@ -210,6 +210,7 @@ class ImageField extends FileField
      */
     public function sizeUrl($prefix)
     {
+        // TODO refactoring
         if ($this->getStorage() instanceof MimiBoxStorage) {
             $size = explode('x', $prefix);
             if (count($size) > 1) {
@@ -218,15 +219,15 @@ class ImageField extends FileField
                 $width = array_pop($size);
                 $height = 0;
             }
-            $path = $this->sizeStoragePath();
+            $path = $this->sizeStoragePath(null, $this->value);
             $path .= "?width=" . $width . '&height=' . $height;
             if ($this->force) {
                 $path .= '&force=true';
             }
         } else {
-            $path = $this->sizeStoragePath($prefix, false);
+            $path = $this->sizeStoragePath($prefix, $this->value);
             if ($this->force || !is_file($this->getStorage()->path($path))) {
-                $absPath = $this->getStorage()->path($this->sizeStoragePath());
+                $absPath = $this->getStorage()->path($this->sizeStoragePath($prefix, $this->value));
                 if ($absPath) {
                     $image = $this->getImagine()->open($absPath);
                     $this->processSource($image, true);
@@ -241,12 +242,7 @@ class ImageField extends FileField
         $this->deleteOld();
     }
 
-    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\ImageField', array $extra = [])
-    {
-        return parent::getFormField($form, $fieldClass, $extra);
-    }
-
-    private function findSizePrefix($prefix, $throw = true)
+    protected function findSizePrefix($prefix, $throw = true)
     {
         $newPrefix = null;
         list($width, $height) = explode('x', trim($prefix, '_'));
@@ -263,5 +259,10 @@ class ImageField extends FileField
         }
 
         return $newPrefix;
+    }
+
+    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\ImageField', array $extra = [])
+    {
+        return parent::getFormField($form, $fieldClass, $extra);
     }
 }
