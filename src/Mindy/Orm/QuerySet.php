@@ -1015,11 +1015,16 @@ class QuerySet extends QuerySetBase
 
     protected function prepareDelete()
     {
+        $tableName = $this->model->tableName();
+
         if ($this->filterHasJoin()) {
-            throw new Exception("You can't use relationship in filter when run delete query");
+            $this->prepareConditions();
+            return $this->createCommand()->delete($tableName, [
+                $this->retreivePrimaryKey() => $this->valuesList(['pk'], true)
+            ], $this->params);
         } else {
             $this->prepareConditions(false);
-            return $this->createCommand()->delete($this->model->tableName(), $this->where, $this->params);
+            return $this->createCommand()->delete($tableName, $this->where, $this->params);
         }
     }
 

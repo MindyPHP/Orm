@@ -21,7 +21,7 @@ use Tests\OrmDatabaseTestCase;
 
 class Issue25Test extends OrmDatabaseTestCase
 {
-    public $driver = 'sqlite';
+    public $driver = 'mysql';
 
     protected function getModels()
     {
@@ -52,7 +52,7 @@ class Issue25Test extends OrmDatabaseTestCase
         $this->assertEquals(2, User::objects()->count());
         $qs = User::objects()->filter(['addresses__address' => 'address']);
         $this->assertEquals(1, $qs->count());
-        $this->setExpectedException('\Mindy\Exception\Exception', "You can't use relationship in filter when run delete query");
         User::objects()->filter(['addresses__address' => 'address'])->delete();
+        $this->assertEquals(1, User::objects()->count());
     }
 }
