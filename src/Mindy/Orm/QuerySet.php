@@ -6,6 +6,7 @@ use Mindy\Exception\Exception;
 use Mindy\Helper\Creator;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
 use Mindy\Orm\Fields\ManyToManyField;
+use Mindy\Query\Query;
 
 /**
  * Class QuerySet
@@ -992,20 +993,44 @@ class QuerySet extends QuerySetBase
         return parent::maxSql($this->quoteColumnName($column));
     }
 
+    private function _filterHasJoin(array $filter)
+    {
+        foreach ($filter as $subFilter) {
+            foreach ($subFilter as $key => $value) {
+                if (strpos($key, '__') !== false) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private function filterHasJoin()
+    {
+        return $this->_filterHasJoin($this->_filterAnd) ||
+        $this->_filterHasJoin($this->_filterOr) ||
+        $this->_filterHasJoin($this->_filterExclude) ||
+        $this->_filterHasJoin($this->_filterOrExclude);
+    }
+
+    protected function prepareDelete()
+    {
+        if ($this->filterHasJoin()) {
+            throw new Exception("You can't use relationship in filter when run delete query");
+        } else {
+            $this->prepareConditions(false);
+            return $this->createCommand()->delete($this->model->tableName(), $this->where, $this->params);
+        }
+    }
+
     public function delete()
     {
-        $this->prepareConditions(false);
-//        $alias = $this->getTableAlias();
-//        $tableName = $alias . " USING " . $this->model->tableName() . " AS " . $alias;
-        $tableName = $this->model->tableName();
-        return $this->createCommand()->delete($tableName, $this->where, $this->params)->execute();
+        return $this->prepareDelete()->execute();
     }
 
     public function deleteSql()
     {
-        $this->prepareConditions(false);
-        $tableName = $this->model->tableName();
-        return $this->createCommand()->delete($tableName, $this->where, $this->params)->getRawSql();
+        return $this->prepareDelete()->getRawSql();
     }
 
     /**
