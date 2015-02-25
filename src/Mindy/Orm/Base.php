@@ -22,6 +22,7 @@ use Mindy\Helper\Json;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
 use Mindy\Locale\Translate;
+use Mindy\Orm\Fields\AutoField;
 use Mindy\Orm\Fields\JsonField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Query\ConnectionManager;
@@ -452,9 +453,7 @@ abstract class Base implements ArrayAccess, Serializable
     public function setAttributes(array $attributes)
     {
         foreach ($attributes as $name => $value) {
-            if ($name == self::getPkName()) {
-                continue;
-            } else if ($this->hasField($name)) {
+            if ($this->hasField($name)) {
                 $this->$name = $value;
             } else if ($this->hasAttribute($name)) {
                 $this->setAttribute($name, $value);

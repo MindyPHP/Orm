@@ -6,7 +6,6 @@ use Mindy\Exception\Exception;
 use Mindy\Helper\Creator;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
 use Mindy\Orm\Fields\ManyToManyField;
-use Mindy\Query\Query;
 
 /**
  * Class QuerySet
@@ -993,24 +992,22 @@ class QuerySet extends QuerySetBase
         return parent::maxSql($this->quoteColumnName($column));
     }
 
-    private function _filterHasJoin(array $filter)
+    private function filterHasJoin()
     {
-        foreach ($filter as $subFilter) {
-            foreach ($subFilter as $key => $value) {
-                if (strpos($key, '__') !== false) {
-                    return true;
+        $meta = $this->model->getMeta();
+        foreach ([$this->_filterAnd, $this->_filterOr, $this->_filterExclude, $this->_filterOrExclude] as $data) {
+            foreach ($data as $subFilter) {
+                foreach ($subFilter as $key => $value) {
+                    if (strpos($key, '__') !== false) {
+                        $parts = explode('__', $key);
+                        if ($meta->hasRelatedField(array_shift($parts))) {
+                            return true;
+                        }
+                    }
                 }
             }
         }
         return false;
-    }
-
-    private function filterHasJoin()
-    {
-        return $this->_filterHasJoin($this->_filterAnd) ||
-        $this->_filterHasJoin($this->_filterOr) ||
-        $this->_filterHasJoin($this->_filterExclude) ||
-        $this->_filterHasJoin($this->_filterOrExclude);
     }
 
     protected function prepareDelete()
