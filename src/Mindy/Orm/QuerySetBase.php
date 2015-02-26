@@ -95,8 +95,8 @@ abstract class QuerySetBase extends Query implements IteratorAggregate, ArrayAcc
      */
     public function getIterator()
     {
-        if(!$this->_iterator) {
-            $this->_iterator = new DataIterator($this->getData(), [
+        if (!$this->_iterator) {
+            $this->_iterator = new DataIterator($this->all(), [
                 'asArray' => $this->asArray,
                 'qs' => $this
             ]);

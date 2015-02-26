@@ -168,7 +168,7 @@ class QuerySet extends QuerySetBase
         $valuesSelect = [];
         foreach ($fieldsList as $name) {
             if ($name == 'pk') {
-                $name = $this->model->getPkName();
+                $name = $this->retreivePrimaryKey();
             }
             $valuesSelect[] = $this->aliasColumn($name) . ' AS ' . $name;
         }
@@ -1120,7 +1120,7 @@ class QuerySet extends QuerySetBase
             $column = $this->quoteColumnName($this->retreivePrimaryKey());
             if ($this->_chainedHasMany) {
                 if ($this->groupBy) {
-                    $this->select([$column => $this->aliasColumn($column)]);
+                    //$this->select([$column => $this->aliasColumn($column)]);
                     $value = parent::count($this->quoteColumnName($column));
                 } else {
                     $value = parent::count($this->aliasColumn($column));
