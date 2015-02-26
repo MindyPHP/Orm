@@ -496,4 +496,16 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
     {
         return $this->getQuerySet()->group($fields);
     }
+
+    public function cache($duration = null, $dependency = null)
+    {
+        $this->getQuerySet()->cache($duration, $dependency);
+        return $this;
+    }
+
+    public function noCache()
+    {
+        $this->getQuerySet()->noCache();
+        return $this;
+    }
 }
