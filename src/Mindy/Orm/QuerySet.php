@@ -1120,7 +1120,8 @@ class QuerySet extends QuerySetBase
             $column = $this->quoteColumnName($this->retreivePrimaryKey());
             if ($this->_chainedHasMany) {
                 if ($this->groupBy) {
-                    //$this->select([$column => $this->aliasColumn($column)]);
+                    // TODO Если раскоментировать строку, getIterator, getData работают не корректно. С ней и без нее тесты проходят.
+                    // $this->select([$column => $this->aliasColumn($column)]);
                     $value = parent::count($this->quoteColumnName($column));
                 } else {
                     $value = parent::count($this->aliasColumn($column));
