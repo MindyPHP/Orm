@@ -12,7 +12,7 @@
         "php": ">=5.4",
         "mindy/exception": "0.*",
         "mindy/cache": "0.*",
-        "mindy/query": "0.3",
+        "mindy/query": "0.*",
         "mindy/logger": "1.*",
         "mindy/helper": "0.*",
         "cebe/markdown": "*",
