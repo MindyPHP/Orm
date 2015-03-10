@@ -119,7 +119,7 @@ abstract class Field implements IValidateField
         }
 
         if ($model && $hasUnique === false && $this->unique) {
-            $uniqueValidator = new UniqueValidator($this->name);
+            $uniqueValidator = new UniqueValidator();
             $uniqueValidator->setName($this->name);
             $uniqueValidator->setModel($model);
             $this->validators = array_merge([$uniqueValidator], $this->validators);
