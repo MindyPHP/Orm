@@ -156,6 +156,67 @@ class TreeQuerySet extends QuerySet
         return $this->treeKey ? $this->toHierarchy($data) : $data;
     }
 
+    protected function prepareProblemLftRgt()
+    {
+        /*
+        select id, root, lft, rgt, (rgt-lft) as move
+        from {{table_name}} t
+        where not t.lft = (t.rgt-1)
+        and not id in ( select tc.parent_id from {{table_name}} tc where tc.parent_id = t.id );
+         */
+
+        /*
+        $qsRange = clone $this;
+        $alias = $qsRange->makeAliasKey($this->model->tableName(), false);
+        $qsRange->clearFilter();
+        $qsRange->orderBy = null;
+        $qsRange->select([
+            $alias . '.id',
+            $alias . '.root',
+            $alias . '.lft',
+            $alias . '.rgt',
+            new Expression('(' . $this->quoteColumnName($alias . '.rgt') . '-' . $this->quoteColumnName($alias . '.lft') . ') as move')
+        ]);
+        $qsRange->exclude([
+            'lft' => new Expression($this->quoteColumnName($alias . '.rgt') . '-1'),
+        ]);
+
+        $qs = clone $this;
+        $qs->clearFilter();
+        $qs->orderBy = null;
+        $qs->exclude([
+            'parent_id__in' => $qsRange->valuesList(['id'], true)
+        ]);
+        d($qs->update(['']));
+        */
+
+        $elements = $this->createCommand()->setSql("
+        select id, root, lft, rgt, (rgt-lft-1) as move
+        from {$this->model->tableName()} t
+        where not t.lft = (t.rgt-1)
+        and not id in ( select tc.parent_id from {$this->model->tableName()} tc where tc.parent_id = t.id )
+        ORDER BY rgt DESC
+        ")->queryAll();
+
+        foreach ($elements as $element) {
+            $sql = "
+            update {$this->model->tableName()}
+            set lft = lft - {$element['move']}, rgt = rgt - {$element['move']}
+            where root = {$element['root']}
+              and lft > {$element['rgt']};
+            ";
+            $this->createCommand()->setSql($sql)->execute();
+            $sql = "
+            update {$this->model->tableName()}
+            set rgt = rgt - {$element['move']}
+            where root = {$element['root']}
+              and lft <  {$element['rgt']}
+              and rgt >= {$element['rgt']}
+            ";
+            $this->createCommand()->setSql($sql)->execute();
+        }
+    }
+
     /**
      * Пересчитываем дерево после удаления моделей через
      * $modelClass::objects()->filter(['pk__in' => $data])->delete();
@@ -163,19 +224,10 @@ class TreeQuerySet extends QuerySet
      */
     public function delete()
     {
-        // All this needs global refactoring! Not use this! This crashes the tree!
-//        $data = $this->valuesList(['id', 'lft', 'rgt', 'root'], true);
         $deleted = parent::delete();
-//        if ($deleted && !empty($data)) {
-//            $i = 0;
-//            $count = count($data);
-//            while ($i < $count) {
-//                $item = $data[$i];
-//                $data = $this->shiftLeftRight($item['rgt'] + 1, $item['lft'] - $item['rgt'] - 1, $item['root'], $data);
-//                unset($data[$i]);
-//                $i++;
-//            }
-//        }
+
+        $this->prepareProblemLftRgt();
+
         return $deleted;
     }
 
@@ -230,12 +282,12 @@ class TreeQuerySet extends QuerySet
                     // Assigning the root node
                     $i = count($trees);
                     $trees[$i] = $item;
-                    $stack[] = & $trees[$i];
+                    $stack[] = &$trees[$i];
                 } else {
                     // Add node to parent
                     $i = count($stack[$l - 1][$this->treeKey]);
                     $stack[$l - 1][$this->treeKey][$i] = $item;
-                    $stack[] = & $stack[$l - 1][$this->treeKey][$i];
+                    $stack[] = &$stack[$l - 1][$this->treeKey][$i];
                 }
             }
         }

@@ -704,6 +704,17 @@ class QuerySet extends QuerySetBase
         return $this;
     }
 
+    public function clearFilter()
+    {
+        $this->_filterAnd = [];
+        $this->_filterExclude = [];
+        $this->_filterOr = [];
+        $this->_filterOrExclude = [];
+        $this->_filterComplete = [];
+        $this->where = [];
+        return $this;
+    }
+
     /**
      * @param array $query
      * @return $this

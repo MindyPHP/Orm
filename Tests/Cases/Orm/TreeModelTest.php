@@ -216,22 +216,69 @@ abstract class TreeModelTest extends OrmDatabaseTestCase
      */
     public function testFixIsLeaf()
     {
-        $this->markTestSkipped('See https://github.com/studio107/Mindy_Orm/issues/50');
-
+        // Create root
         $root1 = NestedModel::objects()->getOrCreate(['name' => 'root1']);
         $this->assertTrue(NestedModel::objects()->filter(['name' => 'root1'])->get()->getIsLeaf());
 
+        // Create root2
         $root2 = NestedModel::objects()->getOrCreate(['name' => 'root2']);
         $this->assertTrue(NestedModel::objects()->filter(['name' => 'root2'])->get()->getIsLeaf());
 
+        // Create nested record for root2
         $nested = NestedModel::objects()->getOrCreate(['name' => 'nested', 'parent' => $root2]);
+        // root1 is leaf = true
         $this->assertTrue(NestedModel::objects()->filter(['name' => 'root1'])->get()->getIsLeaf());
+        // root2 is leaf = false (nested)
         $this->assertFalse(NestedModel::objects()->filter(['name' => 'root2'])->get()->getIsLeaf());
-
+        // nested is leaf
         $this->assertTrue(NestedModel::objects()->filter(['name' => 'nested'])->get()->getIsLeaf());
 
+        // Remove nested from root2
         NestedModel::tree()->filter(['name' => 'nested'])->delete();
+        // Root1 is leaf - true
         $this->assertTrue(NestedModel::objects()->filter(['name' => 'root1'])->get()->getIsLeaf());
+        // Root2 is leaf - true
         $this->assertTrue(NestedModel::objects()->filter(['name' => 'root2'])->get()->getIsLeaf());
+
+        /**
+         * again
+         */
+        NestedModel::objects()->truncate();
+
+        // create root1
+        $root1 = NestedModel::objects()->getOrCreate(['name' => 'root1']);
+        // root1 is leaf
+        $this->assertTrue(NestedModel::objects()->filter(['name' => 'root1'])->get()->getIsLeaf());
+
+        // create root2
+        $root2 = NestedModel::objects()->getOrCreate(['name' => 'root2']);
+        // root2 is leaf
+        $this->assertTrue(NestedModel::objects()->filter(['name' => 'root2'])->get()->getIsLeaf());
+
+        // create nested in root2
+        $nested = NestedModel::objects()->getOrCreate(['name' => 'nested', 'parent' => $root2]);
+        // create nested1 in nested
+        $nested1 = NestedModel::objects()->getOrCreate(['name' => 'nested1', 'parent' => $nested]);
+        // root1 is leaf (empty)
+        $this->assertTrue(NestedModel::objects()->filter(['name' => 'root1'])->get()->getIsLeaf());
+        // root2 is not leaf (nested, nested1)
+        $this->assertFalse(NestedModel::objects()->filter(['name' => 'root2'])->get()->getIsLeaf());
+
+        // nested is not leaf (nested1)
+        $this->assertFalse(NestedModel::objects()->filter(['name' => 'nested'])->get()->getIsLeaf());
+
+        // remove nested1 from nested
+        NestedModel::tree()->filter(['name' => 'nested1'])->delete();
+        $this->assertTrue(NestedModel::objects()->filter(['name' => 'root1'])->get()->getIsLeaf());
+        // Root2 is not leaf (nested)
+        $this->assertFalse(NestedModel::objects()->filter(['name' => 'root2'])->get()->getIsLeaf());
+
+        // Nested is not leaf (nested1)
+        $this->assertTrue(NestedModel::objects()->filter(['name' => 'nested'])->get()->getIsLeaf());
+
+        // Root1 is leaf - true
+        $this->assertTrue(NestedModel::objects()->filter(['name' => 'root1'])->get()->getIsLeaf());
+        // Root2 is not leaf (nested)
+        $this->assertFalse(NestedModel::objects()->filter(['name' => 'root2'])->get()->getIsLeaf());
     }
 }
