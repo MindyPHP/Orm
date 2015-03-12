@@ -132,9 +132,10 @@ class QuerySet extends QuerySetBase
      */
     public function batch($batchSize = 100)
     {
+        $this->prepareConditions();
         return Creator::createObject([
             'class' => BatchDataIterator::className(),
-            'query' => $this,
+            'qs' => $this,
             'batchSize' => $batchSize,
             'db' => $this->getDb(),
             'each' => false,

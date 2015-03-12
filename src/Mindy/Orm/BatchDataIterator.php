@@ -46,7 +46,8 @@ class BatchDataIterator implements Iterator
      */
     public $asArray;
     /**
-     * @var QuerySet
+     * @var \Mindy\Orm\QuerySet the query object associated with this batch query.
+     * Do not modify this property directly unless after [[reset()]] is called explicitly.
      */
     public $qs;
     /**
@@ -54,11 +55,6 @@ class BatchDataIterator implements Iterator
      * If null, the "db" application component will be used.
      */
     public $db;
-    /**
-     * @var \Mindy\Orm\QuerySet the query object associated with this batch query.
-     * Do not modify this property directly unless after [[reset()]] is called explicitly.
-     */
-    public $query;
     /**
      * @var integer the number of rows to be returned in each batch.
      */
@@ -131,7 +127,7 @@ class BatchDataIterator implements Iterator
         }
         if ($this->each) {
             $this->_value = current($this->_batch);
-            if ($this->query->indexBy !== null) {
+            if ($this->qs->indexBy !== null) {
                 $this->_key = key($this->_batch);
             } elseif (key($this->_batch) !== null) {
                 $this->_key++;
@@ -151,14 +147,14 @@ class BatchDataIterator implements Iterator
     protected function fetchData()
     {
         if ($this->_dataReader === null) {
-            $this->_dataReader = $this->query->createCommand($this->db)->query();
+            $this->_dataReader = $this->qs->createCommand()->query();
         }
         $rows = [];
         $count = 0;
         while ($count++ < $this->batchSize && ($row = $this->_dataReader->read())) {
             $rows[] = $row;
         }
-        return $this->asArray ? $rows : $this->query->createModels($rows);
+        return $this->asArray ? $rows : $this->qs->createModels($rows);
     }
 
     /**
