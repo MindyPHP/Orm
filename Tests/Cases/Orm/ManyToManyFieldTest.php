@@ -193,4 +193,71 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
         $this->assertEquals(2, $best_sellers->products->count());
         $this->assertEquals(1, $product_bear->lists->count());
     }
+
+    public function testExtraLinkRecords()
+    {
+        $product = new Product();
+        $product->name = 'Bear';
+        $product->price = 100;
+        $product->description = 'Funny white bear';
+        $product->save();
+
+        $list1 = new ProductList();
+        $list1->name = 'Toys';
+        $list1->save();
+
+        $list2 = new ProductList();
+        $list2->name = 'Trash';
+        $list2->save();
+
+        $this->assertEquals(1, Product::objects()->count());
+        $this->assertEquals(2, ProductList::objects()->count());
+        $tableName = $product->getField('lists')->getTableName();
+        $cmd = ConnectionManager::getDb()->createCommand("SELECT * FROM {$tableName}");
+        $all = $cmd->queryAll();
+        $this->assertEquals([], $all);
+        $this->assertEquals(0, count($all));
+
+        $product->lists = [$list1];
+        $product->save();
+
+        $cmd = ConnectionManager::getDb()->createCommand("SELECT * FROM {$tableName}");
+        $all = $cmd->queryAll();
+        $this->assertEquals([
+            ['product_id' => 1, 'product_list_id' => 1]
+        ], $all);
+        $this->assertEquals(1, count($all));
+
+        $product->lists = [$list2];
+        $product->save();
+
+        $cmd = ConnectionManager::getDb()->createCommand("SELECT * FROM {$tableName}");
+        $all = $cmd->queryAll();
+        $this->assertEquals([
+            ['product_id' => 1, 'product_list_id' => 2]
+        ], $all);
+        $this->assertEquals(1, count($all));
+
+        $product->lists = [$list1];
+        $product->save();
+
+        $cmd = ConnectionManager::getDb()->createCommand("SELECT * FROM {$tableName}");
+        $all = $cmd->queryAll();
+        $this->assertEquals([
+            ['product_id' => 1, 'product_list_id' => 1]
+        ], $all);
+        $this->assertEquals(1, count($all));
+
+        $product->lists = [$list1, $list1, $list1];
+        $product->save();
+
+        $cmd = ConnectionManager::getDb()->createCommand("SELECT * FROM {$tableName}");
+        $all = $cmd->queryAll();
+        $this->assertEquals([
+            ['product_id' => 1, 'product_list_id' => 1],
+            ['product_id' => 1, 'product_list_id' => 1],
+            ['product_id' => 1, 'product_list_id' => 1],
+        ], $all);
+        $this->assertEquals(3, count($all));
+    }
 }

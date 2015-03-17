@@ -4,13 +4,13 @@ namespace Mindy\Orm\Fields;
 
 use Mindy\Base\Mindy;
 use Mindy\Form\Fields\FileField as FormFileField;
+use Mindy\Helper\File as FileHelper;
 use Mindy\Locale\Translate;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\Files\LocalFile;
 use Mindy\Storage\Files\RemoteFile;
 use Mindy\Storage\Files\UploadedFile;
 use Mindy\Validation\FileValidator;
-use Mindy\Helper\File as FileHelper;
 
 /**
  * Class FileField
@@ -38,7 +38,7 @@ class FileField extends CharField
      * List of allowed file types
      * @var array|null
      */
-    public $types;
+    public $types = [];
     /**
      * @var null|int maximum file size or null for unlimited. Default value 2 mb.
      */
@@ -202,13 +202,15 @@ class FileField extends CharField
 
     public function getFormField($form, $fieldClass = null, array $extra = [])
     {
-        $types = [];
-        foreach($this->types as $type) {
-            $types[] = FileHelper::getMimeTypeByExtension($type);
+        if (!empty($this->types)) {
+            $types = [];
+            foreach ($this->types as $type) {
+                $types[] = FileHelper::getMimeTypeByExtension($type);
+            }
+            $extra = array_merge($extra, [
+                'html' => ['accept' => implode('|', $types)]
+            ]);
         }
-        $extra = array_merge($extra, [
-            'html' => ['accept' => implode('|', $types)]
-        ]);
         return parent::getFormField($form, FormFileField::className(), $extra);
     }
 
