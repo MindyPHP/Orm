@@ -73,7 +73,7 @@ class ImageField extends FileField
      *
      * position can be array [x,y] coordinates or
      * string with one of available position
-     * top, top-left, top-right, bottom, bottom-left, bottom-right, left, right, center
+     * top, top-left, top-right, bottom, bottom-left, bottom-right, left, right, center, repeat
      */
     public $watermark = null;
     /**
