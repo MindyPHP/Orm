@@ -104,9 +104,13 @@ class ManyToManyField extends RelatedField
     {
         if (!$this->_relatedModelColumn) {
             $cls = $this->modelClass;
+            $end = $this->getRelatedModelPk();
+            if ($cls == $this->ownerClassName) {
+                $end = 'to';
+            }
             $tmp = explode('\\', $cls);
             $column = $cls::normalizeTableName(end($tmp));
-            $this->_relatedModelColumn = $column . '_' . $this->getRelatedModelPk();
+            $this->_relatedModelColumn = $column . '_' . $end;
         }
         return $this->_relatedModelColumn;
     }
@@ -129,9 +133,13 @@ class ManyToManyField extends RelatedField
     {
         if (!$this->_modelColumn) {
             $cls = $this->ownerClassName;
+            $end = $this->getModelPk();
+            if ($cls == $this->modelClass) {
+                $end = 'from';
+            }
             $tmp = explode('\\', $cls);
             $column = $cls::normalizeTableName(end($tmp));
-            $this->_modelColumn = $column . '_' . $this->getModelPk();
+            $this->_modelColumn = $column . '_' . $end;
         }
         return $this->_modelColumn;
     }
