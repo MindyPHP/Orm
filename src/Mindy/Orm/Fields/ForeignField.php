@@ -30,7 +30,10 @@ class ForeignField extends RelatedField
         if (is_a($value, $this->modelClass) === false) {
             /** @var $modelClass \Mindy\Orm\Model */
             $modelClass = $this->modelClass;
-            $value = $modelClass::objects()->filter(['pk' => $value])->get();
+            $tmp = $modelClass::objects()->filter(['pk' => $value])->get();
+            if ($tmp) {
+                $value = $tmp;
+            }
         }
 
         if (empty($value)) {
