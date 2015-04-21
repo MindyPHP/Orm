@@ -337,5 +337,10 @@ abstract class Field implements IValidateField
         ], $extra));
     }
 
+    public function toArray()
+    {
+        return $this->getValue();
+    }
+
     abstract public function sqlType();
 }

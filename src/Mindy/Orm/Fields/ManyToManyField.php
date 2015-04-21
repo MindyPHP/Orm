@@ -212,10 +212,13 @@ class ManyToManyField extends RelatedField
         }
 
         if (is_array($value) && count($value) > 0) {
-            if (($value[0] instanceof Model) === false && !is_numeric($value[0])) {
-                throw new Exception("ManyToMany field can set only arrays of Models or existing primary keys");
-            } else {
+            if (
+                is_numeric($value[0]) ||
+                $value[0] instanceof Model
+            ) {
                 return $value;
+            } else {
+                throw new Exception("ManyToMany field can set only arrays of Models or existing primary keys");
             }
         } else {
             return [];

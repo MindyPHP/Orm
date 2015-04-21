@@ -22,7 +22,6 @@ use Mindy\Helper\Json;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
 use Mindy\Locale\Translate;
-use Mindy\Orm\Fields\AutoField;
 use Mindy\Orm\Fields\JsonField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Query\ConnectionManager;
@@ -453,7 +452,7 @@ abstract class Base implements ArrayAccess, Serializable
     public function setAttributes(array $attributes)
     {
         foreach ($attributes as $name => $value) {
-            if ($this->hasField($name)) {
+            if ($this->hasField($name) || $this->getMeta()->hasForeignKey($name)) {
                 $this->$name = $value;
             } else if ($this->hasAttribute($name)) {
                 $this->setAttribute($name, $value);
@@ -812,7 +811,15 @@ abstract class Base implements ArrayAccess, Serializable
     {
         $meta = static::getMeta();
         foreach ($this->_related as $name => $value) {
-            if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
+            if ($value instanceof Manager) {
+                continue;
+            }
+
+            if ($meta->hasHasManyField($name)) {
+                continue;
+            }
+
+            if ($meta->hasManyToManyField($name)) {
                 /* @var $field \Mindy\Orm\Fields\HasManyField|\Mindy\Orm\Fields\ManyToManyField */
                 $field = $meta->getField($name);
                 $field->setModel($this);
@@ -1406,7 +1413,10 @@ abstract class Base implements ArrayAccess, Serializable
         $arr = [];
         $attributes = $this->attributes();
         foreach ($attributes as $name) {
-            $arr[$name] = array_key_exists($name, $this->_attributes) ? $this->_attributes[$name] : null;
+            if ($this->getMeta()->hasForeignKey($name)) {
+                $name = rtrim($name, '_id');
+            }
+            $arr[$name] = $this->getField($name)->toArray();
         }
         return $arr;
     }
