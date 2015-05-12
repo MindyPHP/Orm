@@ -242,6 +242,18 @@ class ImageField extends FileField
         $this->deleteOld();
     }
 
+    public function toArray()
+    {
+        $sizes = [];
+        if ($this->getValue()) {
+            foreach ($this->sizes as $name => $params) {
+                $sizes[$name] = $this->sizeUrl($name);
+            }
+            $sizes['original'] = $this->getStorage()->url($this->getValue());
+        }
+        return $sizes;
+    }
+
     protected function findSizePrefix($prefix, $throw = true)
     {
         $newPrefix = null;
