@@ -142,6 +142,8 @@ trait ImageProcess
             $sWidth = $sSize->getWidth();
             $sHeight = $sSize->getHeight();
 
+            $repeat = false;
+
             if (is_array($position)) {
                 list($x, $y) = $position;
             } else {
@@ -182,6 +184,9 @@ trait ImageProcess
                         $x = $sWidth - $wWidth;
                         $y = $sHeight - $wHeight;
                         break;
+                    case 'repeat':
+                        $repeat = true;
+                        break;
                 }
                 if ($x < 0) {
                     $x = 0;
@@ -190,8 +195,35 @@ trait ImageProcess
                     $y = 0;
                 }
             }
-            if (($x + $wWidth <= $sWidth) && ($y + $wHeight <= $sHeight))
-                return $source->paste($watermark, new Point($x, $y));
+
+            if ($repeat) {
+                while($y < $sHeight) {
+                    $appendY = $wHeight;
+                    if ($y + $appendY > $sHeight) {
+                        $appendY = $sHeight - $y;
+                    }
+                    $x = 0;
+                    while ($x < $sWidth) {
+                        $appendX = $wWidth;
+                        if ($x + $appendX > $sWidth) {
+                            $appendX = $sWidth - $x;
+                        }
+
+                        if ($appendY != $wHeight || $appendX != $wWidth) {
+                            $source->paste($watermark->copy()->crop(new Point(0, 0), new Box($appendX, $appendY)),
+                                new Point($x, $y));
+                        } else {
+                            $source->paste($watermark, new Point($x, $y));
+                        }
+
+                        $x += $appendX;
+                    }
+                    $y += $appendY;
+                }
+            } else {
+                if (($x + $wWidth <= $sWidth) && ($y + $wHeight <= $sHeight))
+                    return $source->paste($watermark, new Point($x, $y));
+            }
         }
         return $source;
     }
