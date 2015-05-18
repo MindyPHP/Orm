@@ -138,12 +138,16 @@ class ImageField extends FileField
     /**
      * @param $source
      * @param bool $force
+     * @param array|null $onlySizes - Resize and save only sizes, described in this array
      * @return
      */
-    public function processSource($source, $force = false)
+    public function processSource($source, $force = false, $onlySizes = null)
     {
         $ext = pathinfo($this->value, PATHINFO_EXTENSION);
         foreach ($this->sizes as $prefix => $size) {
+            if (is_array($onlySizes) && !in_array($prefix, $onlySizes)) {
+                continue;
+            }
             $width = isset($size[0]) ? $size[0] : null;
             $height = isset($size[1]) ? $size[1] : null;
             if (!$width || !$height) {
@@ -225,12 +229,16 @@ class ImageField extends FileField
                 $path .= '&force=true';
             }
         } else {
+            // Original file does not exists, return empty string
+            if (!$this->getValue()) {
+                return '';
+            }
             $path = $this->sizeStoragePath($prefix, $this->value);
             if ($this->force || !is_file($this->getStorage()->path($path))) {
-                $absPath = $this->getStorage()->path($this->sizeStoragePath($prefix, $this->value));
-                if ($absPath) {
+                $absPath = $this->getStorage()->path($this->getValue());
+                if ($absPath && is_file($absPath)) {
                     $image = $this->getImagine()->open($absPath);
-                    $this->processSource($image, true);
+                    $this->processSource($image, true, [$prefix]);
                 }
             }
         }
