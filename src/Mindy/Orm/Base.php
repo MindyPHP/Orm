@@ -231,6 +231,11 @@ abstract class Base implements ArrayAccess, Serializable
      */
     public function __get($name)
     {
+        return $this->__getInternalOrm($name);
+    }
+
+    public function __getInternalOrm($name)
+    {
         if ($name == 'pk') {
             $name = $this->primaryKey();
             $name = array_shift($name);
