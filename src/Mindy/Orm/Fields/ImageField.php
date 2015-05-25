@@ -90,6 +90,11 @@ class ImageField extends FileField
      * @var bool
      */
     public $storeOriginal = true;
+    /**
+     * Recreate file if missing
+     * @var bool
+     */
+    public $checkMissing = false;
 
     public function setFile(File $file, $name = null)
     {
@@ -234,7 +239,7 @@ class ImageField extends FileField
                 return '';
             }
             $path = $this->sizeStoragePath($prefix, $this->value);
-            if ($this->force || !is_file($this->getStorage()->path($path))) {
+            if ($this->force || $this->checkMissing && !is_file($this->getStorage()->path($path))) {
                 $absPath = $this->getStorage()->path($this->getValue());
                 if ($absPath && is_file($absPath)) {
                     $image = $this->getImagine()->open($absPath);
