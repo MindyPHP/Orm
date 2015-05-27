@@ -35,6 +35,10 @@ class ManyToManyManager extends RelatedManager
      */
     public $modelColumn;
     /**
+     * @var null|string
+     */
+    public $through;
+    /**
      * @var array extra condition for join
      */
     public $extra = [];
@@ -109,13 +113,22 @@ class ManyToManyManager extends RelatedManager
             throw new Exception('Unable to ' . ($link ? 'link' : 'unlink') . ' models: the primary key of ' . get_class($this->primaryModel) . ' is null.');
         }
 
-        $db = $this->primaryModel->getDb();
-        /** @var $command \Mindy\Query\Command */
-        $command = $db->createCommand()->$method($this->relatedTable, array_merge([
-            $this->primaryModelColumn => $this->primaryModel->pk,
-            $this->modelColumn => $model->pk,
-        ], $extra));
+        if ($this->through && $link) {
+            $throughModel = new $this->through;
+            $through = $throughModel->objects()->getOrCreate([
+                $this->primaryModelColumn => $this->primaryModel->pk,
+                $this->modelColumn => $model->pk,
+            ]);
+            return $through->pk;
+        } else {
+            $db = $this->primaryModel->getDb();
+            /** @var $command \Mindy\Query\Command */
+            $command = $db->createCommand()->$method($this->relatedTable, array_merge([
+                $this->primaryModelColumn => $this->primaryModel->pk,
+                $this->modelColumn => $model->pk,
+            ], $extra));
 
-        return $command->execute();
+            return $command->execute();
+        }
     }
 }

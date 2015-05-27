@@ -154,7 +154,8 @@ class ManyToManyField extends RelatedField
             'primaryModelColumn' => $this->getModelColumn(),
             'primaryModel' => $this->getModel(),
             'relatedTable' => $this->getTableName(),
-            'extra' => $this->extra
+            'extra' => $this->extra,
+            'through' => $this->through
         ]);
     }
 
@@ -242,7 +243,9 @@ class ManyToManyField extends RelatedField
         $value = $this->preformatValue($value);
         $class = $this->modelClass;
         $manager = $this->getManager();
-        $manager->clean();
+        if (!$this->through) {
+            $manager->clean();
+        }
         foreach ($value as $linkModel) {
             if (!is_a($linkModel, $this->modelClass)) {
                 $linkModel = $class::objects()->get(['pk' => $linkModel]);
