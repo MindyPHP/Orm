@@ -463,7 +463,6 @@ abstract class Base implements ArrayAccess, Serializable
                 $this->setAttribute($name, $value);
             }
         }
-        d($attributes, $this->image);
         return $this;
     }
 
