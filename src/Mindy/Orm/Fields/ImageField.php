@@ -5,6 +5,7 @@ namespace Mindy\Orm\Fields;
 use Exception;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\Point;
+use Mindy\Base\Mindy;
 use Mindy\Orm\Traits\ImageProcess;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\FileSystemStorage;
@@ -102,6 +103,7 @@ class ImageField extends FileField
     public function setFile(File $file, $name = null)
     {
         $name = $name ? $name : $file->name;
+
         if ($this->MD5Name) {
             $ext = pathinfo($name, PATHINFO_EXTENSION);
             $name = md5(str_replace("." . $ext, "", $name)) . '.' . $ext;
@@ -115,6 +117,9 @@ class ImageField extends FileField
                 try {
                     $image = $this->getImagine()->load($fileContent);
                 } catch (Exception $e) {
+                    Mindy::app()->logger->error($e->getMessage(), [
+                        'line' => $e->getLine(),
+                    ]);
                     $image = null;
                 }
                 if ($image) {
