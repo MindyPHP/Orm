@@ -19,6 +19,9 @@ class ImageField extends FileField
 {
     use ImageProcess;
 
+    protected $availableResizeMethods = [
+        'resize', 'adaptiveResize', 'adaptiveResizeFromTop'
+    ];
     /**
      * Array with image sizes
      * key 'original' is reserved!
@@ -159,6 +162,9 @@ class ImageField extends FileField
                 list($width, $height) = $this->imageScale($source, $width, $height);
             }
             $method = isset($size['method']) ? $size['method'] : $this->defaultResize;
+            if (!in_array($method, $this->availableResizeMethods)) {
+                throw new Exception('Unknown resize method: ' . $method);
+            }
             $options = isset($size['options']) ? $size['options'] : $this->options;
 
             $watermark = isset($size['watermark']) ? $size['watermark'] : $this->watermark;
