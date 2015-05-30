@@ -161,6 +161,11 @@ class FileField extends CharField
     {
         $name = $name ? $name : $file->name;
 
+        if ($this->MD5Name) {
+            $ext = pathinfo($name, PATHINFO_EXTENSION);
+            $name = md5(str_replace("." . $ext, "", $name)) . '.' . $ext;
+        }
+
         if ($name) {
             // Folder for upload
             $filePath = $this->makeFilePath($name);

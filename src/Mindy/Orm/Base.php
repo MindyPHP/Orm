@@ -231,6 +231,11 @@ abstract class Base implements ArrayAccess, Serializable
      */
     public function __get($name)
     {
+        return $this->__getInternalOrm($name);
+    }
+
+    public function __getInternalOrm($name)
+    {
         if ($name == 'pk') {
             $name = $this->primaryKey();
             $name = array_shift($name);
@@ -1412,11 +1417,13 @@ abstract class Base implements ArrayAccess, Serializable
     {
         $arr = [];
         $attributes = $this->attributes();
-        foreach ($attributes as $name) {
-            if ($this->getMeta()->hasForeignKey($name)) {
-                $name = rtrim($name, '_id');
+        foreach ($attributes as $attrName) {
+            if ($this->getMeta()->hasForeignKey($attrName)) {
+                $name = rtrim($attrName, '_id');
+            } else {
+                $name = $attrName;
             }
-            $arr[$name] = $this->getField($name)->toArray();
+            $arr[$attrName] = $this->getField($name)->toArray();
         }
         return $arr;
     }

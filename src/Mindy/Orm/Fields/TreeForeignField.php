@@ -13,16 +13,12 @@ class TreeForeignField extends ForeignField
 {
     public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DropDownField', array $extra = [])
     {
-        $model = $this->getRelatedModel();
+        $model = $this->getModel();
         $choices = function () use ($model) {
             $list = ['' => ''];
 
             $qs = $model->objects()->order(['root', 'lft']);
-            if ($model->getIsNewRecord()) {
-                $parents = $qs->all();
-            } else {
-                $parents = $qs->exclude(['pk' => $model->pk])->all();
-            }
+            $parents = $qs->all();
             foreach ($parents as $model) {
                 $level = $model->level ? $model->level - 1 : $model->level;
                 $list[$model->pk] = $level ? str_repeat("..", $level) . ' ' . $model->name : $model->name;
@@ -62,8 +58,8 @@ class TreeForeignField extends ForeignField
             'label' => $this->verboseName,
             'hint' => $this->helpText,
             'value' => $this->getValue(),
-            'validators' => array_merge($validators, $this->validators)
-
+            'validators' => array_merge($validators, $this->validators),
+            'disabled' => [$model->pk],
 //            'html' => [
 //                'multiple' => $this->value instanceof RelatedManager
 //            ]

@@ -5,6 +5,7 @@ namespace Mindy\Orm\Fields;
 use Exception;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\Point;
+use Mindy\Base\Mindy;
 use Mindy\Orm\Traits\ImageProcess;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\FileSystemStorage;
@@ -19,6 +20,9 @@ class ImageField extends FileField
 {
     use ImageProcess;
 
+    protected $availableResizeMethods = [
+        'resize', 'adaptiveResize', 'adaptiveResizeFromTop'
+    ];
     /**
      * Array with image sizes
      * key 'original' is reserved!
@@ -73,7 +77,7 @@ class ImageField extends FileField
      *
      * position can be array [x,y] coordinates or
      * string with one of available position
-     * top, top-left, top-right, bottom, bottom-left, bottom-right, left, right, center
+     * top, top-left, top-right, bottom, bottom-left, bottom-right, left, right, center, repeat
      */
     public $watermark = null;
     /**
@@ -90,10 +94,16 @@ class ImageField extends FileField
      * @var bool
      */
     public $storeOriginal = true;
+    /**
+     * Recreate file if missing
+     * @var bool
+     */
+    public $checkMissing = false;
 
     public function setFile(File $file, $name = null)
     {
         $name = $name ? $name : $file->name;
+
         if ($this->MD5Name) {
             $ext = pathinfo($name, PATHINFO_EXTENSION);
             $name = md5(str_replace("." . $ext, "", $name)) . '.' . $ext;
@@ -107,6 +117,9 @@ class ImageField extends FileField
                 try {
                     $image = $this->getImagine()->load($fileContent);
                 } catch (Exception $e) {
+                    Mindy::app()->logger->error($e->getMessage(), [
+                        'line' => $e->getLine(),
+                    ]);
                     $image = null;
                 }
                 if ($image) {
@@ -138,18 +151,25 @@ class ImageField extends FileField
     /**
      * @param $source
      * @param bool $force
+     * @param array|null $onlySizes - Resize and save only sizes, described in this array
      * @return
      */
-    public function processSource($source, $force = false)
+    public function processSource($source, $force = false, $onlySizes = null)
     {
         $ext = pathinfo($this->value, PATHINFO_EXTENSION);
         foreach ($this->sizes as $prefix => $size) {
+            if (is_array($onlySizes) && !in_array($prefix, $onlySizes)) {
+                continue;
+            }
             $width = isset($size[0]) ? $size[0] : null;
             $height = isset($size[1]) ? $size[1] : null;
             if (!$width || !$height) {
                 list($width, $height) = $this->imageScale($source, $width, $height);
             }
             $method = isset($size['method']) ? $size['method'] : $this->defaultResize;
+            if (!in_array($method, $this->availableResizeMethods)) {
+                throw new Exception('Unknown resize method: ' . $method);
+            }
             $options = isset($size['options']) ? $size['options'] : $this->options;
 
             $watermark = isset($size['watermark']) ? $size['watermark'] : $this->watermark;
@@ -225,12 +245,16 @@ class ImageField extends FileField
                 $path .= '&force=true';
             }
         } else {
+            // Original file does not exists, return empty string
+            if (!$this->getValue()) {
+                return '';
+            }
             $path = $this->sizeStoragePath($prefix, $this->value);
-            if ($this->force || !is_file($this->getStorage()->path($path))) {
-                $absPath = $this->getStorage()->path($this->sizeStoragePath($prefix, $this->value));
-                if ($absPath) {
+            if ($this->force || $this->checkMissing && !is_file($this->getStorage()->path($path))) {
+                $absPath = $this->getStorage()->path($this->getValue());
+                if ($absPath && is_file($absPath)) {
                     $image = $this->getImagine()->open($absPath);
-                    $this->processSource($image, true);
+                    $this->processSource($image, true, [$prefix]);
                 }
             }
         }

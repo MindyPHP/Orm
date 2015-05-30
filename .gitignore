@@ -9,6 +9,7 @@ composer.lock
 vendor
 Tests/protected/runtime/*
 Tests/protected/migration/*
+Tests/config_local.php
 test.php
 phpunit.phar
 

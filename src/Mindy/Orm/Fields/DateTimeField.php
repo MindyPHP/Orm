@@ -8,28 +8,8 @@ use Mindy\Query\ConnectionManager;
  * Class DateTimeField
  * @package Mindy\Orm
  */
-class DateTimeField extends Field
+class DateTimeField extends DateField
 {
-    public $autoFetch = true;
-
-    public $autoNowAdd = false;
-
-    public $autoNow = false;
-
-    public function onBeforeInsert()
-    {
-        if ($this->autoNowAdd) {
-            $this->getModel()->setAttribute($this->name, $this->getValue());
-        }
-    }
-
-    public function onBeforeUpdate()
-    {
-        if ($this->autoNow) {
-            $this->getModel()->setAttribute($this->name, $this->getValue());
-        }
-    }
-
     public function getValue()
     {
         $db = ConnectionManager::getDb()->getQueryBuilder();
@@ -43,16 +23,6 @@ class DateTimeField extends Field
     public function sqlType()
     {
         return 'datetime';
-    }
-
-    public function sqlDefault()
-    {
-        return $this->default === null ? '' : "DEFAULT '{$this->default}'";
-    }
-
-    public function sqlNullable()
-    {
-        return $this->autoNow ? 'NULL' : parent::sqlNullable();
     }
 
     public function getFormField($form, $fieldClass = null, array $extra = [])
