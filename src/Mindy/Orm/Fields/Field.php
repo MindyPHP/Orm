@@ -340,7 +340,7 @@ abstract class Field implements IValidateField
     public function toArray()
     {
         $value = $this->getValue();
-        if (!empty($this->choices)) {
+        if ($value && !empty($this->choices)) {
             $value = $this->choices[$value];
         }
         return $value;
