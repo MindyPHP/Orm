@@ -5,7 +5,6 @@ namespace Mindy\Orm;
 use Mindy\Exception\Exception;
 use Mindy\Helper\Creator;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
-use Mindy\Orm\Expressions\Expression;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Q\Q;
 
