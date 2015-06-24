@@ -1423,7 +1423,11 @@ abstract class Base implements ArrayAccess, Serializable
             } else {
                 $name = $attrName;
             }
-            $arr[$attrName] = $this->getField($name)->toArray();
+            $field = $this->getField($name);
+            $arr[$attrName] = $field->toArray();
+            if ($field->hasChoices()) {
+                $arr["{$attrName}__text"] = $this->getField($name)->toText();
+            }
         }
         return $arr;
     }
