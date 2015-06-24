@@ -6,6 +6,7 @@ use Mindy\Exception\Exception;
 use Mindy\Helper\Creator;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
 use Mindy\Orm\Fields\ManyToManyField;
+use Mindy\Orm\Q\Q;
 
 /**
  * Class QuerySet
@@ -625,10 +626,37 @@ class QuerySet extends QuerySetBase
     protected function parseLookup(array $query, $aliased = true, $autoGroup = true)
     {
         $queryBuilder = $this->getQueryBuilder();
-
-        $lookup = new LookupBuilder($query);
         $lookupQuery = [];
         $lookupParams = [];
+
+        $resultQuery = [];
+        foreach($query as $key => $queryItem)
+        {
+            if ($queryItem instanceof Q) {
+                $queryCondition = $queryItem->getQueryCondition();
+                $expressionQueryJoin = $queryItem->getQueryJoinCondition();
+                $expressionConditionGroups = $queryItem->getConditions();
+
+                $expressionParams = [];
+                $expressionQuery = [];
+
+                foreach($expressionConditionGroups as $expressionConditions) {
+                    list($conditionQuery, $conditionParams) = $this->parseLookup($expressionConditions, $aliased, $autoGroup);
+
+                    $expressionQuery[] = array_merge($expressionQueryJoin, $conditionQuery);
+                    $expressionParams = array_merge($expressionParams, $conditionParams);
+                }
+
+                $lookupParams = array_merge($lookupParams, $expressionParams);
+                $lookupQuery[] = array_merge($queryCondition, $expressionQuery);
+            } else {
+                $resultQuery[$key] = $queryItem;
+            }
+        }
+
+
+        $query = $resultQuery;
+        $lookup = new LookupBuilder($query);
 
         foreach ($lookup->parse() as $data) {
             list($prefix, $field, $condition, $params) = $data;
