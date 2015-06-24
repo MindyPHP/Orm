@@ -7,6 +7,7 @@ use Mindy\Helper\Creator;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
 use Mindy\Orm\Expressions\Expression;
 use Mindy\Orm\Fields\ManyToManyField;
+use Mindy\Orm\Q\Q;
 
 /**
  * Class QuerySet
@@ -632,7 +633,7 @@ class QuerySet extends QuerySetBase
         $resultQuery = [];
         foreach($query as $key => $queryItem)
         {
-            if ($queryItem instanceof Expression) {
+            if ($queryItem instanceof Q) {
                 $queryCondition = $queryItem->getQueryCondition();
                 $expressionQueryJoin = $queryItem->getQueryJoinCondition();
                 $expressionConditionGroups = $queryItem->getConditions();
