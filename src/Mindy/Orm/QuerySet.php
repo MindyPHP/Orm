@@ -715,7 +715,7 @@ class QuerySet extends QuerySetBase
             $lookupParams = array_merge($lookupParams, $params);
             $lookupQuery[] = $query;
         }
-        
+
         return [$lookupQuery, $lookupParams];
     }
 
