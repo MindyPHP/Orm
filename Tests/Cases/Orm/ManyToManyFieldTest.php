@@ -139,7 +139,7 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
         $product->save(['lists']);
         $this->assertEquals(1, $product->lists->count());
 
-        // Test empty array
+//        // Test empty array
         $product->lists = [];
         $product->save(['lists']);
         $this->assertEquals(0, $product->lists->count());
@@ -151,6 +151,33 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
 
         // Test clean()
         $product->lists->clean();
+        $this->assertEquals(0, $product->lists->count());
+    }
+
+    public function testLink()
+    {
+        $category = new Category();
+        $category->name = 'Toys';
+        $category->save();
+
+        $product = new Product();
+        $product->name = 'Bear';
+        $product->price = 100;
+        $product->description = 'Funny white bear';
+        $product->category = $category;
+        $product->save();
+
+        $list = new ProductList();
+        $list->name = 'Toys';
+        $list->save();
+
+        $this->assertEquals(0, $product->lists->count());
+        $product->lists = [$list];
+        $product->save();
+        $this->assertEquals(1, $product->lists->count());
+
+        $product->lists->unlink($list);
+        $product->save();
         $this->assertEquals(0, $product->lists->count());
     }
 
