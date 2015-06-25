@@ -838,6 +838,7 @@ abstract class Base implements ArrayAccess, Serializable
                 }
             }
         }
+        $this->_related = [];
     }
 
     protected function getDbPrepValues($values)
