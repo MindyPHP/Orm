@@ -42,11 +42,6 @@ class QuerySet extends QuerySetBase
      */
     private $_chains = [];
     /**
-     * Chains of m2m fields (saving through tables)
-     * @var array
-     */
-    private $_chainsMany2Many = [];
-    /**
      * Has chained
      * @var bool
      */
