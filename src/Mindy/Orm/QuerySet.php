@@ -368,7 +368,6 @@ class QuerySet extends QuerySetBase
         if ($filter) {
             $this->filter($filter);
         }
-
         $this->prepareConditions();
         $rows = $this->createCommand()->queryAll();
         if (count($rows) > 1) {
