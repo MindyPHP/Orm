@@ -325,10 +325,14 @@ class QuerySet extends QuerySetBase
     }
 
     /**
+     * @param array $filter
      * @return string
      */
-    public function getSql()
+    public function getSql($filter = [])
     {
+        if ($filter) {
+            $this->filter($filter);
+        }
         $this->prepareConditions();
         return parent::getSql();
     }
@@ -345,10 +349,11 @@ class QuerySet extends QuerySetBase
 
     /**
      * Executes query and returns a single row of result.
-     * @throws \Mindy\Orm\Exception\MultipleObjectsReturned
-     * @return null|Orm
+     * @param array $filter
+     * @return Orm|null
+     * @throws MultipleObjectsReturned
      */
-    public function get()
+    public function get($filter = [])
     {
 //        $cacheKey = $this->modelClass . '_' . $this->getCacheKey();
 //        if ($this->asArray) {
@@ -358,6 +363,9 @@ class QuerySet extends QuerySetBase
 //            return self::getCache()->get($cacheKey);
 //        }
 
+        if ($filter) {
+            $this->filter($filter);
+        }
         $this->prepareConditions();
         $rows = $this->createCommand()->queryAll();
         if (count($rows) > 1) {
