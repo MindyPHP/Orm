@@ -15,6 +15,7 @@
 namespace Tests\Orm;
 
 use Mindy\Query\ConnectionManager;
+use Tests\Models\Blogger;
 use Tests\Models\Category;
 use Tests\Models\Group;
 use Tests\Models\Membership;
@@ -43,7 +44,8 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
             new User,
             new Project,
             new ProjectMembership,
-            new Worker
+            new Worker,
+            new Blogger
         ];
     }
 
@@ -406,5 +408,38 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
         $this->assertEquals("SELECT `tests_worker_1`.* FROM `tests_worker` `tests_worker_1` LEFT OUTER JOIN `tests_project_membership` `tests_project_membership_2` ON `tests_worker_1`.`id` = `tests_project_membership_2`.`worker_id` LEFT OUTER JOIN `tests_project` `tests_project_3` ON `tests_project_membership_2`.`project_id` = `tests_project_3`.`id` GROUP BY `tests_worker_1`.`id` ORDER BY `tests_project_membership_2`.`position`", Worker::objects()->order(['projects_through__position'])->asArray()->allSql());
 
         $this->assertEquals("SELECT `tests_worker_1`.* FROM `tests_worker` `tests_worker_1` LEFT OUTER JOIN `tests_project_membership` `tests_project_membership_2` ON `tests_worker_1`.`id` = `tests_project_membership_2`.`worker_id` LEFT OUTER JOIN `tests_project` `tests_project_3` ON `tests_project_membership_2`.`project_id` = `tests_project_3`.`id` WHERE (`tests_project_3`.`id` IN ('1', '2')) GROUP BY `tests_worker_1`.`id` ORDER BY `tests_project_membership_2`.`position` DESC", Worker::objects()->filter(['projects__id__in' => [$firstProject->id, $secondProject->id]])->order(['-projects_through__position'])->allSql());
+    }
+
+    public function testToSelf()
+    {
+        $max = new Blogger();
+        $max->name = 'Max';
+        $max->save();
+
+        $alex = new Blogger();
+        $alex->name = 'Alex';
+        $alex->save();
+
+        $peter = new Blogger();
+        $peter->name = 'Peter';
+        $peter->save();
+
+        // Max was subscribed to Peter and Alex
+        $max->subscribes = [$peter, $alex];
+        $max->save();
+
+        // Alex was subscribed to Peter
+        $alex->subscribes = [$peter];
+        $alex->save();
+
+        $this->assertEquals(2, $max->subscribes->count());
+        $this->assertEquals(0, $max->subscribers->count());
+
+        $this->assertEquals(1, $alex->subscribes->count());
+        $this->assertEquals(1, $alex->subscribers->count());
+
+        $this->assertEquals(0, $peter->subscribes->count());
+        $this->assertEquals(2, $peter->subscribers->count());
+
     }
 }
