@@ -327,6 +327,7 @@ class QuerySet extends QuerySetBase
     }
 
     /**
+     * @param array $filter
      * @return string
      */
     public function getSql($filter = [])
