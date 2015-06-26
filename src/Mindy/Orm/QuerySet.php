@@ -42,6 +42,11 @@ class QuerySet extends QuerySetBase
      */
     private $_chains = [];
     /**
+     * Chains of m2m fields (saving through tables)
+     * @var array
+     */
+    private $_chainsMany2Many = [];
+    /**
      * Has chained
      * @var bool
      */
@@ -501,6 +506,17 @@ class QuerySet extends QuerySetBase
         list($model, $alias, $prefix, $chain) = $this->searchChain($prefix);
 
         foreach ($prefix as $relationName) {
+            $through = false;
+            $throughChain = null;
+            $throughAlias = null;
+            $throughModel = null;
+
+            if (substr($relationName, -8) == '_through') {
+                $throughChain = array_merge($chain, [$relationName]);
+                $through = true;
+                $relationName = substr($relationName, 0, strlen($relationName) - 8);
+            }
+
             $chain[] = $relationName;
             /** @var Model $model */
             /** @var \Mindy\Orm\Fields\RelatedField $relatedValue */
@@ -511,7 +527,18 @@ class QuerySet extends QuerySetBase
                 continue;
             }
 
-            list($relatedModel, $newAlias) = $relatedValue->processQuerySet($this, $alias, $autoGroup);
+            if ($relatedValue instanceof ManyToManyField) {
+                list($throughModelInfo, $manyModelInfo) = $relatedValue->processQuerySet($this, $alias, $autoGroup);
+                if ($through) {
+                    if (!$throughModelInfo) {
+                        throw new Exception("Through model is not specified");
+                    }
+                    list($throughModel, $throughAlias) = $throughModelInfo;
+                }
+                list($relatedModel, $newAlias) = $manyModelInfo;
+            } else {
+                list($relatedModel, $newAlias) = $relatedValue->processQuerySet($this, $alias, $autoGroup);
+            }
             $alias = $newAlias;
 
             if ($prefixedSelect) {
@@ -529,8 +556,13 @@ class QuerySet extends QuerySetBase
             }
 
             $this->addChain($chain, $alias, $relatedModel);
-
             $model = $relatedModel;
+
+            if ($through) {
+                $this->addChain($throughChain, $throughAlias, $throughModel);
+                $model = $throughModel;
+            }
+
         }
     }
 

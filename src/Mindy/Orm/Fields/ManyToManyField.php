@@ -296,6 +296,7 @@ class ManyToManyField extends RelatedField
     {
         $grouped = false;
         list($relatedModel, $joinTables) = $this->getJoin();
+        $throughAlias = null;
         foreach ($joinTables as $join) {
             $type = isset($join['type']) ? $join['type'] : 'LEFT OUTER JOIN';
             $newAlias = $qs->makeAliasKey($join['table']);
@@ -316,7 +317,18 @@ class ManyToManyField extends RelatedField
             }
 
             $alias = $newAlias;
+            if (!$throughAlias) {
+                $throughAlias = $alias;
+            }
         }
-        return [$relatedModel, $alias];
+
+        $through = null;
+        if ($this->through) {
+            $through = [
+                new $this->through,
+                $throughAlias
+            ];
+        }
+        return [$through, [$relatedModel, $alias]];
     }
 }
