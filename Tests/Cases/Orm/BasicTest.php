@@ -26,6 +26,7 @@ use Tests\Models\MarkdownModel;
 use Tests\Models\Membership;
 use Tests\Models\Product;
 use Tests\Models\ProductList;
+use Tests\Models\Solution;
 use Tests\Models\User;
 use Tests\OrmDatabaseTestCase;
 
@@ -43,7 +44,8 @@ abstract class BasicTest extends OrmDatabaseTestCase
             new Hits,
             new Group,
             new Customer,
-            new Membership
+            new Membership,
+            new Solution
         ];
     }
 
@@ -326,5 +328,66 @@ abstract class BasicTest extends OrmDatabaseTestCase
             'Anton',
             'Max',
         ], Customer::objects()->valuesList(['user__username'], true));
+    }
+
+    public function testToArray()
+    {
+        $solution = Solution::objects()->getOrCreate([
+            'status' => 1,
+            'name' => 'test',
+            'court' => 'qwe',
+            'question' => 'qwe',
+            'result' => 'qwe',
+            'content' => 'qwe',
+        ]);
+
+        $array = $solution->toArray();
+        unset($array['created_at']);
+
+        $this->assertEquals([
+            'id' => '1',
+            'name' => 'test',
+            'court' => 'qwe',
+            'question' => 'qwe',
+            'result' => 'qwe',
+            'document' => null,
+            'content' => 'qwe',
+            'status' => 1,
+            'status__text' => 'Complete'
+        ], $array);
+
+        $solution->status = Solution::STATUS_SUCCESS;
+
+        $array = $solution->toArray();
+        unset($array['created_at']);
+
+        $this->assertEquals([
+            'id' => '1',
+            'name' => 'test',
+            'court' => 'qwe',
+            'question' => 'qwe',
+            'result' => 'qwe',
+            'document' => null,
+            'content' => 'qwe',
+            'status' => 2,
+            'status__text' => 'Successful'
+        ], $array);
+
+        $solution->save();
+
+        $array = $solution->toArray();
+        unset($array['created_at']);
+
+        $this->assertEquals([
+            'id' => '1',
+            'name' => 'test',
+            'court' => 'qwe',
+            'question' => 'qwe',
+            'result' => 'qwe',
+            'document' => null,
+            'content' => 'qwe',
+            'status' => 2,
+            'status__text' => 'Successful'
+        ], $array);
     }
 }
