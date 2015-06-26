@@ -332,7 +332,7 @@ abstract class BasicTest extends OrmDatabaseTestCase
 
     public function testToArray()
     {
-        $solution = Solution::objects()->getOrCreate([
+        list($solution, $created) = Solution::objects()->getOrCreate([
             'status' => 1,
             'name' => 'test',
             'court' => 'qwe',

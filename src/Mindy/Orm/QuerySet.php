@@ -224,13 +224,15 @@ class QuerySet extends QuerySetBase
     public function getOrCreate(array $attributes)
     {
         $model = $this->filter($attributes)->get();
+        $create = false;
         if ($model === null) {
             $model = $this->model;
             $model->setAttributes($attributes);
             $model->save();
+            $create = true;
         }
 
-        return $model;
+        return [$model, $create];
     }
 
     public function updateOrCreate(array $attributes, array $updateAttributes)

@@ -134,7 +134,7 @@ abstract class SaveUpdateTest extends OrmDatabaseTestCase
 
     public function testGetOrCreate()
     {
-        $model = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
+        list($model, $created) = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
         $this->assertFalse($model->getIsNewRecord());
         $this->assertEquals('Max', $model->username);
         $this->assertEquals('VeryGoodP@ssword', $model->password);
@@ -147,7 +147,7 @@ abstract class SaveUpdateTest extends OrmDatabaseTestCase
         $this->assertFalse($newUser->getIsNewRecord());
         $this->assertEquals(2, $newUser->pk);
 
-        $queryUser = User::objects()->getOrCreate(['username' => 'Anton']);
+        list($queryUser, $created) = User::objects()->getOrCreate(['username' => 'Anton']);
         $this->assertEquals('Anton', $queryUser->username);
         $this->assertEquals('qwe', $queryUser->password);
         $this->assertEquals(2, $queryUser->pk);
@@ -155,7 +155,7 @@ abstract class SaveUpdateTest extends OrmDatabaseTestCase
 
     public function testUpdateOrCreate()
     {
-        $model = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
+        list($model, $created) = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
         $this->assertEquals(1, $model->pk);
         $this->assertEquals('Max', $model->username);
 
@@ -170,13 +170,13 @@ abstract class SaveUpdateTest extends OrmDatabaseTestCase
 
     public function testDelete()
     {
-        $model = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
+        list($model, $created) = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
         $this->assertNotNull($model->pk);
         $this->assertEquals(1, User::objects()->count());
         $this->assertEquals(1, $model->delete());
         $this->assertEquals(0, User::objects()->count());
 
-        $model = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
+        list($model, $created) = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
         $this->assertNotNull($model->pk);
         $this->assertEquals(1, User::objects()->count());
         $this->assertEquals(1, User::objects()->filter(['pk' => 2])->delete());
@@ -185,8 +185,8 @@ abstract class SaveUpdateTest extends OrmDatabaseTestCase
 
     public function testDeleteTwo()
     {
-        $modelOne = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
-        $modelTwo = User::objects()->getOrCreate(['username' => 'Anton', 'password' => 'VeryGoodP@ssword']);
+        list($modelOne, $created) = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
+        list($modelTwo, $created) = User::objects()->getOrCreate(['username' => 'Anton', 'password' => 'VeryGoodP@ssword']);
 
         $modelOne->delete();
         $this->assertEquals(1, User::objects()->count());
@@ -194,8 +194,8 @@ abstract class SaveUpdateTest extends OrmDatabaseTestCase
 
     public function testDeleteQsTwo()
     {
-        $modelOne = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
-        $modelTwo = User::objects()->getOrCreate(['username' => 'Anton', 'password' => 'VeryGoodP@ssword']);
+        list($modelOne, $created) = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
+        list($modelTwo, $created) = User::objects()->getOrCreate(['username' => 'Anton', 'password' => 'VeryGoodP@ssword']);
 
         User::objects()->filter(['username' => 'Max'])->delete();
         $this->assertEquals(1, User::objects()->count());
@@ -250,7 +250,7 @@ abstract class SaveUpdateTest extends OrmDatabaseTestCase
         date_default_timezone_set('UTC');
 
         $this->initModels([new Solution]);
-        $modelOne = Solution::objects()->getOrCreate([
+        list($modelOne, $created) = Solution::objects()->getOrCreate([
             'status' => 1,
             'name' => 'test',
             'court' => 'qwe',
@@ -273,7 +273,7 @@ abstract class SaveUpdateTest extends OrmDatabaseTestCase
     // https://github.com/studio107/Mindy_Orm/issues/65
     public function testSetAttributesIssue65()
     {
-        $model = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
+        list($model, $created) = User::objects()->getOrCreate(['username' => 'Max', 'password' => 'VeryGoodP@ssword']);
         $this->assertFalse($model->getIsNewRecord());
         $this->assertEquals('Max', $model->username);
         $this->assertEquals('VeryGoodP@ssword', $model->password);

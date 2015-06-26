@@ -27,19 +27,19 @@ abstract class AutoSlugFieldTest extends OrmDatabaseTestCase
 
     public function testInit()
     {
-        $rootModel = NestedModel::objects()->getOrCreate(['name' => 'test']);
+        list($rootModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test']);
         $this->assertEquals('test', $rootModel->slug);
 
-        $rootModelTwo = NestedModel::objects()->getOrCreate(['name' => 'test1']);
+        list($rootModelTwo, $created) = NestedModel::objects()->getOrCreate(['name' => 'test1']);
         $this->assertEquals('test1', $rootModelTwo->slug);
 
-        $nestedModel = NestedModel::objects()->getOrCreate(['name' => 'test2', 'parent' => $rootModelTwo]);
+        list($nestedModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test2', 'parent' => $rootModelTwo]);
         $this->assertEquals('test1/test2', $nestedModel->slug);
 
-        $nestedTwo = NestedModel::objects()->getOrCreate(['name' => 'test3', 'parent' => $rootModelTwo]);
+        list($nestedTwo, $created) = NestedModel::objects()->getOrCreate(['name' => 'test3', 'parent' => $rootModelTwo]);
         $this->assertEquals('test1/test3', $nestedTwo->slug);
 
-        $threeLevelModel = NestedModel::objects()->getOrCreate(['name' => 'test4', 'parent' => $nestedTwo]);
+        list($threeLevelModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test4', 'parent' => $nestedTwo]);
         $this->assertEquals('test1/test3/test4', $threeLevelModel->slug);
 
         $this->assertEquals(5, NestedModel::objects()->count());

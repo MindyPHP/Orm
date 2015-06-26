@@ -115,7 +115,7 @@ class ManyToManyManager extends RelatedManager
 
         if ($this->through && $link) {
             $throughModel = new $this->through;
-            $through = $throughModel->objects()->getOrCreate([
+            list($through, $created) = $throughModel->objects()->getOrCreate([
                 $this->primaryModelColumn => $this->primaryModel->pk,
                 $this->modelColumn => $model->pk,
             ]);
