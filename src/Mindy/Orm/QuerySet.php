@@ -325,10 +325,14 @@ class QuerySet extends QuerySetBase
     }
 
     /**
+     * @param array $filter
      * @return string
      */
-    public function getSql()
+    public function getSql($filter = [])
     {
+        if ($filter) {
+            $this->filter($filter);
+        }
         $this->prepareConditions();
         return parent::getSql();
     }
@@ -345,10 +349,11 @@ class QuerySet extends QuerySetBase
 
     /**
      * Executes query and returns a single row of result.
-     * @throws \Mindy\Orm\Exception\MultipleObjectsReturned
-     * @return null|Orm
+     * @param array $filter
+     * @return Orm|null
+     * @throws MultipleObjectsReturned
      */
-    public function get()
+    public function get($filter = [])
     {
 //        $cacheKey = $this->modelClass . '_' . $this->getCacheKey();
 //        if ($this->asArray) {
@@ -358,6 +363,9 @@ class QuerySet extends QuerySetBase
 //            return self::getCache()->get($cacheKey);
 //        }
 
+        if ($filter) {
+            $this->filter($filter);
+        }
         $this->prepareConditions();
         $rows = $this->createCommand()->queryAll();
         if (count($rows) > 1) {
@@ -501,6 +509,17 @@ class QuerySet extends QuerySetBase
         list($model, $alias, $prefix, $chain) = $this->searchChain($prefix);
 
         foreach ($prefix as $relationName) {
+            $through = false;
+            $throughChain = null;
+            $throughAlias = null;
+            $throughModel = null;
+
+            if (substr($relationName, -8) == '_through') {
+                $throughChain = array_merge($chain, [$relationName]);
+                $through = true;
+                $relationName = substr($relationName, 0, strlen($relationName) - 8);
+            }
+
             $chain[] = $relationName;
             /** @var Model $model */
             /** @var \Mindy\Orm\Fields\RelatedField $relatedValue */
@@ -511,7 +530,18 @@ class QuerySet extends QuerySetBase
                 continue;
             }
 
-            list($relatedModel, $newAlias) = $relatedValue->processQuerySet($this, $alias, $autoGroup);
+            if ($relatedValue instanceof ManyToManyField) {
+                list($throughModelInfo, $manyModelInfo) = $relatedValue->processQuerySet($this, $alias, $autoGroup);
+                if ($through) {
+                    if (!$throughModelInfo) {
+                        throw new Exception("Through model is not specified");
+                    }
+                    list($throughModel, $throughAlias) = $throughModelInfo;
+                }
+                list($relatedModel, $newAlias) = $manyModelInfo;
+            } else {
+                list($relatedModel, $newAlias) = $relatedValue->processQuerySet($this, $alias, $autoGroup);
+            }
             $alias = $newAlias;
 
             if ($prefixedSelect) {
@@ -529,8 +559,13 @@ class QuerySet extends QuerySetBase
             }
 
             $this->addChain($chain, $alias, $relatedModel);
-
             $model = $relatedModel;
+
+            if ($through) {
+                $this->addChain($throughChain, $throughAlias, $throughModel);
+                $model = $throughModel;
+            }
+
         }
     }
 

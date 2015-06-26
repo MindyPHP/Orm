@@ -15,6 +15,12 @@ use Mindy\Orm\QuerySet;
 class ManyToManyField extends RelatedField
 {
     public $null = true;
+
+    /**
+     * If to self, changes 'to' and 'from' fields
+     * @var bool
+     */
+    public $reversed = false;
     /**
      * @var array
      */
@@ -106,7 +112,7 @@ class ManyToManyField extends RelatedField
             $cls = $this->modelClass;
             $end = $this->getRelatedModelPk();
             if ($cls == $this->ownerClassName) {
-                $end = 'to';
+                $end = $this->reversed ? 'from' : 'to';
             }
             $tmp = explode('\\', $cls);
             $column = $cls::normalizeTableName(end($tmp));
@@ -135,7 +141,7 @@ class ManyToManyField extends RelatedField
             $cls = $this->ownerClassName;
             $end = $this->getModelPk();
             if ($cls == $this->modelClass) {
-                $end = 'from';
+                $end = $this->reversed ? 'to' : 'from';
             }
             $tmp = explode('\\', $cls);
             $column = $cls::normalizeTableName(end($tmp));
@@ -296,6 +302,7 @@ class ManyToManyField extends RelatedField
     {
         $grouped = false;
         list($relatedModel, $joinTables) = $this->getJoin();
+        $throughAlias = null;
         foreach ($joinTables as $join) {
             $type = isset($join['type']) ? $join['type'] : 'LEFT OUTER JOIN';
             $newAlias = $qs->makeAliasKey($join['table']);
@@ -316,7 +323,18 @@ class ManyToManyField extends RelatedField
             }
 
             $alias = $newAlias;
+            if (!$throughAlias) {
+                $throughAlias = $alias;
+            }
         }
-        return [$relatedModel, $alias];
+
+        $through = null;
+        if ($this->through) {
+            $through = [
+                new $this->through,
+                $throughAlias
+            ];
+        }
+        return [$through, [$relatedModel, $alias]];
     }
 }
