@@ -224,13 +224,15 @@ class QuerySet extends QuerySetBase
     public function getOrCreate(array $attributes)
     {
         $model = $this->filter($attributes)->get();
+        $create = false;
         if ($model === null) {
             $model = $this->model;
             $model->setAttributes($attributes);
             $model->save();
+            $create = true;
         }
 
-        return $model;
+        return [$model, $create];
     }
 
     public function updateOrCreate(array $attributes, array $updateAttributes)
@@ -325,7 +327,6 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param array $filter
      * @return string
      */
     public function getSql($filter = [])
@@ -366,6 +367,7 @@ class QuerySet extends QuerySetBase
         if ($filter) {
             $this->filter($filter);
         }
+
         $this->prepareConditions();
         $rows = $this->createCommand()->queryAll();
         if (count($rows) > 1) {

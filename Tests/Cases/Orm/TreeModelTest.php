@@ -37,7 +37,7 @@ abstract class TreeModelTest extends OrmDatabaseTestCase
 
     public function testInsert()
     {
-        $rootModel = NestedModel::objects()->getOrCreate(['name' => 'test']);
+        list($rootModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test']);
         $this->assertEquals(1, $rootModel->pk);
 
         $this->assertEquals(1, $rootModel->lft);
@@ -46,7 +46,7 @@ abstract class TreeModelTest extends OrmDatabaseTestCase
         $this->assertEquals(1, $rootModel->root);
         $this->assertNull($rootModel->parent);
 
-        $rootModelTwo = NestedModel::objects()->getOrCreate(['name' => 'test1']);
+        list($rootModelTwo, $created) = NestedModel::objects()->getOrCreate(['name' => 'test1']);
         $this->assertEquals(2, $rootModelTwo->pk);
 
         $this->assertEquals(1, $rootModelTwo->lft);
@@ -55,7 +55,7 @@ abstract class TreeModelTest extends OrmDatabaseTestCase
         $this->assertEquals(2, $rootModelTwo->root);
         $this->assertNull($rootModelTwo->parent);
 
-        $nestedModel = NestedModel::objects()->getOrCreate(['name' => 'test2', 'parent' => $rootModelTwo]);
+        list($nestedModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test2', 'parent' => $rootModelTwo]);
         $this->assertEquals(3, $nestedModel->pk);
 
         $this->assertEquals(2, $nestedModel->lft);
@@ -66,7 +66,7 @@ abstract class TreeModelTest extends OrmDatabaseTestCase
 
         $this->assertEquals(4, NestedModel::objects()->get(['pk' => 2])->rgt);
 
-        $nestedTwo = NestedModel::objects()->getOrCreate(['name' => 'test3', 'parent' => $rootModelTwo]);
+        list($nestedTwo, $created) = NestedModel::objects()->getOrCreate(['name' => 'test3', 'parent' => $rootModelTwo]);
         $this->assertEquals(4, $nestedTwo->pk);
 
         $this->assertEquals(4, $nestedTwo->lft);
@@ -77,7 +77,7 @@ abstract class TreeModelTest extends OrmDatabaseTestCase
 
         $this->assertEquals(6, NestedModel::objects()->get(['pk' => 2])->rgt);
 
-        $threeLevelModel = NestedModel::objects()->getOrCreate(['name' => 'test4', 'parent' => $nestedTwo]);
+        list($threeLevelModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test4', 'parent' => $nestedTwo]);
         $this->assertEquals(5, $threeLevelModel->pk);
 
         $this->assertEquals(5, $threeLevelModel->lft);
@@ -95,13 +95,13 @@ abstract class TreeModelTest extends OrmDatabaseTestCase
 
         // DELETE tests
 
-        $rootModelTwo = NestedModel::objects()->getOrCreate(['name' => 'test1']);
+        list($rootModelTwo, $created) = NestedModel::objects()->getOrCreate(['name' => 'test1']);
         $this->assertEquals(2, $rootModelTwo->pk);
         $this->assertEquals(1, $rootModelTwo->lft);
         $this->assertEquals(8, $rootModelTwo->rgt);
         $this->assertEquals(4, $rootModelTwo->delete());
 
-        $rootModel = NestedModel::objects()->getOrCreate(['name' => 'test']);
+        list($rootModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test']);
         $this->assertEquals(1, $rootModel->pk);
 
         $this->assertEquals(1, $rootModel->lft);
@@ -115,11 +115,11 @@ abstract class TreeModelTest extends OrmDatabaseTestCase
 
     public function testUpdate()
     {
-        $rootModel = NestedModel::objects()->getOrCreate(['name' => 'test']);
-        $rootModelTwo = NestedModel::objects()->getOrCreate(['name' => 'test1']);
-        $nestedModel = NestedModel::objects()->getOrCreate(['name' => 'test2', 'parent' => $rootModelTwo]);
-        $nestedTwo = NestedModel::objects()->getOrCreate(['name' => 'test3', 'parent' => $rootModelTwo]);
-        $threeLevelModel = NestedModel::objects()->getOrCreate(['name' => 'test4', 'parent' => $nestedTwo]);
+        list($rootModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test']);
+        list($rootModelTwo, $created) = NestedModel::objects()->getOrCreate(['name' => 'test1']);
+        list($nestedModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test2', 'parent' => $rootModelTwo]);
+        list($nestedTwo, $created) = NestedModel::objects()->getOrCreate(['name' => 'test3', 'parent' => $rootModelTwo]);
+        list($threeLevelModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test4', 'parent' => $nestedTwo]);
 
         $threeLevelModel->parent = $rootModel;
         $threeLevelModel->save();
@@ -143,11 +143,11 @@ abstract class TreeModelTest extends OrmDatabaseTestCase
 
     public function testTree()
     {
-        $rootModel = NestedModel::objects()->getOrCreate(['name' => 'test']);
-        $rootModelTwo = NestedModel::objects()->getOrCreate(['name' => 'test1']);
-        $nestedModel = NestedModel::objects()->getOrCreate(['name' => 'test2', 'parent' => $rootModelTwo]);
-        $nestedTwo = NestedModel::objects()->getOrCreate(['name' => 'test3', 'parent' => $rootModelTwo]);
-        $threeLevelModel = NestedModel::objects()->getOrCreate(['name' => 'test4', 'parent' => $nestedTwo]);
+        list($rootModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test']);
+        list($rootModelTwo, $created) = NestedModel::objects()->getOrCreate(['name' => 'test1']);
+        list($nestedModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test2', 'parent' => $rootModelTwo]);
+        list($nestedTwo, $created) = NestedModel::objects()->getOrCreate(['name' => 'test3', 'parent' => $rootModelTwo]);
+        list($threeLevelModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test4', 'parent' => $nestedTwo]);
 
         $data = NestedModel::tree()->asTree()->all();
         $this->assertEquals([
@@ -217,15 +217,15 @@ abstract class TreeModelTest extends OrmDatabaseTestCase
     public function testFixIsLeaf()
     {
         // Create root
-        $root1 = NestedModel::objects()->getOrCreate(['name' => 'root1']);
+        list($root1, $created) = NestedModel::objects()->getOrCreate(['name' => 'root1']);
         $this->assertTrue(NestedModel::objects()->filter(['name' => 'root1'])->get()->getIsLeaf());
 
         // Create root2
-        $root2 = NestedModel::objects()->getOrCreate(['name' => 'root2']);
+        list($root2, $created) = NestedModel::objects()->getOrCreate(['name' => 'root2']);
         $this->assertTrue(NestedModel::objects()->filter(['name' => 'root2'])->get()->getIsLeaf());
 
         // Create nested record for root2
-        $nested = NestedModel::objects()->getOrCreate(['name' => 'nested', 'parent' => $root2]);
+        list($nested, $created) = NestedModel::objects()->getOrCreate(['name' => 'nested', 'parent' => $root2]);
         // root1 is leaf = true
         $this->assertTrue(NestedModel::objects()->filter(['name' => 'root1'])->get()->getIsLeaf());
         // root2 is leaf = false (nested)
@@ -246,19 +246,19 @@ abstract class TreeModelTest extends OrmDatabaseTestCase
         NestedModel::objects()->truncate();
 
         // create root1
-        $root1 = NestedModel::objects()->getOrCreate(['name' => 'root1']);
+        list($root1, $created) = NestedModel::objects()->getOrCreate(['name' => 'root1']);
         // root1 is leaf
         $this->assertTrue(NestedModel::objects()->filter(['name' => 'root1'])->get()->getIsLeaf());
 
         // create root2
-        $root2 = NestedModel::objects()->getOrCreate(['name' => 'root2']);
+        list($root2, $created) = NestedModel::objects()->getOrCreate(['name' => 'root2']);
         // root2 is leaf
         $this->assertTrue(NestedModel::objects()->filter(['name' => 'root2'])->get()->getIsLeaf());
 
         // create nested in root2
-        $nested = NestedModel::objects()->getOrCreate(['name' => 'nested', 'parent' => $root2]);
+        list($nested, $created) = NestedModel::objects()->getOrCreate(['name' => 'nested', 'parent' => $root2]);
         // create nested1 in nested
-        $nested1 = NestedModel::objects()->getOrCreate(['name' => 'nested1', 'parent' => $nested]);
+        list($nested1, $created) = NestedModel::objects()->getOrCreate(['name' => 'nested1', 'parent' => $nested]);
         // root1 is leaf (empty)
         $this->assertTrue(NestedModel::objects()->filter(['name' => 'root1'])->get()->getIsLeaf());
         // root2 is not leaf (nested, nested1)
