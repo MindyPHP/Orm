@@ -14,7 +14,6 @@
 
 namespace Tests;
 
-use Mindy\Helper\Alias;
 use Mindy\Query\ConnectionManager;
 use Mindy\Tests\DatabaseTestCase;
 
