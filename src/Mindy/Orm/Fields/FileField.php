@@ -180,7 +180,8 @@ class FileField extends CharField
     public function makeFilePath($fileName = '')
     {
         if (is_callable($this->uploadTo)) {
-            $uploadTo = $this->uploadTo();
+            $func = $this->uploadTo;
+            $uploadTo = $func();
         } else {
             $uploadTo = strtr($this->uploadTo, [
                 '%Y' => date('Y'),
@@ -193,7 +194,8 @@ class FileField extends CharField
                 '%M' => $this->getModel()->getModuleName(),
             ]);
         }
-        return rtrim($uploadTo, '/') . '/' . ($fileName ? $fileName : '');
+        $uploadTo = rtrim($uploadTo, '/');
+        return ($uploadTo ? $uploadTo . '/' : '') . ($fileName ? $fileName : '');
     }
 
     public function isValid()

@@ -36,6 +36,9 @@ $app = \Mindy\Base\Mindy::getInstance([
                 ],
             ],
         ],
+        'storage' => [
+            'class' => '\Mindy\Storage\FileSystemStorage'
+        ],
     ],
     'preload' => ['log', 'db'],
     'modules' => []

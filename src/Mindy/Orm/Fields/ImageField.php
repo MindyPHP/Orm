@@ -99,6 +99,16 @@ class ImageField extends FileField
      * @var bool
      */
     public $checkMissing = false;
+    /**
+     * Cached original
+     * @var null | \Imagine\Image\ImagineInterface
+     */
+    public $_original = null;
+    /**
+     * Cached original name
+     * @var null | string
+     */
+    public $_originalName = null;
 
     public function setFile(File $file, $name = null)
     {
@@ -198,9 +208,7 @@ class ImageField extends FileField
     {
         $dir = mb_substr_count($value, '/', 'UTF-8') > 0 ? dirname($value) : '';
         // TODO not working with cyrillic
-        // $filename = basename($value);
-        $filename = ltrim(str_replace($dir, '', $value), '/');
-
+        $filename = ltrim(mb_substr($value, mb_strlen($dir, 'UTF-8'), null, 'UTF-8'), '/');
         // TODO ugly, refactor it
         $size = explode('x', $prefix);
         if (strpos($prefix, 'x') !== false && count($size) == 2 && is_numeric($size[0]) && is_numeric($size[1])) {
@@ -253,8 +261,11 @@ class ImageField extends FileField
             if ($this->force || $this->checkMissing && !is_file($this->getStorage()->path($path))) {
                 $absPath = $this->getStorage()->path($this->getValue());
                 if ($absPath && is_file($absPath)) {
-                    $image = $this->getImagine()->open($absPath);
-                    $this->processSource($image, true, [$prefix]);
+                    if ($this->_originalName != $absPath) {
+                        $this->_originalName = $absPath;
+                        $this->_original = $this->getImagine()->open($absPath);
+                    }
+                    $this->processSource(clone($this->_original), true, [$prefix]);
                 }
             }
         }
