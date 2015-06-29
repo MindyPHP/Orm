@@ -25,7 +25,8 @@
     },
     "require-dev": {
         "mindy/tests": "0.1",
-        "satooshi/php-coveralls": "dev-master"
+        "satooshi/php-coveralls": "dev-master",
+        "mindy/storage": "0.*"
     },
     "authors": [{
         "name": "Maxim Falaleev",
