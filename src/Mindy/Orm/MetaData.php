@@ -46,6 +46,10 @@ class MetaData
     /**
      * @var array
      */
+    protected $oneToOneFields = [];
+    /**
+     * @var array
+     */
     protected $manyToManyFields = [];
     /**
      * @var array
@@ -135,6 +139,11 @@ class MetaData
         return array_key_exists($name, $this->manyToManyFields);
     }
 
+    public function hasOneToOneField($name)
+    {
+        return array_key_exists($name, $this->oneToOneFields);
+    }
+
     public function getForeignKey($name)
     {
         return $this->foreignFields[$name];
@@ -146,7 +155,11 @@ class MetaData
             $this->primaryKeys = [];
             foreach ($this->allFields as $name => $field) {
                 if ($field->primary) {
-                    $this->primaryKeys[] = $name;
+                    if ($this->hasForeignField($name)) {
+                        $this->primaryKeys[] = $name . '_id';
+                    } else {
+                        $this->primaryKeys[] = $name;
+                    }
                 }
             }
         }
@@ -222,7 +235,10 @@ class MetaData
                     $this->hasManyFields[$name] = $field;
                 }
 
-                if (is_a($field, $className::$foreignField)) {
+                if (is_a($field, $className::$oneToOneField) && $field->reversed) {
+                    /* @var $field \Mindy\Orm\Fields\ForeignField */
+                    $this->oneToOneFields[$name] = $field;
+                }elseif (is_a($field, $className::$foreignField)) {
                     /* @var $field \Mindy\Orm\Fields\ForeignField */
                     $fkFields[$name] = $field;
                 }
