@@ -31,7 +31,9 @@ class Sync
         $command = $this->db->createCommand();
         foreach ($model->getFieldsInit() as $name => $field) {
             if ($field->sqlType() !== false) {
-                if (is_a($field, $model::$foreignField)) {
+                if (is_a($field, $model::$oneToOneField) && $field->reversed) {
+                    continue;
+                } elseif (is_a($field, $model::$foreignField)) {
                     $name .= "_id";
                 }
 

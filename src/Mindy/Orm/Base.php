@@ -250,6 +250,13 @@ abstract class Base implements ArrayAccess, Serializable
             return $fileField;
         }
 
+        if ($meta->hasOneToOneField($name)) {
+            /* @var $field \Mindy\Orm\Fields\OneToOneField */
+            $field = $meta->getField($name);
+            $field->setModel($this);
+            return $field->getValue();
+        }
+
         if ($meta->hasForeignField($name) && $this->hasAttribute($name) === false) {
             $value = $this->getAttribute($name . '_id');
             if (is_null($value)) {
@@ -306,7 +313,7 @@ abstract class Base implements ArrayAccess, Serializable
 
         $meta = static::getMeta();
 
-        if ($meta->hasForeignField($name) && !$this->hasAttribute($name)) {
+        if ($meta->hasForeignField($name) && !$this->hasAttribute($name) && !$meta->hasOneToOneField($name)) {
             $name .= '_id';
             if ($value instanceof Base) {
                 $value = $value->pk;
@@ -314,6 +321,8 @@ abstract class Base implements ArrayAccess, Serializable
         }
 
         if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
+            $this->_related[$name] = $value;
+        } elseif ($meta->hasOneToOneField($name)) {
             $this->_related[$name] = $value;
         } elseif ($this->hasAttribute($name)) {
             if ($meta->hasFileField($name)) {
@@ -712,7 +721,7 @@ abstract class Base implements ArrayAccess, Serializable
     {
         $meta = static::getMeta();
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
+            if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name) || $meta->hasOneToOneField($name)) {
                 continue;
             } else if ($meta->hasForeignField($name)) {
                 $foreighField = $meta->getForeignField($name);
@@ -731,7 +740,7 @@ abstract class Base implements ArrayAccess, Serializable
     {
         $meta = static::getMeta();
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($this->getPkName() == $name || $meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
+            if ($this->getPkName() == $name || $meta->hasHasManyField($name) || $meta->hasManyToManyField($name) || $meta->hasOneToOneField($name)) {
                 continue;
             }
             $field->setModel($this)->setValue($this->getAttribute($name));
@@ -765,7 +774,7 @@ abstract class Base implements ArrayAccess, Serializable
     {
         $meta = static::getMeta();
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($this->getPkName() == $name || $meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
+            if ($this->getPkName() == $name || $meta->hasHasManyField($name) || $meta->hasManyToManyField($name) || $meta->hasOneToOneField($name)) {
                 continue;
             } else if ($meta->hasForeignField($name)) {
                 $foreighField = $meta->getForeignField($name);
@@ -784,7 +793,7 @@ abstract class Base implements ArrayAccess, Serializable
     {
         $meta = static::getMeta();
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($this->getPkName() == $name || $meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
+            if ($this->getPkName() == $name || $meta->hasHasManyField($name) || $meta->hasManyToManyField($name) || $meta->hasOneToOneField($name)) {
                 continue;
             }
             $field->setModel($this);
@@ -800,7 +809,7 @@ abstract class Base implements ArrayAccess, Serializable
     {
         $meta = static::getMeta();
         foreach ($this->getFieldsInit() as $name => $field) {
-            if ($this->getPkName() == $name || $meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
+            if ($this->getPkName() == $name || $meta->hasHasManyField($name) || $meta->hasManyToManyField($name) || $meta->hasOneToOneField($name)) {
                 continue;
             }
             $field->setModel($this);
@@ -836,6 +845,11 @@ abstract class Base implements ArrayAccess, Serializable
                 } else {
                     $field->setValue($value);
                 }
+            }
+
+            if ($meta->hasOneToOneField($name)) {
+                $field = $meta->getField($name);
+                $field->setValue($value);
             }
         }
         $this->_related = [];

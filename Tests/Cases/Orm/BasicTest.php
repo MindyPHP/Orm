@@ -24,8 +24,10 @@ use Tests\Models\Hits;
 use Tests\Models\InstanceTestModel;
 use Tests\Models\MarkdownModel;
 use Tests\Models\Membership;
+use Tests\Models\Place;
 use Tests\Models\Product;
 use Tests\Models\ProductList;
+use Tests\Models\Restaurant;
 use Tests\Models\Solution;
 use Tests\Models\User;
 use Tests\OrmDatabaseTestCase;
@@ -45,7 +47,9 @@ abstract class BasicTest extends OrmDatabaseTestCase
             new Group,
             new Customer,
             new Membership,
-            new Solution
+            new Solution,
+            new Place,
+            new Restaurant
         ];
     }
 
@@ -270,6 +274,72 @@ abstract class BasicTest extends OrmDatabaseTestCase
         $fk = $model->getField("category");
         $this->assertInstanceOf('\Mindy\Orm\Fields\ForeignField', $fk);
         $this->assertNull($model->category);
+    }
+
+    public function testOneToOneKey()
+    {
+        $place = new Place();
+        $place->name = 'Derry';
+        $place->save();
+
+        $restaurant = new Restaurant();
+        $restaurant->name = 'Burger mix';
+        $restaurant->place = $place;
+        $restaurant->save();
+
+        $this->assertEquals(1, Restaurant::objects()->filter(['place' => $place->id])->count());
+        $this->assertEquals(1, $place->restaurant->pk);
+
+        $restaurant->delete();
+
+        $this->assertNull($place->restaurant);
+    }
+
+    /**
+     * @expectedException \Exception
+     */
+    public function testOneToOneException()
+    {
+        $place = new Place();
+        $place->name = 'Derry';
+        $place->save();
+
+        $restaurant = new Restaurant();
+        $restaurant->name = 'Burger mix';
+        $restaurant->place = $place;
+        $restaurant->save();
+
+        $restaurant2 = new Restaurant();
+        $restaurant2->name = 'Cat Burger';
+        $restaurant2->place = $place;
+        $restaurant2->save();
+    }
+
+    /**
+     * @expectedException \Exception
+     */
+    public function testOneToOneReverseException()
+    {
+        $place = new Place();
+        $place->name = 'Derry';
+        $place->save();
+
+        $place2 = new Place();
+        $place2->name = 'Dallas';
+        $place2->save();
+
+        $restaurant = new Restaurant();
+        $restaurant->name = 'Burger mix';
+        $restaurant->place = $place;
+        $restaurant->save();
+
+        $restaurant2 = new Restaurant();
+        $restaurant2->name = 'Cat Burger';
+        $restaurant2->place = $place2;
+        $restaurant2->save();
+
+        $place->restaurant = $restaurant2;
+        $place->save();
     }
 
     public function testValuesList()
