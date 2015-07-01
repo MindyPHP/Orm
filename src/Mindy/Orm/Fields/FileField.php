@@ -152,6 +152,13 @@ class FileField extends CharField
         }
     }
 
+    public function toArray()
+    {
+        return [
+            'url' => $this->getUrl()
+        ];
+    }
+
     /**
      * @param \Mindy\Storage\Files\File $file
      * @param null $name
