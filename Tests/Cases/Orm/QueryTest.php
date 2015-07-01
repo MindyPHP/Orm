@@ -159,4 +159,25 @@ abstract class QueryTest extends OrmDatabaseTestCase
         $this->assertEquals(3, User::objects()->sum('id'));
         $this->assertEquals(1, User::objects()->filter(['username' => 'Anton'])->sum('id'));
     }
+
+    public function testCreate()
+    {
+        $user = User::objects()->get(['pk' => 1]);
+
+        Customer::objects()->create([
+            'user' => $user,
+            'address' => 'Broadway'
+        ]);
+
+        Customer::objects()->create([
+            'user_id' => $user->id,
+            'address' => 'Broadway'
+        ]);
+
+        $address1 = Customer::objects()->get(['pk' => 3]);
+        $address2 = Customer::objects()->get(['pk' => 4]);
+
+        $this->assertEquals($user->id, $address1->user->id);
+        $this->assertEquals($user->id, $address2->user_id);
+    }
 }
