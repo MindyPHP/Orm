@@ -263,7 +263,7 @@ abstract class Base implements ArrayAccess, Serializable
                 return $value;
             } else {
                 /* @var $field \Mindy\Orm\Fields\ForeignField */
-                $field = $meta->getForeignField($name)->setValue($value);
+                $field = $meta->getForeignField($name)->setModel($this)->setValue($value);
                 return $field->getValue();
             }
         }
@@ -1434,7 +1434,7 @@ abstract class Base implements ArrayAccess, Serializable
         $attributes = $this->attributes();
         foreach ($attributes as $attrName) {
             if ($this->getMeta()->hasForeignKey($attrName)) {
-                $name = rtrim($attrName, '_id');
+                $name = substr($attrName, 0, strpos($attrName, '_id'));
             } else {
                 $name = $attrName;
             }

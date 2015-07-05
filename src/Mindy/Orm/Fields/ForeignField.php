@@ -18,6 +18,8 @@ class ForeignField extends RelatedField
 
     public $modelClass;
 
+    public $extra = [];
+
     public function init()
     {
         if (is_subclass_of($this->modelClass, '\Mindy\Orm\Model') === false) {
@@ -28,9 +30,7 @@ class ForeignField extends RelatedField
     public function setValue($value)
     {
         if (is_a($value, $this->modelClass) === false) {
-            /** @var $modelClass \Mindy\Orm\Model */
-            $modelClass = $this->modelClass;
-            $tmp = $modelClass::objects()->filter(['pk' => $value])->get();
+            $tmp = $this->fetch($value);
             if ($tmp) {
                 $value = $tmp;
             }
@@ -39,7 +39,9 @@ class ForeignField extends RelatedField
         if (empty($value)) {
             $value = null;
         }
+
         $this->value = $value;
+
         return $this;
     }
 
@@ -55,11 +57,7 @@ class ForeignField extends RelatedField
 
     public function getDbPrepValue()
     {
-        if ($this->value && is_a($this->value, Orm::className())) {
-            return $this->value->pk;
-        } else {
-            return $this->value;
-        }
+        return is_a($this->value, Orm::className()) ? $this->value->pk : $this->value;
     }
 
     public function getForeignPrimaryKey()
@@ -76,12 +74,17 @@ class ForeignField extends RelatedField
         $tmp = explode('\\', $cls);
         $column = $cls::normalizeTableName(end($tmp));
 
-        return [$this->getRelatedModel(), [[
-            'table' => $this->getRelatedTable(false),
-            // @TODO: chained with Sync - 40 line
-            'from' => $column . '_id',
-            'to' => $this->getRelatedModel()->getPkName(),
-        ]]];
+        return [
+            $this->getRelatedModel(),
+            [
+                [
+                    'table' => $this->getRelatedTable(false),
+                    // @TODO: chained with Sync - 40 line
+                    'from' => $column . '_id',
+                    'to' => $this->getRelatedModel()->getPkName(),
+                ]
+            ]
+        ];
     }
 
     /**
@@ -92,7 +95,7 @@ class ForeignField extends RelatedField
         // TODO move query to fetch method
         $manager = new RelatedManager($this->getRelatedModel());
         $value = $this->getValue();
-        return is_object($value) ? $value : $manager->filter(['pk' => $value]);
+        return is_object($value) ? $value : $manager->filter(array_merge(['pk' => $value], $this->extra));
     }
 
     public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DropDownField', array $extra = [])
@@ -100,8 +103,14 @@ class ForeignField extends RelatedField
         return parent::getFormField($form, $fieldClass, $extra);
     }
 
+    /**
+     * @param $value
+     * @return \Mindy\Orm\Model|\Mindy\Orm\TreeModel|null
+     */
     public function fetch($value)
     {
-        // TODO: Implement fetch() method.
+        /** @var $modelClass \Mindy\Orm\Model */
+        $modelClass = $this->modelClass;
+        return $modelClass::objects()->filter(array_merge(['pk' => $value], $this->extra))->get();
     }
 }
