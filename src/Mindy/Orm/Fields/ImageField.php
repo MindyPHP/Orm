@@ -265,7 +265,7 @@ class ImageField extends FileField
                         $this->_originalName = $absPath;
                         $this->_original = $this->getImagine()->open($absPath);
                     }
-                    $this->processSource(clone($this->_original), true, [$prefix]);
+                    $this->processSource($this->_original->copy(), true, [$prefix]);
                 }
             }
         }
