@@ -610,10 +610,17 @@ abstract class Base implements ArrayAccess, Serializable
         return trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', '_\0', $name)), '_');
     }
 
+    /**
+     * Return module name
+     * @return string
+     */
     public static function getModuleName()
     {
-        $object = new ReflectionClass(get_called_class());
-        return basename(dirname(dirname($object->getFilename())));
+        /** @var array $raw */
+        // See issue #105
+        // https://github.com/studio107/Mindy_Orm/issues/105
+        $raw = explode('\\', get_called_class());
+        return $raw[1];
     }
 
     /**
