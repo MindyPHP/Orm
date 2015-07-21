@@ -59,7 +59,7 @@ class TreeForeignField extends ForeignField
             'hint' => $this->helpText,
             'value' => $this->getValue(),
             'validators' => array_merge($validators, $this->validators),
-            'disabled' => [$model->pk],
+            'disabled' => $model->pk ? [$model->pk] : [],
 //            'html' => [
 //                'multiple' => $this->value instanceof RelatedManager
 //            ]
