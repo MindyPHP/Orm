@@ -360,6 +360,12 @@ Product::objects()->filter(['price__lt' => 100.00])->all();
 Product::objects()->filter(['price__lte' => 100.00])->all();
 ```
 
+```php
+$dateTime = new DateTime();
+$dateTime->setTimestamp(strtotime('+15 days'))
+Product::objects()->filter(['created_at__lte' => $dateTime])->all();
+```
+
 Произойдет выбор всех продуктов с ценой меньшей, либо равной `100.00`.
 
 `lt` формирует слудющий sql:
