@@ -2,7 +2,9 @@
 
 namespace Mindy\Orm;
 
+use DateTime;
 use Mindy\Exception\Exception;
+use Mindy\Query\QueryBuilder;
 
 /**
  * Class LookupBuilder
@@ -48,11 +50,23 @@ class LookupBuilder
         $this->query = $query;
     }
 
-    public function parse()
+    public function parse(QueryBuilder $qb)
     {
         $conditions = [];
         foreach ($this->query as $lookup => $params) {
-            $conditions[] = $this->parseLookup($lookup, $params);
+            if (is_array($params)) {
+                $newParams = [];
+                foreach ($params as $key => $param) {
+                    if ($param instanceof DateTime) {
+                        $newParams[$key] = $param->format($qb->dateTimeFormat);
+                    } else {
+                        $newParams[$key] = $param;
+                    }
+                }
+            } else {
+                $newParams = $params instanceof DateTime ? $params->format($qb->dateTimeFormat) : $params;
+            }
+            $conditions[] = $this->parseLookup($lookup, $newParams);
         }
         return $conditions;
     }
@@ -70,13 +84,13 @@ class LookupBuilder
                 $condition = $this->defaultLookup;
             } else {
                 list($field, $condition) = explode($this->separator, $lookup);
-                if(!in_array($condition, $this->lookups)) {
+                if (!in_array($condition, $this->lookups)) {
                     $prefix[] = $field;
                     $field = $condition;
                     $condition = $this->defaultLookup;
                 }
             }
-            if(!in_array($condition, $this->lookups)) {
+            if (!in_array($condition, $this->lookups)) {
                 throw new Exception("Unknown lookup operator: $condition");
             }
             return [$prefix, $field, $condition, $params];

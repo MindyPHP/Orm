@@ -667,8 +667,7 @@ class QuerySet extends QuerySetBase
         $lookupParams = [];
 
         $resultQuery = [];
-        foreach($query as $key => $queryItem)
-        {
+        foreach ($query as $key => $queryItem) {
             if ($queryItem instanceof Q) {
                 $queryCondition = $queryItem->getQueryCondition();
                 $expressionQueryJoin = $queryItem->getQueryJoinCondition();
@@ -677,7 +676,7 @@ class QuerySet extends QuerySetBase
                 $expressionParams = [];
                 $expressionQuery = [];
 
-                foreach($expressionConditionGroups as $expressionConditions) {
+                foreach ($expressionConditionGroups as $expressionConditions) {
                     list($conditionQuery, $conditionParams) = $this->parseLookup($expressionConditions, $aliased, $autoGroup);
 
                     $expressionQuery[] = array_merge($expressionQueryJoin, $conditionQuery);
@@ -695,7 +694,7 @@ class QuerySet extends QuerySetBase
         $query = $resultQuery;
         $lookup = new LookupBuilder($query);
 
-        foreach ($lookup->parse() as $data) {
+        foreach ($lookup->parse($queryBuilder) as $data) {
             list($prefix, $field, $condition, $params) = $data;
             /** @var Model $model */
             list($alias, $model) = $this->getOrCreateChainAlias($prefix, false, $autoGroup);
