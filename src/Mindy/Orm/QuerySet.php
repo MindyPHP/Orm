@@ -1127,35 +1127,35 @@ class QuerySet extends QuerySetBase
     public function getData()
     {
         if (empty($this->_data)) {
-            if ($this->command === null) {
-                if ($this->_chainedHasMany) {
-                    if ($this->getDb()->getSchema() instanceof \Mindy\Query\Pgsql\Schema) {
-                        $pk = $this->quoteColumnName($this->retreivePrimaryKey());
-                        $this->distinct([
-                            $this->_tableAlias . '.' . $pk => $this->_tableAlias . '.' . $pk
-                        ]);
-                        $orderBy = $this->orderBy;
-                        if ($orderBy) {
-                            $this->orderBy = array_merge([$this->_tableAlias . '.' . $pk => SORT_ASC], $orderBy);
-                        }
-                        $this->from = '(' . parent::allSql() . ') ' . $this->quoteColumnName("_tmp");
-                        $this->select = '*';
-                        $this->groupBy = false;
-                        $this->where = [];
-
-                        if ($orderBy) {
-                            $orderFields = [];
-                            foreach ($orderBy as $field => $order) {
-                                $tmp = explode('.', $field);
-                                $name = str_replace('"', '', end($tmp));
-                                $orderFields[$this->quoteColumnName("_tmp") . '.' . $this->quoteColumnName($name)] = $order;
-                            }
-                            $this->orderBy = $orderFields;
-                        }
-                        $this->distinct = null;
-                        $this->join = [];
-                    }
+            if (
+                $this->command === null &&
+                $this->_chainedHasMany &&
+                $this->getDb()->getSchema() instanceof \Mindy\Query\Pgsql\Schema
+            ) {
+                $pk = $this->quoteColumnName($this->retreivePrimaryKey());
+                $this->distinct([
+                    $this->_tableAlias . '.' . $pk => $this->_tableAlias . '.' . $pk
+                ]);
+                $orderBy = $this->orderBy;
+                if ($orderBy) {
+                    $this->orderBy = array_merge([$this->_tableAlias . '.' . $pk => SORT_ASC], $orderBy);
                 }
+                $this->from = '(' . parent::allSql() . ') ' . $this->quoteColumnName("_tmp");
+                $this->select = '*';
+                $this->groupBy = false;
+                $this->where = [];
+
+                if ($orderBy) {
+                    $orderFields = [];
+                    foreach ($orderBy as $field => $order) {
+                        $tmp = explode('.', $field);
+                        $name = str_replace('"', '', end($tmp));
+                        $orderFields[$this->quoteColumnName("_tmp") . '.' . $this->quoteColumnName($name)] = $order;
+                    }
+                    $this->orderBy = $orderFields;
+                }
+                $this->distinct = null;
+                $this->join = [];
             }
 
             $this->prepareCommand();
@@ -1163,7 +1163,7 @@ class QuerySet extends QuerySetBase
             $this->_data = !empty($this->with) ? $this->populateWith($data) : $data;
             $this->with = [];
             $this->command = null;
-            $this->_filterComplete = false;
+            $this->_filterComplete = true;
         }
         return $this->asArray ? $this->_data : $this->createModels($this->_data);
     }
@@ -1264,6 +1264,10 @@ class QuerySet extends QuerySetBase
         return $this->createCommand()->truncateTable($this->model->tableName())->execute();
     }
 
+    /**
+     * @param mixed $fields
+     * @return $this
+     */
     public function distinct($fields = true)
     {
         parent::distinct($fields);

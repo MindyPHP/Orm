@@ -50,22 +50,29 @@ class LookupBuilder
         $this->query = $query;
     }
 
+    protected function prepareParams(QueryBuilder $qb, $params)
+    {
+        if (is_array($params)) {
+            $newParams = [];
+            foreach ($params as $key => $param) {
+                if ($param instanceof DateTime) {
+                    $newParams[$key] = $param->format($qb->dateTimeFormat);
+                } else {
+                    $newParams[$key] = $param;
+                }
+            }
+        } else {
+            $newParams = $params instanceof DateTime ? $params->format($qb->dateTimeFormat) : $params;
+        }
+
+        return $newParams;
+    }
+
     public function parse(QueryBuilder $qb)
     {
         $conditions = [];
         foreach ($this->query as $lookup => $params) {
-            if (is_array($params)) {
-                $newParams = [];
-                foreach ($params as $key => $param) {
-                    if ($param instanceof DateTime) {
-                        $newParams[$key] = $param->format($qb->dateTimeFormat);
-                    } else {
-                        $newParams[$key] = $param;
-                    }
-                }
-            } else {
-                $newParams = $params instanceof DateTime ? $params->format($qb->dateTimeFormat) : $params;
-            }
+            $newParams = $this->prepareParams($qb, $params);
             $conditions[] = $this->parseLookup($lookup, $newParams);
         }
         return $conditions;
