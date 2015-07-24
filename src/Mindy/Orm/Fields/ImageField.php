@@ -277,11 +277,6 @@ class ImageField extends FileField
         $this->deleteOld();
     }
 
-    public function getUrl()
-    {
-        return $this->getStorage()->url($this->getValue());
-    }
-
     public function toArray()
     {
         $sizes = [];
