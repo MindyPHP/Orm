@@ -144,7 +144,7 @@ class FileField extends CharField
                 $this->deleteOld();
                 $value = $this->setFile(new LocalFile($value));
                 $this->value = $value;
-            } else if (is_a($value, 'Mindy\Storage\Files\RemoteFile') || is_a($value, 'Mindy\Storage\Files\LocalFile')) {
+            } else if ($value instanceof File) {
                 $this->deleteOld();
                 $value = $this->setFile($value);
                 $this->value = $value;
