@@ -38,10 +38,9 @@ class TreeForeignField extends ForeignField
         }
 
         $model = $this->getModel();
-
         $disabled = [];
-        if ($model->className() == $relatedModel->className()){
-            $disabled[]= $model->pk;
+        if ($model->className() == $relatedModel->className() && $relatedModel->getIsNewRecord() === false) {
+            $disabled[] = $model->pk;
         }
 
         $validators = [];
@@ -67,7 +66,7 @@ class TreeForeignField extends ForeignField
             'hint' => $this->helpText,
             'value' => $this->getValue(),
             'validators' => array_merge($validators, $this->validators),
-            'disabled' =>$disabled,
+            'disabled' => $disabled,
 //            'html' => [
 //                'multiple' => $this->value instanceof RelatedManager
 //            ]
