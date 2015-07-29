@@ -375,6 +375,7 @@ class QuerySet extends QuerySetBase
         } elseif (count($rows) === 0) {
             return null;
         }
+        $rows = !empty($this->with) ? $this->populateWith($rows) : $rows;
         $row = array_shift($rows);
         $result = $this->asArray ? $row : $this->createModel($row);
 
