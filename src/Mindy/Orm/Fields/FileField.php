@@ -48,13 +48,25 @@ class FileField extends CharField
      */
     public $MD5Name = true;
 
-    public function __construct(array $options = [])
+    public function init()
     {
-        parent::__construct($options);
+        if (!$this->isRequired()) {
+            $this->null = true;
+        }
 
-        $this->validators = array_merge([
-            new FileValidator($this->null, $this->types, $this->maxSize)
-        ], $this->validators);
+        $hasFileValidator = false;
+        foreach ($this->validators as $validator) {
+            if ($validator instanceof FileValidator) {
+                $hasFileValidator = true;
+                break;
+            }
+        }
+
+        if ($hasFileValidator === false) {
+            $this->validators = array_merge([
+                new FileValidator($this->null, $this->types, $this->maxSize)
+            ], $this->validators);
+        }
     }
 
     public function __toString()
@@ -71,13 +83,6 @@ class FileField extends CharField
             return $this->getStorage()->url(is_array($this->value) ? $this->value['name'] : $this->value);
         }
         return null;
-    }
-
-    public function init()
-    {
-        if (!$this->isRequired()) {
-            $this->null = true;
-        }
     }
 
     /**
