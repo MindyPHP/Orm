@@ -3,6 +3,7 @@
 namespace Mindy\Orm;
 
 use ArrayAccess;
+use Exception;
 use IteratorAggregate;
 use Mindy\Base\Mindy;
 use Mindy\Query\Query;
@@ -69,6 +70,9 @@ abstract class QuerySetBase extends Query implements IteratorAggregate, ArrayAcc
     {
         /** @var Base $className */
         $className = $this->modelClass;
+        if (!$className) {
+            throw new Exception('$className must be a string in createModel method of qs');
+        }
         return $className::create($row);
     }
 
