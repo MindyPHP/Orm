@@ -6,6 +6,7 @@ use ArrayAccess;
 use Exception;
 use IteratorAggregate;
 use Mindy\Base\Mindy;
+use Mindy\Helper\Creator;
 use Mindy\Query\Query;
 use Serializable;
 
@@ -178,7 +179,8 @@ abstract class QuerySetBase extends Query implements IteratorAggregate, ArrayAcc
      */
     public function serialize()
     {
-        return serialize($this->getData());
+        $props = Creator::getObjectVars($this);
+        return serialize($props);
     }
 
     /**
@@ -190,8 +192,9 @@ abstract class QuerySetBase extends Query implements IteratorAggregate, ArrayAcc
      * </p>
      * @return Model[]
      */
-    public function unserialize($serialized)
+    public function unserialize($data)
     {
-        return $this->createModels(unserialize($serialized));
+        $props = unserialize($data);
+        Creator::configure($this, $props);
     }
 }
