@@ -27,6 +27,11 @@ class DateField extends Field
         }
     }
 
+    public function canBeEmpty()
+    {
+        return ($this->autoNowAdd || $this->autoNow) || !$this->required && $this->null || !is_null($this->default);
+    }
+
     public function onBeforeUpdate()
     {
         if ($this->autoNow) {

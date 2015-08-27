@@ -31,6 +31,11 @@ class SlugField extends CharField
         $model->setAttribute($this->name, $this->value);
     }
 
+    public function canBeEmpty()
+    {
+        return true;
+    }
+
     public function onBeforeUpdate()
     {
         /** @var $model \Mindy\Orm\TreeModel */
