@@ -772,11 +772,12 @@ class QuerySet extends QuerySetBase
 
     public function clearFilter()
     {
+        $this->command = null;
+        $this->_filterComplete = false;
         $this->_filterAnd = [];
         $this->_filterExclude = [];
         $this->_filterOr = [];
         $this->_filterOrExclude = [];
-        $this->_filterComplete = [];
         $this->where = [];
         return $this;
     }
