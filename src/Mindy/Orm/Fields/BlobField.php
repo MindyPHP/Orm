@@ -1,6 +1,7 @@
 <?php
 
 namespace Mindy\Orm\Fields;
+use Mindy\Base\Mindy;
 
 /**
  * Class BlobField
@@ -10,12 +11,13 @@ class BlobField extends Field
 {
     public function sqlType()
     {
-        return 'longblob';
+        $db = Mindy::app()->db->getDb();
+        return $db->getDriverName() == 'pgsql' ? 'BYTEA' : 'longblob';
     }
 
     public function getDbPrepValue()
     {
-        // TODO добавить в BlobField
+        // TODO
         // if ($db->getDriverName() == 'sqlsrv' || $db->getDriverName() == 'mssql' || $db->getDriverName() == 'dblib')
         //     $select = 'CONVERT(VARCHAR(MAX), data)';
         return parent::getDbPrepValue();
