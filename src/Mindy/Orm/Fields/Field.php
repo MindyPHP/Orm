@@ -130,7 +130,7 @@ abstract class Field implements IValidateField
 
     public function canBeEmpty()
     {
-        return !$this->required && $this->null || !is_null($this->default);
+        return !$this->required && $this->null || !is_null($this->default) || $this->autoFetch === true;
     }
 
     public function setModel(Model $model)
