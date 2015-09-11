@@ -1398,7 +1398,7 @@ abstract class Base implements ArrayAccess, Serializable
         }
 
         if ($throw) {
-            throw new Exception('Field "' . $name . '" not found');
+            throw new Exception('Field "' . $name . '" not found in model: ' . get_class($this));
         } else {
             return null;
         }
