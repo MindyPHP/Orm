@@ -1475,6 +1475,7 @@ abstract class Base implements ArrayAccess, Serializable
     public static function create(array $row)
     {
         $meta = self::getMeta();
+        /*
         foreach ($meta->getRelatedFields() as $related) {
             if (isset($row[$related])) {
                 $cls = $meta->getRelatedField($related)->getRelatedModel()->className();
@@ -1487,6 +1488,7 @@ abstract class Base implements ArrayAccess, Serializable
                 unset($row[$related]);
             }
         }
+        */
         $className = self::className();
         /** @var Base $record */
         $record = new $className;
