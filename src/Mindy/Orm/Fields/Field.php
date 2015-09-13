@@ -5,6 +5,7 @@ namespace Mindy\Orm\Fields;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
+use Mindy\Orm\Base;
 use Mindy\Orm\Model;
 use Mindy\Query\ConnectionManager;
 use Mindy\Validation\Interfaces\IValidateField;
@@ -133,7 +134,7 @@ abstract class Field implements IValidateField
         return !$this->required && $this->null || !is_null($this->default) || $this->autoFetch === true;
     }
 
-    public function setModel(Model $model)
+    public function setModel(Base $model)
     {
         $this->_model = $model;
         return $this;
@@ -155,7 +156,10 @@ abstract class Field implements IValidateField
 
     public function getValue()
     {
-        return $this->value === null ? $this->default : $this->value;
+        if (empty($this->value)) {
+            return $this->null == true ? null : $this->default;
+        }
+        return  $this->value;
     }
 
     public function getDbPrepValue()

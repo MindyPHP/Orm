@@ -24,6 +24,7 @@ class Sync
 
     /**
      * @param $model \Mindy\Orm\Model
+     * @return int
      */
     public function createTable(Model $model)
     {
@@ -48,7 +49,7 @@ class Sync
             }
         }
 
-        $command->createTable($model->tableName(), $columns)->execute();
+        return $command->createTable($model->tableName(), $columns)->execute();
     }
 
     /**
@@ -59,7 +60,7 @@ class Sync
         $command = $this->db->createCommand();
 
         try {
-            // checkIntegrity is not supported by SQLite
+            // TODO checkIntegrity is not supported by SQLite
             // $command->checkIntegrity(false)->execute();
         } catch (NotSupportedException $e) {
 
@@ -72,14 +73,16 @@ class Sync
                 }
             }
         }
-        $command->dropTable($model->tableName())->execute();
+        return $command->dropTable($model->tableName())->execute();
 
+        /*
         try {
-            // checkIntegrity is not supported by SQLite
+            // TODO checkIntegrity is not supported by SQLite
             // $this->db->createCommand()->checkIntegrity(true)->execute();
         } catch (NotSupportedException $e) {
 
         }
+        */
     }
 
     /**

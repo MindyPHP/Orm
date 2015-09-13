@@ -2,6 +2,7 @@
 
 namespace Mindy\Orm\Fields;
 
+use Exception;
 use InvalidArgumentException;
 use Mindy\Orm\Orm;
 use Mindy\Orm\RelatedManager;
@@ -57,7 +58,10 @@ class ForeignField extends RelatedField
 
     public function getDbPrepValue()
     {
-        return is_a($this->value, Orm::className()) ? $this->value->pk : $this->value;
+        if (is_a($this->value, Orm::className())) {
+            return $this->value->pk;
+        }
+        return $this->value;
     }
 
     public function getForeignPrimaryKey()
@@ -106,9 +110,18 @@ class ForeignField extends RelatedField
     /**
      * @param $value
      * @return \Mindy\Orm\Model|\Mindy\Orm\TreeModel|null
+     * @throws Exception
      */
-    public function fetch($value)
+    protected function fetch($value)
     {
+        if (empty($value)) {
+            if ($this->null == true) {
+                return null;
+            } else {
+                throw new Exception("Value in fetch method of PrimaryKeyField cannot be empty");
+            }
+        }
+
         /** @var $modelClass \Mindy\Orm\Model */
         $modelClass = $this->modelClass;
         return $modelClass::objects()->filter(array_merge(['pk' => $value], $this->extra))->get();

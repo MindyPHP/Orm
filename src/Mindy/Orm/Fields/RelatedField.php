@@ -35,7 +35,7 @@ abstract class RelatedField extends IntField
 
     abstract public function getJoin();
 
-    abstract public function fetch($value);
+    abstract protected function fetch($value);
 
     /**
      * @return \Mindy\Orm\Model

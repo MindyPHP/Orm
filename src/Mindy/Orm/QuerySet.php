@@ -7,6 +7,7 @@ use Mindy\Helper\Creator;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Q\Q;
+use Modules\AltWork\Models\Issue;
 
 /**
  * Class QuerySet
@@ -365,7 +366,7 @@ class QuerySet extends QuerySetBase
 //            return self::getCache()->get($cacheKey);
 //        }
 
-        if ($filter) {
+        if (!empty($filter)) {
             $this->filter($filter);
         }
         $this->prepareConditions();
@@ -375,6 +376,7 @@ class QuerySet extends QuerySetBase
         } elseif (count($rows) === 0) {
             return null;
         }
+
         $rows = !empty($this->with) ? $this->populateWith($rows) : $rows;
         $row = array_shift($rows);
         $result = $this->asArray ? $row : $this->createModel($row);
