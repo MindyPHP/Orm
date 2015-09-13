@@ -4,6 +4,7 @@ namespace Mindy\Orm\Fields;
 
 use Exception;
 use InvalidArgumentException;
+use Mindy\Orm\Base;
 use Mindy\Orm\Orm;
 use Mindy\Orm\RelatedManager;
 
@@ -129,5 +130,11 @@ class ForeignField extends RelatedField
         /** @var $modelClass \Mindy\Orm\Model */
         $modelClass = $this->modelClass;
         return $modelClass::objects()->filter(array_merge(['pk' => $value], $this->extra))->get();
+    }
+
+    public function toArray()
+    {
+        $value = $this->getValue();
+        return $value instanceof Base ? $value->pk : $value;
     }
 }
