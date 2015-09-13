@@ -1324,8 +1324,11 @@ abstract class Base implements ArrayAccess, Serializable
             }
 
             $field = $this->getField($name);
-            // TODO
-            $field->setValue($this->getAttribute($name));
+            $attrName = $name;
+            if ($field instanceof ForeignField) {
+                $attrName .= '_id';
+            }
+            $field->setValue($this->getAttribute($attrName));
             if ($field->isValid() === false) {
                 foreach ($field->getErrors() as $error) {
                     $this->addError($name, $error);

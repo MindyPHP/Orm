@@ -99,11 +99,7 @@ class ForeignField extends RelatedField
     public function getValue()
     {
         $value = parent::getValue();
-        if (is_a($value, $this->modelClass) === false) {
-            return $this->fetch($value);
-        } else {
-            return $value;
-        }
+        return is_a($value, $this->modelClass) === false ? $this->fetch($value) : $value;
     }
 
     public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DropDownField', array $extra = [])
