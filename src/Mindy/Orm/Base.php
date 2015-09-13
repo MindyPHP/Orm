@@ -468,9 +468,6 @@ abstract class Base implements ArrayAccess, Serializable
     {
         foreach ($attributes as $name => $value) {
             if ($this->hasField($name) || $this->getMeta()->hasForeignKey($name)) {
-                if ($name == 'project' && empty($value)) {
-                    d($attributes);
-                }
                 $this->$name = $value;
             } else if ($this->hasAttribute($name)) {
                 $this->setAttribute($name, $value);
