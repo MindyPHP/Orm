@@ -30,13 +30,6 @@ class ForeignField extends RelatedField
 
     public function setValue($value)
     {
-        if (is_a($value, $this->modelClass) === false) {
-            $tmp = $this->fetch($value);
-            if ($tmp) {
-                $value = $tmp;
-            }
-        }
-
         if (empty($value)) {
             $value = null;
         }
@@ -102,6 +95,16 @@ class ForeignField extends RelatedField
         return is_object($value) ? $value : $manager->filter(array_merge(['pk' => $value], $this->extra));
     }
 
+    public function getValue()
+    {
+        $value = parent::getValue();
+        if (is_a($value, $this->modelClass) === false) {
+            return $this->fetch($value);
+        } else {
+            return $value;
+        }
+    }
+
     public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DropDownField', array $extra = [])
     {
         return parent::getFormField($form, $fieldClass, $extra);
@@ -118,6 +121,7 @@ class ForeignField extends RelatedField
             if ($this->null == true) {
                 return null;
             } else {
+                d(debug_backtrace());
                 throw new Exception("Value in fetch method of PrimaryKeyField cannot be empty");
             }
         }

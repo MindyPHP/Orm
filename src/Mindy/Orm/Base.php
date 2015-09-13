@@ -23,6 +23,7 @@ use Mindy\Helper\Json;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
 use Mindy\Locale\Translate;
+use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\JsonField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Query\ConnectionManager;
@@ -467,6 +468,9 @@ abstract class Base implements ArrayAccess, Serializable
     {
         foreach ($attributes as $name => $value) {
             if ($this->hasField($name) || $this->getMeta()->hasForeignKey($name)) {
+                if ($name == 'project' && empty($value)) {
+                    d($attributes);
+                }
                 $this->$name = $value;
             } else if ($this->hasAttribute($name)) {
                 $this->setAttribute($name, $value);
