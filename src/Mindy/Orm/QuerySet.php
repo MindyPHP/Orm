@@ -904,6 +904,7 @@ class QuerySet extends QuerySetBase
         $this->orderBy($orderBy);
 
         if ($this->getDb()->getSchema() instanceof \Mindy\Query\Pgsql\Schema) {
+
             $orderFields = array_keys($this->orderBy);
             $this->select = array_merge($this->select, $orderFields);
             $tableSchema = $this->getDb()->getSchema()->getTableSchema($this->model->tableName());
@@ -912,6 +913,9 @@ class QuerySet extends QuerySetBase
                 $groupFields[] = $this->_tableAlias . '.' . $this->quoteColumnName($name);
             }
             $groupBy = array_merge($orderFields, $groupFields);
+            foreach ($this->_chains as $name => $chain) {
+                $groupBy[] = $chain['alias'] . '.' . $chain['model']->getPkName();
+            }
             if ($this->groupBy) {
                 $this->groupBy = array_merge($this->groupBy, $groupBy);
             } else {
