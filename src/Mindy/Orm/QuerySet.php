@@ -555,8 +555,7 @@ class QuerySet extends QuerySetBase
                 /** @var \Mindy\Orm\Model $relatedModel */
                 $columnNames = $relatedModel->getTableSchema()->getColumnNames();
                 foreach ($columnNames as $item) {
-                    $normalName = trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', '_\0', $relatedModel->classNameShort())), '_');
-                    $selectRelatedNames[] = $alias . '.' . $this->quoteColumnName($item) . ' AS ' . $normalName . '__' . $item;
+                    $selectRelatedNames[] = $alias . '.' . $this->quoteColumnName($item) . ' AS ' . $relationName . '__' . $item;
                 }
                 $oldSelect = $this->select;
                 $this->select(array_merge($selectNames, $selectRelatedNames));
@@ -570,7 +569,6 @@ class QuerySet extends QuerySetBase
                 $this->addChain($throughChain, $throughAlias, $throughModel);
                 $model = $throughModel;
             }
-
         }
     }
 
@@ -594,20 +592,12 @@ class QuerySet extends QuerySetBase
 
     public function with(array $value)
     {
-        $fetch = [];
         foreach ($value as $name) {
             if ($this->model->getMeta()->hasRelatedField($name)) {
-                $fetch[] = $name;
-            }
-        }
-        $this->with = $fetch;
-
-        if (!empty($this->with)) {
-            foreach ($this->with as $name) {
+                $this->with[] = $name;
                 $this->getOrCreateChainAlias([$name], true);
             }
         }
-
         return $this;
     }
 
@@ -638,7 +628,8 @@ class QuerySet extends QuerySetBase
         }
 
         if (count($prefix) > 0) {
-            if (!($chain = $this->getChain($prefix))) {
+            $chain = $this->getChain($prefix);
+            if ($chain === null) {
                 $this->makeChain($prefix, $prefixedSelect, $autoGroup);
                 $chain = $this->getChain($prefix);
             }
@@ -651,7 +642,10 @@ class QuerySet extends QuerySetBase
             }
         }
 
-        return [$this->tableAlias, $this->model];
+        return [
+            $this->tableAlias,
+            $this->model
+        ];
     }
 
     /**

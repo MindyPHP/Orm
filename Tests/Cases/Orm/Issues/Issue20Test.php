@@ -91,7 +91,7 @@ class Issue20Test extends OrmDatabaseTestCase
         $qs = User::objects()->with(['addresses'])->asArray();
         $this->assertEquals([
             [
-                'customer' => [
+                'addresses' => [
                     'id' => 1,
                     'user_id' => 1,
                     'address' => 'address'
@@ -102,7 +102,7 @@ class Issue20Test extends OrmDatabaseTestCase
                 'user_id' => 1
             ],
             [
-                'customer' => [
+                'addresses' => [
                     'id' => null,
                     'user_id' => null,
                     'address' => ''
@@ -117,7 +117,7 @@ class Issue20Test extends OrmDatabaseTestCase
         $qs = User::objects()->filter(['addresses__address' => 'address'])->with(['addresses'])->asArray();
         $this->assertEquals([
             [
-                'customer' => [
+                'addresses' => [
                     'id' => 1,
                     'user_id' => 1,
                     'address' => 'address'

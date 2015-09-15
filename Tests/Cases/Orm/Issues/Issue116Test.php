@@ -78,5 +78,18 @@ class Issue116Test extends OrmDatabaseTestCase
 //            'ORDER BY "orm_issue_1"."created_at" DESC'
 //        ]), $qs->allSql());
         $this->assertEquals(1, $qs->count());
+        $item = $qs->get();
+        unset($item['created_at']);
+        $this->assertEquals([
+            'author' => [
+                'id' => 1
+            ],
+            'user' => [
+                'id' => 1
+            ],
+            'id' => 1,
+            'author_id' => 1,
+            'user_id' => 1,
+        ], $item);
     }
 }
