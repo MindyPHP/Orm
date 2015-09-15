@@ -67,18 +67,13 @@ class ForeignField extends RelatedField
 
     public function getJoin()
     {
-        /** @var \Mindy\Orm\Model $cls */
-        $cls = $this->modelClass;
-        $tmp = explode('\\', $cls);
-        $column = $cls::normalizeTableName(end($tmp));
-
         return [
             $this->getRelatedModel(),
             [
                 [
                     'table' => $this->getRelatedTable(false),
                     // @TODO: chained with Sync - 40 line
-                    'from' => $column . '_id',
+                    'from' => $this->name . '_id',
                     'to' => $this->getRelatedModel()->getPkName(),
                 ]
             ]
