@@ -2,7 +2,7 @@
 
 /**
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -13,14 +13,14 @@
 
 namespace Tests\Orm;
 
-use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Category;
 use Tests\Models\Customer;
 use Tests\Models\Order;
 use Tests\Models\Product;
 use Tests\Models\User;
+use Tests\OrmDatabaseTestCase;
 
-class NullTest extends DatabaseTestCase
+class NullTest extends OrmDatabaseTestCase
 {
     protected function getModels()
     {
@@ -46,7 +46,7 @@ class NullTest extends DatabaseTestCase
         $customer->save();
 
         $products = [];
-        foreach([1, 2, 3, 4, 5] as $i) {
+        foreach ([1, 2, 3, 4, 5] as $i) {
             $product = new Product;
             $product->name = $i;
             $product->price = $i;
@@ -60,7 +60,7 @@ class NullTest extends DatabaseTestCase
         $order1->customer = $customer;
         $order1->save();
 
-        foreach($products as $p) {
+        foreach ($products as $p) {
             $order1->products->link($p);
         }
 

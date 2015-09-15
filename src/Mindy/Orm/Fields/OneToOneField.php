@@ -21,7 +21,10 @@ class OneToOneField extends ForeignField
     {
         parent::init();
 
-        if (!$this->reversed) {
+        if ($this->reversed) {
+            $this->null = true;
+        } else {
+            $this->primary = true;
             $this->unique = true;
         }
     }
@@ -33,14 +36,16 @@ class OneToOneField extends ForeignField
             $modelClass = $this->modelClass;
 
             if ($value) {
-                if ($modelClass::objects()->filter([
-                        $this->reversedTo() => $model->pk
-                    ])->exclude([
-                        $this->reversedTo() => $value->pk
-                    ])->count() > 0) {
+                $count = $modelClass::objects()->filter([
+                    $this->reversedTo() => $model->pk
+                ])->exclude([
+                    $this->reversedTo() => $value->pk
+                ])->count();
+
+                if ($count > 0) {
                     throw new Exception('$modelClass must have unique key');
                 };
-                $value->pk = $model->id;
+                $value->pk = $model->pk;
                 $value->save();
             } else {
                 $modelClass::objects()->filter([
@@ -57,30 +62,29 @@ class OneToOneField extends ForeignField
             $modelClass = $model->className();
             $name = $this->getName() . '_id';
 
+            // TODO refact
             $avail = 0;
-            $currentValue = $this->getValue();
-            if (!$model->isNewRecord && $currentValue && $currentValue->pk == $pk) {
+            if (!$model->getIsNewRecord() && $this->value && $this->value->pk == $pk) {
                 $avail = 1;
             }
+            // TODO refact
 
             if ($modelClass::objects()->filter([
                     $name => $pk
                 ])->count() > $avail) {
                 throw new Exception('$modelClass must have unique key');
             };
-            return parent::setValue($value);
         }
+        return parent::setValue($value);
     }
 
     public function getValue()
     {
         if ($this->reversed) {
-            $model = $this->getModel();
             $modelClass = $this->modelClass;
-
-            return $modelClass::objects()->filter([
-                $this->reversedTo() => $model->pk
-            ])->get();
+            return $modelClass::objects()->get([
+                $this->reversedTo() => $this->getModel()->pk
+            ]);
         } else {
             return parent::getValue();
         }

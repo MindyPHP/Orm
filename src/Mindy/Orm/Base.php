@@ -324,6 +324,7 @@ abstract class Base implements ArrayAccess, Serializable
         if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
             $this->_related[$name] = $value;
         } elseif ($meta->hasOneToOneField($name)) {
+            // Only for reversed models
             $this->_related[$name] = $value;
         } elseif ($this->hasAttribute($name)) {
             if ($meta->hasFileField($name)) {

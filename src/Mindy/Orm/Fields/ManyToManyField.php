@@ -112,7 +112,7 @@ class ManyToManyField extends RelatedField
             $cls = $this->modelClass;
             $end = $this->getRelatedModelPk();
             if ($cls == $this->ownerClassName) {
-                $end = $this->reversed ? 'from' : 'to';
+                $end = $this->reversed ? 'from_id' : 'to_id';
             }
             $tmp = explode('\\', $cls);
             $column = $cls::normalizeTableName(end($tmp));
@@ -141,7 +141,7 @@ class ManyToManyField extends RelatedField
             $cls = $this->ownerClassName;
             $end = $this->getModelPk();
             if ($cls == $this->modelClass) {
-                $end = $this->reversed ? 'to' : 'from';
+                $end = $this->reversed ? 'to_id' : 'from_id';
             }
             $tmp = explode('\\', $cls);
             $column = $cls::normalizeTableName(end($tmp));

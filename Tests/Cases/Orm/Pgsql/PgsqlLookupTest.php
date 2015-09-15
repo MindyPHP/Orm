@@ -13,6 +13,8 @@
 
 namespace Tests\Cases\Orm\Pgsql;
 
+use Mindy\Orm\Q\AndQ;
+use Mindy\Orm\Q\OrQ;
 use Tests\Models\Product;
 use Tests\Models\ProductList;
 use Tests\Orm\LookupTest;
@@ -215,5 +217,28 @@ class PgsqlLookupTest extends LookupTest
         $this->assertEquals("SELECT \"tests_product_1\".* FROM \"tests_product\" \"tests_product_1\" WHERE ((\"tests_product_1\".\"id\"=1))", $qs->getSql());
         $this->assertEquals("SELECT \"tests_product_1\".* FROM \"tests_product\" \"tests_product_1\" WHERE ((\"tests_product_1\".\"id\"=1))", $qs->allSql());
         $this->assertEquals("SELECT COUNT(*) FROM \"tests_product\" \"tests_product_1\" WHERE ((\"tests_product_1\".\"id\"=1))", $qs->countSql());
+    }
+
+    public function testQ()
+    {
+        $qs = Product::objects()->filter([new OrQ([
+            ['name' => 'vasya', 'id__lte' => 7],
+            ['name' => 'petya', 'id__gte' => 4]
+        ])]);
+        $this->assertEquals('SELECT "tests_product_1".* FROM "tests_product" "tests_product_1" WHERE ((("tests_product_1"."name"=\'vasya\') AND (("tests_product_1"."id" <= 7))) OR (("tests_product_1"."name"=\'petya\') AND (("tests_product_1"."id" >= 4))))', $qs->allSql());
+
+        $qs = Product::objects()->filter([new OrQ([
+            ['name' => 'vasya', 'id__lte' => 7],
+            ['name' => 'petya', 'id__gte' => 4]
+        ]), 'price__gte' => 200]);
+
+        $this->assertEquals('SELECT "tests_product_1".* FROM "tests_product" "tests_product_1" WHERE ((("tests_product_1"."name"=\'vasya\') AND (("tests_product_1"."id" <= 7))) OR (("tests_product_1"."name"=\'petya\') AND (("tests_product_1"."id" >= 4)))) AND (("tests_product_1"."price" >= 200))', $qs->allSql());
+
+        $qs = Product::objects()->filter([new AndQ([
+            ['name' => 'vasya', 'id__lte' => 7],
+            ['name' => 'petya', 'id__gte' => 4]
+        ]), 'price__gte' => 200]);
+
+        $this->assertEquals('SELECT "tests_product_1".* FROM "tests_product" "tests_product_1" WHERE ((("tests_product_1"."name"=\'vasya\') AND (("tests_product_1"."id" <= 7))) AND (("tests_product_1"."name"=\'petya\') AND (("tests_product_1"."id" >= 4)))) AND (("tests_product_1"."price" >= 200))', $qs->allSql());
     }
 }

@@ -43,6 +43,7 @@ class Solution extends Model
             ],
             'document' => [
                 'class' => FileField::className(),
+                'null' => true
             ],
             'content' => [
                 'class' => TextField::className(),

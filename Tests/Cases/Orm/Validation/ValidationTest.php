@@ -14,12 +14,12 @@
 
 namespace Tests\Orm;
 
-use Mindy\Tests\DatabaseTestCase;
 use Tests\Models\Category;
 use Tests\Models\Product;
 use Tests\Models\User;
+use Tests\OrmDatabaseTestCase;
 
-class ValidationTest extends DatabaseTestCase
+class ValidationTest extends OrmDatabaseTestCase
 {
     protected function getModels()
     {

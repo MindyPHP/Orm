@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'default' => [
+    'mysql' => [
         'class' => '\Mindy\Query\Connection',
         'dsn' => 'mysql:host=localhost;dbname=test',
         'username' => 'travis',

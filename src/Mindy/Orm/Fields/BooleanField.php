@@ -3,6 +3,7 @@
 namespace Mindy\Orm\Fields;
 
 use Mindy\Form\Fields\CheckboxField;
+use Mindy\Query\ConnectionManager;
 
 /**
  * Class BooleanField
@@ -20,6 +21,14 @@ class BooleanField extends Field
     public function sqlType()
     {
         return 'bool';
+    }
+
+    public function sqlDefault()
+    {
+        /** @var \Mindy\Query\Mysql\Lookup|\Mindy\Query\Pgsql\Lookup $queryBuilder */
+        $queryBuilder = ConnectionManager::getDb()->getQueryBuilder();
+        $default = $queryBuilder->convertToBoolean($this->default);
+        return $this->default === null ? '' : "DEFAULT {$default}";
     }
 
     public function setValue($value)

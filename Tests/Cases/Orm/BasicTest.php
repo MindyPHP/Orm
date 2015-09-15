@@ -40,7 +40,6 @@ abstract class BasicTest extends OrmDatabaseTestCase
             new Product,
             new Category,
             new CustomPk,
-            new MarkdownModel,
             new InstanceTestModel,
             new User,
             new Hits,
@@ -86,26 +85,6 @@ abstract class BasicTest extends OrmDatabaseTestCase
         $this->assertFalse($model->getIsNewRecord());
         $model->pk = 4;
         $this->assertTrue($model->getIsNewRecord());
-    }
-
-    public function testExtraFieldsMarkdown()
-    {
-        $model = new MarkdownModel();
-
-        $fields = $model->getFieldsInit();
-        $this->assertEquals(3, count($fields));
-
-        $this->assertInstanceOf(MarkdownField::className(), $model->getField('content'));
-        $this->assertInstanceOf(MarkdownHtmlField::className(), $model->getField('content_html'));
-
-        $model->content = "# Hello world";
-        $this->assertEquals("# Hello world", $model->content_html);
-        $this->assertEquals("<h1>Hello world</h1>\n", $model->getField('content_html')->getDbPrepValue());
-        $model->save();
-
-        $fetchModel = MarkdownModel::objects()->filter(['pk' => 1])->get();
-        $this->assertEquals("# Hello world", $fetchModel->content);
-        $this->assertEquals("<h1>Hello world</h1>\n", $fetchModel->content_html);
     }
 
     public function testGetter()
@@ -295,6 +274,25 @@ abstract class BasicTest extends OrmDatabaseTestCase
         $this->assertNull($place->restaurant);
     }
 
+    public function testOneToOneKeyInt()
+    {
+        $place = new Place();
+        $place->name = 'Derry';
+        $place->save();
+
+        $restaurant = new Restaurant();
+        $restaurant->name = 'Burger mix';
+        $restaurant->place_id = 1;
+        $restaurant->save();
+
+        $this->assertEquals(1, Restaurant::objects()->filter(['place' => $place->id])->count());
+        $this->assertEquals(1, $place->restaurant->pk);
+
+        $restaurant->delete();
+
+        $this->assertNull($place->restaurant);
+    }
+
     /**
      * @expectedException \Exception
      */
@@ -402,6 +400,17 @@ abstract class BasicTest extends OrmDatabaseTestCase
 
     public function testToArray()
     {
+        $model = new Solution([
+            'status' => 1,
+            'name' => 'test',
+            'court' => 'qwe',
+            'question' => 'qwe',
+            'result' => 'qwe',
+            'content' => 'qwe',
+        ]);
+        $this->assertEquals(1, count($model->getField('document')->getValidators()));
+        $this->assertEquals(true, $model->isValid());
+
         list($solution, $created) = Solution::objects()->getOrCreate([
             'status' => 1,
             'name' => 'test',

@@ -72,7 +72,6 @@ class ForeignField extends RelatedField
             [
                 [
                     'table' => $this->getRelatedTable(false),
-                    // @TODO: chained with Sync - 40 line
                     'from' => $this->name . '_id',
                     'to' => $this->getRelatedModel()->getPkName(),
                 ]
@@ -110,10 +109,9 @@ class ForeignField extends RelatedField
     protected function fetch($value)
     {
         if (empty($value)) {
-            if ($this->null == true) {
+            if ($this->null === true) {
                 return null;
             } else {
-                d(debug_backtrace());
                 throw new Exception("Value in fetch method of PrimaryKeyField cannot be empty");
             }
         }

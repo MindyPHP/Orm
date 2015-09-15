@@ -17,7 +17,7 @@ use Mindy\Helper\File;
 use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Migration;
 use Mindy\Orm\Model;
-use Mindy\Tests\DatabaseTestCase;
+use Tests\OrmDatabaseTestCase;
 
 class Test extends Model
 {
@@ -46,7 +46,7 @@ class TestChanged extends Model
     }
 }
 
-class MigrateTest extends DatabaseTestCase
+class MigrateTest extends OrmDatabaseTestCase
 {
     /**
      * @var Migration

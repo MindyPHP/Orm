@@ -13,13 +13,13 @@ class Sync
 {
     private $_models = [];
 
-    public function __construct($models)
+    public function __construct($models, $db = null)
     {
         if (!is_array($models)) {
             $models = [$models];
         }
         $this->_models = $models;
-        $this->db = ConnectionManager::getDb();
+        $this->db = ConnectionManager::getDb($db);
     }
 
     /**

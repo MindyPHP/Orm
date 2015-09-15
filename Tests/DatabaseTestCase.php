@@ -21,12 +21,10 @@ class OrmDatabaseTestCase extends DatabaseTestCase
 {
     public $settings = [];
 
-    public $driver = 'default';
+    public $driver = 'sqlite';
 
     public function setUp()
     {
-        parent::setUp();
-
         if (getenv('TRAVIS')) {
             $this->settings = require __DIR__ . '/config_travis.php';
         } else {
@@ -43,7 +41,7 @@ class OrmDatabaseTestCase extends DatabaseTestCase
         }
         $this->manager = new ConnectionManager(['databases' => $this->settings]);
         ConnectionManager::$defaultDatabase = $this->driver;
-        $this->initModels($this->getModels());
+        parent::setUp();
     }
 
     public function getConnectionType()

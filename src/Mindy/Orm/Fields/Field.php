@@ -7,7 +7,6 @@ use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
 use Mindy\Orm\Base;
 use Mindy\Orm\Model;
-use Mindy\Query\ConnectionManager;
 use Mindy\Validation\Interfaces\IValidateField;
 use Mindy\Validation\RequiredValidator;
 use Mindy\Validation\Traits\ValidateField;
@@ -216,9 +215,7 @@ abstract class Field implements IValidateField
 
     public function sqlDefault()
     {
-        $queryBuilder = ConnectionManager::getDb()->getQueryBuilder();
-        $default = $queryBuilder->convertToBoolean($this->default);
-        return $this->default === null ? '' : "DEFAULT {$default}";
+        return $this->default === null ? '' : "DEFAULT {$this->default}";
     }
 
     public function sqlNullable()

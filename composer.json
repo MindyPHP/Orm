@@ -1,40 +1,34 @@
 {
-    "name": "mindy/orm",
-    "homepage": "https://github.com/studio107/Mindy_Orm",
-    "version": "0.9.7.3.1",
-    "license": "MIT",
-    "autoload": {
-        "psr-4": {
-            "Mindy\\Orm\\": "src/Mindy/Orm"
-        }
-    },
-    "require": {
-        "php": ">=5.4",
-        "mindy/exception": "0.*",
-        "mindy/cache": "0.*",
-        "mindy/query": "0.*",
-        "mindy/logger": "1.*",
-        "mindy/helper": "0.*",
-        "cebe/markdown": "*",
-        "mindy/utils": "0.*",
-        "mindy/locale": "0.*",
-        "mindy/event": "0.*",
-        "mindy/validation": "0.*",
-        "imagine/imagine": "v0.5.0",
-        "monolog/monolog": "*"
-    },
-    "require-dev": {
-        "mindy/tests": "0.1",
-        "satooshi/php-coveralls": "dev-master",
-        "mindy/storage": "0.*"
-    },
-    "authors": [{
-        "name": "Maxim Falaleev",
-        "email": "max@studio107.ru",
-        "homepage": "http://studio107.ru",
-        "role": "Developer"
-    }],
-    "support": {
-        "issues": "https://github.com/studio107/Mindy_Orm/issues?state=open"
+  "name": "mindy/orm",
+  "homepage": "https://github.com/studio107/Mindy_Orm",
+  "version": "0.9.7.4",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Mindy\\Orm\\": "src/Mindy/Orm"
     }
+  },
+  "require": {
+    "mindy/di": "^0.1.0",
+    "mindy/application": "^0.2.2",
+    "mindy/logger": "^1.0",
+    "mindy/query": "^0.4",
+    "mindy/tests": "^0.1.0",
+    "mindy/validation": "0.1.4.3",
+    "imagine/imagine": "^0.6.2",
+    "mindy/storage": "^0.1.4"
+  },
+  "require-dev": {
+  },
+  "authors": [
+    {
+      "name": "Maxim Falaleev",
+      "email": "max@studio107.ru",
+      "homepage": "http://studio107.ru",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/studio107/Mindy_Orm/issues?state=open"
+  }
 }
