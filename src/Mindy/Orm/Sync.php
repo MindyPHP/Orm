@@ -11,6 +11,9 @@ use Mindy\Query\ConnectionManager;
  */
 class Sync
 {
+    /**
+     * @var \Mindy\Orm\Model[]
+     */
     private $_models = [];
 
     public function __construct($models, $db = null)
@@ -54,6 +57,7 @@ class Sync
 
     /**
      * @param $model \Mindy\Orm\Model
+     * @return int
      */
     public function dropTable(Model $model)
     {
@@ -155,11 +159,15 @@ class Sync
         }
     }
 
+    /**
+     * @return array
+     */
     public function create()
     {
+        $created = [];
         foreach ($this->_models as $model) {
-            if (!$this->hasTable($model)) {
-                $this->createTable($model);
+            if (!$this->hasTable($model) && $this->createTable($model)) {
+                $created[] = $model->tableName();
             }
         }
 
@@ -167,23 +175,26 @@ class Sync
             $this->createIndexes($model);
         }
 
-        return $this;
+        return $created;
     }
 
     /**
      * Drop all tables from database
-     * @return $this
+     * @return array
      */
     public function delete()
     {
+        $deleted = [];
         foreach ($this->_models as $model) {
             if ($this->hasTable($model)) {
                 $this->dropIndexes($model);
-                $this->dropTable($model);
+                if ($this->dropTable($model)) {
+                    $deleted[] = $model->tableName();
+                }
             }
         }
 
-        return $this;
+        return $deleted;
     }
 
     /**

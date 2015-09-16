@@ -19,6 +19,7 @@ use ArrayAccess;
 use Exception;
 use Mindy\Exception\InvalidConfigException;
 use Mindy\Exception\InvalidParamException;
+use Mindy\Helper\Alias;
 use Mindy\Helper\Json;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
@@ -603,7 +604,13 @@ abstract class Base implements ArrayAccess, Serializable
         } else {
             $class = $normalizeClass;
         }
-        $tableName = self::normalizeTableName(self::getModuleName()) . '_' . self::normalizeTableName($class);
+
+        $object = new ReflectionClass($className);
+        $modulesPath = Alias::get('Modules');
+        $tmp = str_replace([$modulesPath, 'Models'], '', dirname($object->getFilename()));
+        $nameString = str_replace(DIRECTORY_SEPARATOR, '', $tmp);
+
+        $tableName = self::normalizeTableName($nameString) . '_' . self::normalizeTableName($class);
         return "{{%" . $tableName . "}}";
     }
 
@@ -625,7 +632,10 @@ abstract class Base implements ArrayAccess, Serializable
         // return $raw[1];
 
         $object = new ReflectionClass(get_called_class());
-        return basename(dirname(dirname($object->getFilename())));
+        $modulesPath = Alias::get('Modules');
+        $tmp = explode(DIRECTORY_SEPARATOR, str_replace($modulesPath, '', dirname($object->getFilename())));
+        $clean = array_filter($tmp);
+        return array_shift($clean);
     }
 
     /**
