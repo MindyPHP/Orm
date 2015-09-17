@@ -902,6 +902,9 @@ class QuerySet extends QuerySetBase
             $orderFields = array_keys($this->orderBy);
             $this->select = array_merge($this->select, $orderFields);
             $tableSchema = $this->getDb()->getSchema()->getTableSchema($this->model->tableName());
+            if ($tableSchema === null) {
+                throw new Exception("Table " . $this->model->tableName() . " missing in database");
+            }
             $groupFields = [];
             foreach ($tableSchema->getColumnNames() as $name) {
                 $groupFields[] = $this->_tableAlias . '.' . $this->quoteColumnName($name);
