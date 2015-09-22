@@ -508,4 +508,16 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
         $this->getQuerySet()->noCache();
         return $this;
     }
+
+    public function join($type, $table, $on = '', $params = [])
+    {
+        $this->getQuerySet()->join($type, $table, $on, $params);
+        return $this;
+    }
+
+    public function from($tables)
+    {
+        $this->getQuerySet()->from($tables);
+        return $this;
+    }
 }

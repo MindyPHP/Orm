@@ -8,7 +8,7 @@ use Mindy\Helper\File as FileHelper;
 use Mindy\Locale\Translate;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\Files\LocalFile;
-use Mindy\Storage\Files\RemoteFile;
+use Mindy\Storage\Files\ResourceFile;
 use Mindy\Storage\Files\UploadedFile;
 use Mindy\Validation\FileValidator;
 
@@ -144,6 +144,13 @@ class FileField extends CharField
             } else if (is_string($value) && $value !== $this->value && is_file($value)) {
                 $this->deleteOld();
                 $value = $this->setFile(new LocalFile($value));
+                $this->value = $value;
+            } else if (is_string($value) && strpos($value, 'data:') !== false) {
+                list($type, $value) = explode(';', $value);
+                list(, $value) = explode(',', $value);
+                $value = base64_decode($value);
+                $this->deleteOld();
+                $value = $this->setFile(new ResourceFile($value, null, null, $type));
                 $this->value = $value;
             } else if ($value instanceof File) {
                 $this->deleteOld();
