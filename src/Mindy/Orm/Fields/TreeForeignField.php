@@ -43,13 +43,6 @@ class TreeForeignField extends ForeignField
             $disabled[] = $model->pk;
         }
 
-        if ($this->null === false && $this->autoFetch === false && ($this instanceof BooleanField) === false) {
-            $validator = new RequiredValidator;
-            $validator->setName($this->name);
-            $validator->setModel($this);
-            $validators[] = $validator;
-        }
-
         return parent::getFormField($form, $fieldClass, array_merge([
             'disabled' => $disabled,
             'choices' => empty($this->choices) ? $choices : $this->choices
