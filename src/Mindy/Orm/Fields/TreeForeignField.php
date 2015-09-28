@@ -43,12 +43,6 @@ class TreeForeignField extends ForeignField
             $disabled[] = $model->pk;
         }
 
-        $validators = [];
-        if ($form->hasField($this->name)) {
-            $field = $form->getField($this->name);
-            $validators = $field->validators;
-        }
-
         if ($this->null === false && $this->autoFetch === false && ($this instanceof BooleanField) === false) {
             $validator = new RequiredValidator;
             $validator->setName($this->name);
@@ -56,20 +50,9 @@ class TreeForeignField extends ForeignField
             $validators[] = $validator;
         }
 
-        return Creator::createObject(array_merge([
-            'class' => $fieldClass,
-            'required' => $this->required || !$this->null,
-            'form' => $form,
-            'choices' => empty($this->choices) ? $choices : $this->choices,
-            'name' => $this->name,
-            'label' => $this->verboseName,
-            'hint' => $this->helpText,
-            'value' => $this->getValue(),
-            'validators' => array_merge($validators, $this->validators),
+        return parent::getFormField($form, $fieldClass, array_merge([
             'disabled' => $disabled,
-//            'html' => [
-//                'multiple' => $this->value instanceof RelatedManager
-//            ]
+            'choices' => empty($this->choices) ? $choices : $this->choices
         ], $extra));
     }
 }
