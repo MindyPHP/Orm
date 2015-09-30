@@ -252,7 +252,9 @@ class Migration
                 } else if (is_a($field, ManyToManyField::className())) {
                     /* @var $field \Mindy\Orm\Fields\ManyToManyField */
                     if ($field->through === null) {
-                        $lines[] = $this->space . '$this->createTable("' . $field->getTableName() . '", ' . $this->compileColumns($field->getColumns()) . ', null, true);';
+                        $lines[] = $this->space . 'if ($this->hasTable("' . $field->getTableName() . '") === false) {';
+                        $lines[] = $this->space . $this->space . '$this->createTable("' . $field->getTableName() . '", ' . $this->compileColumns($field->getColumns()) . ', null, true);';
+                        $lines[] = $this->space . '}';
                     }
                 }
             }
