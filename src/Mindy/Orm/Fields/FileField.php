@@ -50,6 +50,10 @@ class FileField extends CharField
 
     public function init()
     {
+        if (!$this->isRequired()) {
+            $this->null = true;
+        }
+
         $hasFileValidator = false;
         foreach ($this->validators as $validator) {
             if ($validator instanceof FileValidator) {
