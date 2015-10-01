@@ -1,7 +1,7 @@
 {
   "name": "mindy/orm",
   "homepage": "https://github.com/studio107/Mindy_Orm",
-  "version": "0.9.7.6",
+  "version": "0.9.7.7",
   "license": "MIT",
   "autoload": {
     "psr-4": {
