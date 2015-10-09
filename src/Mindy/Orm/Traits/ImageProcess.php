@@ -5,6 +5,7 @@ namespace Mindy\Orm\Traits;
 use Imagine\Image\Box;
 use Imagine\Image\ImagineInterface;
 use Imagine\Image\ManipulatorInterface;
+use Imagine\Image\Metadata\DefaultMetadataReader;
 use Imagine\Image\Point;
 use Mindy\Exception\Exception;
 use Mindy\Helper\Alias;
@@ -58,17 +59,23 @@ trait ImageProcess
             switch ($driver) {
                 case self::$DRIVER_GMAGICK:
                     if (class_exists('Gmagick', false)) {
-                        return new \Imagine\Gmagick\Imagine();
+                        $imagine = new \Imagine\Gmagick\Imagine();
+                        $imagine->setMetadataReader(new DefaultMetadataReader());
+                        return $imagine;
                     }
                     break;
                 case self::$DRIVER_IMAGICK:
                     if (class_exists('Imagick', false)) {
-                        return new \Imagine\Imagick\Imagine();
+                        $imagine = new \Imagine\Imagick\Imagine();
+                        $imagine->setMetadataReader(new DefaultMetadataReader());
+                        return $imagine;
                     }
                     break;
                 case self::$DRIVER_GD2:
                     if (function_exists('gd_info')) {
-                        return new \Imagine\Gd\Imagine();
+                        $imagine = new \Imagine\Gd\Imagine();
+                        $imagine->setMetadataReader(new DefaultMetadataReader());
+                        return $imagine;
                     }
                     break;
                 default:
