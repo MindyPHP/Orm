@@ -15,6 +15,17 @@ class CharField extends Field
         return 'string(' . (int)$this->length . ')';
     }
 
+    public function setDbValue($value)
+    {
+        $this->value = (string)$value;
+        return $this;
+    }
+
+    public function getDbPrepValue()
+    {
+        return (string)$this->value;
+    }
+
     public function sqlDefault()
     {
         return $this->default === null ? '' : "DEFAULT '{$this->default}'";

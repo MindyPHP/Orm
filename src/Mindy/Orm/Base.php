@@ -886,11 +886,9 @@ abstract class Base implements ArrayAccess, Serializable
                 $field = $meta->getForeignField($name);
                 $field->setModel($this)->setValue($value);
                 $prepValues[$name] = $field->getDbPrepValue();
-
             } else if ($this->hasField($name)) {
                 $field = $this->getField($name);
                 $prepValues[$name] = $field->getDbPrepValue();
-
             } else {
                 $prepValues[$name] = $value;
             }
