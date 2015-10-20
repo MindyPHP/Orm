@@ -247,6 +247,10 @@ class TreeQuerySet extends QuerySet
      */
     protected function rebuildLftRgt(Connection $db, $table)
     {
+        $lft = $db->quoteColumnName('lft');
+        $rgt = $db->quoteColumnName('rgt');
+        $root = $db->quoteColumnName('root');
+
         $subQuery = new Query([
             'select' => 'parent_id',
             'from' => $table,
@@ -256,17 +260,13 @@ class TreeQuerySet extends QuerySet
         $query = new Query([
             'select' => [
                 'id', 'root', 'lft', 'rgt',
-                new Expression($db->quoteColumnName('rgt') . '-' . $db->quoteColumnName('lft') . '-1 AS move')
+                new Expression($rgt . '-' . $lft . '-1 AS move')
             ],
             'from' => $table,
-            'where' => new Expression('NOT lft = (rgt-1) AND NOT id IN(' . $subQuery->allSql() . ')'),
-            'orderBy' => ['rgt' => SORT_DESC]
+            'where' => new Expression('NOT ' . $lft . ' = (' . $rgt . '-1) AND NOT ' . $db->quoteColumnName('id') . ' IN(' . $subQuery->allSql() . ')'),
+            'orderBy' => ['rgt' => SORT_ASC]
         ]);
         $rows = $query->createCommand()->queryAll();
-
-        $lft = $db->quoteColumnName('lft');
-        $rgt = $db->quoteColumnName('rgt');
-        $root = $db->quoteColumnName('root');
 
         foreach ($rows as $row) {
             $sql = 'UPDATE ' . $table . ' SET ' . $lft . ' = ' . $lft . ' - :move, ' . $rgt . ' = ' . $rgt . ' - :move WHERE ' . $root . ' = :root AND ' . $lft . ' > :rgt';
