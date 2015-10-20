@@ -22,7 +22,7 @@ $app = \Mindy\Base\Mindy::getInstance([
     'components' => [
         'db' => [
             'class' => '\Mindy\Query\ConnectionManager',
-            'databases' => require_once('config_local.php')
+            'databases' => getenv('TRAVIS') ? require_once('config_travis.php') : require_once('config_local.php')
         ],
         'cache' => [
             'class' => '\Mindy\Cache\DummyCache'
