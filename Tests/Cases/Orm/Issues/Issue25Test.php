@@ -13,10 +13,10 @@
 
 namespace Tests\Cases\Orm\Issues;
 
-use Tests\Models\Customer;
-use Tests\Models\ModelTyre;
-use Tests\Models\Tyre;
-use Tests\Models\User;
+use Modules\Tests\Models\Customer;
+use Modules\Tests\Models\ModelTyre;
+use Modules\Tests\Models\Tyre;
+use Modules\Tests\Models\User;
 use Tests\OrmDatabaseTestCase;
 
 class Issue25Test extends OrmDatabaseTestCase

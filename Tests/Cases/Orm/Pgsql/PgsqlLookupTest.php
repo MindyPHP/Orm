@@ -15,8 +15,8 @@ namespace Tests\Cases\Orm\Pgsql;
 
 use Mindy\Orm\Q\AndQ;
 use Mindy\Orm\Q\OrQ;
-use Tests\Models\Product;
-use Tests\Models\ProductList;
+use Modules\Tests\Models\Product;
+use Modules\Tests\Models\ProductList;
 use Tests\Orm\LookupTest;
 
 class PgsqlLookupTest extends LookupTest

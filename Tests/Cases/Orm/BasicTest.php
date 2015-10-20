@@ -16,20 +16,20 @@ namespace Tests\Orm;
 
 use Mindy\Orm\Fields\MarkdownField;
 use Mindy\Orm\Fields\MarkdownHtmlField;
-use Tests\Models\Category;
-use Tests\Models\Customer;
-use Tests\Models\CustomPk;
-use Tests\Models\Group;
-use Tests\Models\Hits;
-use Tests\Models\InstanceTestModel;
-use Tests\Models\MarkdownModel;
-use Tests\Models\Membership;
-use Tests\Models\Place;
-use Tests\Models\Product;
-use Tests\Models\ProductList;
-use Tests\Models\Restaurant;
-use Tests\Models\Solution;
-use Tests\Models\User;
+use Modules\Tests\Models\Category;
+use Modules\Tests\Models\Customer;
+use Modules\Tests\Models\CustomPk;
+use Modules\Tests\Models\Group;
+use Modules\Tests\Models\Hits;
+use Modules\Tests\Models\InstanceTestModel;
+use Modules\Tests\Models\MarkdownModel;
+use Modules\Tests\Models\Membership;
+use Modules\Tests\Models\Place;
+use Modules\Tests\Models\Product;
+use Modules\Tests\Models\ProductList;
+use Modules\Tests\Models\Restaurant;
+use Modules\Tests\Models\Solution;
+use Modules\Tests\Models\User;
 use Tests\OrmDatabaseTestCase;
 
 abstract class BasicTest extends OrmDatabaseTestCase
@@ -120,7 +120,7 @@ abstract class BasicTest extends OrmDatabaseTestCase
 
         $product->save();
 
-        $this->assertInstanceOf('\Tests\Models\Category', $product->category);
+        $this->assertInstanceOf('\Modules\Tests\Models\Category', $product->category);
         $this->assertTrue(is_numeric($product->category_id));
         $this->assertEquals(1, $product->category_id);
     }
@@ -159,7 +159,7 @@ abstract class BasicTest extends OrmDatabaseTestCase
         $this->assertEquals(1, $product->getAttribute('category_id'));
         $product->save();
 
-        $this->assertInstanceOf('\Tests\Models\Category', $product->category);
+        $this->assertInstanceOf('\Modules\Tests\Models\Category', $product->category);
         $this->assertTrue(is_numeric($product->category_id));
     }
 

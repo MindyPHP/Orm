@@ -15,16 +15,16 @@
 namespace Tests\Orm;
 
 use Mindy\Query\ConnectionManager;
-use Tests\Models\Blogger;
-use Tests\Models\Category;
-use Tests\Models\Group;
-use Tests\Models\Membership;
-use Tests\Models\Product;
-use Tests\Models\ProductList;
-use Tests\Models\Project;
-use Tests\Models\ProjectMembership;
-use Tests\Models\User;
-use Tests\Models\Worker;
+use Modules\Tests\Models\Blogger;
+use Modules\Tests\Models\Category;
+use Modules\Tests\Models\Group;
+use Modules\Tests\Models\Membership;
+use Modules\Tests\Models\Product;
+use Modules\Tests\Models\ProductList;
+use Modules\Tests\Models\Project;
+use Modules\Tests\Models\ProjectMembership;
+use Modules\Tests\Models\User;
+use Modules\Tests\Models\Worker;
 use Tests\OrmDatabaseTestCase;
 
 abstract class ManyToManyFieldTest extends OrmDatabaseTestCase

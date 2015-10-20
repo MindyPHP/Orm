@@ -12,7 +12,7 @@
  * @date 30/04/14.04.2014 16:36
  */
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
 
 use Mindy\Orm\Manager;
 use Mindy\Orm\Model;

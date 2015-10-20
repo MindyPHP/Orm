@@ -14,7 +14,7 @@
 
 namespace Tests\Orm;
 
-use Tests\Models\Category;
+use Modules\Tests\Models\Category;
 use Tests\OrmDatabaseTestCase;
 
 abstract class ManagerTest extends OrmDatabaseTestCase
@@ -45,7 +45,7 @@ abstract class ManagerTest extends OrmDatabaseTestCase
     public function testGet()
     {
         $founded = Category::objects()->get(['name' => 'one']);
-        $this->assertInstanceOf('\Tests\Models\Category', $founded);
+        $this->assertInstanceOf('\Modules\Tests\Models\Category', $founded);
         $this->assertEquals('one', $founded->name);
     }
 

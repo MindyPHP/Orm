@@ -13,8 +13,8 @@
 
 namespace Tests\Cases\Orm\Pgsql;
 
-use Tests\Models\Customer;
-use Tests\Models\User;
+use Modules\Tests\Models\Customer;
+use Modules\Tests\Models\User;
 use Tests\Orm\LookupRelationTest;
 
 class PgsqlLookupRelationTest extends LookupRelationTest

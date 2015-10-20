@@ -15,9 +15,9 @@
 namespace Tests\Orm;
 
 use Mindy\Query\ConnectionManager;
-use Tests\Models\Customer;
-use Tests\Models\Solution;
-use Tests\Models\User;
+use Modules\Tests\Models\Customer;
+use Modules\Tests\Models\Solution;
+use Modules\Tests\Models\User;
 use Tests\OrmDatabaseTestCase;
 
 abstract class SaveUpdateTest extends OrmDatabaseTestCase

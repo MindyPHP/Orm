@@ -12,7 +12,7 @@
  * @date 05/05/14.05.2014 18:53
  */
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
 
 
 use Mindy\Orm\Fields\AutoSlugField;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
 
 use Mindy\Orm\Fields\BlobField;
 use Mindy\Orm\Fields\CharField;

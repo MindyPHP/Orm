@@ -9,24 +9,22 @@
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
- * @date 05/05/14.05.2014 19:53
+ * @date 15/07/14.07.2014 19:14
  */
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
 
 
-use Mindy\Orm\Fields\IntField;
+use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Model;
 
-class Hits extends Model
+class Permission extends Model
 {
     public static function getFields()
     {
         return [
-            'hits' => [
-                'class' => IntField::className(),
-                'default' => 0
-            ]
+            'code' => ['class' => CharField::className()]
         ];
     }
 }
+

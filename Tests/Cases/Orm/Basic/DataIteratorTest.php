@@ -18,7 +18,7 @@ use ArrayAccess;
 use ArrayIterator;
 use IteratorAggregate;
 use Mindy\Tests\DatabaseTestCase;
-use Tests\Models\BookCategory;
+use Modules\Tests\Models\BookCategory;
 
 class Cls implements IteratorAggregate, ArrayAccess
 {

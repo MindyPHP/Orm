@@ -28,8 +28,8 @@ class ImageFieldTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->media = dirname(Mindy::app()->basePath) . '/media';
-        Alias::set('www', dirname(Mindy::app()->basePath));
+        $this->media = Mindy::app()->basePath . '/media';
+        Alias::set('www', Mindy::app()->basePath);
     }
 
     public function testSet()
@@ -39,7 +39,7 @@ class ImageFieldTest extends TestCase
                 return '';
             }
         ]);
-        $image = dirname(Mindy::app()->basePath) . '/mock/lena.png';
+        $image = Mindy::app()->basePath . '/mock/lena.png';
         $imageName = $field->setFile(new LocalFile($image));
 
         $this->assertFileExists($this->media . '/' . $imageName);
@@ -75,7 +75,7 @@ class ImageFieldTest extends TestCase
             ]
         ]);
 
-        $image = dirname(Mindy::app()->basePath) . '/mock/lena.png';
+        $image = Mindy::app()->basePath . '/mock/lena.png';
         $imageName = $field->setFile(new LocalFile($image));
 
         $this->assertFileExists($this->media . '/' . $imageName);

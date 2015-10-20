@@ -13,9 +13,9 @@
 
 namespace Tests\Cases\Orm\Pgsql;
 
-use Tests\Models\Project;
-use Tests\Models\ProjectMembership;
-use Tests\Models\Worker;
+use Modules\Tests\Models\Project;
+use Modules\Tests\Models\ProjectMembership;
+use Modules\Tests\Models\Worker;
 use Tests\Orm\ManyToManyFieldTest;
 
 class PgsqlManyToManyFieldTest extends ManyToManyFieldTest

@@ -12,7 +12,7 @@
  * @date 04/03/14.03.2014 01:17
  */
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
 
 
 use Mindy\Orm\Fields\CharField;
@@ -23,7 +23,7 @@ use Mindy\Orm\Model;
 
 /**
  * Class Blogger
- * @package Tests\Models
+ * @package Modules\Tests\Models
  * @property string name
  * @property \Mindy\Orm\ManyToManyManager subscribers
  * @property \Mindy\Orm\ManyToManyManager subscribes

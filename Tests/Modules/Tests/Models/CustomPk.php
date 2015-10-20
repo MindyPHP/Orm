@@ -1,33 +1,31 @@
 <?php
-
 /**
- * All rights reserved.
+ * 
  *
+ * All rights reserved.
+ * 
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
- * @date 14/02/15 16:32
+ * @date 17/05/14.05.2014 16:50
  */
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
+
 
 use Mindy\Orm\Fields\CharField;
-use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Model;
 
-class ModelTyre extends Model
+class CustomPk extends Model
 {
     public static function getFields()
     {
         return [
-            'name' => [
+            'id' => [
                 'class' => CharField::className(),
-            ],
-            'tyre' => [
-                'class' => ForeignField::className(),
-                'modelClass' => Tyre::className()
+                'primary' => true
             ]
         ];
     }

@@ -12,7 +12,7 @@
  * @date 15/09/14.09.2014 15:11
  */
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
 
 use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Fields\DateTimeField;

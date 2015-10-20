@@ -1,7 +1,6 @@
 <?php
+
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
@@ -9,27 +8,26 @@
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
- * @date 04/01/14.01.2014 21:19
+ * @date 14/02/15 16:32
  */
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
 
-
+use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Model;
 
-class Membership extends Model
+class ModelTyre extends Model
 {
     public static function getFields()
     {
         return [
-            'group' => [
-                'class' => ForeignField::className(),
-                'modelClass' => Group::className()
+            'name' => [
+                'class' => CharField::className(),
             ],
-            'user' => [
+            'tyre' => [
                 'class' => ForeignField::className(),
-                'modelClass' => User::className()
+                'modelClass' => Tyre::className()
             ]
         ];
     }

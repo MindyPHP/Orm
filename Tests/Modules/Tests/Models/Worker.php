@@ -9,22 +9,23 @@
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
- * @date 04/03/14.03.2014 01:17
+ * @date 04/03/14.03.2014 01:15
  */
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
+
 
 use Mindy\Orm\Fields\CharField;
-use Mindy\Orm\Fields\OneToOneField;
+use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Model;
 
 /**
- * Class Place
- * @package Tests\Models
+ * Class Worker
+ * @package Modules\Tests\Models
  * @property string name
- * @property \Tests\Models\Restaurant restaurant
+ * @property \Mindy\Orm\ManyToManyManager projects
  */
-class Place extends Model
+class Worker extends Model
 {
     public static function getFields()
     {
@@ -32,10 +33,10 @@ class Place extends Model
             'name' => [
                 'class' => CharField::className()
             ],
-            'restaurant' => [
-                'class' => OneToOneField::className(),
-                'modelClass' => Restaurant::className(),
-                'reversed' => true
+            'projects' => [
+                'class' => ManyToManyField::className(),
+                'modelClass' => Project::className(),
+                'through' => ProjectMembership::className()
             ]
         ];
     }

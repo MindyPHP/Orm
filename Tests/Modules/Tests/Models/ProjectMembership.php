@@ -12,7 +12,7 @@
  * @date 04/01/14.01.2014 21:19
  */
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
 
 
 use Mindy\Orm\Fields\ForeignField;

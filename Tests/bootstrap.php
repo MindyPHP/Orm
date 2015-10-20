@@ -30,7 +30,7 @@ require __DIR__ . '/Cases/Orm/SubqueriesTest.php';
 require __DIR__ . '/Cases/Orm/SyncTest.php';
 require __DIR__ . '/Cases/Orm/TreeModelTest.php';
 
-$models = glob(realpath(__DIR__) . '/Models/*.php');
+$models = glob(realpath(__DIR__) . '/Modules/Tests/Models/*.php');
 foreach ($models as $model) {
     include($model);
 }

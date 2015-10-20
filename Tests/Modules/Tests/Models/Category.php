@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -12,19 +12,20 @@
  * @date 04/03/14.03.2014 01:17
  */
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
+
 
 use Mindy\Orm\Fields\CharField;
-use Mindy\Orm\Fields\OneToOneField;
+use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Model;
 
 /**
- * Class Restaurant
- * @package Tests\Models
+ * Class Category
+ * @package Modules\Tests\Models
  * @property string name
- * @property \Tests\Models\Place restaurant
+ * @property \Mindy\Orm\HasManyManager products
  */
-class Restaurant extends Model
+class Category extends Model
 {
     public static function getFields()
     {
@@ -32,9 +33,12 @@ class Restaurant extends Model
             'name' => [
                 'class' => CharField::className()
             ],
-            'place' => [
-                'class' => OneToOneField::className(),
-                'modelClass' => Place::className(),
+            'products' => [
+                'class' => HasManyField::className(),
+                'modelClass' => Product::className(),
+                'null' => true,
+                'relatedName' => 'category',
+                'editable' => false
             ],
         ];
     }

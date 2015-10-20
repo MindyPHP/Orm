@@ -13,11 +13,11 @@
 
 namespace Tests\Orm;
 
-use Tests\Models\Category;
-use Tests\Models\Customer;
-use Tests\Models\Order;
-use Tests\Models\Product;
-use Tests\Models\User;
+use Modules\Tests\Models\Category;
+use Modules\Tests\Models\Customer;
+use Modules\Tests\Models\Order;
+use Modules\Tests\Models\Product;
+use Modules\Tests\Models\User;
 use Tests\OrmDatabaseTestCase;
 
 class NullTest extends OrmDatabaseTestCase

@@ -15,10 +15,10 @@
 namespace Tests\Orm;
 
 use Mindy\Query\ConnectionManager;
-use Tests\Models\Customer;
-use Tests\Models\Group;
-use Tests\Models\Membership;
-use Tests\Models\User;
+use Modules\Tests\Models\Customer;
+use Modules\Tests\Models\Group;
+use Modules\Tests\Models\Membership;
+use Modules\Tests\Models\User;
 use Tests\OrmDatabaseTestCase;
 
 abstract class QueryTest extends OrmDatabaseTestCase

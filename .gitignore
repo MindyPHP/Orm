@@ -7,8 +7,9 @@ benchmark
 build
 composer.lock
 vendor
-Tests/protected/runtime/*
-Tests/protected/migration/*
+Tests/media/*
+Tests/runtime/*
+Tests/migration/*
 Tests/config_local.php
 test.php
 phpunit.phar

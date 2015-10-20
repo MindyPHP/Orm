@@ -14,9 +14,9 @@
 
 namespace Tests\Orm;
 
-use Tests\Models\Category;
-use Tests\Models\Product;
-use Tests\Models\User;
+use Modules\Tests\Models\Category;
+use Modules\Tests\Models\Product;
+use Modules\Tests\Models\User;
 use Tests\OrmDatabaseTestCase;
 
 class ValidationTest extends OrmDatabaseTestCase

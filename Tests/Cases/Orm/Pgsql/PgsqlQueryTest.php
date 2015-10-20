@@ -13,7 +13,7 @@
 
 namespace Tests\Cases\Orm\Pgsql;
 
-use Tests\Models\User;
+use Modules\Tests\Models\User;
 use Tests\Orm\QueryTest;
 
 class PgsqlQueryTest extends QueryTest

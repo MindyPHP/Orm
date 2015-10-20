@@ -14,13 +14,13 @@
 namespace Tests\Cases\Orm\Issues;
 
 use Mindy\Query\ConnectionManager;
-use Tests\Models\Category;
-use Tests\Models\ModelWheel;
+use Modules\Tests\Models\Category;
+use Modules\Tests\Models\ModelWheel;
 use Tests\OrmDatabaseTestCase;
 
 class Issue79Test extends OrmDatabaseTestCase
 {
-    public $driver = 'sqlite';
+    public $driver = 'mysql';
 
     public function getModels()
     {
@@ -75,7 +75,7 @@ class Issue79Test extends OrmDatabaseTestCase
         ];
 
         foreach($data as $item) {
-            ModelWheel::objects()->create($item);
+            (new ModelWheel($item))->save();
         }
 
         $this->assertEquals(9, ModelWheel::objects()->count());

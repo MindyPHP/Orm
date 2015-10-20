@@ -20,7 +20,10 @@ use Tests\OrmDatabaseTestCase;
 
 class User1 extends Model
 {
-
+    public static function tableName()
+    {
+        return "{{tests_user1}}";
+    }
 }
 
 class Issue extends Model
@@ -41,6 +44,11 @@ class Issue extends Model
                 'autoNowAdd' => true
             ]
         ];
+    }
+
+    public static function tableName()
+    {
+        return "{{tests_issue}}";
     }
 }
 

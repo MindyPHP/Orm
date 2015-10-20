@@ -15,8 +15,8 @@
 namespace Tests\Orm;
 
 use Mindy\Query\ConnectionManager;
-use Tests\Models\Category;
-use Tests\Models\Product;
+use Modules\Tests\Models\Category;
+use Modules\Tests\Models\Product;
 use Tests\OrmDatabaseTestCase;
 
 abstract class HasManyFieldTest extends OrmDatabaseTestCase

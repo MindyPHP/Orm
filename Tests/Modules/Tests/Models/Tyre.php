@@ -11,7 +11,7 @@
  * @date 14/02/15 16:31
  */
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
 
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Model;

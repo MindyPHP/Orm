@@ -12,7 +12,7 @@
  * @date 04/03/14.03.2014 01:17
  */
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
 
 
 use Mindy\Orm\Fields\CharField;
@@ -24,11 +24,11 @@ use Mindy\Orm\Validator\MaxLengthValidator;
 
 /**
  * Class Product
- * @package Tests\Models
+ * @package Modules\Tests\Models
  * @property string name
  * @property string price
  * @property string description
- * @property \Tests\Models\Category category
+ * @property \Modules\Tests\Models\Category category
  * @property \Mindy\Orm\ManyToManyManager lists
  */
 class Product extends Model

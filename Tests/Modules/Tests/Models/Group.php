@@ -12,7 +12,7 @@
  * @date 04/03/14.03.2014 01:15
  */
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
 
 
 use Mindy\Orm\Fields\CharField;
@@ -20,12 +20,12 @@ use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Model;
 
 /**
- * Class Project
- * @package Tests\Models
+ * Class Group
+ * @package Modules\Tests\Models
  * @property string name
- * @property \Mindy\Orm\ManyToManyManager workers
+ * @property \Mindy\Orm\ManyToManyManager users
  */
-class Project extends Model
+class Group extends Model
 {
     public static function getFields()
     {
@@ -33,10 +33,10 @@ class Project extends Model
             'name' => [
                 'class' => CharField::className()
             ],
-            'workers' => [
+            'users' => [
                 'class' => ManyToManyField::className(),
-                'modelClass' => Worker::className(),
-                'through' => ProjectMembership::className()
+                'modelClass' => User::className(),
+                'through' => Membership::className()
             ]
         ];
     }

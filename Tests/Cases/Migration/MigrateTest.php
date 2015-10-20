@@ -13,6 +13,7 @@
 
 namespace Tests\Cases\Migration;
 
+use Mindy\Base\Mindy;
 use Mindy\Helper\File;
 use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Migration;
@@ -30,6 +31,11 @@ class Test extends Model
             ]
         ];
     }
+
+    public static function tableName()
+    {
+        return "{{tests_test}}";
+    }
 }
 
 class TestChanged extends Model
@@ -43,6 +49,11 @@ class TestChanged extends Model
                 'verboseName' => "Name"
             ]
         ];
+    }
+
+    public static function tableName()
+    {
+        return "{{tests_test_changed}}";
     }
 }
 
@@ -59,7 +70,7 @@ class MigrateTest extends OrmDatabaseTestCase
     {
         parent::setUp();
 
-        $this->migrationPath = realpath(__DIR__ . '/../../protected/migration');
+        $this->migrationPath = Mindy::app()->basePath . DIRECTORY_SEPARATOR . 'migration';
         if (is_dir($this->migrationPath)) {
             File::removeDirectory($this->migrationPath);
         }

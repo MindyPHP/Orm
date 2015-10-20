@@ -12,7 +12,7 @@
  * @date 04/03/14.03.2014 01:14
  */
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
 
 
 use Mindy\Orm\Fields\ForeignField;
@@ -21,8 +21,8 @@ use Mindy\Orm\Model;
 
 /**
  * Class Customer
- * @package Tests\Models
- * @property \Tests\Models\User user
+ * @package Modules\Tests\Models
+ * @property \Modules\Tests\Models\User user
  * @property string address
  */
 class Customer extends Model

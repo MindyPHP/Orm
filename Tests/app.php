@@ -12,7 +12,7 @@ if ($debug) {
 }
 
 $app = \Mindy\Base\Mindy::getInstance([
-    'basePath' => dirname(__FILE__) . '/protected',
+    'basePath' => dirname(__FILE__),
     'name' => 'Mindy',
     'locale' => [
         'language' => 'en',

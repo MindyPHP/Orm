@@ -19,12 +19,12 @@ use Mindy\Orm\Q\AndQ;
 use Mindy\Orm\Q\OrQ;
 use Mindy\Query\ConnectionManager;
 use Tests\OrmDatabaseTestCase;
-use Tests\Models\Category;
-use Tests\Models\Customer;
-use Tests\Models\Order;
-use Tests\Models\Product;
-use Tests\Models\ProductList;
-use Tests\Models\User;
+use Modules\Tests\Models\Category;
+use Modules\Tests\Models\Customer;
+use Modules\Tests\Models\Order;
+use Modules\Tests\Models\Product;
+use Modules\Tests\Models\ProductList;
+use Modules\Tests\Models\User;
 
 
 abstract class LookupTest extends OrmDatabaseTestCase

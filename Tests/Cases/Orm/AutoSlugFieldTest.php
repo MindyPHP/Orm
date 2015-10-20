@@ -16,7 +16,7 @@ namespace Tests\Orm;
 
 
 use Tests\OrmDatabaseTestCase;
-use Tests\Models\NestedModel;
+use Modules\Tests\Models\NestedModel;
 
 abstract class AutoSlugFieldTest extends OrmDatabaseTestCase
 {

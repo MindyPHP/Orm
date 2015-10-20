@@ -11,7 +11,7 @@
  * @date 12/03/15 16:55
  */
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
 
 use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Fields\ImageField;

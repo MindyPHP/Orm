@@ -14,7 +14,7 @@
 namespace Tests\Cases\Orm\Issues;
 
 use stdClass;
-use Tests\Models\Session;
+use Modules\Tests\Models\Session;
 use Tests\OrmDatabaseTestCase;
 
 class IssueCustomPkTest extends OrmDatabaseTestCase

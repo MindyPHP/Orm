@@ -14,7 +14,7 @@
 
 namespace Tests\Orm\Mysql;
 
-use Tests\Models\ProductList;
+use Modules\Tests\Models\ProductList;
 use Tests\Orm\LookupTest;
 
 class MysqlLookupTest extends LookupTest

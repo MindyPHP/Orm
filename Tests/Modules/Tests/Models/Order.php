@@ -12,7 +12,7 @@
  * @date 04/03/14.03.2014 01:17
  */
 
-namespace Tests\Models;
+namespace Modules\Tests\Models;
 
 
 use Mindy\Orm\Fields\ForeignField;
@@ -22,8 +22,8 @@ use Mindy\Orm\Model;
 
 /**
  * Class Order
- * @package Tests\Models
- * @property \Tests\Models\Customer customer
+ * @package Modules\Tests\Models
+ * @property \Modules\Tests\Models\Customer customer
  * @property \Mindy\Orm\ManyToManyManager products
  */
 class Order extends Model
