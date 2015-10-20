@@ -364,12 +364,12 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
 
     public function delete(array $attributes = [])
     {
-        return $this->filter($attributes)->getQuerySet()->delete($attributes);
+        return $this->filter($attributes)->getQuerySet()->delete();
     }
 
     public function deleteSql(array $attributes = [])
     {
-        return $this->getQuerySet()->deleteSql($attributes);
+        return $this->filter($attributes)->getQuerySet()->deleteSql();
     }
 
     public function create(array $attributes)

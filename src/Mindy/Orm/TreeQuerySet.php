@@ -3,7 +3,9 @@
 namespace Mindy\Orm;
 
 use Mindy\Helper\Interfaces\Arrayable;
+use Mindy\Query\Connection;
 use Mindy\Query\Expression;
+use Mindy\Query\Query;
 
 /**
  * Class TreeQuerySet
@@ -150,71 +152,153 @@ class TreeQuerySet extends QuerySet
         return $this->order(['root', 'lft']);
     }
 
-    public function all($db = null)
+    public function all()
     {
-        $data = parent::all($db);
+        $data = parent::all();
         return $this->treeKey ? $this->toHierarchy($data) : $data;
     }
 
-    protected function prepareProblemLftRgt()
+    /**
+     * Find broken branch with deleted roots
+     * sql:
+     * SELECT t.id FROM tbl t WHERE
+     * t.parent_id IS NOT NULL AND t.root NOT IN (
+     *      SELECT r.id FROM tbl r WHERE r.parent_id IS NULL
+     * )
+     *
+     * Example: root1[1,4], nested1[2,3] and next delete root1 via QuerySet
+     * like this: Model::objects()->filter(['name' => 'root1'])->delete();
+     *
+     * Problem: we have nested1 with lft 2 and rgt 3 without root.
+     * Need find it and delete.
+     */
+    protected function deleteBranchWithoutRoot(Connection $db, $table)
     {
-        /*
-        select id, root, lft, rgt, (rgt-lft) as move
-        from {{table_name}} t
-        where not t.lft = (t.rgt-1)
-        and not id in ( select tc.parent_id from {{table_name}} tc where tc.parent_id = t.id );
-         */
-
-        /*
-        $qsRange = clone $this;
-        $alias = $qsRange->makeAliasKey($this->model->tableName(), false);
-        $qsRange->clearFilter();
-        $qsRange->orderBy = null;
-        $qsRange->select([
-            $alias . '.id',
-            $alias . '.root',
-            $alias . '.lft',
-            $alias . '.rgt',
-            new Expression('(' . $this->quoteColumnName($alias . '.rgt') . '-' . $this->quoteColumnName($alias . '.lft') . ') as move')
-        ]);
-        $qsRange->exclude([
-            'lft' => new Expression($this->quoteColumnName($alias . '.rgt') . '-1'),
+        $subQuery = new Query([
+            'select' => 'id',
+            'from' => $table,
+            'where' => new Expression($db->quoteColumnName('parent_id') . ' IS NULL')
         ]);
 
-        $qs = clone $this;
-        $qs->clearFilter();
-        $qs->orderBy = null;
-        $qs->exclude([
-            'parent_id__in' => $qsRange->valuesList(['id'], true)
+        $query = new Query([
+            'select' => 'id',
+            'from' => $table,
+            'where' =>
+                new Expression($db->quoteColumnName('parent_id') . ' IS NOT NULL') . ' AND ' .
+                new Expression($db->quoteColumnName('root') . ' NOT IN (' . $subQuery->allSql() . ')')
         ]);
-        d($qs->update(['']));
-        */
 
-        $elements = $this->createCommand()->setSql("
-        select id, root, lft, rgt, (rgt-lft-1) as move
-        from {$this->model->tableName()} t
-        where not t.lft = (t.rgt-1)
-        and not id in ( select tc.parent_id from {$this->model->tableName()} tc where tc.parent_id = t.id )
-        ORDER BY rgt DESC
-        ")->queryAll();
-
-        foreach ($elements as $element) {
-            $sql = "
-            update {$this->model->tableName()}
-            set lft = lft - {$element['move']}, rgt = rgt - {$element['move']}
-            where root = {$element['root']}
-              and lft > {$element['rgt']};
-            ";
-            $this->createCommand()->setSql($sql)->execute();
-            $sql = "
-            update {$this->model->tableName()}
-            set rgt = rgt - {$element['move']}
-            where root = {$element['root']}
-              and lft <  {$element['rgt']}
-              and rgt >= {$element['rgt']}
-            ";
-            $this->createCommand()->setSql($sql)->execute();
+        $ids = $query->createCommand()->queryColumn();
+        if (count($ids) > 0) {
+            $sql = 'DELETE FROM ' . $table . ' WHERE ' . $db->quoteColumnName('id') . ' IN (' . implode(',', $ids) . ')';
+            $db->createCommand($sql)->execute();
         }
+    }
+
+    /**
+     * Find broken branch with deleted parent
+     * sql:
+     * SELECT t.id, t.lft, t.rgt, t.root FROM tbl t
+     * WHERE t.parent_id NOT IN (SELECT r.id FROM tbl r)
+     *
+     * Example: root1[1,6], nested1[2,5], nested2[3,4] and next delete nested1 via QuerySet
+     * like this: Model::objects()->filter(['name' => 'nested1'])->delete();
+     *
+     * Problem: we have nested2 with lft 3 and rgt 4 without parent node.
+     * Need find it and delete.
+     */
+    protected function deleteBranchWithoutParent(Connection $db, $table)
+    {
+        $subQuery = new Query([
+            'select' => 'id',
+            'from' => $table
+        ]);
+
+        $query = new Query([
+            'select' => ['id', 'lft', 'rgt', 'root'],
+            'from' => $table,
+            'where' => new Expression($db->quoteColumnName('parent_id') . ' NOT IN (' . $subQuery->allSql() . ')')
+        ]);
+
+        $rows = $query->createCommand()->queryAll();
+        foreach ($rows as $row) {
+            $db->createCommand('DELETE FROM ' . $table . ' WHERE lft>=:lft AND rgt<=:rgt AND root=:root', [
+                ':lft' => $row['lft'],
+                ':rgt' => $row['rgt'],
+                ':root' => $row['root'],
+            ])->execute();
+        }
+    }
+
+    /*
+     * Find and delete broken branches without root, parent
+     * and with incorrect lft, rgt.
+     *
+     * sql:
+     * SELECT id, root, lft, rgt, (rgt-lft-1) AS move
+     * FROM tbl t
+     * WHERE NOT t.lft = (t.rgt-1)
+     * AND NOT id IN (
+     *      SELECT tc.parent_id
+     *      FROM tbl tc
+     *      WHERE tc.parent_id = t.id
+     * )
+     * ORDER BY rgt DESC
+     */
+    protected function rebuildLftRgt(Connection $db, $table)
+    {
+        $subQuery = new Query([
+            'select' => 'parent_id',
+            'from' => $table,
+            'where' => new Expression($db->quoteColumnName('parent_id') . '=' . $db->quoteColumnName('id'))
+        ]);
+
+        $query = new Query([
+            'select' => [
+                'id', 'root', 'lft', 'rgt',
+                new Expression($db->quoteColumnName('rgt') . '-' . $db->quoteColumnName('lft') . '-1 AS move')
+            ],
+            'from' => $table,
+            'where' => new Expression('NOT lft = (rgt-1) AND NOT id IN(' . $subQuery->allSql() . ')'),
+            'orderBy' => ['rgt' => SORT_DESC]
+        ]);
+        $rows = $query->createCommand()->queryAll();
+
+        $lft = $db->quoteColumnName('lft');
+        $rgt = $db->quoteColumnName('rgt');
+        $root = $db->quoteColumnName('root');
+
+        foreach ($rows as $row) {
+            $sql = 'UPDATE ' . $table . ' SET ' . $lft . ' = ' . $lft . ' - :move, ' . $rgt . ' = ' . $rgt . ' - :move WHERE ' . $root . ' = :root AND ' . $lft . ' > :rgt';
+            $db->createCommand($sql, [
+                ':move' => $row['move'],
+                ':root' => $row['root'],
+                ':rgt' => $row['rgt']
+            ])->execute();
+
+            $sql = 'UPDATE ' . $table . ' SET ' . $rgt . ' = ' . $rgt . ' - :move WHERE ' . $root . ' = :root AND ' . $lft . ' < :rgt AND ' . $rgt . ' >= :rgt';
+            $db->createCommand($sql, [
+                ':move' => $row['move'],
+                ':root' => $row['root'],
+                ':rgt' => $row['rgt']
+            ])->execute();
+        }
+    }
+
+    /**
+     * WARNING: Don't use QuerySet inside QuerySet in this
+     * method because recursion...
+     *
+     * @throws \Mindy\Query\Exception
+     */
+    protected function findAndFixCorruptedTree()
+    {
+        $model = $this->model;
+        $db = $model->getDb();
+        $table = $model->tableName();
+        $this->deleteBranchWithoutRoot($db, $table);
+        $this->deleteBranchWithoutParent($db, $table);
+        $this->rebuildLftRgt($db, $table);
     }
 
     /**
@@ -225,9 +309,7 @@ class TreeQuerySet extends QuerySet
     public function delete()
     {
         $deleted = parent::delete();
-
-        $this->prepareProblemLftRgt();
-
+        $this->findAndFixCorruptedTree();
         return $deleted;
     }
 
