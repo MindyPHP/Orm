@@ -23,7 +23,10 @@ class CharField extends Field
 
     public function getDbPrepValue()
     {
-        return $this->value === null ? null : (string)$this->value;
+        if ($this->value === null && !$this->null && $this->default) {
+            return $this->default;
+        }
+        return $this->value;
     }
 
     public function sqlDefault()
