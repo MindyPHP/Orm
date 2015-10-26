@@ -18,7 +18,7 @@ class Model extends Orm
     /**
      * @return \Mindy\Base\Module
      */
-    public function getModule()
+    public static function getModule()
     {
         return Mindy::app()->getModule(self::getModuleName());
     }
@@ -48,5 +48,10 @@ class Model extends Orm
     public function reverse($route, $data = null)
     {
         return Mindy::app()->urlManager->reverse($route, $data);
+    }
+
+    public static function t($str, $params = [], $dic = 'main')
+    {
+        return self::getModule()->t($str, $params, $dic);
     }
 }
