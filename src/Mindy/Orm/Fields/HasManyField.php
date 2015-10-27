@@ -69,7 +69,7 @@ class HasManyField extends RelatedField
 
     public function to()
     {
-        if (!$this->to) {
+        if (empty($this->to)) {
             $target = $this->getModel();
             $this->to = $target->normalizeTableName($target->classNameShort()) . '_' . $target->getPkName();
         }
@@ -78,7 +78,7 @@ class HasManyField extends RelatedField
 
     public function from()
     {
-        if (!$this->from) {
+        if (empty($this->from)) {
             $this->from = $this->getModel()->getPkName();
         }
         return $this->from;
