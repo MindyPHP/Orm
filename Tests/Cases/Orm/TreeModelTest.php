@@ -300,4 +300,118 @@ abstract class TreeModelTest extends OrmDatabaseTestCase
         // Root2 is not leaf (nested)
         $this->assertFalse(NestedModel::objects()->get(['name' => 'root2'])->getIsLeaf());
     }
+
+    public function testRemoveTree()
+    {
+        list($rootModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test']);
+        list($rootModelTwo, $created) = NestedModel::objects()->getOrCreate(['name' => 'test1']);
+        list($nestedModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test2', 'parent' => $rootModelTwo]);
+        list($threeLevelFirstModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test3', 'parent' => $nestedModel]);
+        list($nestedTwo, $created) = NestedModel::objects()->getOrCreate(['name' => 'test4', 'parent' => $rootModelTwo]);
+        list($nestedThree, $created) = NestedModel::objects()->getOrCreate(['name' => 'test5', 'parent' => $rootModelTwo]);
+        list($threeLevelModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test6', 'parent' => $nestedThree]);
+
+        $data = NestedModel::tree()->asTree()->all();
+        $this->assertEquals([
+            [
+                'id' => 1,
+                'parent_id' => null,
+                'lft' => 1,
+                'rgt' => 2,
+                'level' => 1,
+                'root' => 1,
+                'name' => 'test',
+                'slug' => 'test',
+                'items' => [],
+            ],
+            [
+                'id' => 2,
+                'parent_id' => null,
+                'lft' => 1,
+                'rgt' => 12,
+                'level' => 1,
+                'root' => 2,
+                'name' => 'test1',
+                'slug' => 'test1',
+                'items' => [
+                    [
+                        'id' => 3,
+                        'parent_id' => 2,
+                        'lft' => 2,
+                        'rgt' => 5,
+                        'level' => 2,
+                        'root' => 2,
+                        'name' => 'test2',
+                        'slug' => 'test1/test2',
+                        'items' => [
+                            [
+                                'id' => 4,
+                                'parent_id' => 3,
+                                'lft' => 3,
+                                'rgt' => 4,
+                                'level' => 3,
+                                'root' => 2,
+                                'name' => 'test3',
+                                'slug' => 'test1/test2/test3',
+                                'items' => [],
+                            ],
+                        ],
+                    ],
+                    [
+                        'id' => 5,
+                        'parent_id' => 2,
+                        'lft' => 6,
+                        'rgt' => 7,
+                        'level' => 2,
+                        'root' => 2,
+                        'name' => 'test4',
+                        'slug' => 'test1/test4',
+                        'items' => [],
+                    ],
+                    [
+                        'id' => 6,
+                        'parent_id' => 2,
+                        'lft' => 8,
+                        'rgt' => 11,
+                        'level' => 2,
+                        'root' => 2,
+                        'name' => 'test5',
+                        'slug' => 'test1/test5',
+                        'items' => [
+                            [
+                                'id' => 7,
+                                'parent_id' => 6,
+                                'lft' => 9,
+                                'rgt' => 10,
+                                'level' => 3,
+                                'root' => 2,
+                                'name' => 'test6',
+                                'slug' => 'test1/test5/test6',
+                                'items' => [],
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ], $data);
+
+        $nested = NestedModel::objects()->filter(['id' => 5])->get();
+        $nested->delete();
+
+        $root = NestedModel::objects()->get(['id' => 2]);
+        $this->assertEquals($root->lft, 1);
+        $this->assertEquals($root->rgt, 12);
+
+        $root = NestedModel::objects()->get(['id' => 6]);
+        $this->assertEquals($root->lft, 8);
+        $this->assertEquals($root->rgt, 11);
+
+        NestedModel::objects()->filter(['id' => 7])->delete();
+        $root = NestedModel::objects()->get(['id' => 6]);
+        $this->assertEquals($root->lft, 8);
+        $this->assertEquals($root->rgt, 9);
+
+        $nested = NestedModel::objects()->filter(['id' => 3])->delete();
+        $this->assertNull(NestedModel::objects()->filter(['id' => 4])->get());
+    }
 }
