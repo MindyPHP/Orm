@@ -253,8 +253,8 @@ class TreeQuerySet extends QuerySet
 
         $subQuery = new Query([
             'select' => 'parent_id',
-            'from' => $table,
-            'where' => new Expression($db->quoteColumnName('parent_id') . '=' . $db->quoteColumnName('id'))
+            'from' => $table . ' as tt',
+            'where' => new Expression($db->quoteColumnName('tt') . '.' . $db->quoteColumnName('parent_id') . '=' . $db->quoteColumnName('t') . '.'. $db->quoteColumnName('id'))
         ]);
 
         $query = new Query([
@@ -262,7 +262,7 @@ class TreeQuerySet extends QuerySet
                 'id', 'root', 'lft', 'rgt',
                 new Expression($rgt . '-' . $lft . '-1 AS move')
             ],
-            'from' => $table,
+            'from' => $table . 'as t',
             'where' => new Expression('NOT ' . $lft . ' = (' . $rgt . '-1) AND NOT ' . $db->quoteColumnName('id') . ' IN(' . $subQuery->allSql() . ')'),
             'orderBy' => ['rgt' => SORT_ASC]
         ]);
