@@ -172,7 +172,6 @@ abstract class TreeModel extends Model
                 'root' => $this->root
             ])->delete();
         }
-        $this->shiftLeftRight($this->rgt + 1, $this->lft - $this->rgt - 1);
         return (bool)$result;
     }
 
