@@ -17,10 +17,6 @@ class LookupBuilder
      */
     public $query = [];
     /**
-     * @var MetaData
-     */
-    public $metaData;
-    /**
      * @var string
      */
     public $defaultLookup = 'exact';
@@ -38,10 +34,9 @@ class LookupBuilder
 
     protected $separator = '__';
 
-    public function __construct(array $query = [], MetaData $metaData)
+    public function __construct(array $query = [])
     {
         $this->query = $query;
-        $this->metaData = $metaData;
     }
 
     protected function prepareParams(QueryBuilder $qb, $params)
@@ -85,9 +80,6 @@ class LookupBuilder
                 $condition = $this->defaultLookup;
             } else {
                 list($field, $condition) = explode($this->separator, $lookup);
-                if ($this->metaData->hasForeignField($field)) {
-                    $field .= '_id';
-                }
                 if (!in_array($condition, $this->lookups)) {
                     $prefix[] = $field;
                     $field = $condition;

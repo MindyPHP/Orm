@@ -689,10 +689,13 @@ class QuerySet extends QuerySetBase
 
 
         $query = $resultQuery;
-        $lookup = new LookupBuilder($query, $this->model->getMeta());
+        $lookup = new LookupBuilder($query);
 
         foreach ($lookup->parse($queryBuilder) as $data) {
             list($prefix, $field, $condition, $params) = $data;
+            if ($this->model->getMeta()->hasForeignField($field)) {
+                $field .= '_id';
+            }
             /** @var Model $model */
             list($alias, $model) = $this->getOrCreateChainAlias($prefix, false, $autoGroup);
 
@@ -931,8 +934,11 @@ class QuerySet extends QuerySetBase
      */
     public function aliasColumn($column)
     {
-        $builder = new LookupBuilder([], $this->model->getMeta());
+        $builder = new LookupBuilder();
         list($prefix, $field, $condition, $params) = $builder->parseLookup($column);
+        if ($this->model->getMeta()->hasForeignField($field)) {
+            $field .= '_id';
+        }
         list($alias, $model) = $this->getOrCreateChainAlias($prefix);
 
         $column = $field;
