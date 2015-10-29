@@ -12,42 +12,36 @@ use Mindy\Query\QueryBuilder;
  */
 class LookupBuilder
 {
+    /**
+     * @var array
+     */
     public $query = [];
-
+    /**
+     * @var MetaData
+     */
+    public $metaData;
+    /**
+     * @var string
+     */
     public $defaultLookup = 'exact';
-
+    /**
+     * @var array
+     */
     private $lookups = [
-        'isnull',
-        'lte',
-        'lt',
-        'gte',
-        'gt',
-        'exact',
-        'contains',
-        'icontains',
-        'startswith',
-        'istartswith',
-        'endswith',
-        'iendswith',
-        'in',
-        'range',
-        'year',
-        'month',
-        'day',
-        'week_day',
-        'hour',
-        'minute',
-        'second',
-        'search',
-        'regex',
-        'iregex'
+        'isnull', 'lte', 'lt', 'gte',
+        'gt', 'exact', 'contains', 'icontains',
+        'startswith', 'istartswith', 'endswith',
+        'iendswith', 'in', 'range', 'year', 'month',
+        'day', 'week_day', 'hour', 'minute', 'second',
+        'search', 'regex', 'iregex'
     ];
 
     protected $separator = '__';
 
-    public function __construct(array $query = [])
+    public function __construct(array $query = [], MetaData $metaData)
     {
         $this->query = $query;
+        $this->metaData = $metaData;
     }
 
     protected function prepareParams(QueryBuilder $qb, $params)
@@ -91,6 +85,9 @@ class LookupBuilder
                 $condition = $this->defaultLookup;
             } else {
                 list($field, $condition) = explode($this->separator, $lookup);
+                if ($this->metaData->hasForeignField($field)) {
+                    $field .= '_id';
+                }
                 if (!in_array($condition, $this->lookups)) {
                     $prefix[] = $field;
                     $field = $condition;

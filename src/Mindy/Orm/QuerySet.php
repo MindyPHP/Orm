@@ -689,7 +689,7 @@ class QuerySet extends QuerySetBase
 
 
         $query = $resultQuery;
-        $lookup = new LookupBuilder($query);
+        $lookup = new LookupBuilder($query, $this->model->getMeta());
 
         foreach ($lookup->parse($queryBuilder) as $data) {
             list($prefix, $field, $condition, $params) = $data;
@@ -931,7 +931,7 @@ class QuerySet extends QuerySetBase
      */
     public function aliasColumn($column)
     {
-        $builder = new LookupBuilder();
+        $builder = new LookupBuilder([], $this->model->getMeta());
         list($prefix, $field, $condition, $params) = $builder->parseLookup($column);
         list($alias, $model) = $this->getOrCreateChainAlias($prefix);
 
