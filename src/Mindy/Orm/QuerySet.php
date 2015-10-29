@@ -693,9 +693,13 @@ class QuerySet extends QuerySetBase
 
         foreach ($lookup->parse($queryBuilder) as $data) {
             list($prefix, $field, $condition, $params) = $data;
-            if ($this->model->getMeta()->hasForeignField($field)) {
+
+            // Issue #124 https://github.com/studio107/Mindy_Orm/issues/124
+            $fkList = array_flip($this->model->getMeta()->getForeignFields());
+            if ((($params instanceof Base) == false) && array_key_exists($field, $fkList)) {
                 $field .= '_id';
             }
+
             /** @var Model $model */
             list($alias, $model) = $this->getOrCreateChainAlias($prefix, false, $autoGroup);
 
@@ -936,9 +940,13 @@ class QuerySet extends QuerySetBase
     {
         $builder = new LookupBuilder();
         list($prefix, $field, $condition, $params) = $builder->parseLookup($column);
-        if ($this->model->getMeta()->hasForeignField($field)) {
+
+        // Issue #124 https://github.com/studio107/Mindy_Orm/issues/124
+        $fkList = array_flip($this->model->getMeta()->getForeignFields());
+        if ((($params instanceof Base) == false) && array_key_exists($field, $fkList)) {
             $field .= '_id';
         }
+
         list($alias, $model) = $this->getOrCreateChainAlias($prefix);
 
         $column = $field;

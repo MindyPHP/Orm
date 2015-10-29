@@ -73,6 +73,7 @@ class Issue64Test extends OrmDatabaseTestCase
 
         $this->assertEquals(2, $category->products->filter(['lists__name' => 'test'])->count());
         $this->assertEquals(1, $category->products->filter(['lists__name' => 'asd'])->count());
-        $this->assertEquals("SELECT `tests_product_1`.* FROM `tests_product` `tests_product_1` LEFT OUTER JOIN `tests_product_tests_product_list` `tests_product_tests_product_list_2` ON `tests_product_1`.`id` = `tests_product_tests_product_list_2`.`product_id` LEFT OUTER JOIN `tests_product_list` `tests_product_list_3` ON `tests_product_tests_product_list_2`.`product_list_id` = `tests_product_list_3`.`id` WHERE ((`tests_product_1`.`category_id`='1')) AND ((`tests_product_list_3`.`name`='asd')) GROUP BY `tests_product_1`.`id`", $category->products->filter(['lists__name' => 'asd'])->allSql());
+        $this->assertEquals("SELECT `tests_product_1`.* FROM `tests_product` `tests_product_1` LEFT OUTER JOIN `tests_product_tests_product_list` `tests_product_tests_product_list_2` ON `tests_product_1`.`id` = `tests_product_tests_product_list_2`.`product_id` LEFT OUTER JOIN `tests_product_list` `tests_product_list_3` ON `tests_product_tests_product_list_2`.`product_list_id` = `tests_product_list_3`.`id` WHERE ((`tests_product_1`.`category_id`='1')) AND ((`tests_product_list_3`.`name`='asd')) GROUP BY `tests_product_1`.`id`",
+            $category->products->filter(['lists__name' => 'asd'])->allSql());
     }
 }
