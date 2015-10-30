@@ -10,7 +10,7 @@
   },
   "require": {
     "mindy/di": "^0.1.0",
-    "mindy/application": "^0.2.2",
+    "mindy/application": "0.*",
     "mindy/logger": "^1.0",
     "mindy/query": "^0.4",
     "mindy/tests": "^0.1.0",
