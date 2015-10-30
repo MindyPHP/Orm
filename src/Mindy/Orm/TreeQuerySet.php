@@ -175,7 +175,7 @@ class TreeQuerySet extends QuerySet
     protected function deleteBranchWithoutRoot(Connection $db, $table)
     {
         $subQuery = new Query([
-            'select' => 'id',
+            'select' => 'root',
             'from' => $table,
             'where' => new Expression($db->quoteColumnName('parent_id') . ' IS NULL')
         ]);
