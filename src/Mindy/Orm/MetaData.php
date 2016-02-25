@@ -166,6 +166,10 @@ class MetaData
         return $this->primaryKeys;
     }
 
+    /**
+     * @param $className
+     * @return MetaData
+     */
     public static function getInstance($className)
     {
         if (!isset(self::$instances[$className])) {
