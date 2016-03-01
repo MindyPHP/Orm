@@ -71,7 +71,12 @@ class ImageFieldTest extends TestCase
                         'file' => '/mock/watermark.png',
                         'position' => 'repeat'
                     ]
-                ]
+                ],
+                'jpg' => [
+                    60, 50,
+                    'method' => 'adaptiveResize',
+                    'format' => 'jpg'
+                ],
             ]
         ]);
 
@@ -83,6 +88,7 @@ class ImageFieldTest extends TestCase
         $this->assertFileExists($this->media . '/' . $field->sizeStoragePath('preview', $imageName));
         $this->assertFileExists($this->media . '/' . $field->sizeStoragePath('big', $imageName));
         $this->assertFileExists($this->media . '/' . $field->sizeStoragePath('watermarked', $imageName));
+        $this->assertFileExists($this->media . '/' . $field->sizeStoragePath('jpg', $imageName));
     }
 
     protected function tearDown()

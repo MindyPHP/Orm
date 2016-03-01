@@ -1320,6 +1320,7 @@ class QuerySet extends QuerySetBase
                 }
             }
         }
+        $this->groupBy = array_unique($this->groupBy);
         return $this;
     }
 

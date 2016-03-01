@@ -6,6 +6,7 @@ use Exception;
 use Mindy\Orm\ManyToManyManager;
 use Mindy\Orm\MetaData;
 use Mindy\Orm\Model;
+use Mindy\Orm\Orm;
 use Mindy\Orm\QuerySet;
 
 /**
@@ -115,7 +116,7 @@ class ManyToManyField extends RelatedField
                 $end = $this->reversed ? 'from_id' : 'to_id';
             }
             $tmp = explode('\\', $cls);
-            $column = $cls::normalizeTableName(end($tmp));
+            $column = Orm::normalizeTableName(end($tmp));
             $this->_relatedModelColumn = $column . '_' . $end;
         }
         return $this->_relatedModelColumn;
@@ -138,14 +139,29 @@ class ManyToManyField extends RelatedField
     public function getModelColumn()
     {
         if (!$this->_modelColumn) {
-            $cls = $this->ownerClassName;
-            $end = $this->getModelPk();
-            if ($cls == $this->modelClass) {
-                $end = $this->reversed ? 'to_id' : 'from_id';
+            if ($this->through) {
+                $throughClass = $this->through;
+                $through = new $throughClass;
+
+                $name = '';
+                foreach ($through->getFields() as $fieldName => $params) {
+                    if (isset($params['modelClass']) && $params['modelClass'] == $this->ownerClassName) {
+                        $name = $fieldName;
+                        break;
+                    }
+                }
+
+                $this->_modelColumn = $name . '_id';
+            } else {
+                $cls = $this->ownerClassName;
+                $end = $this->getModelPk();
+                if ($cls == $this->modelClass) {
+                    $end = $this->reversed ? 'to_id' : 'from_id';
+                }
+                $tmp = explode('\\', $cls);
+                $column = Orm::normalizeTableName(end($tmp));
+                $this->_modelColumn = $column . '_' . $end;
             }
-            $tmp = explode('\\', $cls);
-            $column = $cls::normalizeTableName(end($tmp));
-            $this->_modelColumn = $column . '_' . $end;
         }
         return $this->_modelColumn;
     }
@@ -202,7 +218,7 @@ class ManyToManyField extends RelatedField
             $fields = $this->getRelatedModel()->getFieldsInit();
             $this->addColumn($this->getRelatedModelColumn(), $fields[$this->getRelatedModelPk()]->sqlType());
 
-            $fields = MetaData::getInstance($this->ownerClassName)->getFieldsInit($this->ownerClassName);
+            $fields = MetaData::getInstance($this->ownerClassName)->getFieldsInit();
             $this->addColumn($this->getModelColumn(), $fields[$this->getModelPk()]->sqlType());
         }
         return $this->_columns;

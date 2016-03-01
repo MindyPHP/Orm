@@ -11,6 +11,7 @@ use Mindy\Storage\Files\File;
 use Mindy\Storage\FileSystemStorage;
 use Mindy\Storage\Interfaces\IExternalStorage;
 use Mindy\Storage\MimiBoxStorage;
+use Mindy\Helper\File as FileHelper;
 
 /**
  * Class ImageField
@@ -115,8 +116,8 @@ class ImageField extends FileField
         $name = $name ? $name : $file->name;
 
         if ($this->MD5Name) {
-            $ext = pathinfo($name, PATHINFO_EXTENSION);
-            $name = md5(str_replace("." . $ext, "", $name)) . '.' . $ext;
+            $ext = FileHelper::mbPathinfo($name, PATHINFO_EXTENSION);
+            $name = md5($name) . '.' . $ext;
         }
 
         if ($name) {
@@ -181,6 +182,7 @@ class ImageField extends FileField
                 throw new Exception('Unknown resize method: ' . $method);
             }
             $options = isset($size['options']) ? $size['options'] : $this->options;
+            $extSize = isset($size['format']) ? $size['format'] : $ext;
 
             $watermark = isset($size['watermark']) ? $size['watermark'] : $this->watermark;
             if (($width || $height) && $method) {
@@ -188,7 +190,7 @@ class ImageField extends FileField
                 if ($watermark) {
                     $newSource = $this->applyWatermark($newSource, $watermark);
                 }
-                $this->getStorage()->save($this->sizeStoragePath($prefix, $this->value), $newSource->get($ext, $options), $force);
+                $this->getStorage()->save($this->sizeStoragePath($prefix, $this->value), $newSource->get($extSize, $options), $force);
             }
         }
 
@@ -214,7 +216,14 @@ class ImageField extends FileField
         if (strpos($prefix, 'x') !== false && count($size) == 2 && is_numeric($size[0]) && is_numeric($size[1])) {
             $prefix = $this->findSizePrefix($prefix);
         }
+
+        $sizeOptions = isset($this->sizes[$prefix]) ? $this->sizes[$prefix] : [];
         $prefix = $prefix === null ? '' : $this->preparePrefix($prefix);
+
+        if (isset($sizeOptions['format'])) {
+            $name = FileHelper::mbPathinfo($filename, PATHINFO_FILENAME);
+            $filename = $name . '.' . $sizeOptions['format'];
+        }
         return ($dir ? $dir . DIRECTORY_SEPARATOR : '') . $prefix . $filename;
     }
 

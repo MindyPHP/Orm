@@ -1531,6 +1531,8 @@ abstract class Base implements ArrayAccess, Serializable
      */
     public function unserialize($serialized)
     {
-        $this->setDbAttributes(unserialize($serialized));
+        $attributes = unserialize($serialized);
+        $this->setDbAttributes($attributes);
+        $this->setOldAttributes($attributes);
     }
 }
