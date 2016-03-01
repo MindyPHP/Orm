@@ -16,6 +16,9 @@ namespace Tests\Orm;
 
 use Mindy\Query\ConnectionManager;
 use Modules\Tests\Models\Category;
+use Modules\Tests\Models\Color;
+use Modules\Tests\Models\Cup;
+use Modules\Tests\Models\Design;
 use Modules\Tests\Models\Product;
 use Tests\OrmDatabaseTestCase;
 
@@ -23,7 +26,7 @@ abstract class HasManyFieldTest extends OrmDatabaseTestCase
 {
     public function getModels()
     {
-        return [new Product, new Category];
+        return [new Product, new Category, new Cup, new Design, new Color];
     }
 
     public function testSimple()
@@ -76,5 +79,25 @@ abstract class HasManyFieldTest extends OrmDatabaseTestCase
     public function testThrough()
     {
 
+    }
+
+    public function testMultiple()
+    {
+        $cup = new Cup();
+        $cup->name = 'Amazing cup';
+        $cup->save();
+
+        $design = new Design();
+        $design->name = 'Dragon';
+        $design->cup = $cup;
+        $design->save();
+
+        $color = new Color();
+        $color->name = 'red';
+        $color->cup = $cup;
+        $color->save();
+
+        $sql = Cup::objects()->filter(['designs__name' => 'Dragon', 'colors__name' => 'red'])->allSql();
+        $this->assertEquals("SELECT `tests_cup_1`.* FROM `tests_cup` `tests_cup_1` LEFT OUTER JOIN `tests_design` `tests_design_2` ON `tests_cup_1`.`id` = `tests_design_2`.`cup_id` LEFT OUTER JOIN `tests_color` `tests_color_3` ON `tests_cup_1`.`id` = `tests_color_3`.`cup_id` WHERE (`tests_design_2`.`name`='Dragon') AND (`tests_color_3`.`name`='red') GROUP BY `tests_cup_1`.`id`", $sql);
     }
 }
