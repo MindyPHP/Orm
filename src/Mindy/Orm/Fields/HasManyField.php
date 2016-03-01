@@ -157,9 +157,6 @@ class HasManyField extends RelatedField
                     }
                     $group[] = $alias . '.' . $this->getModel()->getPkName();
                     $qs->group($group);
-                    if ($qs->select) {
-                        $qs->select = array_merge($qs->select, [$to]);
-                    }
                 }
                 $qs->setChainedHasMany();
                 $grouped = true;
