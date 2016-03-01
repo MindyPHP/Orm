@@ -42,10 +42,23 @@ class DateField extends Field
     public function getValue()
     {
         $db = ConnectionManager::getDb()->getQueryBuilder();
-        if (is_numeric($this->value) || $this->autoNowAdd && $this->getModel()->getIsNewRecord() || $this->autoNow) {
+        if (
+            is_numeric($this->value) ||
+            $this->autoNowAdd && $this->getModel()->getIsNewRecord() ||
+            $this->autoNow
+        ) {
             return $db->convertToDate($this->value);
         } else {
             return $this->value;
+        }
+    }
+
+    public function toArray()
+    {
+        if (empty($this->value)) {
+            return $this->value;
+        } else {
+            return $this->getValue();
         }
     }
 

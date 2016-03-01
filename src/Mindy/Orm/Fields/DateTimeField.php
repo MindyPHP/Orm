@@ -13,7 +13,11 @@ class DateTimeField extends DateField
     public function getValue()
     {
         $db = ConnectionManager::getDb()->getQueryBuilder();
-        if (is_numeric($this->value) || $this->autoNowAdd && $this->getModel()->getIsNewRecord() || $this->autoNow) {
+        if (
+            is_numeric($this->value) ||
+            $this->autoNowAdd && $this->getModel()->getIsNewRecord() ||
+            $this->autoNow
+        ) {
             return $db->convertToDateTime($this->value);
         } else {
             return $this->value;
