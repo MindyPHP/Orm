@@ -1,7 +1,7 @@
 {
   "name": "mindy/orm",
-  "homepage": "https://github.com/studio107/Mindy_Orm",
-  "version": "0.9.9.2",
+  "homepage": "https://github.com/MindyPHP/Mindy_Orm",
+  "version": "1.0",
   "license": "MIT",
   "autoload": {
     "psr-4": {
@@ -9,14 +9,14 @@
     }
   },
   "require": {
-    "mindy/di": "^0.1.0",
-    "mindy/application": "0.*",
-    "mindy/logger": "^1.0",
-    "mindy/query": "^0.4",
-    "mindy/tests": "^0.1.0",
-    "mindy/validation": "0.1.4.3",
+    "mindy/di": "*",
+    "mindy/application": "*",
+    "mindy/logger": "*",
+    "mindy/query": "*",
+    "mindy/tests": "*",
+    "mindy/validation": "*",
     "imagine/imagine": "^0.6.2",
-    "mindy/storage": "^0.1.4"
+    "mindy/storage": "*"
   },
   "require-dev": {
   },
@@ -29,6 +29,6 @@
     }
   ],
   "support": {
-    "issues": "https://github.com/studio107/Mindy_Orm/issues?state=open"
+    "issues": "https://github.com/MindyPHP/Mindy_Orm/issues?state=open"
   }
 }
