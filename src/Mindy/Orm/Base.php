@@ -250,16 +250,11 @@ abstract class Base implements ArrayAccess, Serializable
             $fileField->setModel($this);
             $fileField->setDbValue($this->getAttribute($name));
             return $fileField;
-        }
-
-        if ($meta->hasOneToOneField($name)) {
+        } else if ($meta->hasOneToOneField($name)) {
             /* @var $field \Mindy\Orm\Fields\OneToOneField */
-            $field = $meta->getField($name);
-            $field->setModel($this);
+            $field = $meta->getField($name)->setModel($this);
             return $field->getValue();
-        }
-
-        if ($meta->hasForeignField($name) && $this->hasAttribute($name) === false) {
+        } else if ($meta->hasForeignField($name) && $this->hasAttribute($name) === false) {
             $value = $this->getAttribute($name . '_id');
             if (is_null($value)) {
                 return $value;
@@ -268,32 +263,17 @@ abstract class Base implements ArrayAccess, Serializable
                 $field = $meta->getForeignField($name)->setModel($this)->setValue($value);
                 return $field->getValue();
             }
-        }
-
-        if ($meta->hasManyToManyField($name) || $meta->hasHasManyField($name)) {
+        } else if ($meta->hasManyToManyField($name) || $meta->hasHasManyField($name)) {
             /* @var $field \Mindy\Orm\Fields\ManyToManyField|\Mindy\Orm\Fields\HasManyField */
             $field = $meta->getField($name);
-            $field->setModel($this);
-            return $field->getManager();
-        }
-
-        if ($meta->hasField($name) && is_a($this->getField($name), JsonField::className())) {
-            $field = $this->getField($name);
-            $field->setModel($this);
-            $field->setDbValue($this->getAttribute($name));
+            return $field->setModel($this)->getManager();
+        } else if ($meta->hasField($name) && is_a($this->getField($name), JsonField::class)) {
+            $field = $this->getField($name)->setModel($this)->setDbValue($this->getAttribute($name));
             return $field->getValue();
-        }
-
-        if (isset($this->_attributes[$name]) || array_key_exists($name, $this->_attributes)) {
+        } else if (isset($this->_attributes[$name]) || array_key_exists($name, $this->_attributes)) {
             return $this->_attributes[$name];
-        } elseif ($this->hasAttribute($name)) {
+        } else if ($this->hasAttribute($name)) {
             return $this->hasField($name) ? $this->getField($name)->default : null;
-        }
-
-        if (!in_array($name, $this->attributes()) && $this->hasField($name)) {
-            throw new \Mindy\Query\Exception(Translate::getInstance()->t("orm", "'{name}' column is missing in database. Please check database structure", [
-                '{name}' => $name
-            ]));
         }
 
         return $this->__getInternal($name);
@@ -1402,11 +1382,7 @@ abstract class Base implements ArrayAccess, Serializable
         $meta = self::getMeta();
         if ($meta->hasField($name)) {
             $field = $meta->getField($name);
-            if (!$this->hasAttribute($name) && $meta->hasForeignField($name)) {
-                $value = $this->getAttribute($name . '_id');
-            } else {
-                $value = $this->getAttribute($name);
-            }
+            $value = $this->getAttribute($meta->hasForeignField($name) ? $name . '_id' : $name);
             $field->setModel($this);
             if ($value !== null) {
                 $field->setDbValue($value);
