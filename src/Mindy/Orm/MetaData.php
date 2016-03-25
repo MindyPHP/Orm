@@ -4,6 +4,8 @@ namespace Mindy\Orm;
 
 use Mindy\Helper\Creator;
 use Mindy\Orm\Fields\ForeignField;
+use Mindy\Orm\Fields\HasManyField;
+use Mindy\Orm\Fields\ManyToManyField;
 
 /**
  * Class MetaData
@@ -188,8 +190,20 @@ class MetaData
     {
         if ($this->attributes === null) {
             /** @var \Mindy\Orm\Model $className */
-            $className = $this->modelClassName;
-            $this->attributes = array_keys($className::getTableSchema()->columns);
+//            $className = $this->modelClassName;
+//            $this->attributes = array_keys($className::getTableSchema()->columns);
+            $attributes = [];
+            foreach ($this->getFieldsInit() as $name => $field) {
+                /** @var $field \Mindy\Orm\Fields\Field */
+                if ($field instanceof ForeignField) {
+                    $attributes[] = $name . '_id';
+                } else if ($field instanceof ManyToManyField || $field instanceof HasManyField) {
+                    continue;
+                } else {
+                    $attributes[] = $name;
+                }
+            }
+            $this->attributes = $attributes;
         }
         return $this->attributes;
     }
