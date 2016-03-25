@@ -124,25 +124,23 @@ class ImageField extends FileField
             $this->value = $this->makeFilePath($name);
             $fileContent = $file->getContent();
 
-            if ($this->getStorage() instanceof FileSystemStorage) {
-                try {
-                    $image = $this->getImagine()->load($fileContent);
-                } catch (Exception $e) {
-                    Mindy::app()->logger->error($e->getMessage(), [
-                        'line' => $e->getLine(),
-                    ]);
-                    $image = null;
-                }
-                if ($image) {
-                    $fileContent = $this->processSource($image);
-                    if ($this->storeOriginal) {
-                        $this->value = $this->getStorage()->save($this->value, $fileContent);
+            try {
+                $image = $this->getImagine()->load($fileContent);
+            } catch (Exception $e) {
+                Mindy::app()->logger->error($e->getMessage(), [
+                    'line' => $e->getLine(),
+                ]);
+                $image = null;
+            }
+            if ($image) {
+                $fileContent = $this->processSource($image);
+                if ($this->storeOriginal) {
+                    if ($this->getStorage()->write($this->value, $fileContent) === false) {
+                        throw new Exception("Failed to save original file");
                     }
-                } else {
-                    $this->value = null;
                 }
-            } elseif ($this->getStorage() instanceof IExternalStorage) {
-                $this->value = $this->getStorage()->save($this->value, $fileContent);
+            } else {
+                $this->value = null;
             }
         }
 
@@ -190,7 +188,12 @@ class ImageField extends FileField
                 if ($watermark) {
                     $newSource = $this->applyWatermark($newSource, $watermark);
                 }
-                $this->getStorage()->save($this->sizeStoragePath($prefix, $this->value), $newSource->get($extSize, $options), $force);
+                $fs = $this->getStorage();
+                $sizePath = $this->sizeStoragePath($prefix, $this->value);
+                if ($force && $fs->has($sizePath)) {
+                    $fs->delete($sizePath);
+                }
+                $this->getStorage()->write($sizePath, $newSource->get($extSize, $options));
             }
         }
 

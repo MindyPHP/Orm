@@ -13,9 +13,11 @@
 
 namespace Tests\Cases\Orm\Issues;
 
+use Mindy\Base\Mindy;
 use Mindy\Orm\Fields\DateTimeField;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Model;
+use Mindy\Query\ConnectionManager;
 use Tests\OrmDatabaseTestCase;
 
 class User1 extends Model

@@ -76,12 +76,11 @@ class Issue20Test extends OrmDatabaseTestCase
         $this->assertEquals([
             [
                 'model_tyre' => [
-                    'id' => 1,
+                    'id' => '1',
                     'name' => 'Nordman 4',
-                    'tyre_id' => 1
+                    'tyre_id' => '1'
                 ],
-                'id' => 1,
-                'tyre_id' => 1
+                'id' => '1'
             ]
         ], $data);
     }
@@ -96,10 +95,9 @@ class Issue20Test extends OrmDatabaseTestCase
                     'user_id' => 1,
                     'address' => 'address'
                 ],
-                'id' => 1,
+                'id' => '1',
                 'username' => 'foo',
-                'password' => '',
-                'user_id' => 1
+                'password' => null
             ],
             [
                 'addresses' => [
@@ -107,10 +105,9 @@ class Issue20Test extends OrmDatabaseTestCase
                     'user_id' => null,
                     'address' => ''
                 ],
-                'id' => 2,
+                'id' => '2',
                 'username' => 'bar',
-                'password' => '',
-                'user_id' => ''
+                'password' => null
             ]
         ], $qs->all());
 
@@ -122,10 +119,9 @@ class Issue20Test extends OrmDatabaseTestCase
                     'user_id' => 1,
                     'address' => 'address'
                 ],
-                'id' => 1,
+                'id' => '1',
                 'username' => 'foo',
-                'password' => '',
-                'user_id' => 1
+                'password' => ''
             ]
         ], $qs->all());
     }
