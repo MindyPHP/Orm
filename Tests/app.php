@@ -1,5 +1,9 @@
 <?php
 
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\Cached\CachedAdapter;
+use League\Flysystem\Cached\Storage\Memory as CacheStore;
+
 defined('MINDY_PATH') or define('MINDY_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 
 $debug = true;
@@ -37,7 +41,17 @@ $app = \Mindy\Base\Mindy::getInstance([
             ],
         ],
         'storage' => [
-            'class' => '\Mindy\Storage\FileSystemStorage'
+            'class' => '\Mindy\Storage\Storage',
+            'adapters' => [
+                'default' => function () {
+                    // Create the adapter
+                    $localAdapter = new Local(__DIR__ . '/media');
+                    // Create the cache store
+                    $cacheStore = new CacheStore();
+                    // Decorate the adapter
+                    return new CachedAdapter($localAdapter, $cacheStore);
+                }
+            ]
         ],
     ],
     'preload' => ['log', 'db'],

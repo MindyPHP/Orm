@@ -22,6 +22,10 @@ class FileField extends CharField
     const MODE_POST = 2;
 
     /**
+     * @var string fs storage name
+     */
+    public $storageName = 'default';
+    /**
      * Upload to template, you can use these variables:
      * %Y - Current year (4 digits)
      * %m - Current month
@@ -33,7 +37,6 @@ class FileField extends CharField
      * @var string
      */
     public $uploadTo = '%M/%O/%Y-%m-%d/';
-
     /**
      * List of allowed file types
      * @var array|null
@@ -86,11 +89,11 @@ class FileField extends CharField
     }
 
     /**
-     * @return \Mindy\Storage\Storage
+     * @return \League\Flysystem\Filesystem
      */
     public function getStorage()
     {
-        return Mindy::app()->storage;
+        return Mindy::app()->storage->getFileSystem($this->storageName);
     }
 
     public function getPath()
@@ -188,7 +191,7 @@ class FileField extends CharField
         if ($name) {
             // Folder for upload
             $filePath = $this->makeFilePath($name);
-            if ($filePath = $this->getStorage()->save($filePath, $file->getContent())) {
+            if ($filePath = $this->getStorage()->write($filePath, $file->getContent())) {
                 return $filePath;
             }
         }
@@ -196,7 +199,7 @@ class FileField extends CharField
         return null;
     }
 
-    public function makeFilePath($fileName = '')
+    public function makeFilePath($fileName)
     {
         if (is_callable($this->uploadTo)) {
             $func = $this->uploadTo;
@@ -214,7 +217,20 @@ class FileField extends CharField
             ]);
         }
         $uploadTo = rtrim($uploadTo, '/');
-        return ($uploadTo ? $uploadTo . '/' : '') . ($fileName ? $fileName : '');
+        $fs = $this->getStorage();
+        $path = $uploadTo . $fileName;
+        $count = 0;
+        while ($fs->has($path)) {
+            $count += 1;
+            $meta = $fs->get($path)->getMetadata();
+            $fileName = strtr("{filename}_{count}.{extension}", [
+                '{filename}' => $meta['filename'],
+                '{extension}' => $meta['extension'],
+                '{count}' => $count
+            ]);
+            $path = $uploadTo . $fileName;
+        }
+        return $path;
     }
 
     public function isValid()

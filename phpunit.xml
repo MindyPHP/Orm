@@ -25,9 +25,9 @@
         <testsuite name="Orm/Mysql">
             <directory>Tests/Cases/Orm/Mysql/</directory>
         </testsuite>
-        <testsuite name="Orm/Pgsql">
-            <directory>Tests/Cases/Orm/Pgsql/</directory>
-        </testsuite>
+        <!--<testsuite name="Orm/Pgsql">-->
+            <!--<directory>Tests/Cases/Orm/Pgsql/</directory>-->
+        <!--</testsuite>-->
         <testsuite name="Orm/Fields">
             <directory>Tests/Cases/Orm/Fields/</directory>
         </testsuite>
