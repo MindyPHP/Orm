@@ -83,27 +83,40 @@ class FileField extends CharField
     public function getUrl()
     {
         if ($this->value) {
+            d($this->getStorage());
             return $this->getStorage()->url(is_array($this->value) ? $this->value['name'] : $this->value);
         }
         return null;
     }
 
     /**
-     * @return \League\Flysystem\Filesystem
+     * @return \Mindy\Storage\Storage
      */
     public function getStorage()
     {
-        return Mindy::app()->storage->getFileSystem($this->storageName);
+        return Mindy::app()->storage;
+    }
+
+    /**
+     * @return \League\Flysystem\Filesystem
+     */
+    public function getFileSystem()
+    {
+        return $this->getStorage()->getFileSystem($this->storageName);
     }
 
     public function getPath()
     {
-        return $this->getStorage()->path($this->value);
+        $meta = $this->getFileSystem()->getMetadata($this->value);
+        d($meta);
+        return $meta['path'];
     }
 
     public function getExtension()
     {
-        return $this->getStorage()->extension($this->value);
+        $meta = $this->getFileSystem()->getMetadata($this->value);
+        d($meta);
+        return $meta;
     }
 
 //    public function getValue()
@@ -113,7 +126,7 @@ class FileField extends CharField
 
     public function delete()
     {
-        return $this->getStorage()->delete($this->value);
+        return $this->getFileSystem()->delete($this->value);
     }
 
     /**
@@ -122,13 +135,13 @@ class FileField extends CharField
     public function deleteOld()
     {
         if ($this->getOldValue()) {
-            $this->getStorage()->delete($this->getOldValue());
+            $this->getFileSystem()->delete($this->getOldValue());
         }
     }
 
     public function getSize()
     {
-        return $this->getStorage()->size($this->value);
+        return $this->getFileSystem()->getSize($this->value);
     }
 
     public function getOldValue()
@@ -191,7 +204,7 @@ class FileField extends CharField
         if ($name) {
             // Folder for upload
             $filePath = $this->makeFilePath($name);
-            if ($filePath = $this->getStorage()->write($filePath, $file->getContent())) {
+            if ($filePath = $this->getFileSystem()->write($filePath, $file->getContent())) {
                 return $filePath;
             }
         }
@@ -217,7 +230,7 @@ class FileField extends CharField
             ]);
         }
         $uploadTo = rtrim($uploadTo, '/');
-        $fs = $this->getStorage();
+        $fs = $this->getFileSystem();
         $path = $uploadTo . $fileName;
         $count = 0;
         while ($fs->has($path)) {

@@ -250,35 +250,19 @@ class ImageField extends FileField
      */
     public function sizeUrl($prefix)
     {
-        // TODO refactoring
-        if ($this->getStorage() instanceof MimiBoxStorage) {
-            $size = explode('x', $prefix);
-            if (count($size) > 1) {
-                list($width, $height) = $size;
-            } else {
-                $width = array_pop($size);
-                $height = 0;
-            }
-            $path = $this->sizeStoragePath(null, $this->value);
-            $path .= "?width=" . $width . '&height=' . $height;
-            if ($this->force) {
-                $path .= '&force=true';
-            }
-        } else {
-            // Original file does not exists, return empty string
-            if (!$this->getValue()) {
-                return '';
-            }
-            $path = $this->sizeStoragePath($prefix, $this->value);
-            if ($this->force || $this->checkMissing && !is_file($this->getStorage()->path($path))) {
-                $absPath = $this->getStorage()->path($this->getValue());
-                if ($absPath && is_file($absPath)) {
-                    if ($this->_originalName != $absPath) {
-                        $this->_originalName = $absPath;
-                        $this->_original = $this->getImagine()->open($absPath);
-                    }
-                    $this->processSource($this->_original->copy(), true, [$prefix]);
+        // Original file does not exists, return empty string
+        if (!$this->getValue()) {
+            return '';
+        }
+        $path = $this->sizeStoragePath($prefix, $this->value);
+        $fs = $this->getFileSystem();
+        if ($this->force || $this->checkMissing && !$fs->has($path)) {
+            if ($fs->has($this->getValue())) {
+                if ($this->_originalName != $this->getValue()) {
+                    $this->_originalName = $this->getValue();
+                    $this->_original = $this->getImagine()->open($fs->read($this->getValue()));
                 }
+                $this->processSource($this->_original->copy(), true, [$prefix]);
             }
         }
         return $this->getStorage()->url($path);
