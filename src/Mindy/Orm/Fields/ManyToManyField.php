@@ -31,6 +31,10 @@ class ManyToManyField extends RelatedField
      */
     public $through;
     /**
+     * @var array
+     */
+    public $throughLink = [];
+    /**
      * Related model class
      * @var string
      */
@@ -135,23 +139,18 @@ class ManyToManyField extends RelatedField
 
     /**
      * @return string Model column in "link" table
+     * @throws Exception
      */
     public function getModelColumn()
     {
         if (!$this->_modelColumn) {
             if ($this->through) {
-                $throughClass = $this->through;
-                $through = new $throughClass;
-
-                $name = '';
-                foreach ($through->getFields() as $fieldName => $params) {
-                    if (isset($params['modelClass']) && $params['modelClass'] == $this->ownerClassName) {
-                        $name = $fieldName;
-                        break;
-                    }
+                list(, $toId) = $this->through;
+                if (empty($this->throughLink)) {
+                    throw new Exception('throughLink is missing in configutaion');
                 }
 
-                $this->_modelColumn = $name . '_id';
+                $this->_modelColumn = $toId;
             } else {
                 $cls = $this->ownerClassName;
                 $end = $this->getModelPk();
@@ -177,7 +176,8 @@ class ManyToManyField extends RelatedField
             'primaryModel' => $this->getModel(),
             'relatedTable' => $this->getTableName(),
             'extra' => $this->extra,
-            'through' => $this->through
+            'through' => $this->through,
+            'throughLink' => $this->throughLink
         ]);
     }
 

@@ -39,6 +39,10 @@ class ManyToManyManager extends RelatedManager
      */
     public $through;
     /**
+     * @var array
+     */
+    public $throughLink = [];
+    /**
      * @var array extra condition for join
      */
     public $extra = [];
@@ -115,9 +119,10 @@ class ManyToManyManager extends RelatedManager
 
         if ($this->through && $link) {
             $throughModel = new $this->through;
+            list($fromId, $toId) = $this->throughLink;
             list($through, $created) = $throughModel->objects()->getOrCreate([
-                $this->primaryModelColumn => $this->primaryModel->pk,
-                $this->modelColumn => $model->pk,
+                $fromId => $this->primaryModel->pk,
+                $toId => $model->pk,
             ]);
             return $through->pk;
         } else {
