@@ -135,9 +135,8 @@ abstract class LookupRelationTest extends OrmDatabaseTestCase
 
     public function testLookupsClean()
     {
-        $filter = ['user__groups__name__endswith' => 's'];
         $count = 3;
-        $qs = Customer::objects()->filter($filter);
+        $qs = Customer::objects()->filter(['user__groups__name__endswith' => 's']);
         // $sql = "SELECT COUNT(DISTINCT `tests_customer_1`.`id`) FROM `tests_customer` `tests_customer_1` LEFT OUTER JOIN `tests_user` `tests_user_2` ON `tests_customer_1`.`user_id` = `tests_user_2`.`id` LEFT OUTER JOIN `tests_membership` `tests_membership_3` ON `tests_user_2`.`id` = `tests_membership_3`.`user_id` LEFT OUTER JOIN `tests_group` `tests_group_4` ON `tests_membership_3`.`group_id` = `tests_group_4`.`id` WHERE (`tests_group_4`.`name` LIKE '%s')";
         // $this->assertEquals($sql, $qs->countSql());
         $this->assertEquals($count, $qs->count());

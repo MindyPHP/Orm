@@ -35,6 +35,7 @@ class Restaurant extends Model
             'place' => [
                 'class' => OneToOneField::className(),
                 'modelClass' => Place::className(),
+                'primary' => true
             ],
         ];
     }

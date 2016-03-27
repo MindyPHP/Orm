@@ -17,6 +17,6 @@ class IntField extends Field
 
     public function sqlType()
     {
-        return 'integer(' . (int)$this->length . ')';
+        return $this->primary ? 'pk' : 'integer(' . (int)$this->length . ')';
     }
 }

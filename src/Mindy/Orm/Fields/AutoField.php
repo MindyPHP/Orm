@@ -4,6 +4,7 @@ namespace Mindy\Orm\Fields;
 
 use Mindy\Query\ConnectionManager;
 use Mindy\Query\Expression;
+use Mindy\Query\Pgsql\Schema;
 
 /**
  * Class AutoField
@@ -13,16 +14,6 @@ class AutoField extends IntField
 {
     public $primary = true;
 
-    public function sql()
-    {
-        return trim(sprintf('%s %s', $this->sqlType(), $this->sqlDefault()));
-    }
-
-    public function sqlType()
-    {
-        return 'pk';
-    }
-
     /**
      * @return null|string
      * @throws \Mindy\Query\Exception\UnknownDatabase
@@ -30,7 +21,7 @@ class AutoField extends IntField
     public function getDbPrepValue()
     {
         $db = ConnectionManager::getDb();
-        if ($db->getSchema() instanceof \Mindy\Query\Pgsql\Schema) {
+        if ($db->getSchema() instanceof Schema) {
             /*
              * Primary key всегда передается по логике Query, а для корректной работы pk в pgsql
              * необходимо передать curval($seq) или nextval($seq) или не экранированный DEFAULT.

@@ -189,7 +189,8 @@ abstract class Field implements IValidateField
             'null' => $this->null,
             'default' => $this->default,
             'length' => $this->length,
-            'required' => $this->required
+            'required' => $this->required,
+            'primary' => $this->primary
         ];
     }
 
@@ -200,7 +201,17 @@ abstract class Field implements IValidateField
 
     public function sql()
     {
-        return trim(sprintf('%s %s %s', $this->sqlType(), $this->sqlNullable(), $this->sqlDefault()));
+        return trim(strtr('{type} {nullable} {default} {extra}', [
+            '{type}' => $this->sqlType(),
+            '{nullable}' => $this->sqlNullable(),
+            '{default}' => $this->sqlDefault(),
+            '{extra}' => $this->sqlExtra()
+        ]));
+    }
+
+    public function sqlExtra()
+    {
+        return '';
     }
 
     public function getFormValue()

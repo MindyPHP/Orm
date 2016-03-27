@@ -36,7 +36,8 @@ class Worker extends Model
             'projects' => [
                 'class' => ManyToManyField::className(),
                 'modelClass' => Project::className(),
-                'through' => ProjectMembership::className()
+                'through' => ProjectMembership::className(),
+                'throughLink' => ['worker_id', 'project_id']
             ]
         ];
     }

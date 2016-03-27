@@ -119,6 +119,9 @@ class ManyToManyManager extends RelatedManager
 
         if ($this->through && $link) {
             $throughModel = new $this->through;
+            if (empty($this->throughLink)) {
+                throw new Exception("throughLink is missing in ManyToManyManager");
+            }
             list($fromId, $toId) = $this->throughLink;
             list($through, $created) = $throughModel->objects()->getOrCreate([
                 $fromId => $this->primaryModel->pk,

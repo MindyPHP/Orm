@@ -695,7 +695,8 @@ class QuerySet extends QuerySetBase
             list($prefix, $field, $condition, $params) = $data;
 
             // Issue #124 https://github.com/studio107/Mindy_Orm/issues/124
-            $fkList = array_flip($this->model->getMeta()->getForeignFields());
+            $meta = $this->model->getMeta();
+            $fkList = array_flip(array_merge($meta->getForeignFields(), $meta->getOneToOneFields()));
             if ((($params instanceof Base) == false) && array_key_exists($field, $fkList)) {
                 $field .= '_id';
             }
@@ -1087,6 +1088,9 @@ class QuerySet extends QuerySetBase
         return parent::maxSql($this->quoteColumnName($column));
     }
 
+    /**
+     * @return bool
+     */
     private function filterHasJoin()
     {
         $meta = $this->model->getMeta();
@@ -1105,6 +1109,9 @@ class QuerySet extends QuerySetBase
         return false;
     }
 
+    /**
+     * @return \Mindy\Query\Command
+     */
     protected function prepareDelete()
     {
         $tableName = $this->model->tableName();
@@ -1120,6 +1127,10 @@ class QuerySet extends QuerySetBase
         }
     }
 
+    /**
+     * @return int
+     * @throws \Mindy\Query\Exception
+     */
     public function delete()
     {
         return $this->prepareDelete()->execute();

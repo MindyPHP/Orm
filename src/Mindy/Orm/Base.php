@@ -13,8 +13,6 @@
 
 namespace Mindy\Orm;
 
-// TODO StaleObjectException
-
 use ArrayAccess;
 use Exception;
 use Mindy\Exception\InvalidConfigException;
@@ -23,11 +21,11 @@ use Mindy\Helper\Alias;
 use Mindy\Helper\Json;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
-use Mindy\Locale\Translate;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\JsonField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Query\ConnectionManager;
+use Mindy\Query\Exception\StaleObjectException;
 use Mindy\Validation\Traits\ValidateObject;
 use ReflectionClass;
 use Serializable;
@@ -898,6 +896,14 @@ abstract class Base implements ArrayAccess, Serializable
         if (!$command->execute()) {
             return false;
         }
+
+        $primaryKeyName = self::primaryKeyName();
+        $id = $db->getLastInsertID($primaryKeyName);
+        $this->setAttribute($primaryKeyName, $id);
+        $values[$primaryKeyName] = $id;
+
+        // Issue https://github.com/MindyPHP/Mindy/issues/15
+        /*
         $table = $this->getTableSchema();
         if ($table->sequenceName !== null) {
             foreach ($table->primaryKey as $name) {
@@ -909,6 +915,7 @@ abstract class Base implements ArrayAccess, Serializable
                 }
             }
         }
+        */
 
         $this->setAttributes($values);
         $this->setOldAttributes($values);

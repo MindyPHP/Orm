@@ -6,6 +6,7 @@ use Mindy\Helper\Creator;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
+use Mindy\Orm\Fields\RelatedField;
 
 /**
  * Class MetaData
@@ -156,12 +157,12 @@ class MetaData
         if (is_null($this->primaryKeys)) {
             $this->primaryKeys = [];
             foreach ($this->allFields as $name => $field) {
+                if ($field instanceof ManyToManyField || $field instanceof HasManyField) {
+                    continue;
+                }
+
                 if ($field->primary) {
-                    if ($this->hasForeignField($name)) {
-                        $this->primaryKeys[] = $name . '_id';
-                    } else {
-                        $this->primaryKeys[] = $name;
-                    }
+                    $this->primaryKeys[] = $field instanceof RelatedField ? $name . '_id' : $name;
                 }
             }
         }
@@ -238,9 +239,7 @@ class MetaData
 
             if (is_a($field, $className::$fileField)) {
                 $this->localFileFields[$name] = $field;
-            }
-
-            if (is_a($field, $className::$relatedField)) {
+            } else if (is_a($field, $className::$relatedField)) {
                 /* @var $field \Mindy\Orm\Fields\RelatedField */
                 if (is_a($field, $className::$manyToManyField)) {
                     /* @var $field \Mindy\Orm\Fields\ManyToManyField */
@@ -253,10 +252,14 @@ class MetaData
                     $this->hasManyFields[$name] = $field;
                 }
 
-                if (is_a($field, $className::$oneToOneField) && $field->reversed) {
-                    /* @var $field \Mindy\Orm\Fields\ForeignField */
-                    $this->oneToOneFields[$name] = $field;
-                }elseif (is_a($field, $className::$foreignField)) {
+                if (is_a($field, $className::$oneToOneField)) {
+                    /* @var $field \Mindy\Orm\Fields\OneToOneField */
+                    if ($field->reversed) {
+                        $this->oneToOneFields[$name] = $field;
+                    } else {
+                        $fkFields[$name] = $field;
+                    }
+                } elseif (is_a($field, $className::$foreignField)) {
                     /* @var $field \Mindy\Orm\Fields\ForeignField */
                     $fkFields[$name] = $field;
                 }
@@ -349,6 +352,11 @@ class MetaData
     public function getForeignFields()
     {
         return $this->foreignFields;
+    }
+
+    public function getOneToOneFields()
+    {
+        return $this->oneToOneFields;
     }
 
     public function getManyFields()

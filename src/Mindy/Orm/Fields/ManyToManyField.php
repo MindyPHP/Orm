@@ -113,6 +113,11 @@ class ManyToManyField extends RelatedField
      */
     public function getRelatedModelColumn()
     {
+        if (!empty($this->throughLink)) {
+            list($fromId, $toId) = $this->throughLink;
+            return $toId;
+        }
+
         if (!$this->_relatedModelColumn) {
             $cls = $this->modelClass;
             $end = $this->getRelatedModelPk();
@@ -143,14 +148,14 @@ class ManyToManyField extends RelatedField
      */
     public function getModelColumn()
     {
-        if (!$this->_modelColumn) {
-            if ($this->through) {
-                list(, $toId) = $this->through;
+        if (empty($this->_modelColumn)) {
+            if (!empty($this->through)) {
+                list($fromId, $toId) = $this->throughLink;
                 if (empty($this->throughLink)) {
                     throw new Exception('throughLink is missing in configutaion');
                 }
 
-                $this->_modelColumn = $toId;
+                $this->_modelColumn = $this->reversed ? $toId : $fromId;
             } else {
                 $cls = $this->ownerClassName;
                 $end = $this->getModelPk();

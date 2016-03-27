@@ -16,6 +16,7 @@ namespace Tests\Orm;
 
 use Mindy\Orm\Fields\MarkdownField;
 use Mindy\Orm\Fields\MarkdownHtmlField;
+use Mindy\Orm\MetaData;
 use Modules\Tests\Models\Category;
 use Modules\Tests\Models\Customer;
 use Modules\Tests\Models\CustomPk;
@@ -266,11 +267,14 @@ abstract class BasicTest extends OrmDatabaseTestCase
         $restaurant->place = $place;
         $restaurant->save();
 
+        $this->assertEquals(1, $place->pk);
+        $this->assertEquals(1, $restaurant->place_id);
+
+        $this->assertEquals(1, $restaurant->place_id);
+        $this->assertEquals(1, $restaurant->pk);
         $this->assertEquals(1, Restaurant::objects()->filter(['place' => $place->id])->count());
         $this->assertEquals(1, $place->restaurant->pk);
-
-        $restaurant->delete();
-
+        $this->assertEquals(1, $restaurant->delete());
         $this->assertNull($place->restaurant);
     }
 
