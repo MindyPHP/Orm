@@ -17,6 +17,7 @@ namespace Tests\Orm;
 use Mindy\Orm\Fields\MarkdownField;
 use Mindy\Orm\Fields\MarkdownHtmlField;
 use Mindy\Orm\MetaData;
+use Mindy\Query\ConnectionManager;
 use Modules\Tests\Models\Category;
 use Modules\Tests\Models\Customer;
 use Modules\Tests\Models\CustomPk;
@@ -246,11 +247,11 @@ abstract class BasicTest extends OrmDatabaseTestCase
 
     public function testForeignKey()
     {
-        $model = new Product();
-        $schema = $model->getTableSchema();
+        $schema = ConnectionManager::getDb($this->driver)->getTableSchema(Product::tableName());
         $this->assertTrue(isset($schema->columns['id']));
         $this->assertTrue(isset($schema->columns['category_id']));
 
+        $model = new Product();
         $fk = $model->getField("category");
         $this->assertInstanceOf('\Mindy\Orm\Fields\ForeignField', $fk);
         $this->assertNull($model->category);

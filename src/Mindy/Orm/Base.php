@@ -545,21 +545,6 @@ abstract class Base implements ArrayAccess, Serializable
     }
 
     /**
-     * Returns the schema information of the DB table associated with this AR class.
-     * @throws \Mindy\Exception\InvalidConfigException
-     * @return \Mindy\Query\TableSchema the schema information of the DB table associated with this AR class.
-     */
-    public static function getTableSchema()
-    {
-        $schema = static::getDb()->getTableSchema(static::tableName());
-        if ($schema === null) {
-            throw new InvalidConfigException("The table does not exist: " . static::tableName());
-        }
-
-        return $schema;
-    }
-
-    /**
      * @deprecated
      * @return \Mindy\Query\Connection
      */

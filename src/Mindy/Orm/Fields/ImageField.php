@@ -135,7 +135,7 @@ class ImageField extends FileField
             if ($image) {
                 $fileContent = $this->processSource($image);
                 if ($this->storeOriginal) {
-                    if ($this->getStorage()->write($this->value, $fileContent) === false) {
+                    if ($this->getFileSystem()->write($this->value, $fileContent) === false) {
                         throw new Exception("Failed to save original file");
                     }
                 }
@@ -193,7 +193,7 @@ class ImageField extends FileField
                 if ($force && $fs->has($sizePath)) {
                     $fs->delete($sizePath);
                 }
-                $this->getStorage()->write($sizePath, $newSource->get($extSize, $options));
+                $this->getFileSystem()->write($sizePath, $newSource->get($extSize, $options));
             }
         }
 

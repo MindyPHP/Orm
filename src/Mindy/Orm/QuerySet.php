@@ -553,7 +553,7 @@ class QuerySet extends QuerySetBase
                 $selectNames = [];
                 $selectRelatedNames = [];
                 /** @var \Mindy\Orm\Model $relatedModel */
-                $columnNames = $relatedModel->getTableSchema()->getColumnNames();
+                $columnNames = $relatedModel->getMeta()->getAttributes();
                 foreach ($columnNames as $item) {
                     $selectRelatedNames[] = $alias . '.' . $this->quoteColumnName($item) . ' AS ' . $relationName . '__' . $item;
                 }
