@@ -83,7 +83,6 @@ class FileField extends CharField
     public function getUrl()
     {
         if ($this->value) {
-            d($this->getStorage());
             return $this->getStorage()->url(is_array($this->value) ? $this->value['name'] : $this->value);
         }
         return null;
