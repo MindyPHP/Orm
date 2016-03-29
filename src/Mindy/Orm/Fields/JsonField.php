@@ -29,7 +29,8 @@ class JsonField extends TextField
 
     public function setDbValue($value)
     {
-        return $this->decode($value);
+        $this->value = $this->decode($value);
+        return $this;
     }
 
     public function setValue($value)

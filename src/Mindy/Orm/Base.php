@@ -266,7 +266,8 @@ abstract class Base implements ArrayAccess, Serializable
             $field = $meta->getField($name);
             return $field->setModel($this)->getManager();
         } else if ($meta->hasField($name) && is_a($this->getField($name), JsonField::class)) {
-            $field = $this->getField($name)->setModel($this)->setDbValue($this->getAttribute($name));
+            $field = $this->getField($name)->setModel($this);
+            $field->setDbValue($this->getAttribute($name));
             return $field->getValue();
         } else if (isset($this->_attributes[$name]) || array_key_exists($name, $this->_attributes)) {
             return $this->_attributes[$name];
