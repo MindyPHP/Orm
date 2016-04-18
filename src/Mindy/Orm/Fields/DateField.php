@@ -72,8 +72,8 @@ class DateField extends Field
         return $this->autoNow ? 'NULL' : parent::sqlNullable();
     }
 
-    public function getFormField($form, $fieldClass = null, array $extra = [])
+    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DateField', array $extra = [])
     {
-        return parent::getFormField($form, \Mindy\Form\Fields\DateField::className(), $extra);
+        return parent::getFormField($form, $fieldClass, $extra);
     }
 }

@@ -520,4 +520,19 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
         $this->getQuerySet()->from($tables);
         return $this;
     }
+
+    public function getTableAlias()
+    {
+        return $this->getQuerySet()->getTableAlias();
+    }
+
+    public function quoteColumnName($name)
+    {
+        return $this->getQuerySet()->quoteColumnName($name);
+    }
+
+    public function getQueryBuilder()
+    {
+        return $this->getQuerySet()->getQueryBuilder();
+    }
 }

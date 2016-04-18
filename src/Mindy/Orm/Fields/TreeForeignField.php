@@ -22,7 +22,7 @@ class TreeForeignField extends ForeignField
             $parents = $qs->all();
             foreach ($parents as $model) {
                 $level = $model->level ? $model->level - 1 : $model->level;
-                $list[$model->pk] = $level ? str_repeat("..", $level) . ' ' . $model->name : $model->name;
+                $list[$model->pk] = $level ? str_repeat("—", $level) . ' ' . $model->name : $model->name;
             }
             return $list;
         };

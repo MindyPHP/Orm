@@ -687,7 +687,6 @@ class QuerySet extends QuerySetBase
             }
         }
 
-
         $query = $resultQuery;
         $lookup = new LookupBuilder($query);
 
