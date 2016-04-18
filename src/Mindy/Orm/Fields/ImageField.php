@@ -150,9 +150,10 @@ class ImageField extends FileField
     public function deleteOld()
     {
         if ($this->getOldValue()) {
-            $this->getStorage()->delete($this->getOldValue());
+            $fs = $this->getFileSystem();
+            $fs->delete($this->getOldValue());
             foreach (array_keys($this->sizes) as $prefix) {
-                $this->getStorage()->delete($this->sizeStoragePath($prefix, $this->getOldValue()));
+                $fs->delete($this->sizeStoragePath($prefix, $this->getOldValue()));
             }
         }
     }
