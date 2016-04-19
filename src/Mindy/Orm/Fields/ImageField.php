@@ -151,9 +151,14 @@ class ImageField extends FileField
     {
         if ($this->getOldValue()) {
             $fs = $this->getFileSystem();
-            $fs->delete($this->getOldValue());
+            if ($fs->has($this->getOldValue())) {
+                $fs->delete($this->getOldValue());
+            }
             foreach (array_keys($this->sizes) as $prefix) {
-                $fs->delete($this->sizeStoragePath($prefix, $this->getOldValue()));
+                $path = $this->sizeStoragePath($prefix, $this->getOldValue());
+                if ($fs->has($path)) {
+                    $fs->delete($path);
+                }
             }
         }
     }
