@@ -228,17 +228,18 @@ class FileField extends CharField
                 '%M' => $this->getModel()->getModuleName(),
             ]);
         }
-        $uploadTo = rtrim($uploadTo, '/');
         $fs = $this->getFileSystem();
+        if (mb_strlen($fileName, 'UTF-8') > 255) {
+            $fileName = mb_substr($fileName, 0, 255, 'UTF-8');
+        }
         $path = $uploadTo . $fileName;
         $count = 0;
+        $meta = $fs->get($path)->getMetadata();
         while ($fs->has($path)) {
-            $count += 1;
-            $meta = $fs->get($path)->getMetadata();
             $fileName = strtr("{filename}_{count}.{extension}", [
                 '{filename}' => $meta['filename'],
                 '{extension}' => $meta['extension'],
-                '{count}' => $count
+                '{count}' => $count += 1
             ]);
             $path = $uploadTo . $fileName;
         }
