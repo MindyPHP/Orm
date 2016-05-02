@@ -14,6 +14,11 @@ use Mindy\Query\Expression;
 class AutoSlugField extends CharField
 {
     use UniqueUrl;
+
+    /**
+     * @var bool
+     */
+    public $unique = true;
     /**
      * @var string
      */
@@ -27,7 +32,6 @@ class AutoSlugField extends CharField
      */
     protected $oldValue;
 
-    
     public function onBeforeInsert()
     {
         $model = $this->getModel();
