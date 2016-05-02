@@ -36,7 +36,7 @@ class AutoSlugField extends CharField
     {
         $model = $this->getModel();
         $value = empty($this->value) ? Meta::cleanString($model->{$this->source}) : ltrim($this->value, '/');
-        if($model->parent) {
+        if ($model->parent) {
             $url = $model->parent->{$this->name} . '/' . $value;
         } else {
             $url = $value;
@@ -56,16 +56,16 @@ class AutoSlugField extends CharField
         $model = $this->getModel();
 
         // Случай когда обнулен slug, например из админки
-        if(empty($model->{$this->name})) {
+        if (empty($model->{$this->name})) {
             $model->{$this->name} = Meta::cleanString($model->{$this->source});
         }
 
         // if remove parent (parent is null)
         if (!$model->parent) {
-            if(strpos($model->{$this->name}, '/') === false) {
+            if (strpos($model->{$this->name}, '/') === false) {
                 $url = Meta::cleanString($model->{$this->name});
             } else {
-                if($model->{$this->name}) {
+                if ($model->{$this->name}) {
                     $slugs = explode('/', $model->{$this->name});
                     $url = end($slugs);
                 } else {
