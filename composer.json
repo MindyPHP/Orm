@@ -1,7 +1,6 @@
 {
   "name": "mindy/orm",
   "homepage": "https://github.com/MindyPHP/Mindy_Orm",
-  "version": "1.0",
   "license": "MIT",
   "autoload": {
     "psr-4": {
