@@ -234,14 +234,16 @@ class FileField extends CharField
         }
         $path = $uploadTo . $fileName;
         $count = 0;
-        $meta = $fs->get($path)->getMetadata();
-        while ($fs->has($path)) {
-            $fileName = strtr("{filename}_{count}.{extension}", [
-                '{filename}' => $meta['filename'],
-                '{extension}' => $meta['extension'],
-                '{count}' => $count += 1
-            ]);
-            $path = $uploadTo . $fileName;
+        if ($fs->has($path)) {
+            $meta = $fs->get($path)->getMetadata();
+            while ($fs->has($path)) {
+                $fileName = strtr("{filename}_{count}.{extension}", [
+                    '{filename}' => $meta['filename'],
+                    '{extension}' => $meta['extension'],
+                    '{count}' => $count += 1
+                ]);
+                $path = $uploadTo . $fileName;
+            }
         }
         return $path;
     }
