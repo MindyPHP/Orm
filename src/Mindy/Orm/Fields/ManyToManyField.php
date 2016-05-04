@@ -150,12 +150,27 @@ class ManyToManyField extends RelatedField
     {
         if (empty($this->_modelColumn)) {
             if (!empty($this->through)) {
-                list($fromId, $toId) = $this->throughLink;
                 if (empty($this->throughLink)) {
-                    throw new Exception('throughLink is missing in configutaion');
-                }
+                    $throughClass = $this->through;
+                    $through = new $throughClass;
 
-                $this->_modelColumn = $this->reversed ? $toId : $fromId;
+                    $name = '';
+                    foreach ($through->getFields() as $fieldName => $params) {
+                        if (isset($params['modelClass']) && $params['modelClass'] == $this->ownerClassName) {
+                            $name = $fieldName;
+                            break;
+                        }
+                    }
+
+                    $this->_modelColumn = $name . '_id';
+                } else {
+                    list($fromId, $toId) = $this->throughLink;
+                    if (empty($this->throughLink)) {
+                        throw new Exception('throughLink is missing in configutaion');
+                    }
+
+                    $this->_modelColumn = $this->reversed ? $toId : $fromId;
+                }
             } else {
                 $cls = $this->ownerClassName;
                 $end = $this->getModelPk();
