@@ -134,7 +134,10 @@ class FileField extends CharField
     public function deleteOld()
     {
         if ($this->getOldValue()) {
-            $this->getFileSystem()->delete($this->getOldValue());
+            $fs = $this->getFileSystem();
+            if ($fs->has($this->getOldValue())) {
+                $fs->delete($this->getOldValue());
+            }
         }
     }
 
