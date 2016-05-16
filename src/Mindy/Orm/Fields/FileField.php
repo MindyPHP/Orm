@@ -107,14 +107,12 @@ class FileField extends CharField
     public function getPath()
     {
         $meta = $this->getFileSystem()->getMetadata($this->value);
-        d($meta);
         return $meta['path'];
     }
 
     public function getExtension()
     {
         $meta = $this->getFileSystem()->getMetadata($this->value);
-        d($meta);
         return $meta;
     }
 
