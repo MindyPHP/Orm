@@ -1044,7 +1044,7 @@ class QuerySet extends QuerySetBase
     public function min($column)
     {
         $this->prepareConditions(true, false);
-        if ($this->groupBy && $this->getSchema() instanceof \Mindy\Query\Pgsql\Schema) {
+        if ($this->groupBy) {
             $value = parent::min('c.' . $column);
         } else {
             $value = parent::min($this->aliasColumn($column));
@@ -1069,7 +1069,7 @@ class QuerySet extends QuerySetBase
     public function max($column)
     {
         $this->prepareConditions(true, false);
-        if ($this->groupBy && $this->getSchema() instanceof \Mindy\Query\Pgsql\Schema) {
+        if ($this->groupBy) {
             $value = parent::max('c.' . $column);
         } else {
             $value = parent::max($this->aliasColumn($column));
