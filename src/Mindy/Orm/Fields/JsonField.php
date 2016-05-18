@@ -18,6 +18,9 @@ class JsonField extends TextField
 
     private function decode($value)
     {
+        if (empty($value)) {
+            $value = '{}';
+        }
         $this->value = is_string($value) ? Json::decode($value) : $value;
         return $this->value;
     }
