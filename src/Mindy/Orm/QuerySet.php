@@ -994,7 +994,7 @@ class QuerySet extends QuerySetBase
     public function sum($column)
     {
         $this->prepareConditions(true, false);
-        if ($this->groupBy && $this->getSchema() instanceof \Mindy\Query\Pgsql\Schema) {
+        if ($this->groupBy) {
             $value = parent::sum('c.' . $column);
         } else {
             $value = parent::sum($this->aliasColumn($column));
@@ -1019,7 +1019,7 @@ class QuerySet extends QuerySetBase
     public function average($column)
     {
         $this->prepareConditions(true, false);
-        if ($this->groupBy && $this->getSchema() instanceof \Mindy\Query\Pgsql\Schema) {
+        if ($this->groupBy) {
             $value = parent::average('c.' . $column);
         } else {
             $value = parent::average($this->aliasColumn($column));
