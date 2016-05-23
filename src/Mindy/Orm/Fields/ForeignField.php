@@ -24,6 +24,7 @@ class ForeignField extends RelatedField
 
     public function init()
     {
+        parent::init();
         if (is_subclass_of($this->modelClass, '\Mindy\Orm\Model') === false) {
             throw new InvalidArgumentException('$modelClass must be a \Mindy\Orm\Model instance in modelClass');
         }

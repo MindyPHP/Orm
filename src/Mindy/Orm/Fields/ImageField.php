@@ -6,6 +6,7 @@ use Exception;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\Point;
 use Mindy\Base\Mindy;
+use Mindy\Exception\WarningException;
 use Mindy\Orm\Traits\ImageProcess;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\FileSystemStorage;
@@ -168,6 +169,7 @@ class ImageField extends FileField
      * @param bool $force
      * @param array|null $onlySizes - Resize and save only sizes, described in this array
      * @return
+     * @throws Exception
      */
     public function processSource($source, $force = false, $onlySizes = null)
     {
@@ -194,7 +196,7 @@ class ImageField extends FileField
                 if ($watermark) {
                     $newSource = $this->applyWatermark($newSource, $watermark);
                 }
-                $fs = $this->getStorage();
+                $fs = $this->getFileSystem();
                 $sizePath = $this->sizeStoragePath($prefix, $this->value);
                 if ($force && $fs->has($sizePath)) {
                     $fs->delete($sizePath);
@@ -266,7 +268,7 @@ class ImageField extends FileField
             if ($fs->has($this->getValue())) {
                 if ($this->_originalName != $this->getValue()) {
                     $this->_originalName = $this->getValue();
-                    $this->_original = $this->getImagine()->open($fs->read($this->getValue()));
+                    $this->_original = $this->getImagine()->load($fs->read($this->getValue()));
                 }
                 $this->processSource($this->_original->copy(), true, [$prefix]);
             }
