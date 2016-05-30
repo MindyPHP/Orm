@@ -204,7 +204,7 @@ class FileField extends CharField
         if ($name) {
             // Folder for upload
             $filePath = $this->makeFilePath($name);
-            if ($filePath = $this->getFileSystem()->write($filePath, $file->getContent())) {
+            if ($this->getFileSystem()->write($filePath, $file->getContent())) {
                 return $filePath;
             }
         }
