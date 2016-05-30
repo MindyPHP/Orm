@@ -508,7 +508,7 @@ class QuerySet extends QuerySetBase
      * Makes connection by chain (creates joins)
      * @param $prefix
      */
-    protected function makeChain(array $prefix, $prefixedSelect = false, $autoGroup = true)
+    protected function makeChain(array $prefix, $prefixedSelect = false, $autoGroup = true, array $select = [])
     {
         // Searching closest already connected relation
         list($model, $alias, $prefix, $chain) = $this->searchChain($prefix);
@@ -553,7 +553,11 @@ class QuerySet extends QuerySetBase
                 $selectNames = [];
                 $selectRelatedNames = [];
                 /** @var \Mindy\Orm\Model $relatedModel */
-                $columnNames = $relatedModel->getMeta()->getAttributes();
+                if (!empty($select)) {
+                    $columnNames = $select;
+                } else {
+                    $columnNames = $relatedModel->getMeta()->getAttributes();
+                }
                 foreach ($columnNames as $item) {
                     $selectRelatedNames[] = $alias . '.' . $this->quoteColumnName($item) . ' AS ' . $relationName . '__' . $item;
                 }
@@ -590,12 +594,16 @@ class QuerySet extends QuerySetBase
         return null;
     }
 
-    public function with(array $value)
+    public function with(array $with)
     {
-        foreach ($value as $name) {
+        foreach ($with as $name => $fields) {
+            if (is_numeric($name)) {
+                $name = $fields;
+            }
+
             if ($this->model->getMeta()->hasRelatedField($name)) {
                 $this->with[] = $name;
-                $this->getOrCreateChainAlias([$name], true);
+                $this->getOrCreateChainAlias([$name], true, true, is_array($fields) ? $fields : []);
             }
         }
         return $this;
@@ -618,7 +626,7 @@ class QuerySet extends QuerySetBase
      * @param bool $prefixedSelect
      * @return array
      */
-    protected function getOrCreateChainAlias(array $prefix, $prefixedSelect = false, $autoGroup = true)
+    protected function getOrCreateChainAlias(array $prefix, $prefixedSelect = false, $autoGroup = true, array $select = [])
     {
         if (!$this->from) {
             $this->from($this->model->tableName() . ' ' . $this->tableAlias);
@@ -630,10 +638,9 @@ class QuerySet extends QuerySetBase
         if (count($prefix) > 0) {
             $chain = $this->getChain($prefix);
             if ($chain === null) {
-                $this->makeChain($prefix, $prefixedSelect, $autoGroup);
+                $this->makeChain($prefix, $prefixedSelect, $autoGroup, $select);
                 $chain = $this->getChain($prefix);
             }
-
             if ($chain) {
                 return [
                     $chain['alias'],
