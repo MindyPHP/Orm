@@ -254,6 +254,10 @@ class ManyToManyField extends RelatedField
 
     protected function preformatValue($value)
     {
+        if (empty($value)) {
+            return [];
+        }
+
         if (!is_array($value)) {
             if (is_string($value) && strpos($value, ',') !== false) {
                 $value = explode(',', $value);
@@ -269,6 +273,10 @@ class ManyToManyField extends RelatedField
             ) {
                 return $value;
             } else {
+                if (empty($value[0])) {
+                    return [];
+                }
+
                 throw new Exception("ManyToMany field can set only arrays of Models or existing primary keys");
             }
         } else {
