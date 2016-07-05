@@ -226,7 +226,7 @@ abstract class Field implements IValidateField
 
     public function sqlDefault()
     {
-        return empty($this->default) ? '' : "DEFAULT {$this->default}";
+        return ($this->default === null || $this->default === false) ? '' : "DEFAULT {$this->default}";
     }
 
     public function sqlNullable()
