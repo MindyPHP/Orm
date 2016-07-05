@@ -4,6 +4,7 @@ namespace Mindy\Orm;
 
 use Mindy\Exception\NotSupportedException;
 use Mindy\Query\ConnectionManager;
+use Mindy\Query\TableSchema;
 
 /**
  * Class Sync
@@ -44,7 +45,7 @@ class Sync
                 $columns[$name] = $field->sql();
             } else if (is_a($field, $model::$manyToManyField)) {
                 /* @var $field \Mindy\Orm\Fields\ManyToManyField */
-                if (!$this->hasTable($model, $field->getTableName())) {
+                if (!$this->hasTable($field->getTableName())) {
                     if ($field->through === null) {
                         $command->createTable($field->getTableName(), $field->getColumns())->execute();
                     }
@@ -52,7 +53,7 @@ class Sync
             }
         }
 
-        return $command->createTable($model->tableName(), $columns)->execute();
+        $command->createTable($model->tableName(), $columns)->execute();
     }
 
     /**
@@ -72,12 +73,12 @@ class Sync
 
         foreach ($model->getManyFields() as $field) {
             if ($field->through === null) {
-                if ($this->hasTable($model, $field->getTableName())) {
+                if ($this->hasTable($field->getTableName())) {
                     $command->dropTable($field->getTableName())->execute();
                 }
             }
         }
-        return $command->dropTable($model->tableName())->execute();
+        $command->dropTable($model->tableName())->execute();
 
         /*
         try {
@@ -90,91 +91,17 @@ class Sync
     }
 
     /**
-     * @param $model \Mindy\Orm\Model
-     */
-    public function createIndexes(Model $model)
-    {
-        $command = $this->db->createCommand();
-
-        try {
-            // checkIntegrity is not supported by SQLite
-            // $command->checkIntegrity(false)->execute();
-        } catch (NotSupportedException $e) {
-
-        }
-
-        foreach ($model->getFields() as $name => $field) {
-            if (is_a($field, '\Mindy\Orm\Fields\ForeignField')) {
-                /* @var $modelClass \Mindy\Orm\Model */
-                /* @var $field \Mindy\Orm\Fields\ForeignField */
-                $modelClass = $field->modelClass;
-                $fkModel = new $modelClass();
-                $command->addForeignKey(
-                    "fk_{$name}",
-                    $model->tableName(), [$name . '_id'],
-                    $modelClass::tableName(), [$fkModel->getPkName()],
-                    $delete = $field->getOnDelete(),
-                    $update = $field->getOnUpdate()
-                );
-                $command->execute();
-            }
-        }
-
-        try {
-            // checkIntegrity is not supported by SQLite
-            // $command->checkIntegrity(true)->execute();
-        } catch (NotSupportedException $e) {
-
-        }
-    }
-
-    /**
-     * @param $model \Mindy\Orm\Model
-     */
-    public function dropIndexes(Model $model)
-    {
-        $command = $this->db->createCommand();
-
-        try {
-            // checkIntegrity is not supported by SQLite
-            // $command->checkIntegrity(false)->execute();
-        } catch (NotSupportedException $e) {
-
-        }
-
-        foreach ($model->getFields() as $name => $field) {
-            if (is_a($field, '\Mindy\Orm\Fields\ForeignField')) {
-                /* @var $modelClass Orm */
-                /* @var $field \Mindy\Orm\Fields\ForeignField */
-                // $modelClass = $field->relation->modelClass;
-                $command->dropForeignKey("fk_{$name}", $model::tableName());
-            }
-        }
-
-        try {
-            // checkIntegrity is not supported by SQLite
-            // $command->checkIntegrity(true)->execute();
-        } catch (NotSupportedException $e) {
-
-        }
-    }
-
-    /**
      * @return array
      */
     public function create()
     {
         $created = [];
         foreach ($this->_models as $model) {
-            if (!$this->hasTable($model) && $this->createTable($model)) {
+            if ($this->hasTable($model->tableName()) === false) {
+                $this->createTable($model);
                 $created[] = $model->tableName();
             }
         }
-
-        foreach ($this->_models as $model) {
-            $this->createIndexes($model);
-        }
-
         return $created;
     }
 
@@ -186,31 +113,21 @@ class Sync
     {
         $deleted = [];
         foreach ($this->_models as $model) {
-            if ($this->hasTable($model)) {
-                $this->dropIndexes($model);
-                if ($this->dropTable($model)) {
-                    $deleted[] = $model->tableName();
-                }
+            if ($this->hasTable($model->tableName())) {
+                $this->dropTable($model);
+                $deleted[] = $model->tableName();
             }
         }
-
         return $deleted;
     }
 
     /**
      * Check table in database.
-     * @param $model \Mindy\Orm\Model
      * @param null $tableName
      * @return bool
      */
-    public function hasTable($model, $tableName = null)
+    public function hasTable($tableName)
     {
-        if ($tableName === null) {
-            $tableName = $model->tableName();
-        }
-        $schema = $this->db->schema;
-        $rawTableName = $schema->getRawTableName($tableName);
-        $tables = $schema->getTableNames('', true);
-        return in_array($rawTableName, $tables);
+        return $this->db->getSchema()->getTableSchema($tableName, true) instanceof TableSchema;
     }
 }
