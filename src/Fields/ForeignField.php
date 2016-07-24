@@ -7,6 +7,7 @@ use InvalidArgumentException;
 use Mindy\Orm\Base;
 use Mindy\Orm\Orm;
 use Mindy\Orm\RelatedManager;
+use Mindy\QueryBuilder\QueryBuilder;
 
 /**
  * Class ForeignField
@@ -66,16 +67,15 @@ class ForeignField extends RelatedField
         return $modelClass::getPkName();
     }
 
-    public function getJoin()
+    public function getJoin(QueryBuilder $qb, $topAlias)
     {
+        $alias = $qb->makeAliasKey($this->getRelatedModel()->tableName());
         return [
-            $this->getRelatedModel(),
             [
-                [
-                    'table' => $this->getRelatedTable(false),
-                    'from' => $this->name . '_id',
-                    'to' => $this->getRelatedModel()->getPkName(),
-                ]
+                'LEFT JOIN',
+                $this->getRelatedTable(false),
+                [$topAlias . '.' . $this->name . '_id' => $alias . '.' . $this->getRelatedModel()->getPkName()],
+                $alias
             ]
         ];
     }

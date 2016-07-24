@@ -20,7 +20,8 @@
     "mindy/query_builder": "dev-master",
     "mindy/tests": "*",
     "mindy/validation": "*",
-    "mindy/storage": "*"
+    "mindy/storage": "*",
+    "mindy/console": "dev-master"
   },
   "authors": [
     {

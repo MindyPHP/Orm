@@ -6,8 +6,8 @@ use Mindy\Exception\NotSupportedException;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Fields\OneToOneField;
-use Mindy\Query\ConnectionManager;
-use Mindy\Query\TableSchema;
+use Mindy\Query\Connection;
+use Mindy\Query\Schema\TableSchema;
 
 /**
  * Class Sync
@@ -19,14 +19,39 @@ class Sync
      * @var \Mindy\Orm\Model[]
      */
     private $_models = [];
+    /**
+     * @var \Mindy\Query\Connection
+     */
+    private $_db;
+    /**
+     * @var \Mindy\QueryBuilder\QueryBuilder
+     */
+    private $_qb;
 
-    public function __construct($models, $db = null)
+    public function __construct($models, Connection $db)
     {
         if (!is_array($models)) {
             $models = [$models];
         }
         $this->_models = $models;
-        $this->db = ConnectionManager::getDb($db);
+        $this->_db = $db;
+        $this->_qb = $db->getQueryBuilder();
+    }
+
+    /**
+     * @return Connection
+     */
+    protected function getDb()
+    {
+        return $this->_db;
+    }
+
+    /**
+     * @return \Mindy\QueryBuilder\QueryBuilder
+     */
+    protected function getQueryBuilder()
+    {
+        return $this->_qb;
     }
 
     /**
@@ -35,8 +60,9 @@ class Sync
      */
     public function createTable(Model $model)
     {
+        $sql = [];
         $columns = [];
-        $command = $this->db->createCommand();
+        $schema = $this->getDb()->getSchema();
         foreach ($model->getFieldsInit() as $name => $field) {
             if ($field->sqlType() !== false) {
                 if (is_a($field, OneToOneField::class) && $field->reversed) {
@@ -50,13 +76,21 @@ class Sync
                 /* @var $field \Mindy\Orm\Fields\ManyToManyField */
                 if (!$this->hasTable($field->getTableName())) {
                     if ($field->through === null) {
-                        $command->createTable($field->getTableName(), $field->getColumns())->execute();
+                        $fieldColumns = array_map(function ($column) use ($schema) {
+                            return $schema->getColumnType($column);
+                        }, $field->getColumns());
+                        $sql[] = $this->getQueryBuilder()->createTable($field->getTableName(), $fieldColumns, null, true);
                     }
                 }
             }
         }
 
-        $command->createTable($model->tableName(), $columns)->execute();
+        $mainColumns = array_map(function ($column) use ($schema) {
+            return $schema->getColumnType($column);
+        }, $columns);
+        $sql[] = $this->getQueryBuilder()->createTable($model->tableName(), $mainColumns, null, true);
+
+        $this->getDb()->createCommand(implode(";\n\n", $sql))->execute();
     }
 
     /**
@@ -65,32 +99,16 @@ class Sync
      */
     public function dropTable(Model $model)
     {
-        $command = $this->db->createCommand();
-
-        try {
-            // TODO checkIntegrity is not supported by SQLite
-            // $command->checkIntegrity(false)->execute();
-        } catch (NotSupportedException $e) {
-
-        }
-
+        $sql = [];
         foreach ($model->getManyFields() as $field) {
             if ($field->through === null) {
                 if ($this->hasTable($field->getTableName())) {
-                    $command->dropTable($field->getTableName())->execute();
+                    $sql[] = $this->getQueryBuilder()->dropTable($field->getTableName(), true);
                 }
             }
         }
-        $command->dropTable($model->tableName())->execute();
-
-        /*
-        try {
-            // TODO checkIntegrity is not supported by SQLite
-            // $this->db->createCommand()->checkIntegrity(true)->execute();
-        } catch (NotSupportedException $e) {
-
-        }
-        */
+        $sql[] = $this->getQueryBuilder()->dropTable($model->tableName(), true);
+        $this->getDb()->createCommand(implode(";\n\n", $sql))->execute();
     }
 
     /**
@@ -134,6 +152,6 @@ class Sync
         if ($tableName instanceof Model) {
             $tableName = $tableName->tableName();
         }
-        return $this->db->getSchema()->getTableSchema($tableName, true) instanceof TableSchema;
+        return $this->getDb()->getSchema()->getTableSchema($tableName, true) instanceof TableSchema;
     }
 }

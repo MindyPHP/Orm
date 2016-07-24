@@ -15,11 +15,10 @@ class AutoField extends IntField
 
     /**
      * @return null|string
-     * @throws \Mindy\Query\Exception\UnknownDatabase
      */
     public function getDbPrepValue()
     {
-        $db = ConnectionManager::getDb();
+        $db = $this->getModel()->getDb();
         if ($db->driverName == 'pgsql') {
             // Primary key всегда передается по логике Query, а для корректной работы pk в pgsql
             // необходимо передать curval($seq) или nextval($seq) или не экранированный DEFAULT.

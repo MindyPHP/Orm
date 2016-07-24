@@ -53,9 +53,14 @@ class User extends Model
             'addresses' => [
                 'class' => HasManyField::class,
                 'modelClass' => Customer::class,
-                'relatedName' => 'user',
                 'editable' => false,
             ],
         ];
+    }
+
+    public static function objectsManager($instance = null)
+    {
+        $className = get_called_class();
+        return new UserManager($instance ? $instance : new $className);
     }
 }

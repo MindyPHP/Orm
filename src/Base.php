@@ -15,6 +15,7 @@ namespace Mindy\Orm;
 
 use ArrayAccess;
 use Exception;
+use Mindy\Base\Mindy;
 use Mindy\Exception\InvalidConfigException;
 use Mindy\Exception\InvalidParamException;
 use Mindy\Helper\Alias;
@@ -24,6 +25,7 @@ use Mindy\Helper\Traits\Configurator;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\JsonField;
 use Mindy\Orm\Fields\ManyToManyField;
+use Mindy\Query\Connection;
 use Mindy\Query\ConnectionManager;
 use Mindy\Query\Exception\StaleObjectException;
 use Mindy\Validation\Traits\ValidateObject;
@@ -75,6 +77,10 @@ abstract class Base implements ArrayAccess, Serializable
      * @var \Mindy\Event\EventManager
      */
     private $_eventManager;
+    /**
+     * @var \Mindy\Query\Connection
+     */
+    private $_db;
 
     /**
      * @param array $attributes
@@ -546,7 +552,7 @@ abstract class Base implements ArrayAccess, Serializable
 
         $object = new ReflectionClass($className);
         $modulesPath = Alias::get('Modules');
-        if (empty($modulesPath)) {
+        if (empty($modulesPath) || defined('MINDY_TEST')) {
             $tableName = self::normalizeTableName($class);
         } else {
             $tmp = str_replace([$modulesPath, 'Models'], '', dirname($object->getFilename()));
@@ -581,14 +587,29 @@ abstract class Base implements ArrayAccess, Serializable
     }
 
     /**
-     * Returns the database connection used by this AR class.
-     * By default, the "db" application component is used as the database connection.
-     * You may override this method if you want to use a different database connection.
-     * @return \Mindy\Query\Connection the database connection used by this AR class.
+     * @param $db
+     * @return $this
      */
-    public static function getDb()
+    public function using($db)
     {
-        return ConnectionManager::getDb();
+        if (($db instanceof Connection) === false) {
+            // TODO refact, detach from Mindy::app()
+            $db = Mindy::app()->db->getDb($db);
+        }
+        $this->_db = $db;
+        return $this;
+    }
+
+    /**
+     * @return \Mindy\Query\Connection
+     */
+    public function getDb()
+    {
+        /** @var \Mindy\Query\ConnectionManager $cm */
+        if ($this->_db === null && Mindy::app()) {
+            $this->_db = Mindy::app()->db->getDb();
+        }
+        return $this->_db;
     }
 
     /**
@@ -862,14 +883,19 @@ abstract class Base implements ArrayAccess, Serializable
         $dbValues = $this->getDbPrepValues($incValues);
 
         $db = static::getDb();
-        $command = $db->createCommand()->insert($this->tableName(), $dbValues);
+        // TODO refact ugly syntax with array_keys
+        $sql = $db->getQueryBuilder()->insert($this->tableName(), array_keys($dbValues), [$dbValues]);
+        $command = $db->createCommand($sql);
         if (!$command->execute()) {
             return false;
         }
 
         $primaryKeyName = self::primaryKeyName();
         if (array_key_exists($primaryKeyName, $values) === false) {
-            $tableSchema = $db->getTableSchema($this->tableName());
+            $tableSchema = $db->getTableSchema($this->tableName(), true);
+            if ($tableSchema === null) {
+                throw new Exception('Failed to load table schema');
+            }
             $id = $db->getLastInsertID($tableSchema->sequenceName);
             $this->setAttribute($primaryKeyName, $id);
             $values[$primaryKeyName] = $id;

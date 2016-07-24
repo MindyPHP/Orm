@@ -4,7 +4,9 @@ namespace Mindy\Orm\Fields;
 
 use Exception;
 use Mindy\Orm\HasManyManager;
+use Mindy\Orm\Model;
 use Mindy\Orm\QuerySet;
+use Mindy\QueryBuilder\QueryBuilder;
 
 /**
  * Class HasManyField
@@ -67,36 +69,23 @@ class HasManyField extends RelatedField
         ]);
     }
 
-    public function to()
-    {
-        if (empty($this->to)) {
-            $target = $this->getModel();
-            $this->to = $target->normalizeTableName($target->classNameShort()) . '_' . $target->getPkName();
-        }
-        return $this->to;
-    }
-
-    public function from()
-    {
-        if (empty($this->from)) {
-            $this->from = $this->getModel()->getPkName();
-        }
-        return $this->from;
-    }
-
     public function setValue($value)
     {
         throw new Exception("Has many field can't set values. You can do it through ForeignKey.");
     }
 
-    public function getJoin()
+    public function getJoin(QueryBuilder $qb, $topAlias)
     {
-        return [$this->getRelatedModel(), [[
-            'table' => $this->getRelatedTable(false),
-            'from' => $this->from(),
-            'to' => $this->to(),
-            'group' => true
-        ]]];
+        $model = $this->getModel();
+        $related = $this->getRelatedModel();
+        $tableName = $this->getRelatedTable();
+        $alias = $qb->makeAliasKey($tableName);
+        $from = Model::normalizeTableName($model->classNameShort()) . '_' . $related->getPkName();
+        $to = $this->getModel()->getPkName();
+
+        return [
+            ['LEFT JOIN', $tableName, [$alias . '.' . $from => $topAlias . '.' . $to], $alias]
+        ];
     }
 
     public function fetch($value)
@@ -131,39 +120,5 @@ class HasManyField extends RelatedField
     public function getFormField($form, $fieldClass = null, array $extra = [])
     {
         return parent::getFormField($form, \Mindy\Form\Fields\DropDownField::className(), $extra);
-    }
-
-    public function processQuerySet(QuerySet $qs, $alias, $autoGroup = true)
-    {
-        $grouped = false;
-        list($relatedModel, $joinTables) = $this->getJoin();
-        foreach ($joinTables as $join) {
-            $type = isset($join['type']) ? $join['type'] : 'LEFT OUTER JOIN';
-            $newAlias = $qs->makeAliasKey($join['table']);
-            $table = $join['table'] . ' ' . $newAlias;
-
-            $from = $alias . '.' . $qs->quoteColumnName($join['from']);
-            $to = $newAlias . '.' . $qs->quoteColumnName($join['to']);
-            $on = $qs->quoteColumnName($from) . ' = ' . $qs->quoteColumnName($to);
-
-            $qs->join($type, $table, $on);
-
-            // Has many relations (we must work only with current model lines - exclude duplicates)
-            if ($grouped === false) {
-                if ($autoGroup) {
-                    $group = [];
-                    if ($qs->getSchema() instanceof \Mindy\Query\Pgsql\Schema) {
-                        $group[] = $newAlias . '.' . $qs->quoteColumnName($join['to']);
-                    }
-                    $group[] = $alias . '.' . $this->getModel()->getPkName();
-                    $qs->group($group);
-                }
-                $qs->setChainedHasMany();
-                $grouped = true;
-            }
-
-            $alias = $newAlias;
-        }
-        return [$relatedModel, $alias];
     }
 }

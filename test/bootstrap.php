@@ -1,5 +1,7 @@
 <?php
 
+define('MINDY_TEST', true);
+
 $vendorPath = __DIR__ . '/../vendor';
 if (is_dir($vendorPath)) {
     include($vendorPath . '/autoload.php');
@@ -13,6 +15,16 @@ if (is_dir($vendorPath)) {
 }
 
 require __DIR__ . '/DatabaseTestCase.php';
+
+\Mindy\Base\Mindy::getInstance([
+    'basePath' => __DIR__ . '/protected',
+    'components' => [
+        'db' => [
+            'class' => \Mindy\Query\ConnectionManager::class,
+            'databases' => require('config_local.php')
+        ]
+    ]
+]);
 
 $models = glob(realpath(__DIR__) . '/Modules/Tests/Models/*.php');
 foreach ($models as $model) {

@@ -50,8 +50,7 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
     {
         if ($this->_qs === null) {
             $this->_qs = new QuerySet([
-                'model' => $this->getModel(),
-                'modelClass' => $this->getModel()->className()
+                'model' => $this->getModel()
             ]);
         }
         return $this->_qs;

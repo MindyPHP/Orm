@@ -3,11 +3,14 @@
 namespace Mindy\Orm\Fields;
 
 use Exception;
+use Mindy\Orm\Manager;
 use Mindy\Orm\ManyToManyManager;
+use Mindy\Orm\ManyToManyManagerTrait;
 use Mindy\Orm\MetaData;
 use Mindy\Orm\Model;
 use Mindy\Orm\Orm;
 use Mindy\Orm\QuerySet;
+use Mindy\QueryBuilder\QueryBuilder;
 
 /**
  * Class ManyToManyField
@@ -77,6 +80,10 @@ class ManyToManyField extends RelatedField
      * @var
      */
     protected $_columns = [];
+    /**
+     * @var
+     */
+    private $_manager;
 
     /**
      * Initialization
@@ -185,20 +192,35 @@ class ManyToManyField extends RelatedField
         return $this->_modelColumn;
     }
 
+    protected function unsafeGetManager()
+    {
+        if ($this->_manager === null) {
+            $className = 'ManyToManyWrapperManager_' . rand(0, 100000) . time();
+            $traits = [
+                ManyToManyManagerTrait::class
+            ];
+            $class = sprintf('class %s extends \%s { use %s; }', $className, get_class($this->getRelatedModel()->objects()), implode(', ', $traits));
+            eval($class);
+            $options = [
+                'modelColumn' => $this->getRelatedModelColumn(),
+                'primaryModelColumn' => $this->getModelColumn(),
+                'primaryModel' => $this->getModel(),
+                'relatedTable' => $this->getTableName(),
+                'extra' => $this->extra,
+                'through' => $this->through,
+                'throughLink' => $this->throughLink
+            ];
+            $this->_manager = new $className($this->getRelatedModel(), $options);
+        }
+        return $this->_manager;
+    }
+
     /**
      * @return \Mindy\Orm\ManyToManyManager QuerySet of related objects
      */
     public function getManager()
     {
-        return new ManyToManyManager($this->getRelatedModel(), [
-            'modelColumn' => $this->getRelatedModelColumn(),
-            'primaryModelColumn' => $this->getModelColumn(),
-            'primaryModel' => $this->getModel(),
-            'relatedTable' => $this->getTableName(),
-            'extra' => $this->extra,
-            'through' => $this->through,
-            'throughLink' => $this->throughLink
-        ]);
+        return $this->unsafeGetManager();
     }
 
     /**
@@ -207,17 +229,16 @@ class ManyToManyField extends RelatedField
      */
     public function getTableName()
     {
-        if (!$this->_tableName) {
-            if (!$this->through) {
-                $parts = [$this->getTable(), $this->getRelatedTable()];
-                sort($parts);
-                $this->_tableName = '{{%' . implode('_', $parts) . '}}';
-            } else {
-                $through = $this->through;
-                $this->_tableName = $through::tableName();
-            }
+        if (!$this->through) {
+            $adapter = $this->getRelatedModel()->getDb()->getAdapter();
+            $parts = [$adapter->getRawTableName($this->getTable()), $adapter->getRawTableName($this->getRelatedTable())];
+            sort($parts);
+            var_dump('{{%' . implode('_', $parts) . '}}');
+            return '{{%' . implode('_', $parts) . '}}';
+        } else {
+            $cls = $this->through;
+            return $cls::tableName();
         }
-        return $this->_tableName;
     }
 
     /**
@@ -308,22 +329,38 @@ class ManyToManyField extends RelatedField
         }
     }
 
-    public function getJoin()
+    protected function getThroughTableName()
+    {
+        if ($this->through) {
+            $cls = $this->through;
+            return $cls::tableName();
+        } else {
+
+        }
+    }
+
+    public function getJoin(QueryBuilder $qb, $topAlias)
     {
         $relatedModel = $this->getRelatedModel();
-
-        return [$relatedModel, [[
-            'table' => $this->getTableName(false),
-            // @TODO: chained with Sync - 40 line
-            'from' => $this->getModel()->getPkName(),
-            'to' => $this->getModelColumn(),
-            'group' => true
-        ], [
-            'table' => $this->getRelatedTable(false),
-            // @TODO: chained with Sync - 40 line
-            'from' => $this->getRelatedModelColumn(),
-            'to' => $relatedModel->getPkName()
-        ]]];
+        $throughAlias = $qb->makeAliasKey($this->getTableName());
+        $alias = $qb->makeAliasKey($this->getRelatedTable());
+        return [
+            [
+                'LEFT JOIN',
+                $this->getTableName(),
+                [
+                    $this->getRelatedModelColumn() => $topAlias . '.' . $relatedModel->getPkName()
+                ],
+                $throughAlias
+            ], [
+                'LEFT JOIN',
+                $this->getRelatedTable(),
+                [
+                    $alias . '.' . $this->getModel()->getPkName() => $throughAlias . '.' . $this->getModelColumn()
+                ],
+                $alias
+            ]
+        ];
     }
 
     public function fetch($value)
@@ -340,45 +377,5 @@ class ManyToManyField extends RelatedField
     public function getFormField($form, $fieldClass = null, array $extra = [])
     {
         return parent::getFormField($form, \Mindy\Form\Fields\DropDownField::className(), $extra);
-    }
-
-    public function processQuerySet(QuerySet $qs, $alias, $autoGroup = true)
-    {
-        $grouped = false;
-        list($relatedModel, $joinTables) = $this->getJoin();
-        $throughAlias = null;
-        foreach ($joinTables as $join) {
-            $type = isset($join['type']) ? $join['type'] : 'LEFT OUTER JOIN';
-            $newAlias = $qs->makeAliasKey($join['table']);
-            $table = $join['table'] . ' ' . $newAlias;
-
-            $from = $alias . '.' . $join['from'];
-            $to = $newAlias . '.' . $join['to'];
-            $on = $qs->quoteColumnName($from) . ' = ' . $qs->quoteColumnName($to);
-
-            $qs->join($type, $table, $on);
-
-            // Has many relations (we must work only with current model lines - exclude duplicates)
-            if ($grouped === false) {
-                if ($autoGroup) {
-                    $qs->group([$this->getModel()->getPkName()]);
-                }
-                $grouped = true;
-            }
-
-            $alias = $newAlias;
-            if (!$throughAlias) {
-                $throughAlias = $alias;
-            }
-        }
-
-        $through = null;
-        if ($this->through) {
-            $through = [
-                new $this->through,
-                $throughAlias
-            ];
-        }
-        return [$through, [$relatedModel, $alias]];
     }
 }

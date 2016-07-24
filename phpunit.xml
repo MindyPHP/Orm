@@ -18,27 +18,30 @@
     </php>
 
     <testsuites>
-        <testsuite name="Orm/Sqlite">
-            <directory>test/Sqlite/</directory>
+        <testsuite name="Orm/QueryBuilder">
+            <directory>test/QueryBuilder/</directory>
         </testsuite>
-        <testsuite name="Orm/Mysql">
-            <directory>test/Mysql/</directory>
-        </testsuite>
-        <testsuite name="Orm/Pgsql">
-            <directory>test/Pgsql/</directory>
-        </testsuite>
-        <testsuite name="Orm/Fields">
-            <directory>test/Fields/</directory>
-        </testsuite>
-        <testsuite name="Orm/Validation">
-            <directory>test/Validation/</directory>
-        </testsuite>
-        <testsuite name="Orm/Basic">
-            <directory>test/Basic/</directory>
-        </testsuite>
-        <testsuite name="Orm/Issues">
-            <directory>test/Issues/</directory>
-        </testsuite>
+        <!--<testsuite name="Orm/Sqlite">-->
+            <!--<directory>test/Sqlite/</directory>-->
+        <!--</testsuite>-->
+        <!--<testsuite name="Orm/Mysql">-->
+            <!--<directory>test/Mysql/</directory>-->
+        <!--</testsuite>-->
+        <!--<testsuite name="Orm/Pgsql">-->
+            <!--<directory>test/Pgsql/</directory>-->
+        <!--</testsuite>-->
+        <!--<testsuite name="Orm/Fields">-->
+            <!--<directory>test/Fields/</directory>-->
+        <!--</testsuite>-->
+        <!--<testsuite name="Orm/Validation">-->
+            <!--<directory>test/Validation/</directory>-->
+        <!--</testsuite>-->
+        <!--<testsuite name="Orm/Basic">-->
+            <!--<directory>test/Basic/</directory>-->
+        <!--</testsuite>-->
+        <!--<testsuite name="Orm/Issues">-->
+            <!--<directory>test/Issues/</directory>-->
+        <!--</testsuite>-->
     </testsuites>
 
     <groups>

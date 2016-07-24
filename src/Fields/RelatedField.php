@@ -2,9 +2,10 @@
 
 namespace Mindy\Orm\Fields;
 
-use Mindy\Exception\Exception;
 use Mindy\Orm\QuerySet;
+use Mindy\Query\Connection;
 use Mindy\Query\ConnectionManager;
+use Mindy\QueryBuilder\QueryBuilder;
 
 /**
  * Class RelatedField
@@ -24,6 +25,10 @@ abstract class RelatedField extends IntField
     protected $_model;
 
     protected $_relatedModel;
+    /**
+     * @var Connection
+     */
+    private $_db;
 
     public function getRelatedName()
     {
@@ -33,7 +38,7 @@ abstract class RelatedField extends IntField
         return $this->relatedName;
     }
 
-    abstract public function getJoin();
+    abstract public function getJoin(QueryBuilder $qb, $topAlias);
 
     abstract protected function fetch($value);
 
@@ -48,42 +53,43 @@ abstract class RelatedField extends IntField
         return $this->_relatedModel;
     }
 
-    public function getTable($clean = true)
+    public function getTable()
     {
-        $ownerClassName = $this->ownerClassName;
-        $tableName = $ownerClassName::tableName();
-        $schema = ConnectionManager::getDb()->getSchema();
-        return $clean ? $schema->getRawTableName($tableName) : $tableName;
+        $cls = $this->ownerClassName;
+        return $cls::tableName();
     }
 
-    public function getRelatedTable($clean = true)
+    /**
+     * @return Connection
+     */
+    protected function getDb()
     {
-        $tableName = $this->getRelatedModel()->tableName();
-        $schema = ConnectionManager::getDb()->getSchema();
-        return $clean ? $schema->getRawTableName($tableName) : $tableName;
+        return $this->_db;
     }
 
-    public function processQuerySet(QuerySet $qs, $alias, $autoGroup = true)
+    /**
+     * @param Connection $db
+     * @return $this
+     */
+    public function setDb(Connection $db)
     {
-        list($relatedModel, $joinTables) = $this->getJoin();
-        foreach ($joinTables as $join) {
-            $type = isset($join['type']) ? $join['type'] : 'LEFT OUTER JOIN';
-            $newAlias = $qs->makeAliasKey($join['table']);
-            $table = $join['table'] . ' ' . $newAlias;
+        $this->_db = $db;
+        return $this;
+    }
 
-            $from = $alias . '.' . $join['from'];
-            $to = $newAlias . '.' . $join['to'];
-            $on = $qs->quoteColumnName($from) . ' = ' . $qs->quoteColumnName($to);
+    public function getRelatedTable()
+    {
+        $cls = $this->modelClass;
+        return $cls::tableName();
+    }
 
-            $qs->join($type, $table, $on);
-
-            // Has many relations (we must work only with current model lines - exclude duplicates)
-//            if (isset($join['group']) && ($join['group']) && !$this->_chainedHasMany) {
-//                $this->_chainedHasMany = true;
-//            }
-
-            $alias = $newAlias;
+    public function buildQuery(QueryBuilder $qb, $topAlias)
+    {
+        $alias = '?';
+        foreach ($this->getJoin($qb, $topAlias) as $join) {
+            list($joinType, $tableName, $on, $alias) = $join;
+            $qb->join($joinType, $tableName, $on, $alias);
         }
-        return [$relatedModel, $alias];
+        return $alias;
     }
 }

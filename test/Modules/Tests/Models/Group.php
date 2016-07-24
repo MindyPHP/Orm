@@ -41,4 +41,10 @@ class Group extends Model
             ]
         ];
     }
+
+    public static function objectsManager($instance = null)
+    {
+        $className = get_called_class();
+        return new GroupManager($instance ? $instance : new $className);
+    }
 }

@@ -7,15 +7,26 @@ use Exception;
 use IteratorAggregate;
 use Mindy\Base\Mindy;
 use Mindy\Helper\Creator;
-use Mindy\Query\Query;
+use Mindy\Helper\Traits\Accessors;
+use Mindy\Helper\Traits\Configurator;
+use Mindy\Orm\Fields\ForeignField;
+use Mindy\Orm\Fields\HasManyField;
+use Mindy\Orm\Fields\ManyToManyField;
+use Mindy\Orm\Fields\OneToOneField;
+use Mindy\Orm\Fields\RelatedField;
+use Mindy\Query\Connection;
+use Mindy\QueryBuilder\LookupBuilder\Legacy;
+use Mindy\QueryBuilder\QueryBuilder;
 use Serializable;
 
 /**
  * Class QuerySetBase
  * @package Mindy\Orm
  */
-abstract class QuerySetBase extends Query implements IteratorAggregate, ArrayAccess, Serializable
+abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializable
 {
+    use Accessors, Configurator;
+
     /**
      * @var string the name of the ActiveRecord class.
      */
@@ -33,12 +44,153 @@ abstract class QuerySetBase extends Query implements IteratorAggregate, ArrayAcc
      * @var DataIterator
      */
     private $_iterator;
+    /**
+     * @var \Mindy\Query\Connection
+     */
+    private $_db;
+    /**
+     * @var \Mindy\QueryBuilder\QueryBuilder
+     */
+    private $_qb;
+    /**
+     * @var \Mindy\Orm\Model
+     */
+    private $_model;
+    /**
+     * @var string
+     */
+    private $_tableAlias;
 
     abstract public function getData();
 
+    /**
+     * @return \Mindy\Event\EventManager
+     */
     protected function getEventManager()
     {
         return Mindy::app()->getComponent('signal');
+    }
+
+    /**
+     * @return \Mindy\QueryBuilder\Database\Mysql\Adapter|\Mindy\QueryBuilder\Database\Pgsql\Adapter|\Mindy\QueryBuilder\Database\Sqlite\Adapter
+     * @throws \Mindy\Query\Exception\Exception
+     */
+    protected function getAdapter()
+    {
+        return $this->getDb()->getAdapter();
+    }
+
+    /**
+     * @return Model
+     */
+    public function getModel()
+    {
+        return $this->_model;
+    }
+
+    /**
+     * @param Model $model
+     * @return $this
+     */
+    public function setModel(Model $model)
+    {
+        $this->_model = $model;
+        return $this;
+    }
+
+    /**
+     * @param $db
+     * @return $this
+     */
+    public function using($db)
+    {
+        if (($db instanceof Connection) === false) {
+            // TODO refact, detach from Mindy::app()
+            $db = Mindy::app()->db->getDb($db);
+        }
+        $this->_db = $db;
+        return $this;
+    }
+
+    /**
+     * @return \Mindy\Query\Connection
+     */
+    public function getDb()
+    {
+        /** @var \Mindy\Query\ConnectionManager $cm */
+        if ($this->_db === null && Mindy::app()) {
+            $this->_db = Mindy::app()->db->getDb();
+        }
+        return $this->_db;
+    }
+
+    /**
+     * @param null $sql
+     * @param array $params
+     * @return \Mindy\Query\Command
+     */
+    protected function createCommand($sql = null, $params = [])
+    {
+        return $this->getDb()->createCommand($sql, $params);
+    }
+
+    /**
+     * @return string
+     */
+    public function getTableAlias()
+    {
+        return $this->_tableAlias;
+    }
+
+    protected function setTableAlias(QueryBuilder $qb, $tableName)
+    {
+        $this->_tableAlias = $qb->makeAliasKey($tableName);
+        return $this;
+    }
+
+    /**
+     * @return \Mindy\QueryBuilder\QueryBuilder
+     */
+    public function getQueryBuilder()
+    {
+        if ($this->_qb === null) {
+            $qb = $this->getDb()->getQueryBuilder();
+            $this->setTableAlias($qb, $this->getModel()->tableName());
+            $qb->setAlias($this->getTableAlias());
+            $qb->getLookupBuilder()->setFetchColumnCallback(function ($column) {
+                return $column === 'pk' ? $this->getModel()->primaryKeyName() : $column;
+            });
+            $qb->getLookupBuilder()->setCallback(function(QueryBuilder $queryBuilder, Legacy $lookupBuilder, array $lookupNodes, $value) {
+                $lookup = $lookupBuilder->getDefault();
+                $column = '?';
+                $joinAlias = '?';
+                $alias = $queryBuilder->getAlias();
+
+                $model = $this->getModel();
+
+                foreach ($lookupNodes as $i => $node) {
+                    if ($model->hasField($node) && ($field = $model->getField($node)) instanceof RelatedField) {
+                        /** @var \Mindy\Orm\Fields\RelatedField $field */
+                        $joinAlias = $field->setDb($this->getDb())->buildQuery($queryBuilder, $alias);
+                    }
+
+                    if (count($lookupNodes) == $i + 1) {
+                        if ($lookupBuilder->hasLookup($node) === false) {
+                            $column = $joinAlias . '.' . $node;
+                            $columnWithLookup = $column . $lookupBuilder->getSeparator() . $lookupBuilder->getDefault();
+                            $queryBuilder->addWhere([$columnWithLookup => $value]);
+                        } else {
+                            $lookup = $node;
+                            $column = $alias . '.' . $lookupNodes[$i - 1];
+                        }
+                    }
+                }
+
+                return [$lookup, $column, $value];
+            });
+            $this->_qb = $qb;
+        }
+        return $this->_qb;
     }
 
     /**
@@ -70,7 +222,7 @@ abstract class QuerySetBase extends Query implements IteratorAggregate, ArrayAcc
     public function createModel(array $row)
     {
         /** @var Base $className */
-        $className = $this->modelClass;
+        $className = get_class($this->getModel());
         if (!$className) {
             throw new Exception('$className must be a string in createModel method of qs');
         }
