@@ -3,13 +3,9 @@
 namespace Mindy\Orm\Fields;
 
 use Exception;
-use Mindy\Orm\Manager;
-use Mindy\Orm\ManyToManyManager;
-use Mindy\Orm\ManyToManyManagerTrait;
 use Mindy\Orm\MetaData;
 use Mindy\Orm\Model;
 use Mindy\Orm\Orm;
-use Mindy\Orm\QuerySet;
 use Mindy\QueryBuilder\QueryBuilder;
 
 /**
@@ -192,16 +188,14 @@ class ManyToManyField extends RelatedField
         return $this->_modelColumn;
     }
 
-    protected function unsafeGetManager()
+    /**
+     * @return \Mindy\Orm\ManyToManyManager QuerySet of related objects
+     */
+    public function getManager()
     {
         if ($this->_manager === null) {
-            $className = 'ManyToManyWrapperManager_' . rand(0, 100000) . time();
-            $traits = [
-                ManyToManyManagerTrait::class
-            ];
-            $class = sprintf('class %s extends \%s { use %s; }', $className, get_class($this->getRelatedModel()->objects()), implode(', ', $traits));
-            eval($class);
-            $options = [
+            $className = get_class($this->getRelatedModel()->objects());
+            $this->_manager = new $className($this->getRelatedModel(), [
                 'modelColumn' => $this->getRelatedModelColumn(),
                 'primaryModelColumn' => $this->getModelColumn(),
                 'primaryModel' => $this->getModel(),
@@ -209,18 +203,9 @@ class ManyToManyField extends RelatedField
                 'extra' => $this->extra,
                 'through' => $this->through,
                 'throughLink' => $this->throughLink
-            ];
-            $this->_manager = new $className($this->getRelatedModel(), $options);
+            ]);
         }
         return $this->_manager;
-    }
-
-    /**
-     * @return \Mindy\Orm\ManyToManyManager QuerySet of related objects
-     */
-    public function getManager()
-    {
-        return $this->unsafeGetManager();
     }
 
     /**
@@ -233,7 +218,6 @@ class ManyToManyField extends RelatedField
             $adapter = $this->getRelatedModel()->getDb()->getAdapter();
             $parts = [$adapter->getRawTableName($this->getTable()), $adapter->getRawTableName($this->getRelatedTable())];
             sort($parts);
-            var_dump('{{%' . implode('_', $parts) . '}}');
             return '{{%' . implode('_', $parts) . '}}';
         } else {
             $cls = $this->through;

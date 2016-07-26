@@ -15,6 +15,11 @@ class IntField extends Field
         $this->value = (int)$value;
     }
 
+    public function sqlNullable()
+    {
+        return $this->sqlType() === 'pk' ? '' : parent::sqlNullable();
+    }
+
     public function sqlType()
     {
         return $this->primary ? 'pk' : 'integer(' . (int)$this->length . ')';

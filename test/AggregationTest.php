@@ -32,72 +32,67 @@ abstract class AggregationTest extends OrmDatabaseTestCase
         ];
     }
 
-    public function setUp()
+    private function init()
     {
-        parent::setUp();
+        $group = new Group(['name' => 'Administrators']);
+        $this->assertTrue($group->save());
+        $this->assertEquals(1, $group->id);
+        $this->assertEquals(1, $group->pk);
 
-        $group = new Group();
-        $group->name = 'Administrators';
-        $group->save();
+        $groupDev = new Group(['name' => 'Programmers']);
+        $this->assertTrue($groupDev->save());
+        $this->assertEquals(2, $groupDev->pk);
 
-        $group_prog = new Group();
-        $group_prog->name = 'Programmers';
-        $group_prog->save();
+        $user = new User(['username' => 'foo', 'password' => 'bar']);
+        $this->assertTrue($user->save());
+        $groupDev->users->link($user);
 
-        $anton = new User();
-        $anton->username = 'Anton';
-        $anton->password = 'Passwords';
-        $anton->save();
+        $customer = new Customer(['address' => 'home', 'user' => $user]);
+        $this->assertTrue($customer->save());
 
-        $group_prog->users->link($anton);
-
-        $anton_home = new Customer();
-        $anton_home->address = "Anton home";
-        $anton_home->user = $anton;
-        $anton_home->save();
-
-        $anton_work = new Customer();
-        $anton_work->address = "Anton work";
-        $anton_work->user = $anton;
-        $anton_work->save();
+        $customer2 = new Customer();
+        $customer2->address = "Anton work";
+        $customer2->user = $user;
+        $this->assertTrue($customer2->save());
 
         $max = new User();
-        $max->username = 'Max';
-        $max->password = 'MaxPassword';
-        $max->save();
+        $max->username = 'qwe';
+        $max->password = 'qwerty';
+        $this->assertTrue($max->save());
 
         $group->users->link($max);
-        $group_prog->users->link($max);
+        $groupDev->users->link($max);
 
-        $max_home = new Customer();
-        $max_home->address = "Max home";
-        $max_home->user = $max;
-        $max_home->save();
+        $customer3 = new Customer();
+        $customer3->address = "Max home";
+        $customer3->user = $max;
+        $customer3->save();
     }
 
     public function testMin()
     {
-        $this->assertEquals(User::objects()->min('id'), 1);
-        $this->assertEquals(User::objects()->filter(['addresses__address__startswith' => 'A'])->min('id'), 1);
-        $this->assertEquals(User::objects()->filter(['addresses__address__startswith' => 'A'])->min('addresses__id'), 1);
+        $this->assertEquals(1, User::objects()->min('id'));
+        $this->assertEquals(1, User::objects()->filter(['addresses__address__startswith' => 'A'])->min('id'));
+        $this->assertEquals(1, User::objects()->filter(['addresses__address__startswith' => 'A'])->min('addresses__id'));
     }
 
     public function testMax()
     {
-        $this->assertEquals(User::objects()->max('id'), 2);
-        $this->assertEquals(User::objects()->filter(['addresses__address__startswith' => 'A'])->max('id'), 1);
-        $this->assertEquals(User::objects()->filter(['addresses__address__startswith' => 'A'])->max('addresses__id'), 2);
+        $this->assertEquals(2, User::objects()->max('id'));
+        $this->assertEquals(2, User::objects()->filter(['addresses__address__startswith' => 'A'])->max('id'));
+        $this->assertEquals(2, User::objects()->filter(['addresses__address__startswith' => 'A'])->max('addresses__id'));
     }
 
     public function testAvg()
     {
-        $this->assertEquals(User::objects()->average('id'), 1.5);
-        $this->assertEquals(User::objects()->filter(['addresses__address__startswith' => 'A'])->average('id'), 1);
-        $this->assertEquals(User::objects()->filter(['addresses__address__startswith' => 'A'])->average('addresses__id'), 1.5);
+        $this->assertEquals(1.5, User::objects()->average('id'));
+        $this->assertEquals(1, User::objects()->filter(['addresses__address__startswith' => 'A'])->average('id'));
+        $this->assertEquals(1.5, User::objects()->filter(['addresses__address__startswith' => 'A'])->average('addresses__id'));
     }
 
     public function testSum()
     {
+        $this->init();
         $this->assertEquals(User::objects()->sum('id'), 3);
         $this->assertEquals(User::objects()->filter(['addresses__address__startswith' => 'A'])->sum('addresses__id'), 3);
     }

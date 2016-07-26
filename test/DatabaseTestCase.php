@@ -14,6 +14,7 @@
 
 namespace Tests;
 
+use Mindy\Base\Mindy;
 use Mindy\Orm\Sync;
 use Mindy\Query\Connection;
 use Mindy\Query\ConnectionManager;
@@ -47,16 +48,23 @@ class OrmDatabaseTestCase extends DatabaseTestCase
                 $this->settings = require __DIR__ . '/config_local.php';
             } else {
                 $this->settings = [
-                    'default' => [
+                    'sqlite' => [
                         'class' => '\Mindy\Query\Connection',
                         'dsn' => 'sqlite::memory:',
                     ]
                 ];
             }
         }
-        $this->manager = new ConnectionManager(['databases' => $this->settings]);
-        $this->connection = $this->manager->getDb($this->driver);
-        $this->initModels($this->getModels());
+        $this->manager = Mindy::app()->db;
+        $this->initModels($this->getModels(), $this->getConnection());
+    }
+
+    /**
+     * @return Connection
+     */
+    protected function getConnection()
+    {
+        return Mindy::app()->db->getDb($this->driver);
     }
 
     protected function getModels()
@@ -67,19 +75,20 @@ class OrmDatabaseTestCase extends DatabaseTestCase
     protected function tearDown()
     {
         parent::tearDown();
-        $this->dropModels($this->getModels());
+        $this->app = null;
+        $this->dropModels($this->getModels(), $this->getConnection());
     }
 
-    public function initModels(array $models)
+    public function initModels(array $models, Connection $connection)
     {
-        $sync = new Sync($models, $this->connection);
+        $sync = new Sync($models, $connection);
         $sync->delete();
         $sync->create();
     }
 
-    public function dropModels(array $models)
+    public function dropModels(array $models, Connection $connection)
     {
-        $sync = new Sync($models, $this->connection);
+        $sync = new Sync($models, $connection);
         $sync->delete();
     }
 

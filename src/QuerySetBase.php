@@ -154,19 +154,19 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
     public function getQueryBuilder()
     {
         if ($this->_qb === null) {
-            $qb = $this->getDb()->getQueryBuilder();
-            $this->setTableAlias($qb, $this->getModel()->tableName());
-            $qb->setAlias($this->getTableAlias());
-            $qb->getLookupBuilder()->setFetchColumnCallback(function ($column) {
+            $builder = $this->getDb()->getQueryBuilder();
+            $this->setTableAlias($builder, $this->getModel()->tableName());
+            $builder->setAlias($this->getTableAlias());
+            $model = $this->getModel();
+            $builder->from($model->tableName());
+            $builder->getLookupBuilder()->setFetchColumnCallback(function ($column) {
                 return $column === 'pk' ? $this->getModel()->primaryKeyName() : $column;
             });
-            $qb->getLookupBuilder()->setCallback(function(QueryBuilder $queryBuilder, Legacy $lookupBuilder, array $lookupNodes, $value) {
+            $builder->getLookupBuilder()->setCallback(function(QueryBuilder $queryBuilder, Legacy $lookupBuilder, array $lookupNodes, $value) use ($model) {
                 $lookup = $lookupBuilder->getDefault();
                 $column = '?';
                 $joinAlias = '?';
                 $alias = $queryBuilder->getAlias();
-
-                $model = $this->getModel();
 
                 foreach ($lookupNodes as $i => $node) {
                     if ($model->hasField($node) && ($field = $model->getField($node)) instanceof RelatedField) {
@@ -178,7 +178,7 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
                         if ($lookupBuilder->hasLookup($node) === false) {
                             $column = $joinAlias . '.' . $node;
                             $columnWithLookup = $column . $lookupBuilder->getSeparator() . $lookupBuilder->getDefault();
-                            $queryBuilder->addWhere([$columnWithLookup => $value]);
+                            $queryBuilder->where([$columnWithLookup => $value]);
                         } else {
                             $lookup = $node;
                             $column = $alias . '.' . $lookupNodes[$i - 1];
@@ -188,7 +188,30 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
 
                 return [$lookup, $column, $value];
             });
-            $this->_qb = $qb;
+            $builder->getLookupBuilder()->setJoinCallback(function(QueryBuilder $queryBuilder, Legacy $lookupBuilder, array $lookupNodes) use ($model) {
+                $column = '';
+                $alias = '';
+                foreach ($lookupNodes as $i => $nodeName) {
+                    if ($i + 1 == count($lookupNodes)) {
+                        $column = $nodeName;
+                    } else {
+                        if ($model->hasField($nodeName)) {
+                            $field = $model->getField($nodeName);
+                            if ($field instanceof RelatedField) {
+                                /** @var \Mindy\Orm\Fields\RelatedField $field */
+                                $alias = $field->setDb($this->getDb())->buildQuery($queryBuilder, $alias);
+                            }
+                        }
+                    }
+                }
+
+                if (empty($alias) || empty($column)) {
+                    return false;
+                }
+
+                return [$alias, $column];
+            });
+            $this->_qb = $builder;
         }
         return $this->_qb;
     }

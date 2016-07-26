@@ -8,6 +8,7 @@
 
 namespace Mindy\Orm\Tests\QueryBuilder;
 
+use Mindy\Base\Mindy;
 use Mindy\Query\Schema\TableSchema;
 use Modules\Tests\Models\Customer;
 use Modules\Tests\Models\Group;
@@ -22,7 +23,7 @@ use Tests\OrmDatabaseTestCase;
 class QuerySetTest extends OrmDatabaseTestCase
 {
     public $driver = 'mysql';
-    
+
     public function getModels()
     {
         return [
@@ -35,129 +36,139 @@ class QuerySetTest extends OrmDatabaseTestCase
         ];
     }
 
-    public function tearDown()
+    public function setUp()
     {
-
+        parent::setUp();
+        if (Mindy::app() === null) {
+            $this->markTestSkipped('Application not initialized');
+        }
     }
 
     public function testInit()
     {
-        $tableSchema = $this->connection->getSchema()->getTableSchema(Hits::tableName(), true);
+        $tableSchema = $this->getConnection()->getSchema()->getTableSchema(Hits::tableName(), true);
         $this->assertInstanceOf(TableSchema::class, $tableSchema);
     }
 
     public function testCount()
     {
-        $this->assertTrue((new Hits)->using($this->connection)->save());
-        $count = Hits::objects()->using($this->connection)->count();
+        $this->assertTrue((new Hits)->save());
+        $count = Hits::objects()->count();
         $this->assertEquals(1, $count);
 
-        $this->assertTrue((new Hits)->using($this->connection)->save());
-        $count = Hits::objects()->using($this->connection)->count();
+        $this->assertTrue((new Hits)->save());
+        $count = Hits::objects()->count();
         $this->assertEquals(2, $count);
     }
 
     public function testFilter()
     {
-        $this->assertTrue((new Hits)->using($this->connection)->save());
-        $this->assertTrue((new Hits)->using($this->connection)->save());
-        $count = Hits::objects()->using($this->connection)->count();
+        $this->assertTrue((new Hits)->save());
+        $this->assertTrue((new Hits)->save());
+        $count = Hits::objects()->count();
         $this->assertEquals(2, $count);
 
-        $count = Hits::objects()->using($this->connection)->filter(['id' => 1])->count();
+        $count = Hits::objects()->filter(['id' => 1])->count();
         $this->assertEquals(1, $count);
     }
 
     public function testExclude()
     {
-        $this->assertTrue((new Hits)->using($this->connection)->save());
-        $this->assertTrue((new Hits)->using($this->connection)->save());
-        $count = Hits::objects()->using($this->connection)->count();
+        $this->assertTrue((new Hits)->save());
+        $this->assertTrue((new Hits)->save());
+        $count = Hits::objects()->count();
         $this->assertEquals(2, $count);
 
-        $count = Hits::objects()->using($this->connection)->exclude(['id' => 1])->count();
+        $count = Hits::objects()->exclude(['id' => 1])->count();
         $this->assertEquals(1, $count);
     }
 
     public function testOrFilter()
     {
-        $this->assertTrue((new Hits)->using($this->connection)->save());
-        $this->assertTrue((new Hits)->using($this->connection)->save());
-        $this->assertTrue((new Hits)->using($this->connection)->save());
-        $count = Hits::objects()->using($this->connection)->count();
+        $this->assertTrue((new Hits)->save());
+        $this->assertTrue((new Hits)->save());
+        $this->assertTrue((new Hits)->save());
+        $count = Hits::objects()->count();
         $this->assertEquals(3, $count);
 
-        $count = Hits::objects()->using($this->connection)->orFilter(['id' => 2])->filter(['id' => 1])->count();
+        $count = Hits::objects()->orFilter(['id' => 2])->filter(['id' => 1])->count();
         $this->assertEquals(2, $count);
 
-        $count = Hits::objects()->using($this->connection)->filter(['id' => 1])->orFilter(['id' => 2])->count();
+        $count = Hits::objects()->filter(['id' => 1])->orFilter(['id' => 2])->count();
         $this->assertEquals(2, $count);
     }
 
     public function testOrExclude()
     {
-        $this->assertTrue((new Hits)->using($this->connection)->save());
-        $this->assertTrue((new Hits)->using($this->connection)->save());
-        $this->assertTrue((new Hits)->using($this->connection)->save());
-        $count = Hits::objects()->using($this->connection)->count();
+        $this->assertTrue((new Hits)->save());
+        $this->assertTrue((new Hits)->save());
+        $this->assertTrue((new Hits)->save());
+        $count = Hits::objects()->count();
         $this->assertEquals(3, $count);
 
-        $count = Hits::objects()->using($this->connection)->orExclude(['id' => 2])->exclude(['id' => 1])->count();
+        $count = Hits::objects()->orExclude(['id' => 2])->exclude(['id' => 1])->count();
         $this->assertEquals(1, $count);
 
-        $count = Hits::objects()->using($this->connection)->exclude(['id' => 1])->orExclude(['id' => 2])->count();
+        $count = Hits::objects()->exclude(['id' => 1])->orExclude(['id' => 2])->count();
         $this->assertEquals(1, $count);
     }
 
     public function testFetchColumn()
     {
-        $count = Hits::objects()->using($this->connection)->filter(['pk__gte' => 2])->count();
+        $count = Hits::objects()->filter(['pk__gte' => 2])->count();
         $this->assertEquals(0, $count);
     }
 
     public function testLookup()
     {
-        $this->assertTrue((new Hits)->using($this->connection)->save());
-        $this->assertTrue((new Hits)->using($this->connection)->save());
-        $this->assertTrue((new Hits)->using($this->connection)->save());
-        $count = Hits::objects()->using($this->connection)->filter(['pk__gte' => 2])->count();
+        $this->assertTrue((new Hits)->save());
+        $this->assertTrue((new Hits)->save());
+        $this->assertTrue((new Hits)->save());
+        $count = Hits::objects()->filter(['pk__gte' => 2])->count();
         $this->assertEquals(2, $count);
 
-        $count = Hits::objects()->using($this->connection)->filter(['pk__gt' => 2])->count();
+        $count = Hits::objects()->filter(['pk__gt' => 2])->count();
         $this->assertEquals(1, $count);
 
-        $count = Hits::objects()->using($this->connection)->filter(['id__in' => [1, 3]])->count();
+        $count = Hits::objects()->filter(['id__in' => [1, 3]])->count();
         $this->assertEquals(2, $count);
     }
 
     public function testCallback()
     {
-        $this->assertTrue((new User(['username' => 'foo', 'password' => 'bar']))->using($this->connection)->save());
-        $count = User::objects()->using($this->connection)->count();
+        $this->assertTrue((new User(['username' => 'foo', 'password' => 'bar']))->save());
+        $count = User::objects()->count();
         $this->assertEquals(1, $count);
 
-        $this->assertTrue((new Customer(['address' => 'foo', 'user_id' => 1]))->using($this->connection)->save());
-        $count = Customer::objects()->using($this->connection)->count();
+        $this->assertTrue((new Customer(['address' => 'foo', 'user_id' => 1]))->save());
+        $count = Customer::objects()->count();
         $this->assertEquals(1, $count);
 
-        $count = User::objects()->using($this->connection)->filter(['addresses__address' => 'foo'])->count();
+        $count = User::objects()->filter(['addresses__address' => 'foo'])->count();
         $this->assertEquals(1, $count);
 
-        $this->assertTrue((new Group(['name' => 'foo']))->using($this->connection)->save());
-        $count = Group::objects()->using($this->connection)->count();
+        $this->assertTrue((new Group(['name' => 'foo']))->save());
+        $count = Group::objects()->count();
         $this->assertEquals(1, $count);
 
-        $group = Group::objects()->using($this->connection)->get(['id' => 1]);
-        $user = User::objects()->using($this->connection)->get(['id' => 1]);
-        $user->groups->link($group);
+        $group = Group::objects()->get();
+        $this->assertNotNull($group);
+        $this->assertInstanceOf(Group::class, $group);
+        $user = User::objects()->get();
+        $this->assertNotNull($user);
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertInstanceOf(GroupManager::class, $user->groups);
+        /** @var GroupManager $groupManager */
+        $groupManager = $user->groups;
+        $groupManager->link($group);
 
-        $count = User::objects()->using($this->connection)->filter(['groups__name' => 'foo'])->count();
+        $count = User::objects()->filter(['groups__name' => 'foo'])->count();
         $this->assertEquals(1, $count);
 
-        $count = User::objects()->using($this->connection)->filter(['groups__name' => 'bar'])->count();
+        $count = User::objects()->filter(['groups__name' => 'bar'])->count();
         $this->assertEquals(0, $count);
 
-        $count = User::objects()->using($this->connection)->filter([
+        $count = User::objects()->filter([
             'groups__name' => 'foo',
             'addresses__address' => 'foo',
             'password' => 'bar'
@@ -167,20 +178,20 @@ class QuerySetTest extends OrmDatabaseTestCase
 
     public function testForeignField()
     {
-        $this->assertTrue((new User(['username' => 'foo', 'password' => 'bar']))->using($this->connection)->save());
-        $count = User::objects()->using($this->connection)->count();
+        $this->assertTrue((new User(['username' => 'foo', 'password' => 'bar']))->save());
+        $count = User::objects()->count();
         $this->assertEquals(1, $count);
 
-        $this->assertTrue((new Customer(['address' => 'foo', 'user_id' => 1]))->using($this->connection)->save());
-        $count = Customer::objects()->using($this->connection)->count();
+        $this->assertTrue((new Customer(['address' => 'foo', 'user_id' => 1]))->save());
+        $count = Customer::objects()->count();
         $this->assertEquals(1, $count);
 
-        $count = Customer::objects()->using($this->connection)->filter([
+        $count = Customer::objects()->filter([
             'user__id__gt' => 1
         ])->count();
         $this->assertEquals(0, $count);
 
-        $count = Customer::objects()->using($this->connection)->filter([
+        $count = Customer::objects()->filter([
             'user__id' => 1
         ])->count();
         $this->assertEquals(1, $count);
@@ -189,11 +200,11 @@ class QuerySetTest extends OrmDatabaseTestCase
     public function testManager()
     {
         $user = new User(['username' => 'foo', 'password' => 'bar']);
-        $this->assertTrue($user->using($this->connection)->save());
+        $this->assertTrue($user->save());
         $customer = new Customer(['address' => 'foo', 'user_id' => 1]);
-        $this->assertTrue($customer->using($this->connection)->save());
+        $this->assertTrue($customer->save());
         $permission = new Permission(['code' => 'foo']);
-        $this->assertTrue($permission->using($this->connection)->save());
+        $this->assertTrue($permission->save());
 
         $this->assertInstanceOf(GroupManager::class, $user->groups);
         $this->assertTrue(method_exists($user->groups, 'published'));

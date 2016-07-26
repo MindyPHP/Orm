@@ -201,11 +201,15 @@ abstract class Field implements IValidateField
 
     public function sql()
     {
-        return trim(strtr('{type} {nullable} {default} {extra}', [
-            '{type}' => $this->sqlType(),
-            '{nullable}' => $this->sqlNullable(),
-            '{default}' => $this->sqlDefault(),
-            '{extra}' => $this->sqlExtra()
+        $type = $this->sqlType();
+        $nullable = $this->sqlNullable();
+        $default = $this->sqlDefault();
+        $extra = $this->sqlExtra();
+        return trim(strtr('{type}{nullable}{default}{extra}', [
+            '{type}' => $type,
+            '{nullable}' => empty($nullable) ? '' : ' ' . $nullable,
+            '{default}' => empty($default) ? '' : ' ' . $default,
+            '{extra}' => empty($extra) ? '' : ' ' . $extra
         ]));
     }
 

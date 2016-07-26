@@ -32,24 +32,14 @@ class HasManyManager extends RelatedManager
 
     public $through;
 
-    public function __construct(Model $model, array $config = [])
+    protected function init()
     {
-        Creator::configure($this, $config);
-        $this->_model = $model;
-    }
+        $this->filter(array_merge([
+            $this->to => $this->primaryModel->{$this->from}
+        ], $this->extra));
 
-    public function getQuerySet()
-    {
-        if ($this->_qs === null) {
-            $qs = parent::getQuerySet();
-            $this->_qs = $qs->filter(array_merge([
-                $this->to => $this->primaryModel->{$this->from}
-            ], $this->extra));
-            if ($this->primaryModel->getIsNewRecord()) {
-                $this->_qs->distinct();
-                ;
-            }
+        if ($this->primaryModel->getIsNewRecord()) {
+            $this->distinct();
         }
-        return $this->_qs;
     }
 }

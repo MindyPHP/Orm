@@ -30,7 +30,9 @@ class ProductList extends Model
     public static function getFields()
     {
         return [
-            'name' => ['class' => CharField::class],
+            'name' => [
+                'class' => CharField::class
+            ],
             'products' => [
                 'class' => ManyToManyField::class,
                 'modelClass' => Product::class

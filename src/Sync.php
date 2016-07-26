@@ -90,7 +90,7 @@ class Sync
         }, $columns);
         $sql[] = $this->getQueryBuilder()->createTable($model->tableName(), $mainColumns, null, true);
 
-        $this->getDb()->createCommand(implode(";\n\n", $sql))->execute();
+        return implode(";\n\n", $sql);
     }
 
     /**
@@ -112,18 +112,32 @@ class Sync
     }
 
     /**
-     * @return array
+     * @return int
      */
     public function create()
     {
-        $created = [];
+        $i = 0;
         foreach ($this->_models as $model) {
             if ($this->hasTable($model->tableName()) === false) {
-                $this->createTable($model);
-                $created[] = $model->tableName();
+                $sql = $this->createTable($model);
+                $i += $this->getDb()->createCommand($sql)->execute();
             }
         }
-        return $created;
+        return $i;
+    }
+
+    /**
+     * @return array
+     */
+    public function createSql()
+    {
+        $sql = [];
+        foreach ($this->_models as $model) {
+            if ($this->hasTable($model->tableName()) === false) {
+                $sql[] = $this->createTable($model);
+            }
+        }
+        return implode(";\n\n", $sql);
     }
 
     /**

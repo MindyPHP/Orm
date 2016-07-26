@@ -12,48 +12,12 @@ use Traversable;
  * Class Manager
  * @package Mindy\Orm
  */
-class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
+class Manager extends ManyToManyManager implements IteratorAggregate, Serializable, Countable, ArrayAccess
 {
-    /**
-     * @var \Mindy\Orm\Model
-     */
-    protected $_model;
-
-    /**
-     * @var \Mindy\Orm\QuerySet
-     */
-    protected $_qs;
-
-    public function __construct(Model $model)
-    {
-        $this->_model = $model;
-    }
-
     public function with(array $value)
     {
         $this->getQuerySet()->with($value);
         return $this;
-    }
-
-    /**
-     * @return Model
-     */
-    public function getModel()
-    {
-        return $this->_model;
-    }
-
-    /**
-     * @return \Mindy\Orm\QuerySet
-     */
-    public function getQuerySet()
-    {
-        if ($this->_qs === null) {
-            $this->_qs = new QuerySet([
-                'model' => $this->getModel()
-            ]);
-        }
-        return $this->_qs;
     }
 
     public function asArray($value = true)
@@ -344,11 +308,6 @@ class Manager implements IteratorAggregate, Serializable, Countable, ArrayAccess
     public function updateOrCreate(array $attributes, array $updateAttributes)
     {
         return $this->getQuerySet()->updateOrCreate($attributes, $updateAttributes);
-    }
-
-    public function updateCounters(array $counters)
-    {
-        return $this->getQuerySet()->updateCounters($counters);
     }
 
     public function update(array $attributes)

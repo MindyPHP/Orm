@@ -8,7 +8,11 @@ use Mindy\Orm\Exception\MultipleObjectsReturned;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Q\Q;
+use Mindy\QueryBuilder\Aggregation\Avg;
 use Mindy\QueryBuilder\Aggregation\Count;
+use Mindy\QueryBuilder\Aggregation\Max;
+use Mindy\QueryBuilder\Aggregation\Min;
+use Mindy\QueryBuilder\Aggregation\Sum;
 use Mindy\QueryBuilder\Q\QAndNot;
 use Mindy\QueryBuilder\Q\QOr;
 use Mindy\QueryBuilder\Q\QOrNot;
@@ -145,29 +149,10 @@ class QuerySet extends QuerySetBase
      * @param bool $flat
      * @return array
      */
-    public function valuesList(array $fieldsList = [], $flat = false)
+    public function valuesList($select, $flat = false)
     {
-        // @TODO: hardcode, refactoring
-        $select = $this->select;
-
-        $group = $this->groupBy;
-//        if ($this->_chainedHasMany && !$group) {
-//            $this->groupBy($this->quoteColumnName($this->tableAlias) . '.' . $this->quoteColumnName($this->retreivePrimaryKey()));
-//        }
-
-        $valuesSelect = [];
-        foreach ($fieldsList as $name) {
-            if ($name == 'pk') {
-                $name = $this->retreivePrimaryKey();
-            }
-            $valuesSelect[] = $this->aliasColumn($name) . ' AS ' . $name;
-        }
-        $this->select = $valuesSelect;
-
-        $rows = $this->asArray()->all();
-
-        $this->groupBy = $group;
-        $this->select = $select;
+        $qb = $this->getQueryBuilder();
+        $rows = $this->createCommand($qb->select($select)->toSQL())->queryAll();
 
         if ($flat) {
             $flatArr = [];
@@ -187,25 +172,16 @@ class QuerySet extends QuerySetBase
      */
     public function update(array $attributes)
     {
-        $this->prepareConditions(false);
-        return parent::updateAll($this->model->tableName(), $attributes);
+        return $this->createCommand($this->updateSql($attributes))->execute();
     }
 
+    /**
+     * @param array $attributes
+     * @return $this
+     */
     public function updateSql(array $attributes)
     {
-        $this->prepareConditions(false);
-        $sql = $this->getQueryBuilder()->setTypeUpdate()->where($this->where)->update($this->getModel()->tableName(), $attributes);
-        return $this->createCommand($sql, $this->params)->rawSql;
-    }
-
-    public function updateCounters(array $counters)
-    {
-        /*
-        $table = $this->model->tableName() . ' ' . $this->getTableAlias();
-        return parent::updateCountersInternal($table, $this->makeAliasAttributes($counters));
-        */
-        $table = $this->model->tableName();
-        return parent::updateCountersInternal($table, $counters);
+        return $this->getQueryBuilder()->setTypeUpdate()->update($this->model->tableName(), $attributes);
     }
 
     public function getOrCreate(array $attributes)
@@ -723,7 +699,7 @@ class QuerySet extends QuerySetBase
      */
     public function filter(array $query)
     {
-        $this->getQueryBuilder()->addWhere($query);
+        $this->getQueryBuilder()->where($query);
         return $this;
     }
 
@@ -733,7 +709,7 @@ class QuerySet extends QuerySetBase
      */
     public function orFilter(array $query)
     {
-        $this->getQueryBuilder()->addWhere(new QOr($query));
+        $this->getQueryBuilder()->orWhere($query);
         return $this;
     }
 
@@ -743,7 +719,7 @@ class QuerySet extends QuerySetBase
      */
     public function exclude(array $query)
     {
-        $this->getQueryBuilder()->addWhere(new QAndNot($query));
+        $this->getQueryBuilder()->where(new QAndNot($query));
         return $this;
     }
 
@@ -753,7 +729,7 @@ class QuerySet extends QuerySetBase
      */
     public function orExclude(array $query)
     {
-        $this->getQueryBuilder()->addWhere(new QOrNot($query));
+        $this->getQueryBuilder()->where(new QOrNot($query));
         return $this;
     }
 
@@ -834,7 +810,7 @@ class QuerySet extends QuerySetBase
             $orderBy[] = $column;
         }
 
-        $this->orderBy($orderBy);
+        $this->getQueryBuilder()->order($orderBy);
 
         if ($this->getDb()->getSchema() instanceof \Mindy\Query\Pgsql\Schema) {
 
@@ -920,103 +896,79 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param string $column
+     * @param null|string|array $q
      * @return float|int
      */
-    public function sum($column)
+    public function sum($q)
     {
-        $this->prepareConditions(true, false);
-        if ($this->groupBy) {
-            $value = parent::sum('c.' . $column);
-        } else {
-            $value = parent::sum($this->aliasColumn($column));
-        }
-        return $this->numval($value);
+        $sql = $this->sumSql($q);
+        return $this->getDb()->createCommand($sql)->queryScalar();
     }
 
     /**
-     * @param string $column
+     * @param string $q
      * @return float|int
      */
-    public function sumSql($column)
+    public function sumSql($q)
     {
-        $this->prepareConditions(true, false);
-        return parent::sumSql($this->aliasColumn($column));
+        return $this->getQueryBuilder()->select(new Sum($q))->from($this->getModel()->tableName())->toSQL();
     }
 
     /**
-     * @param string $column
+     * @param null|string|array $q
      * @return float|int
      */
-    public function average($column)
+    public function average($q)
     {
-        $this->prepareConditions(true, false);
-        if ($this->groupBy) {
-            $value = parent::average('c.' . $column);
-        } else {
-            $value = parent::average($this->aliasColumn($column));
-        }
-        return $this->numval($value);
+        $sql = $this->averageSql($q);
+        return $this->getDb()->createCommand($sql)->queryScalar();
     }
 
     /**
-     * @param string $column
+     * @param null|string|array $q
      * @return float|int
      */
-    public function averageSql($column)
+    public function averageSql($q)
     {
-        $this->prepareConditions(true, false);
-        return parent::averageSql($this->aliasColumn($column));
+        return $this->getQueryBuilder()->select(new Avg($q))->from($this->getModel()->tableName())->toSQL();
     }
 
     /**
-     * @param string $column
+     * @param null|string|array $q
      * @return float|int
      */
-    public function min($column)
+    public function min($q)
     {
-        $this->prepareConditions(true, false);
-        if ($this->groupBy) {
-            $value = parent::min('c.' . $column);
-        } else {
-            $value = parent::min($this->aliasColumn($column));
-        }
-        return $this->numval($value);
+        $sql = $this->minSql($q);
+        return $this->getDb()->createCommand($sql)->queryScalar();
     }
 
     /**
-     * @param string $column
+     * @param null|string|array $q
      * @return float|int
      */
-    public function minSql($column)
+    public function minSql($q)
     {
-        $this->prepareConditions(true, false);
-        return parent::minSql($this->aliasColumn($column));
+        return $this->getQueryBuilder()->select(new Min($q))->from($this->getModel()->tableName())->toSQL();
     }
 
     /**
-     * @param string $column
+     * @param null|string|array $q
      * @return float|int
      */
-    public function max($column)
+    public function max($q)
     {
-        $this->prepareConditions(true, false);
-        if ($this->groupBy) {
-            $value = parent::max('c.' . $column);
-        } else {
-            $value = parent::max($this->aliasColumn($column));
-        }
-        return $this->numval($value);
+        $sql = $this->maxSql($q);
+        return $this->getDb()->createCommand($sql)->queryScalar();
     }
 
     /**
-     * @param string $column
+     * @param null|string|array $q
      * @return float|int
      */
-    public function maxSql($column)
+    public function maxSql($q)
     {
-        $this->prepareConditions(true, false);
-        return parent::maxSql($this->quoteColumnName($column));
+        return $this->getQueryBuilder()->select(new Max($q))->from($this->getModel()->tableName())->toSQL();
     }
 
     /**
@@ -1041,35 +993,29 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @return \Mindy\Query\Command
-     */
-    protected function prepareDelete()
-    {
-        $tableName = $this->model->tableName();
-
-        if ($this->filterHasJoin()) {
-            $this->prepareConditions();
-            return $this->createCommand()->delete($tableName, [
-                $this->retreivePrimaryKey() => $this->valuesList(['pk'], true)
-            ], $this->params);
-        } else {
-            $this->prepareConditions(false);
-            return $this->createCommand()->delete($tableName, $this->where, $this->params);
-        }
-    }
-
-    /**
      * @return int
      * @throws \Mindy\Query\Exception
      */
     public function delete()
     {
-        return $this->prepareDelete()->execute();
+        return $this->createCommand($this->deleteSql())->execute();
     }
 
     public function deleteSql()
     {
-        return $this->prepareDelete()->getRawSql();
+//        if ($this->filterHasJoin()) {
+//            $this->prepareConditions();
+//            return $this->createCommand()->delete($tableName, [
+//                $this->retreivePrimaryKey() => $this->valuesList(['pk'], true)
+//            ], $this->params);
+//        }
+
+        $tableName = $this->getModel()->tableName();
+        $builder = $this->getQueryBuilder()
+            ->setTypeDelete()
+            ->from($tableName)
+            ->setAlias(null);
+        return $builder->toSQL();
     }
 
     /**
@@ -1130,7 +1076,7 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param null|string $q
+     * @param null|array|string $q
      * @return string
      */
     public function countSql($q = '*')
@@ -1145,7 +1091,6 @@ class QuerySet extends QuerySetBase
     public function count($q = '*')
     {
         $sql = $this->countSql($q);
-        var_dump($sql);
         return $this->getDb()->createCommand($sql)->queryScalar();
     }
 

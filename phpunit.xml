@@ -24,9 +24,9 @@
         <!--<testsuite name="Orm/Sqlite">-->
             <!--<directory>test/Sqlite/</directory>-->
         <!--</testsuite>-->
-        <!--<testsuite name="Orm/Mysql">-->
-            <!--<directory>test/Mysql/</directory>-->
-        <!--</testsuite>-->
+        <testsuite name="Orm/Mysql">
+            <directory>test/Mysql/</directory>
+        </testsuite>
         <!--<testsuite name="Orm/Pgsql">-->
             <!--<directory>test/Pgsql/</directory>-->
         <!--</testsuite>-->

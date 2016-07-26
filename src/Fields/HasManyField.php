@@ -62,8 +62,8 @@ class HasManyField extends RelatedField
     {
         return new HasManyManager($this->getRelatedModel(), [
             'primaryModel' => $this->getModel(),
-            'from' => $this->from(),
-            'to' => $this->to(),
+            'from' => $this->getTo(),
+            'to' => $this->getFrom(),
             'extra' => $this->extra,
             'through' => $this->through
         ]);
@@ -76,16 +76,24 @@ class HasManyField extends RelatedField
 
     public function getJoin(QueryBuilder $qb, $topAlias)
     {
-        $model = $this->getModel();
-        $related = $this->getRelatedModel();
         $tableName = $this->getRelatedTable();
         $alias = $qb->makeAliasKey($tableName);
-        $from = Model::normalizeTableName($model->classNameShort()) . '_' . $related->getPkName();
-        $to = $this->getModel()->getPkName();
 
         return [
-            ['LEFT JOIN', $tableName, [$alias . '.' . $from => $topAlias . '.' . $to], $alias]
+            ['LEFT JOIN', $tableName, [$alias . '.' . $this->getFrom() => $topAlias . '.' . $this->getTo()], $alias]
         ];
+    }
+
+    protected function getTo()
+    {
+        return $this->getModel()->getPkName();
+    }
+
+    protected function getFrom()
+    {
+        $model = $this->getModel();
+        $related = $this->getRelatedModel();
+        return Model::normalizeTableName($model->classNameShort()) . '_' . $related->getPkName();
     }
 
     public function fetch($value)
@@ -95,20 +103,19 @@ class HasManyField extends RelatedField
 
     public function onBeforeDelete()
     {
+        /*
         $model = $this->getRelatedModel();
         $meta = $model->getMeta();
-        $foreignField = $meta->getForeignField($this->to());
+        $foreignField = $meta->getForeignField($this->getTo());
         $qs = $this->getManager()->getQuerySet();
 
-        /**
-         * If null is allowable, foreign field value should be set to null,
-         * otherwise the related objects should be deleted
-         */
+        // If null is allowable, foreign field value should be set to null, otherwise the related objects should be deleted
         if ($foreignField->null) {
-            $qs->update([$this->to() => null]);
+            $qs->update([$this->getTo() => null]);
         } else {
             $qs->delete();
         }
+        */
     }
 
     /**

@@ -11,6 +11,7 @@ test/media/*
 test/runtime/*
 test/migration/*
 test/config_local.php
+test/sqlite.db
 test.php
 phpunit.phar
 

@@ -245,7 +245,7 @@ abstract class SaveUpdateTest extends OrmDatabaseTestCase
         // Fix hhvm test
         date_default_timezone_set('UTC');
 
-        $this->initModels([new Solution]);
+        $this->initModels([new Solution], $this->getConnection());
         list($modelOne, $created) = Solution::objects()->getOrCreate([
             'status' => 1,
             'name' => 'test',
@@ -257,13 +257,13 @@ abstract class SaveUpdateTest extends OrmDatabaseTestCase
         $this->assertEquals(1, $modelOne->pk);
         $sql = Solution::objects()->filter(['id' => '1'])->updateSql(['status' => 2]);
 
-        $db = ConnectionManager::getDb();
-        $tableSql = $db->schema->quoteColumnName('solution');
-        $statusSql = $db->schema->quoteColumnName('status');
-        $idSql = $db->schema->quoteColumnName('id');
+        $adapter = $this->getConnection()->getAdapter();
+        $tableSql = $adapter->quoteColumn('solution');
+        $statusSql = $adapter->quoteColumn('status');
+        $idSql = $adapter->quoteColumn('id');
 
         $this->assertEquals("UPDATE $tableSql SET $statusSql=2 WHERE ($idSql='1')", $sql);
-        $this->dropmodels([new Solution]);
+        $this->dropModels([new Solution], $this->getConnection());
     }
 
     // https://github.com/studio107/Mindy_Orm/issues/65

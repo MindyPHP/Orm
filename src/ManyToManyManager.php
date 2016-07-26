@@ -1,39 +1,22 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: max
+ * Date: 24/07/16
+ * Time: 13:19
+ */
 
 namespace Mindy\Orm;
 
 use Mindy\Exception\Exception;
-use Mindy\Helper\Creator;
-use Mindy\Query\ConnectionManager;
 
-/**
- * Class ManyToManyManager
- * @package Mindy\Orm
- */
-class ManyToManyManager extends RelatedManager
+abstract class ManyToManyManager extends ManagerBase
 {
-    /**
-     * Link table name
-     * @var string
-     */
-    public $relatedTable;
-    /**
-     * @var string
-     */
-    public $relatedTableAlias;
     /**
      * Main model
      * @var \Mindy\Orm\Model
      */
     public $primaryModel;
-    /**
-     * @var string
-     */
-    public $primaryModelColumn;
-    /**
-     * @var string
-     */
-    public $modelColumn;
     /**
      * @var null|string
      */
@@ -43,31 +26,18 @@ class ManyToManyManager extends RelatedManager
      */
     public $throughLink = [];
     /**
-     * @var array extra condition for join
+     * @var string
      */
-    public $extra = [];
-
-    public function __construct(Model $model, array $config = [])
-    {
-        Creator::configure($this, $config);
-        $this->_model = $model;
-    }
-
-    public function clean()
-    {
-        if ($this->primaryModel->pk === null) {
-            throw new Exception('Unable to clean models: the primary key of ' . get_class($this->primaryModel) . ' is null.');
-        }
-
-        $db = $this->primaryModel->getDb();
-
-        /** @var $command \Mindy\Query\Command */
-        $command = $db->createCommand()->delete($this->relatedTable, [
-            $this->primaryModelColumn => $this->primaryModel->pk,
-        ]);
-
-        return $command->execute();
-    }
+    public $primaryModelColumn;
+    /**
+     * @var string
+     */
+    public $modelColumn;
+    /**
+     * Link table name
+     * @var string
+     */
+    public $relatedTable;
 
     public function link(Model $model, array $extra = [])
     {
@@ -79,16 +49,18 @@ class ManyToManyManager extends RelatedManager
         return $this->linkUnlinkProcess($model, false);
     }
 
+    private function getPrimaryModel()
+    {
+        return $this->primaryModel;
+    }
+
     protected function linkUnlinkProcess(Model $model, $link = true, array $extra = [])
     {
-        if ($this->primaryModel->pk === null) {
-            throw new Exception('Unable to unlink models: the primary key of ' . get_class($this->primaryModel) . ' is null.');
-        }
-
         $method = $link ? 'insert' : 'delete';
 
-        if ($this->primaryModel->pk === null) {
-            throw new Exception('Unable to ' . ($link ? 'link' : 'unlink') . ' models: the primary key of ' . get_class($this->primaryModel) . ' is null.');
+        $primaryModel = $this->getPrimaryModel();
+        if (($primaryModel && $primaryModel->getIsNewRecord()) || empty($primaryModel->pk)) {
+            throw new Exception('Unable to ' . ($link ? 'link' : 'unlink') . ' models: the primary key of ' . get_class($primaryModel) . ' is null.');
         }
 
         if ($this->through && $link) {

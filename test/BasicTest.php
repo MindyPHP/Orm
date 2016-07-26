@@ -233,21 +233,9 @@ abstract class BasicTest extends OrmDatabaseTestCase
         $this->assertEquals('{{%product_list}}', ProductList::tableName());
     }
 
-    public function testUpdateCounters()
-    {
-        $model = new Hits();
-        $model->save();
-        $this->assertEquals(1, $model->pk);
-        $this->assertEquals(0, $model->hits);
-        $this->assertEquals(0, Hits::objects()->get(['pk' => 1])->hits);
-
-        $model->objects()->updateCounters(['hits' => 1]);
-        $this->assertEquals(1, Hits::objects()->get(['pk' => 1])->hits);
-    }
-
     public function testForeignKey()
     {
-        $c = ConnectionManager::getDb($this->driver);
+        $c = $this->getConnection();
         $schema = $c->getTableSchema(Product::tableName());
         $this->assertArrayHasKey('id', $schema->columns);
         $this->assertArrayHasKey('category_id', $schema->columns);

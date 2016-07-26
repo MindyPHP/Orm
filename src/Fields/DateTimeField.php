@@ -12,14 +12,14 @@ class DateTimeField extends DateField
 {
     public function getValue()
     {
-        $db = ConnectionManager::getDb()->getQueryBuilder();
-
+        /** @var \Mindy\QueryBuilder\BaseAdapter $db */
+        $db = $this->getModel()->getDb()->getAdapter();
         if ($this->autoNowAdd && $this->getModel()->getIsNewRecord() || $this->autoNow) {
-            return $db->convertToDateTime();
+            return $db->getDateTime();
         }
 
-        if ( is_numeric($this->value) ) {
-            return $db->convertToDateTime($this->value);
+        if (is_numeric($this->value)) {
+            return $db->getDateTime($this->value);
         }
 
         return $this->value;

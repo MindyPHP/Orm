@@ -23,19 +23,37 @@ use Tests\OrmDatabaseTestCase;
 
 abstract class SyncTest extends OrmDatabaseTestCase
 {
-    public function testSync()
+    public function testCreate()
+    {
+        $sync = new Sync([new ProductList], $this->connection);
+        $sync->delete();
+        $sync->create();
+        $tables = $this->connection->getSchema()->getTableNames('', true);
+        $this->assertTrue(in_array('product_list', $tables));
+    }
+
+    public function testDrop()
+    {
+        $sync = new Sync([new ProductList], $this->connection);
+        $sync->create();
+        $tables = $this->connection->getSchema()->getTableNames('', true);
+        $this->assertTrue(in_array('product_list', $tables));
+        $sync->delete();
+        $tables = $this->connection->getSchema()->getTableNames('', true);
+        $this->assertFalse(in_array('product_list', $tables));
+    }
+
+    public function testSyncBoth()
     {
         $c = $this->connection;
         $this->assertEquals([], $c->getSchema()->getTableNames('', true));
 
-        $models = [
+        $sync = new Sync([
             new ProductList,
             new Category,
             new User,
             new Product,
-        ];
-
-        $sync = new Sync($models);
+        ], $c);
         $sync->create();
 
         $tables = $c->getSchema()->getTableNames('', true);

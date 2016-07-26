@@ -883,6 +883,17 @@ abstract class Base implements ArrayAccess, Serializable
         $dbValues = $this->getDbPrepValues($incValues);
 
         $db = static::getDb();
+
+        if (array_key_exists($primaryKeyName, $values) === false) {
+            $tableSchema = $db->getTableSchema($this->tableName());
+            if ($tableSchema === null) {
+                $tableSchema = $db->getTableSchema($this->tableName(), true);
+                if ($tableSchema === null) {
+                    throw new Exception('Failed to load table schema');
+                }
+            }
+        }
+
         // TODO refact ugly syntax with array_keys
         $sql = $db->getQueryBuilder()->insert($this->tableName(), array_keys($dbValues), [$dbValues]);
         $command = $db->createCommand($sql);
@@ -891,11 +902,7 @@ abstract class Base implements ArrayAccess, Serializable
         }
 
         $primaryKeyName = self::primaryKeyName();
-        if (array_key_exists($primaryKeyName, $values) === false) {
-            $tableSchema = $db->getTableSchema($this->tableName(), true);
-            if ($tableSchema === null) {
-                throw new Exception('Failed to load table schema');
-            }
+        if (array_key_exists($primaryKeyName, $values) === false && isset($tableSchema)) {
             $id = $db->getLastInsertID($tableSchema->sequenceName);
             $this->setAttribute($primaryKeyName, $id);
             $values[$primaryKeyName] = $id;
