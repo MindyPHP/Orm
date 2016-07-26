@@ -42,12 +42,13 @@ abstract class HasManyFieldTest extends OrmDatabaseTestCase
         $category_animals->name = 'Animals';
         $category_animals->save();
 
-        $db = ConnectionManager::getDb();
-        $tableSql = $db->schema->quoteColumnName('product');
-        $tableAliasSql = $db->schema->quoteColumnName('product_1');
-        $categoryIdSql = $db->schema->quoteColumnName('category_id');
+        $db = $this->getConnection();
+        $adapter = $db->getAdapter();
+        $tableSql = $adapter->quoteColumn('product');
+        $tableAliasSql = $adapter->quoteColumn('product_1');
+        $categoryIdSql = $adapter->quoteColumn('category_id');
 
-        $this->assertEquals("SELECT COUNT(*) FROM $tableSql $tableAliasSql WHERE ($tableAliasSql.$categoryIdSql='1')", $categoryToys->products->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM $tableSql AS $tableAliasSql WHERE ($tableAliasSql.$categoryIdSql='1')", $categoryToys->products->countSql());
         $this->assertEquals(0, $categoryToys->products->count());
 
         $product_bear = new Product([

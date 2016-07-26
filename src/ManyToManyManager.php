@@ -54,6 +54,18 @@ abstract class ManyToManyManager extends ManagerBase
         return $this->primaryModel;
     }
 
+    public function clean()
+    {
+        if ($this->primaryModel->pk === null) {
+            throw new Exception('Unable to clean models: the primary key of ' . get_class($this->primaryModel) . ' is null.');
+        }
+        $db = $this->primaryModel->getDb();
+        $builder = $db->getQueryBuilder()->setTypeDelete()->from($this->relatedTable)->where([
+            $this->primaryModelColumn => $this->primaryModel->pk,
+        ]);
+        return $db->createCommand($builder->toSQL())->execute();
+    }
+
     protected function linkUnlinkProcess(Model $model, $link = true, array $extra = [])
     {
         $method = $link ? 'insert' : 'delete';
@@ -82,12 +94,18 @@ abstract class ManyToManyManager extends ManagerBase
         } else {
             $db = $this->primaryModel->getDb();
             /** @var $command \Mindy\Query\Command */
-            $command = $db->createCommand()->$method($this->relatedTable, array_merge([
+            $builder = $db->getQueryBuilder();
+            $data = array_merge([
                 $this->primaryModelColumn => $this->primaryModel->pk,
                 $this->modelColumn => $model->pk,
-            ], $extra));
+            ], $extra);
+            if ($link) {
+                $sql = $builder->insert($this->relatedTable, array_keys($data), [$data]);
+            } else {
+                $sql = $builder->setTypeDelete()->from($this->relatedTable)->where($data);
+            }
 
-            return $command->execute();
+            return $db->createCommand($sql)->execute();
         }
     }
 }

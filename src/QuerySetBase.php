@@ -158,9 +158,19 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
             $this->setTableAlias($builder, $this->getModel()->tableName());
             $builder->setAlias($this->getTableAlias());
             $model = $this->getModel();
+            $meta = $model->getMeta();
             $builder->from($model->tableName());
-            $builder->getLookupBuilder()->setFetchColumnCallback(function ($column) {
-                return $column === 'pk' ? $this->getModel()->primaryKeyName() : $column;
+            $builder->getLookupBuilder()->setFetchColumnCallback(function ($column) use ($meta) {
+                if ($column === 'pk') {
+                    return $this->getModel()->primaryKeyName();
+                } else if ($meta->hasForeignField($column)) {
+                    // TODO fix me
+                    if (strpos($column, '_id') === false) {
+                        return $column . '_id';
+                    }
+                    return $column;
+                }
+                return $column;
             });
             $builder->getLookupBuilder()->setCallback(function(QueryBuilder $queryBuilder, Legacy $lookupBuilder, array $lookupNodes, $value) use ($model) {
                 $lookup = $lookupBuilder->getDefault();

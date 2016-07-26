@@ -124,7 +124,8 @@ class QuerySet extends QuerySetBase
      */
     public function all()
     {
-        return $this->getData();
+        // return $this->getData();
+        return $this->getDb()->createCommand($this->allSql())->queryAll();
     }
 
     /**
@@ -224,6 +225,11 @@ class QuerySet extends QuerySetBase
 
     public function allSql()
     {
+        return $this->getQueryBuilder()->setTypeSelect()->toSQL();
+    }
+
+    public function allSqlDeprecated()
+    {
         $this->prepareConditions();
         $group = $this->groupBy;
 
@@ -299,8 +305,7 @@ class QuerySet extends QuerySetBase
         if ($filter) {
             $this->filter($filter);
         }
-        $this->prepareConditions();
-        return parent::getSql();
+        return $this->getQueryBuilder()->setTypeSelect()->toSQL();
     }
 
     public function getCacheKey()
@@ -321,10 +326,7 @@ class QuerySet extends QuerySetBase
      */
     public function get($filter = [])
     {
-        if (!empty($filter)) {
-            $this->filter($filter);
-        }
-        $sql = $this->getQueryBuilder()->from($this->getModel()->tableName());
+        $sql = $this->getSql($filter);
         $rows = $this->createCommand($sql)->queryAll();
         if (count($rows) > 1) {
             throw new MultipleObjectsReturned();
@@ -911,7 +913,7 @@ class QuerySet extends QuerySetBase
      */
     public function sumSql($q)
     {
-        return $this->getQueryBuilder()->select(new Sum($q))->from($this->getModel()->tableName())->toSQL();
+        return $this->getQueryBuilder()->select(new Sum($q))->toSQL();
     }
 
     /**
@@ -930,7 +932,7 @@ class QuerySet extends QuerySetBase
      */
     public function averageSql($q)
     {
-        return $this->getQueryBuilder()->select(new Avg($q))->from($this->getModel()->tableName())->toSQL();
+        return $this->getQueryBuilder()->select(new Avg($q))->toSQL();
     }
 
     /**
@@ -949,7 +951,7 @@ class QuerySet extends QuerySetBase
      */
     public function minSql($q)
     {
-        return $this->getQueryBuilder()->select(new Min($q))->from($this->getModel()->tableName())->toSQL();
+        return $this->getQueryBuilder()->select(new Min($q))->toSQL();
     }
 
     /**
@@ -968,7 +970,7 @@ class QuerySet extends QuerySetBase
      */
     public function maxSql($q)
     {
-        return $this->getQueryBuilder()->select(new Max($q))->from($this->getModel()->tableName())->toSQL();
+        return $this->getQueryBuilder()->select(new Max($q))->toSQL();
     }
 
     /**
@@ -1013,7 +1015,6 @@ class QuerySet extends QuerySetBase
         $tableName = $this->getModel()->tableName();
         $builder = $this->getQueryBuilder()
             ->setTypeDelete()
-            ->from($tableName)
             ->setAlias(null);
         return $builder->toSQL();
     }
@@ -1081,7 +1082,7 @@ class QuerySet extends QuerySetBase
      */
     public function countSql($q = '*')
     {
-        return $this->getQueryBuilder()->select(new Count($q))->from($this->getModel()->tableName())->toSQL();
+        return $this->getQueryBuilder()->select(new Count($q))->toSQL();
     }
 
     /**

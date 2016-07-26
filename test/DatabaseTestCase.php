@@ -59,6 +59,11 @@ class OrmDatabaseTestCase extends DatabaseTestCase
         $this->initModels($this->getModels(), $this->getConnection());
     }
 
+    protected function assertSql($expected, $actual)
+    {
+        $this->assertEquals($this->getConnection()->getAdapter()->quoteSql($expected), trim($actual));
+    }
+
     /**
      * @return Connection
      */
