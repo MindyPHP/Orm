@@ -29,13 +29,14 @@ class Restaurant extends Model
     public static function getFields()
     {
         return [
-            'name' => [
-                'class' => CharField::class
-            ],
             'place' => [
                 'class' => OneToOneField::class,
                 'modelClass' => Place::class,
-                'primary' => true
+                'primary' => true,
+                'to' => 'id'
+            ],
+            'name' => [
+                'class' => CharField::class
             ],
         ];
     }

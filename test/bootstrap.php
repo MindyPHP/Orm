@@ -11,13 +11,33 @@ foreach ($models as $model) {
     include($model);
 }
 
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\Cached\CachedAdapter;
+use League\Flysystem\Cached\Storage\Memory as CacheStore;
+use Mindy\Helper\Alias;
+
 $app = Mindy::getInstance([
     'basePath' => __DIR__ . '/app/protected',
+    'webPath' => __DIR__ . '/app',
     'components' => [
         'db' => [
             'class' => \Mindy\Query\ConnectionManager::class,
             'databases' => require(__DIR__ . '/config_local.php')
-        ]
+        ],
+        'storage' => [
+            'class' => '\Mindy\Storage\Storage',
+            'adapters' => [
+                'default' => function () {
+                    $path = Alias::get('www.media');
+                    // Create the adapter
+                    $localAdapter = new Local($path);
+                    // Create the cache store
+                    $cacheStore = new CacheStore();
+                    // Decorate the adapter
+                    return new CachedAdapter($localAdapter, $cacheStore);
+                }
+            ]
+        ],
     ]
 ]);
 

@@ -8,18 +8,13 @@
 
 namespace Mindy\Orm\Tests\Fields;
 
+use Exception;
 use Modules\Tests\Models\Place;
 use Modules\Tests\Models\Restaurant;
 use Mindy\Orm\Tests\OrmDatabaseTestCase;
 
 abstract class OneToOneFieldTest extends OrmDatabaseTestCase
 {
-    public function setUp()
-    {
-        parent::setUp();
-        $this->markTestSkipped('TODO');
-    }
-
     protected function getModels()
     {
         return [
@@ -46,6 +41,8 @@ abstract class OneToOneFieldTest extends OrmDatabaseTestCase
         $restaurant->name = 'Burger mix';
         $restaurant->place = $place;
 
+        $this->assertTrue($restaurant->hasField('place'));
+        $this->assertTrue($restaurant->hasAttribute('place_id'));
         $this->assertEquals(1, $restaurant->getAttribute('place_id'));
         $this->assertTrue($restaurant->hasField('place'));
         $this->assertTrue($restaurant->hasAttribute('place_id'));
@@ -63,10 +60,7 @@ abstract class OneToOneFieldTest extends OrmDatabaseTestCase
         $this->assertNull($place->restaurant);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testOneToOneException()
+    public function testOneToOne()
     {
         $place = new Place();
         $place->name = 'Derry';
@@ -75,16 +69,19 @@ abstract class OneToOneFieldTest extends OrmDatabaseTestCase
         $restaurant = new Restaurant();
         $restaurant->name = 'Burger mix';
         $restaurant->place = $place;
+        $this->assertTrue($restaurant->isValid());
         $restaurant->save();
 
         $restaurant2 = new Restaurant();
         $restaurant2->name = 'Cat Burger';
         $restaurant2->place = $place;
+        $this->assertFalse($restaurant2->isValid());
         $restaurant2->save();
     }
 
     public function testOneToOneReverseException()
     {
+        $this->setExpectedException(Exception::class, Restaurant::class . ' must have unique key');
         $place = new Place();
         $place->name = 'Derry';
         $place->save();

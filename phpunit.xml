@@ -30,12 +30,9 @@
         <testsuite name="Orm/Databases/Pgsql">
             <directory>test/Databases/Pgsql/</directory>
         </testsuite>
-        <!--<testsuite name="Orm/Fields">-->
-        <!--<directory>test/Fields/</directory>-->
-        <!--</testsuite>-->
-        <!--<testsuite name="Orm/Issues">-->
-        <!--<directory>test/Issues/</directory>-->
-        <!--</testsuite>-->
+        <testsuite name="Orm/Fields">
+            <directory>test/Fields/</directory>
+        </testsuite>
     </testsuites>
 
     <groups>

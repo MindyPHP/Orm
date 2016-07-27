@@ -272,20 +272,22 @@ abstract class Base implements ArrayAccess, Serializable
 
         $meta = static::getMeta();
 
-        if (
-            ($meta->hasForeignField($name) && !$this->hasAttribute($name)) ||
-            ($meta->hasOneToOneField($name) && !$this->hasAttribute($name))
-        ) {
+        if ($meta->hasForeignField($name) && !$this->hasAttribute($name)) {
             $name .= '_id';
             if ($value instanceof Base) {
                 $value = $value->pk;
             }
         }
 
-        if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
+        if ($meta->hasOneToOneField($name)) {
+            if (strpos($name, '_id') === false) {
+                $name .= '_id';
+            }
+            if ($value instanceof Base) {
+                $value = $value->pk;
+            }
             $this->_related[$name] = $value;
-        } elseif ($meta->hasOneToOneField($name)) {
-            // Only for reversed models
+        } else if ($meta->hasHasManyField($name) || $meta->hasManyToManyField($name)) {
             $this->_related[$name] = $value;
         } elseif ($this->hasAttribute($name)) {
             if ($meta->hasFileField($name)) {
@@ -389,7 +391,13 @@ abstract class Base implements ArrayAccess, Serializable
      */
     public function getAttribute($name)
     {
-        return isset($this->_attributes[$name]) ? $this->_attributes[$name] : null;
+        if (isset($this->_attributes[$name])) {
+            return $this->_attributes[$name];
+        } else if (isset($this->_related[$name])) {
+            return $this->_related[$name];
+        }
+
+        return null;
     }
 
     /**
@@ -833,7 +841,7 @@ abstract class Base implements ArrayAccess, Serializable
             }
 
             if ($meta->hasOneToOneField($name)) {
-                $meta->getOneToOneField($name)->setValue($value);
+                $meta->getOneToOneField($name)->setModel($this)->setValue($value);
             }
         }
         $this->_related = [];
@@ -1010,7 +1018,7 @@ abstract class Base implements ArrayAccess, Serializable
 
     /**
      * @see update()
-     * @throws StaleObjectException
+     * @throws Exception
      */
     protected function updateInternal(array $fields = [])
     {
@@ -1036,7 +1044,7 @@ abstract class Base implements ArrayAccess, Serializable
         $rows = $this->objects()->filter($condition)->update($dbValues);
 
         if ($lock !== null && !$rows) {
-            throw new StaleObjectException('The object being updated is outdated.');
+            throw new Exception('The object being updated is outdated.');
         }
 
         foreach ($values as $name => $value) {

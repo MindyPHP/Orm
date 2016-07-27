@@ -32,9 +32,8 @@ class ImageFieldTest extends TestCase
             $this->markTestSkipped('Application is not initialized');
         }
         parent::setUp();
-        $this->media = __DIR__ . '/../media';
-        $this->mock = __DIR__ . '/../mock';
-        Alias::set('www', $this->media);
+        $this->media = Alias::get('www.media');
+        $this->mock = Alias::get('www.media') . '/../mock';
     }
 
     public function testSet()

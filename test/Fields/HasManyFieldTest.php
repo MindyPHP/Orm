@@ -23,11 +23,6 @@ use Modules\Tests\Models\Product;
 
 abstract class HasManyFieldTest extends OrmDatabaseTestCase
 {
-    public function setUp()
-    {
-        $this->markTestSkipped('TODO');
-    }
-    
     public function getModels()
     {
         return [new Product, new Category, new Cup, new Design, new Color];
@@ -102,7 +97,9 @@ abstract class HasManyFieldTest extends OrmDatabaseTestCase
         $color->cup = $cup;
         $color->save();
 
-        $sql = Cup::objects()->filter(['designs__name' => 'Dragon', 'colors__name' => 'red'])->allSql();
-        $this->assertEquals("SELECT `cup_1`.* FROM `cup` `cup_1` LEFT OUTER JOIN `design` `design_2` ON `cup_1`.`id` = `design_2`.`cup_id` LEFT OUTER JOIN `color` `color_3` ON `cup_1`.`id` = `color_3`.`cup_id` WHERE (`design_2`.`name`='Dragon') AND (`color_3`.`name`='red') GROUP BY `cup_1`.`id`", $sql);
+        $qs = Cup::objects()->filter(['designs__name' => 'Dragon', 'colors__name' => 'red']);
+        $sql = $qs->allSql();
+        $this->assertSql("SELECT [[cup_1]].* FROM [[cup]] AS [[cup_1]] LEFT JOIN [[design]] AS [[design_1]] ON [[design_1]].[[cup_id]]=[[cup_1]].[[id]] LEFT JOIN [[color]] AS [[color_1]] ON [[color_1]].[[cup_id]]=[[cup_1]].[[id]] WHERE (([[design_1]].[[name]]='Dragon') AND ([[color_1]].[[name]]='red'))", $sql);
+        $this->assertEquals(1, $qs->count());
     }
 }

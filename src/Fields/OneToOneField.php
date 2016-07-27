@@ -4,6 +4,7 @@ namespace Mindy\Orm\Fields;
 
 use Exception;
 use Mindy\Orm\Model;
+use Mindy\Validation\UniqueValidator;
 
 /**
  * Class OneToOneField
@@ -12,10 +13,12 @@ use Mindy\Orm\Model;
 class OneToOneField extends ForeignField
 {
     /**
-     * Virtual or real field
+     * @var bool virtual or real field
      */
     public $reversed = false;
-
+    /**
+     * @var
+     */
     public $to;
 
     public function init()
@@ -30,34 +33,48 @@ class OneToOneField extends ForeignField
         }
     }
 
-    public function sqlType()
+    public function reversedTo()
     {
-        return 'integer(' . (int)$this->length . ')';
+        if (!$this->to) {
+            $model = $this->getModel();
+            return $model->normalizeTableName($model->classNameShort()) . '_' . $model->getPkName();
+        }
+        return $this->to;
     }
 
     public function setValue($value)
     {
-        if ($value instanceof Model) {
-            $value = $value->pk;
-        }
-
         if ($this->reversed) {
-            $model = $this->getRelatedModel();
-            $reversed = $this->getReversedTo();
-
+            $model = $this->getModel();
+            $modelClass = $this->modelClass;
             if ($value) {
-                $count = $model->objects()
-                    ->filter([$reversed => $model->pk])
-                    ->exclude([$reversed => $value])
-                    ->count();
-
+                $count = $modelClass::objects()->filter([
+                    $this->reversedTo() => $model->pk
+                ])->exclude([
+                    $this->reversedTo() => $value
+                ])->count();
                 if ($count > 0) {
-                    throw new Exception('$modelClass must have unique key');
+                    throw new Exception(get_class($this->getRelatedModel()) . ' must have unique key');
                 }
                 $value->pk = $model->pk;
                 $value->save();
-            } else if ($model->getIsNewRecord() === false && empty($model->pk) === false) {
-                $model->objects()->filter(['pk' => $model->pk])->delete();
+            } else {
+                $modelClass::objects()->filter([
+                    $this->reversedTo() => $model->pk
+                ])->delete();
+            }
+        } else {
+            if ($value) {
+                $currentValue = $this->getRelatedModel()->{$this->to};
+                if ($currentValue) {
+                    $relatedCount = $this->getRelatedModel()->objects()->filter([$this->to => $currentValue])->count();
+                } else {
+                    $relatedCount = 0;
+                }
+                $count = $this->getModel()->objects()->filter([$this->getName() . '_id' => $value])->count();
+                if ($relatedCount > 0 && $count > 0) {
+                    throw new Exception(get_class($this->getModel()) . ' failed to assign value');
+                }
             }
         }
         return parent::setValue($value);
@@ -67,19 +84,10 @@ class OneToOneField extends ForeignField
     {
         if ($this->reversed) {
             return $this->getRelatedModel()->objects()->get([
-                $this->getReversedTo() => $this->getModel()->pk
+                $this->to => $this->getModel()->pk
             ]);
         } else {
             return parent::getValue();
         }
-    }
-
-    public function getReversedTo()
-    {
-        if (empty($this->to)) {
-            $model = $this->getRelatedModel();
-            return $model->normalizeTableName($model->classNameShort()) . '_' . $model->getPkName();
-        }
-        return $this->to;
     }
 }

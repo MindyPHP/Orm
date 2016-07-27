@@ -16,11 +16,6 @@ use Mindy\Orm\Tests\OrmDatabaseTestCase;
 
 abstract class TreeModelTest extends OrmDatabaseTestCase
 {
-    public function setUp()
-    {
-        $this->markTestSkipped('TODO');
-    }
-
     protected function getModels()
     {
         return [new NestedModel];

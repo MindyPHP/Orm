@@ -275,7 +275,7 @@ class MetaData
                     } else {
                         $needPk = false;
                         $this->primaryKeys[] = $name . '_' . $field->getForeignPrimaryKey();
-                        $this->oneToOneFields[$name . '_id' . $field->getForeignPrimaryKey()] = $name;
+                        $this->oneToOneFields[$name . '_' . $field->getForeignPrimaryKey()] = $name;
                     }
                 } elseif (is_a($field, ForeignField::class)) {
                     /* @var $field \Mindy\Orm\Fields\ForeignField */
