@@ -39,6 +39,8 @@ abstract class RelatedField extends IntField
     }
 
     abstract public function getJoin(QueryBuilder $qb, $topAlias);
+    
+    abstract public function getSelectJoin(QueryBuilder $qb, $topAlias);
 
     abstract protected function fetch($value);
 
@@ -83,13 +85,33 @@ abstract class RelatedField extends IntField
         return $cls::tableName();
     }
 
+    public function buildSelectQuery(QueryBuilder $qb, $topAlias)
+    {
+        $joinAlias = '???';
+        foreach ($this->getSelectJoin($qb, $topAlias) as $join) {
+            list($joinType, $tableName, $on, $alias) = $join;
+            if ($qb->hasJoin($tableName)) {
+                $joinAlias = $qb->getJoinAlias($tableName);
+            } else {
+                $qb->join($joinType, $tableName, $on, $alias);
+                $joinAlias = $alias;
+            }
+        }
+        return $joinAlias;
+    }
+
     public function buildQuery(QueryBuilder $qb, $topAlias)
     {
-        $alias = '?';
+        $joinAlias = '???';
         foreach ($this->getJoin($qb, $topAlias) as $join) {
             list($joinType, $tableName, $on, $alias) = $join;
-            $qb->join($joinType, $tableName, $on, $alias);
+            if ($qb->hasJoin($tableName)) {
+                $joinAlias = $qb->getJoinAlias($tableName);
+            } else {
+                $qb->join($joinType, $tableName, $on, $alias);
+                $joinAlias = $alias;
+            }
         }
-        return $alias;
+        return $joinAlias;
     }
 }

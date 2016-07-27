@@ -1,6 +1,7 @@
 <?php
 
 namespace Mindy\Orm\Fields;
+
 use Mindy\Query\ConnectionManager;
 
 /**
@@ -41,12 +42,12 @@ class DateField extends Field
 
     public function getValue()
     {
-        $db = ConnectionManager::getDb()->getQueryBuilder();
+        $adapter = $this->getModel()->getDb()->getAdapter();
         if ($this->autoNowAdd && $this->getModel()->getIsNewRecord() || $this->autoNow) {
-            return $db->convertToDate();
+            return $adapter->getDate();
         }
-        if ( is_numeric($this->value) ) {
-            return $db->convertToDate($this->value);
+        if (is_numeric($this->value)) {
+            return $adapter->getDate($this->value);
         }
         return $this->value;
     }

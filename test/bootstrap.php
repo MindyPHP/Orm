@@ -4,19 +4,7 @@ use Mindy\Base\Mindy;
 
 define('MINDY_TEST', true);
 
-$vendorPath = __DIR__ . '/../vendor';
-if (is_dir($vendorPath)) {
-    include($vendorPath . '/autoload.php');
-} else {
-    $vendorPath = __DIR__ . '/../../../../vendor';
-    if (is_dir($vendorPath)) {
-        include($vendorPath . '/autoload.php');
-    } else {
-        require __DIR__ . '/../src.php';
-    }
-}
-
-require __DIR__ . '/DatabaseTestCase.php';
+$vendorPath = include(__DIR__ . '/../vendor/autoload.php');
 
 $models = glob(realpath(__DIR__) . '/Modules/Tests/Models/*.php');
 foreach ($models as $model) {
@@ -24,7 +12,7 @@ foreach ($models as $model) {
 }
 
 $app = Mindy::getInstance([
-    'basePath' => __DIR__ . '/protected',
+    'basePath' => __DIR__ . '/app/protected',
     'components' => [
         'db' => [
             'class' => \Mindy\Query\ConnectionManager::class,

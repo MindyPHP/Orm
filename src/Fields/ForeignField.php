@@ -127,4 +127,9 @@ class ForeignField extends RelatedField
         $value = $this->getValue();
         return $value instanceof Base ? $value->pk : $value;
     }
+
+    public function getSelectJoin(QueryBuilder $qb, $topAlias)
+    {
+        // TODO: Implement getSelectJoin() method.
+    }
 }

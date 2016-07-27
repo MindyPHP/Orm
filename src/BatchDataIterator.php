@@ -39,8 +39,6 @@ use Mindy\Helper\Traits\Configurator;
  */
 class BatchDataIterator implements Iterator
 {
-    use Configurator, Accessors;
-
     /**
      * @var bool
      */
@@ -80,6 +78,17 @@ class BatchDataIterator implements Iterator
      * @var string|integer the key for the current iteration
      */
     private $_key;
+
+    /**
+     * BatchDataIterator constructor.
+     * @param array $config
+     */
+    public function __construct(array $config = [])
+    {
+        foreach ($config as $key => $value) {
+            $this->{$key} = $value;
+        }
+    }
 
     /**
      * Destructor.

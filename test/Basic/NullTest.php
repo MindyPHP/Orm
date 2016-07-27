@@ -11,78 +11,33 @@
  * @date 17/04/14.04.2014 15:49
  */
 
-namespace Mindy\Orm\Tests;
+namespace Mindy\Orm\Tests\Basic;
 
-use Modules\Tests\Models\Category;
-use Modules\Tests\Models\Customer;
 use Modules\Tests\Models\Order;
-use Modules\Tests\Models\Product;
-use Modules\Tests\Models\User;
-use Tests\OrmDatabaseTestCase;
+use Mindy\Orm\Tests\OrmDatabaseTestCase;
 
 class NullTest extends OrmDatabaseTestCase
 {
+    public $driver = 'mysql';
+
     protected function getModels()
     {
-        return [new Order, new User, new Category, new Customer, new Product];
-    }
-
-    public function setUp()
-    {
-        parent::setUp();
-
-        $category = new Category;
-        $category->name = 'test';
-        $category->save();
-
-        $user = new User;
-        $user->password = 123456;
-        $user->username = 'example';
-        $user->save();
-
-        $customer = new Customer;
-        $customer->user = $user;
-        $customer->address = 'example super address';
-        $customer->save();
-
-        $products = [];
-        foreach ([1, 2, 3, 4, 5] as $i) {
-            $product = new Product;
-            $product->name = $i;
-            $product->price = $i;
-            $product->description = $i;
-            $product->category = $category;
-            $product->save();
-            $products[] = $product;
-        }
-
-        $order1 = new Order;
-        $order1->customer = $customer;
-        $order1->save();
-
-        foreach ($products as $p) {
-            $order1->products->link($p);
-        }
-
-        $order2 = new Order;
-        $order2->customer = $customer;
-        $order2->discount = 1;
-        $order2->save();
-
-        $order2->products = $products;
-        $order2->save();
+        return [new Order];
     }
 
     public function testIsNull()
     {
-        $o1 = Order::objects()->filter(['pk' => 1])->get();
-        $o2 = Order::objects()->filter(['pk' => 2])->get();
-        $this->assertNull($o1->discount);
-        $this->assertNotNull($o2->discount);
-    }
+        $this->assertTrue((new Order(['customer_id' => 1]))->save());
+        $this->assertTrue((new Order(['customer_id' => 1, 'discount' => 1]))->save());
 
-    public function testIsNullQuery()
-    {
+        $this->assertEquals(2, Order::objects()->count());
+
+        $o1 = Order::objects()->get(['pk' => 1]);
+        $this->assertNull($o1->discount);
+
+        $o2 = Order::objects()->get(['pk' => 2]);
+        $this->assertNotNull($o2->discount);
+
         $this->assertEquals(1, Order::objects()->filter(['discount__isnull' => true])->count());
         $this->assertEquals(1, Order::objects()->filter(['discount__isnull' => false])->count());
     }

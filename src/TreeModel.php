@@ -5,7 +5,7 @@ namespace Mindy\Orm;
 use Exception;
 use Mindy\Orm\Fields\IntField;
 use Mindy\Orm\Fields\TreeForeignField;
-use Mindy\Query\Expression;
+use Mindy\QueryBuilder\Expression;
 
 /**
  * Nested set based on creocoder Yii2 Nested Set https://github.com/creocoder/yii2-nested-set-behavior

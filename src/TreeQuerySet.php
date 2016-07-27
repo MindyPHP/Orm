@@ -6,6 +6,7 @@ use Mindy\Helper\Interfaces\Arrayable;
 use Mindy\Query\Connection;
 use Mindy\Query\Expression;
 use Mindy\Query\Query;
+use Mindy\QueryBuilder\Q\QAndNot;
 
 /**
  * Class TreeQuerySet
@@ -174,24 +175,20 @@ class TreeQuerySet extends QuerySet
      */
     protected function deleteBranchWithoutRoot(Connection $db, $table)
     {
-        $subQuery = new Query([
-            'select' => 'root',
-            'from' => $table,
-            'where' => new Expression($db->quoteColumnName('parent_id') . ' IS NULL')
+        $subQuery = clone $this->getQueryBuilder();
+        $subQuery->setTypeSelect()->from($table)->select('root')->where(['parent_id__isnull' => true]);
+
+        $query = clone $this->getQueryBuilder();
+        $query->setTypeSelect()->select(['id'])->from($table)->where([
+            'parent_id__isnull' => true,
+            new QAndNot(['root__in' => $subQuery])
         ]);
 
-        $query = new Query([
-            'select' => 'id',
-            'from' => $table,
-            'where' =>
-                new Expression($db->quoteColumnName('parent_id') . ' IS NOT NULL') . ' AND ' .
-                new Expression($db->quoteColumnName('root') . ' NOT IN (' . $subQuery->allSql() . ')')
-        ]);
-
-        $ids = $query->createCommand()->queryColumn();
+        $ids = $this->createCommand($query->toSQL())->queryColumn();
         if (count($ids) > 0) {
-            $sql = 'DELETE FROM ' . $table . ' WHERE ' . $db->quoteColumnName('id') . ' IN (' . implode(',', $ids) . ')';
-            $db->createCommand($sql)->execute();
+            $deleteQuery = clone $this->getQueryBuilder();
+            $deleteQuery->setTypeDelete()->from($table)->where(['id__in' => $ids]);
+            $db->createCommand($deleteQuery->toSQL())->execute();
         }
     }
 
@@ -209,24 +206,23 @@ class TreeQuerySet extends QuerySet
      */
     protected function deleteBranchWithoutParent(Connection $db, $table)
     {
-        $subQuery = new Query([
-            'select' => 'id',
-            'from' => $table
+        $subQuery = clone $this->getQueryBuilder();
+        $subQuery->setTypeSelect()->select(['id'])->from($table);
+
+        $query = clone $this->getQueryBuilder();
+        $query->setTypeSelect()->select(['id', 'lft', 'rgt', 'root'])->from($table)->where([
+            new QAndNot(['parent_id__in' => $subQuery])
         ]);
 
-        $query = new Query([
-            'select' => ['id', 'lft', 'rgt', 'root'],
-            'from' => $table,
-            'where' => new Expression($db->quoteColumnName('parent_id') . ' NOT IN (' . $subQuery->allSql() . ')')
-        ]);
-
-        $rows = $query->createCommand()->queryAll();
+        $rows = $this->createCommand($query->toSQL())->queryAll();
         foreach ($rows as $row) {
-            $db->createCommand('DELETE FROM ' . $table . ' WHERE lft>=:lft AND rgt<=:rgt AND root=:root', [
-                ':lft' => $row['lft'],
-                ':rgt' => $row['rgt'],
-                ':root' => $row['root'],
-            ])->execute();
+            $deleteQuery = clone $this->getQueryBuilder();
+            $deleteQuery->setTypeDelete()->from($table)->where([
+                'lft__gte' => $row['lft'],
+                'rgt__lte' => $row['rgt'],
+                'root' => $row['root']
+            ]);
+            $db->createCommand($deleteQuery->toSQL())->execute();
         }
     }
 
@@ -247,27 +243,25 @@ class TreeQuerySet extends QuerySet
      */
     protected function rebuildLftRgt(Connection $db, $table)
     {
-        $lft = $db->quoteColumnName('lft');
-        $rgt = $db->quoteColumnName('rgt');
-        $root = $db->quoteColumnName('root');
-
-        $subQuery = new Query([
-            'select' => 'parent_id',
-            'from' => $table . ' as tt',
-            'where' => new Expression($db->quoteColumnName('tt') . '.' . $db->quoteColumnName('parent_id') . '=' . $db->quoteColumnName('t') . '.'. $db->quoteColumnName('id'))
+        $subQuery = clone $this->getQueryBuilder();
+        $subQuery->setTypeSelect()->select(['parent_id'])->from($table)->where([
+            'parent_id' => new \Mindy\QueryBuilder\Expression('id')
         ]);
 
-        $query = new Query([
-            'select' => [
+        $query = clone $this->getQueryBuilder();
+        $query->setTypeSelect()
+            ->select([
                 'id', 'root', 'lft', 'rgt',
-                new Expression($rgt . '-' . $lft . '-1 AS move')
-            ],
-            'from' => $table . 'as t',
-            'where' => new Expression('NOT ' . $lft . ' = (' . $rgt . '-1) AND NOT ' . $db->quoteColumnName('id') . ' IN(' . $subQuery->allSql() . ')'),
-            'orderBy' => ['rgt' => SORT_ASC]
-        ]);
-        $rows = $query->createCommand()->queryAll();
+                new \Mindy\QueryBuilder\Expression('[[rgt]]-[[lft]]-1 AS [[move]]')
+            ])
+            ->from($table)
+            ->where(new QAndNot([
+                'lft' => new \Mindy\QueryBuilder\Expression('[[rgt]]-1'),
+                'id__in' => $subQuery
+            ]))
+            ->order(['rgt']);
 
+        $rows = $this->createCommand($query->toSQL())->queryAll();
         foreach ($rows as $row) {
             $sql = 'UPDATE ' . $table . ' SET ' . $lft . ' = ' . $lft . ' - :move, ' . $rgt . ' = ' . $rgt . ' - :move WHERE ' . $root . ' = :root AND ' . $lft . ' > :rgt';
             $db->createCommand($sql, [

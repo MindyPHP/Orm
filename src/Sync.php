@@ -56,7 +56,7 @@ class Sync
 
     /**
      * @param $model \Mindy\Orm\Model
-     * @return int
+     * @return array
      */
     public function createTable(Model $model)
     {
@@ -90,25 +90,23 @@ class Sync
         }, $columns);
         $sql[] = $this->getQueryBuilder()->createTable($model->tableName(), $mainColumns, null, true);
 
-        return implode(";\n\n", $sql);
+        return $sql;
     }
 
     /**
      * @param $model \Mindy\Orm\Model
-     * @return int
+     * @return array
      */
     public function dropTable(Model $model)
     {
         $sql = [];
         foreach ($model->getManyFields() as $field) {
             if ($field->through === null) {
-                if ($this->hasTable($field->getTableName())) {
-                    $sql[] = $this->getQueryBuilder()->dropTable($field->getTableName(), true);
-                }
+                $sql[] = $this->getQueryBuilder()->dropTable($field->getTableName(), true);
             }
         }
         $sql[] = $this->getQueryBuilder()->dropTable($model->tableName(), true);
-        $this->getDb()->createCommand(implode(";\n\n", $sql))->execute();
+        return $sql;
     }
 
     /**
@@ -118,9 +116,12 @@ class Sync
     {
         $i = 0;
         foreach ($this->_models as $model) {
-            if ($this->hasTable($model->tableName()) === false) {
-                $sql = $this->createTable($model);
-                $i += $this->getDb()->createCommand($sql)->execute();
+            $sql = $this->createTable($model);
+            foreach ($sql as $part) {
+                $state = $this->getDb()->createCommand($part)->execute(true);
+                if ($state) {
+                    $i += 1;
+                }
             }
         }
         return $i;
@@ -133,27 +134,41 @@ class Sync
     {
         $sql = [];
         foreach ($this->_models as $model) {
-            if ($this->hasTable($model->tableName()) === false) {
-                $sql[] = $this->createTable($model);
+            $sql[] = $this->createTable($model);
+        }
+        return $sql;
+    }
+
+    /**
+     * Drop all tables from database
+     * @return int
+     */
+    public function delete()
+    {
+        $i = 0;
+        foreach ($this->_models as $model) {
+            $sql = $this->dropTable($model);
+            foreach ($sql as $part) {
+                $state = $this->getDb()->createCommand($part)->execute(true);
+                if ($state) {
+                    $i += 1;
+                }
             }
         }
-        return implode(";\n\n", $sql);
+        return $i;
     }
 
     /**
      * Drop all tables from database
      * @return array
      */
-    public function delete()
+    public function deleteSql()
     {
-        $deleted = [];
+        $sql = [];
         foreach ($this->_models as $model) {
-            if ($this->hasTable($model->tableName())) {
-                $this->dropTable($model);
-                $deleted[] = $model->tableName();
-            }
+            $sql[] = $this->dropTable($model);
         }
-        return $deleted;
+        return $sql;
     }
 
     /**

@@ -12,7 +12,7 @@ use Traversable;
  * Class Manager
  * @package Mindy\Orm
  */
-class Manager extends ManyToManyManager implements IteratorAggregate, Serializable, Countable, ArrayAccess
+class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAccess
 {
     public function with(array $value)
     {
@@ -58,7 +58,7 @@ class Manager extends ManyToManyManager implements IteratorAggregate, Serializab
      * @param array $q
      * @return \Mindy\Orm\Manager
      */
-    public function filter(array $q)
+    public function filter($q)
     {
         $this->getQuerySet()->filter($q);
         return $this;
@@ -143,13 +143,33 @@ class Manager extends ManyToManyManager implements IteratorAggregate, Serializab
     }
 
     /**
-     * @return mixed
+     * @param string $q
+     * @return string|int|float
      */
-    public function count()
+    public function count($q = '*')
     {
-        return $this->getQuerySet()->count();
+        return $this->getQuerySet()->count($q);
     }
 
+    /**
+     * @param $rows
+     * @return Model[]
+     */
+    public function createModels($rows)
+    {
+        return $this->getQuerySet()->createModels($rows);
+    }
+
+    /**
+     * @param string $sql
+     * @param array $params
+     * @return \Mindy\Query\Command
+     */
+    public function createCommand($sql = null, $params = [])
+    {
+        return $this->getQuerySet()->createCommand($sql, $params);
+    }
+    
     /**
      * @param bool $asArray
      * @return string
@@ -168,9 +188,10 @@ class Manager extends ManyToManyManager implements IteratorAggregate, Serializab
     }
 
     /**
-     * @return \Mindy\Orm\QuerySet
+     * @param $columns
+     * @return $this
      */
-    public function order(array $columns)
+    public function order($columns)
     {
         $this->getQuerySet()->order($columns);
         return $this;
@@ -345,31 +366,6 @@ class Manager extends ManyToManyManager implements IteratorAggregate, Serializab
     public function getIterator()
     {
         return $this->getQuerySet()->getIterator();
-    }
-
-    /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * String representation of object
-     * @link http://php.net/manual/en/serializable.serialize.php
-     * @return string the string representation of the object or null
-     */
-    public function serialize()
-    {
-        return $this->getQuerySet()->serialize();
-    }
-
-    /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * Constructs the object
-     * @link http://php.net/manual/en/serializable.unserialize.php
-     * @param string $serialized <p>
-     * The string representation of the object.
-     * </p>
-     * @return Model[]
-     */
-    public function unserialize($serialized)
-    {
-        return $this->getQuerySet()->unserialize($serialized);
     }
 
     /**

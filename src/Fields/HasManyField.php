@@ -128,4 +128,9 @@ class HasManyField extends RelatedField
     {
         return parent::getFormField($form, \Mindy\Form\Fields\DropDownField::className(), $extra);
     }
+
+    public function getSelectJoin(QueryBuilder $qb, $topAlias)
+    {
+        // TODO: Implement getSelectJoin() method.
+    }
 }

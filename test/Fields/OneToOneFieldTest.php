@@ -10,7 +10,7 @@ namespace Mindy\Orm\Tests\Fields;
 
 use Modules\Tests\Models\Place;
 use Modules\Tests\Models\Restaurant;
-use Tests\OrmDatabaseTestCase;
+use Mindy\Orm\Tests\OrmDatabaseTestCase;
 
 abstract class OneToOneFieldTest extends OrmDatabaseTestCase
 {
@@ -105,5 +105,24 @@ abstract class OneToOneFieldTest extends OrmDatabaseTestCase
 
         $place->restaurant = $restaurant2;
         $place->save();
+    }
+
+    public function testOneToOneKeyInt()
+    {
+        $place = new Place();
+        $place->name = 'Derry';
+        $place->save();
+
+        $restaurant = new Restaurant();
+        $restaurant->name = 'Burger mix';
+        $restaurant->place_id = 1;
+        $restaurant->save();
+
+        $this->assertEquals(1, Restaurant::objects()->filter(['place' => $place->id])->count());
+        $this->assertEquals(1, $place->restaurant->pk);
+
+        $restaurant->delete();
+
+        $this->assertNull($place->restaurant);
     }
 }

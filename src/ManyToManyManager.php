@@ -68,27 +68,23 @@ abstract class ManyToManyManager extends ManagerBase
 
     protected function linkUnlinkProcess(Model $model, $link = true, array $extra = [])
     {
-        $method = $link ? 'insert' : 'delete';
-
         $primaryModel = $this->getPrimaryModel();
         if (($primaryModel && $primaryModel->getIsNewRecord()) || empty($primaryModel->pk)) {
             throw new Exception('Unable to ' . ($link ? 'link' : 'unlink') . ' models: the primary key of ' . get_class($primaryModel) . ' is null.');
         }
 
         if ($this->through && $link) {
+            /** @var \Mindy\Orm\Model $throughModel */
             $throughModel = new $this->through;
             if (empty($this->throughLink)) {
-                throw new Exception("throughLink is missing in ManyToManyManager");
-            }
-            if (empty($this->throughLink)) {
-                $fromId = $this->primaryModelColumn;
-                $toId = $this->modelColumn;
+                $from = $this->primaryModelColumn;
+                $to = $this->modelColumn;
             } else {
-                list($fromId, $toId) = $this->throughLink;
+                list($from, $to) = $this->throughLink;
             }
-            list($through, $created) = $throughModel->objects()->using($this->primaryModel->getDb())->getOrCreate([
-                $fromId => $this->primaryModel->pk,
-                $toId => $model->pk,
+            list($through, $created) = $throughModel->objects()->getOrCreate([
+                $from => $this->primaryModel->pk,
+                $to => $model->pk,
             ]);
             return $through->pk;
         } else {

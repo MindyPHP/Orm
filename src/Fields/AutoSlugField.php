@@ -84,17 +84,12 @@ class AutoSlugField extends CharField
         }
 
         $model->setAttribute($this->name, $url);
-
-        $schema = ConnectionManager::getDb()->getSchema();
         $model->tree()->filter([
             'lft__gt' => $model->getOldAttribute('lft'),
             'rgt__lt' => $model->getOldAttribute('rgt'),
             'root' => $model->getOldAttribute('root')
         ])->update([
-            $this->name => new Expression("REPLACE(" . $schema->quoteColumnName($this->name) . ", :from, :to)", [
-                ':from' => $model->getOldAttribute($this->name),
-                ':to' => $url,
-            ])
+            $this->name => new \Mindy\QueryBuilder\Expression("REPLACE([[" . $this->name . "]], @" . $model->getOldAttribute($this->name) . "@, @" . $url . "@)")
         ]);
     }
 

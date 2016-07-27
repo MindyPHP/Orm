@@ -7,11 +7,11 @@ benchmark
 build
 composer.lock
 vendor
-test/media/*
-test/runtime/*
-test/migration/*
+test/app/media/*
+test/app/runtime/*
+test/app/migration/*
+test/app/sqlite.db
 test/config_local.php
-test/sqlite.db
 test.php
 phpunit.phar
 

@@ -9,6 +9,9 @@ use Mindy\Base\Mindy;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
+use Mindy\Orm\Callback\FetchColumnCallback;
+use Mindy\Orm\Callback\JoinCallback;
+use Mindy\Orm\Callback\LookupCallback;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
@@ -129,7 +132,7 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
      * @param array $params
      * @return \Mindy\Query\Command
      */
-    protected function createCommand($sql = null, $params = [])
+    public function createCommand($sql = null, $params = [])
     {
         return $this->getDb()->createCommand($sql, $params);
     }
@@ -160,67 +163,15 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
             $model = $this->getModel();
             $meta = $model->getMeta();
             $builder->from($model->tableName());
-            $builder->getLookupBuilder()->setFetchColumnCallback(function ($column) use ($meta) {
-                if ($column === 'pk') {
-                    return $this->getModel()->primaryKeyName();
-                } else if ($meta->hasForeignField($column)) {
-                    // TODO fix me
-                    if (strpos($column, '_id') === false) {
-                        return $column . '_id';
-                    }
-                    return $column;
-                }
-                return $column;
-            });
-            $builder->getLookupBuilder()->setCallback(function(QueryBuilder $queryBuilder, Legacy $lookupBuilder, array $lookupNodes, $value) use ($model) {
-                $lookup = $lookupBuilder->getDefault();
-                $column = '?';
-                $joinAlias = '?';
-                $alias = $queryBuilder->getAlias();
 
-                foreach ($lookupNodes as $i => $node) {
-                    if ($model->hasField($node) && ($field = $model->getField($node)) instanceof RelatedField) {
-                        /** @var \Mindy\Orm\Fields\RelatedField $field */
-                        $joinAlias = $field->setDb($this->getDb())->buildQuery($queryBuilder, $alias);
-                    }
-
-                    if (count($lookupNodes) == $i + 1) {
-                        if ($lookupBuilder->hasLookup($node) === false) {
-                            $column = $joinAlias . '.' . $node;
-                            $columnWithLookup = $column . $lookupBuilder->getSeparator() . $lookupBuilder->getDefault();
-                            $queryBuilder->where([$columnWithLookup => $value]);
-                        } else {
-                            $lookup = $node;
-                            $column = $alias . '.' . $lookupNodes[$i - 1];
-                        }
-                    }
-                }
-
-                return [$lookup, $column, $value];
-            });
-            $builder->getLookupBuilder()->setJoinCallback(function(QueryBuilder $queryBuilder, Legacy $lookupBuilder, array $lookupNodes) use ($model) {
-                $column = '';
-                $alias = '';
-                foreach ($lookupNodes as $i => $nodeName) {
-                    if ($i + 1 == count($lookupNodes)) {
-                        $column = $nodeName;
-                    } else {
-                        if ($model->hasField($nodeName)) {
-                            $field = $model->getField($nodeName);
-                            if ($field instanceof RelatedField) {
-                                /** @var \Mindy\Orm\Fields\RelatedField $field */
-                                $alias = $field->setDb($this->getDb())->buildQuery($queryBuilder, $alias);
-                            }
-                        }
-                    }
-                }
-
-                if (empty($alias) || empty($column)) {
-                    return false;
-                }
-
-                return [$alias, $column];
-            });
+            $fetchColumnCallback = new FetchColumnCallback($model, $meta);
+            $callback = new LookupCallback($model);
+            $joinCallback = new JoinCallback($model);
+            $builder
+                ->getLookupBuilder()
+                ->setFetchColumnCallback($fetchColumnCallback)
+                ->setCallback($callback)
+                ->setJoinCallback($joinCallback);
             $this->_qb = $builder;
         }
         return $this->_qb;

@@ -12,8 +12,7 @@ class BlobField extends Field
 {
     public function sqlType()
     {
-        $db = ConnectionManager::getDb();
-        return $db->getDriverName() == 'pgsql' ? 'BYTEA' : 'longblob';
+        return $this->getModel()->getDb()->getDriverName() == 'pgsql' ? 'BYTEA' : 'longblob';
     }
 
     public function getDbPrepValue()

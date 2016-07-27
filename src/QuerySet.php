@@ -8,6 +8,7 @@ use Mindy\Orm\Exception\MultipleObjectsReturned;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Q\Q;
+use Mindy\QueryBuilder\Aggregation\Aggregation;
 use Mindy\QueryBuilder\Aggregation\Avg;
 use Mindy\QueryBuilder\Aggregation\Count;
 use Mindy\QueryBuilder\Aggregation\Max;
@@ -91,41 +92,14 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @return $this
-     */
-    protected function prepareCommand()
-    {
-        $this->prepareConditions();
-
-        // @TODO: hardcode, refactoring
-//        $group = $this->groupBy;
-//        if ($this->_chainedHasMany && !$group && $group !== false) {
-//            $this->groupBy($this->quoteColumnName($this->tableAlias) . '.' . $this->quoteColumnName($this->retreivePrimaryKey()));
-//        }
-        $command = $this->createCommand();
-//        $this->groupBy = $group;
-        $this->setCommand($command);
-        return $this;
-    }
-
-    public function join($type, $table, $on = '', $params = [])
-    {
-        $query = parent::join($type, $table, $on, $params);
-        if ($this->_chainedHasMany) {
-            $this->groupBy($this->quoteColumnName($this->tableAlias) . '.' . $this->quoteColumnName($this->retreivePrimaryKey()));
-        }
-        return $query;
-    }
-
-    /**
      * Executes query and returns all results as an array.
      * If null, the DB connection returned by [[modelClass]] will be used.
      * @return array the query results. If the query results in nothing, an empty array will be returned.
      */
     public function all()
     {
-        // return $this->getData();
-        return $this->getDb()->createCommand($this->allSql())->queryAll();
+        $rows = $this->getDb()->createCommand($this->allSql())->queryAll();
+        return $this->asArray ? $rows : $this->createModels($rows);
     }
 
     /**
@@ -134,9 +108,8 @@ class QuerySet extends QuerySetBase
      */
     public function batch($batchSize = 100)
     {
-        $this->prepareConditions();
         return Creator::createObject([
-            'class' => BatchDataIterator::className(),
+            'class' => BatchDataIterator::class,
             'qs' => $this,
             'batchSize' => $batchSize,
             'db' => $this->getDb(),
@@ -182,7 +155,7 @@ class QuerySet extends QuerySetBase
      */
     public function updateSql(array $attributes)
     {
-        return $this->getQueryBuilder()->setTypeUpdate()->update($this->model->tableName(), $attributes);
+        return $this->getQueryBuilder()->setTypeUpdate()->update($this->model->tableName(), $attributes)->toSQL();
     }
 
     public function getOrCreate(array $attributes)
@@ -219,81 +192,14 @@ class QuerySet extends QuerySetBase
      */
     public function paginate($page = 1, $pageSize = 10)
     {
-        $this->getQueryBuilder()->limit($pageSize)->offset($page > 1 ? $pageSize * ($page - 1) : 0);
+        $this->getQueryBuilder()->paginate($page, $pageSize);
         return $this;
     }
 
     public function allSql()
     {
-        return $this->getQueryBuilder()->setTypeSelect()->toSQL();
-    }
-
-    public function allSqlDeprecated()
-    {
-        $this->prepareConditions();
-        $group = $this->groupBy;
-
-        if ($this->_chainedHasMany) {
-            if ($this->getDb()->getSchema() instanceof \Mindy\Query\Pgsql\Schema) {
-                $pk = $this->quoteColumnName($this->retreivePrimaryKey());
-                $this->distinct([
-                    $this->_tableAlias . '.' . $pk => $this->_tableAlias . '.' . $pk
-                ]);
-                $orderBy = $this->orderBy;
-                if ($orderBy) {
-                    $this->orderBy = array_merge([$this->_tableAlias . '.' . $pk => SORT_ASC], $orderBy);
-                }
-                $this->from = '(' . parent::allSql() . ') ' . $this->quoteColumnName("_tmp");
-                $this->select = '*';
-                $this->groupBy = null;
-                $this->where = [];
-
-                if ($orderBy) {
-                    $orderFields = [];
-                    foreach ($orderBy as $field => $order) {
-                        $tmp = explode('.', $field);
-                        $name = str_replace('"', '', end($tmp));
-                        $orderFields[$this->quoteColumnName("_tmp") . '.' . $this->quoteColumnName($name)] = $order;
-                    }
-                    $this->orderBy = $orderFields;
-                }
-                $this->distinct = null;
-                $this->join = [];
-                return parent::allSql();
-            }
-        }
-
-//        if ($this->_chainedHasMany && !$group) {
-//            $this->groupBy($this->quoteColumnName($this->tableAlias) . '.' . $this->quoteColumnName($this->retreivePrimaryKey()));
-//        }
-        $return = parent::allSql();
-        $this->groupBy = $group;
-        return $return;
-    }
-
-    protected function prepareConditions($aliased = true, $autoGroup = true)
-    {
-        if ($this->_filterComplete === false) {
-            foreach ($this->_filterAnd as $query) {
-                $this->buildCondition($query, 'andWhere', ['and'], $aliased, $autoGroup);
-            }
-
-            foreach ($this->_filterOr as $query) {
-                $this->buildCondition($query, 'orWhere', ['and'], $aliased, $autoGroup);
-            }
-
-            foreach ($this->_filterExclude as $query) {
-                $this->buildCondition($query, 'excludeWhere', ['and'], $aliased, $autoGroup);
-            }
-
-            foreach ($this->_filterOrExclude as $query) {
-                $this->buildCondition($query, 'excludeOrWhere', ['and'], $aliased, $autoGroup);
-            }
-
-            $this->_filterComplete = true;
-        }
-
-        return $this;
+        $qb = clone $this->getQueryBuilder();
+        return $qb->setTypeSelect()->toSQL();
     }
 
     /**
@@ -305,17 +211,8 @@ class QuerySet extends QuerySetBase
         if ($filter) {
             $this->filter($filter);
         }
-        return $this->getQueryBuilder()->setTypeSelect()->toSQL();
-    }
-
-    public function getCacheKey()
-    {
-        return md5(
-            serialize($this->_filterAnd) .
-            serialize($this->_filterOr) .
-            serialize($this->_filterExclude) .
-            serialize($this->_filterOrExclude)
-        );
+        $qb = clone $this->getQueryBuilder();
+        return $qb->setTypeSelect()->toSQL();
     }
 
     /**
@@ -326,8 +223,7 @@ class QuerySet extends QuerySetBase
      */
     public function get($filter = [])
     {
-        $sql = $this->getSql($filter);
-        $rows = $this->createCommand($sql)->queryAll();
+        $rows = $this->createCommand($this->getSql($filter))->queryAll();
         if (count($rows) > 1) {
             throw new MultipleObjectsReturned();
         } elseif (count($rows) === 0) {
@@ -699,9 +595,21 @@ class QuerySet extends QuerySetBase
      * @param array $query
      * @return $this
      */
-    public function filter(array $query)
+    public function filter($query)
     {
-        $this->getQueryBuilder()->where($query);
+        if (is_array($query)) {
+            $newQuery = array_map(function ($value) {
+                if ($value instanceof Model) {
+                    return $value->pk;
+                } else if ($value instanceof Manager || $value instanceof QuerySet) {
+                    return $value->getQueryBuilder();
+                }
+                return $value;
+            }, $query);
+        } else {
+            $newQuery = $query;
+        }
+        $this->getQueryBuilder()->where($newQuery);
         return $this;
     }
 
@@ -731,7 +639,7 @@ class QuerySet extends QuerySetBase
      */
     public function orExclude(array $query)
     {
-        $this->getQueryBuilder()->where(new QOrNot($query));
+        $this->getQueryBuilder()->orWhere(new QOrNot($query));
         return $this;
     }
 
@@ -790,53 +698,11 @@ class QuerySet extends QuerySetBase
     /**
      * Order by alias
      * @param $columns
-     * @return static
+     * @return $this
      */
-    public function order(array $columns)
+    public function order($columns)
     {
-        $orderBy = [];
-        $meta = $this->model->getMeta();
-        foreach ($columns as $column) {
-            $isReverse = strpos($column, '-') === 0;
-            $t = str_replace('-', '', $column);
-            if ($t === 'pk') {
-                $column = $this->model->getPkName();
-                if ($isReverse) {
-                    $column = '-' . $column;
-                }
-            } else if ($meta->hasForeignField($t)) {
-                if ($meta->hasField($t)) {
-                    $column .= "_id";
-                }
-            }
-            $orderBy[] = $column;
-        }
-
-        $this->getQueryBuilder()->order($orderBy);
-
-        if ($this->getDb()->getSchema() instanceof \Mindy\Query\Pgsql\Schema) {
-
-            $orderFields = array_keys($this->orderBy);
-            $this->select = array_merge($this->select, $orderFields);
-            $tableSchema = $this->getDb()->getSchema()->getTableSchema($this->model->tableName());
-            if ($tableSchema === null) {
-                throw new Exception("Table " . $this->model->tableName() . " missing in database");
-            }
-            $groupFields = [];
-            foreach ($tableSchema->getColumnNames() as $name) {
-                $groupFields[] = $this->_tableAlias . '.' . $name;
-            }
-            $groupBy = array_merge($orderFields, $groupFields);
-            foreach ($this->_chains as $name => $chain) {
-                $groupBy[] = $chain['alias'] . '.' . $chain['model']->getPkName();
-            }
-            if ($this->groupBy) {
-                $this->groupBy = array_merge($this->groupBy, $groupBy);
-            } else {
-                $this->groupBy = $groupBy;
-            }
-        }
-
+        $this->getQueryBuilder()->order($columns);
         return $this;
     }
 
@@ -872,39 +738,12 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * Make aliased attributes
-     * @param array $attributes
-     * @param null|string $alias
-     * @return array new attributes with table aliases
-     */
-    protected function makeAliasAttributes(array $attributes, $alias = null)
-    {
-        $alias = $alias ? $alias : $this->getTableAlias();
-        $new = [];
-        foreach ($attributes as $key => $value) {
-            $new[$alias . '.' . $key] = $value;
-        }
-        return $new;
-    }
-
-    /**
-     * Converts string to float or int
-     * @param $value
-     * @return float|int
-     */
-    public function numval($value)
-    {
-        return strpos($value, '.') !== false ? floatval($value) : intval($value);
-    }
-
-    /**
      * @param null|string|array $q
      * @return float|int
      */
     public function sum($q)
     {
-        $sql = $this->sumSql($q);
-        return $this->getDb()->createCommand($sql)->queryScalar();
+        return $this->getDb()->createCommand($this->sumSql($q))->queryScalar();
     }
 
     /**
@@ -913,7 +752,7 @@ class QuerySet extends QuerySetBase
      */
     public function sumSql($q)
     {
-        return $this->getQueryBuilder()->select(new Sum($q))->toSQL();
+        return $this->buildAggregateSql(new Sum($q));
     }
 
     /**
@@ -922,8 +761,7 @@ class QuerySet extends QuerySetBase
      */
     public function average($q)
     {
-        $sql = $this->averageSql($q);
-        return $this->getDb()->createCommand($sql)->queryScalar();
+        return $this->aggregate(new Avg($q));
     }
 
     /**
@@ -932,7 +770,33 @@ class QuerySet extends QuerySetBase
      */
     public function averageSql($q)
     {
-        return $this->getQueryBuilder()->select(new Avg($q))->toSQL();
+        return $this->buildAggregateSql(new Avg($q));
+    }
+
+    /**
+     * @param $columns
+     * @param null $option
+     * @return $this
+     */
+    public function select($columns, $option = null)
+    {
+        $this->getQueryBuilder()->select($columns, $option);
+        return $this;
+    }
+
+    private function buildAggregateSql(Aggregation $q)
+    {
+        $qb = $this->getQueryBuilder();
+        $select = $qb->getSelect();
+        $sql = $qb->select($q)->toSQL();
+        $qb->select($select);
+        return $sql;
+    }
+
+    private function aggregate(Aggregation $q)
+    {
+        $value = $this->getDb()->createCommand($this->buildAggregateSql($q))->queryScalar();
+        return strpos($value, '.') !== false ? floatval($value) : intval($value);
     }
 
     /**
@@ -941,8 +805,7 @@ class QuerySet extends QuerySetBase
      */
     public function min($q)
     {
-        $sql = $this->minSql($q);
-        return $this->getDb()->createCommand($sql)->queryScalar();
+        return $this->aggregate(new Min($q));
     }
 
     /**
@@ -951,7 +814,7 @@ class QuerySet extends QuerySetBase
      */
     public function minSql($q)
     {
-        return $this->getQueryBuilder()->select(new Min($q))->toSQL();
+        return $this->buildAggregateSql(new Min($q));
     }
 
     /**
@@ -960,8 +823,7 @@ class QuerySet extends QuerySetBase
      */
     public function max($q)
     {
-        $sql = $this->maxSql($q);
-        return $this->getDb()->createCommand($sql)->queryScalar();
+        return $this->aggregate(new Max($q));
     }
 
     /**
@@ -970,7 +832,7 @@ class QuerySet extends QuerySetBase
      */
     public function maxSql($q)
     {
-        return $this->getQueryBuilder()->select(new Max($q))->toSQL();
+        return $this->buildAggregateSql(new Max($q));
     }
 
     /**
@@ -1012,7 +874,6 @@ class QuerySet extends QuerySetBase
 //            ], $this->params);
 //        }
 
-        $tableName = $this->getModel()->tableName();
         $builder = $this->getQueryBuilder()
             ->setTypeDelete()
             ->setAlias(null);
@@ -1082,7 +943,7 @@ class QuerySet extends QuerySetBase
      */
     public function countSql($q = '*')
     {
-        return $this->getQueryBuilder()->select(new Count($q))->toSQL();
+        return $this->buildAggregateSql(new Count($q));
     }
 
     /**
@@ -1091,8 +952,7 @@ class QuerySet extends QuerySetBase
      */
     public function count($q = '*')
     {
-        $sql = $this->countSql($q);
-        return $this->getDb()->createCommand($sql)->queryScalar();
+        return $this->aggregate(new Count($q));
     }
 
     /**
@@ -1194,6 +1054,18 @@ class QuerySet extends QuerySetBase
     public function setChainedHasMany()
     {
         $this->_chainedHasMany = true;
+        return $this;
+    }
+
+    public function limit($limit)
+    {
+        $this->getQueryBuilder()->limit($limit);
+        return $this;
+    }
+
+    public function offset($offset)
+    {
+        $this->getQueryBuilder()->offset($offset);
         return $this;
     }
 }

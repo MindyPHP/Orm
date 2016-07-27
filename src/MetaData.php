@@ -333,6 +333,9 @@ class MetaData
      */
     public function getField($name)
     {
+        if ($name === 'pk') {
+            $name = $this->getPkName();
+        }
         $field = $this->allFields[$name];
         $field->cleanValue();
         return $field;
@@ -344,6 +347,9 @@ class MetaData
      */
     public function hasField($name)
     {
+        if ($name === 'pk') {
+            $name = $this->getPkName();
+        }
         return array_key_exists($name, $this->allFields);
     }
 

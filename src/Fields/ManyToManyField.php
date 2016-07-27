@@ -76,18 +76,6 @@ class ManyToManyField extends RelatedField
      * @var
      */
     protected $_columns = [];
-    /**
-     * @var
-     */
-    private $_manager;
-
-    /**
-     * Initialization
-     */
-    public function init()
-    {
-
-    }
 
     /**
      * @return \Mindy\Orm\Model
@@ -188,24 +176,105 @@ class ManyToManyField extends RelatedField
         return $this->_modelColumn;
     }
 
+    public function getSelectJoin(QueryBuilder $qb, $topAlias)
+    {
+        $throughAlias = $qb->makeAliasKey($this->getTableName());
+        $alias = $qb->makeAliasKey($this->getRelatedTable());
+        if (empty($this->throughLink)) {
+            $to = $this->getRelatedModelColumn();
+            $from = $this->getModelColumn();
+        } else {
+            list($to, $from) = $this->throughLink;
+        }
+        return [
+            ['LEFT JOIN', $this->getTableName(), [
+                $throughAlias . '.' . $from => $alias . '.' . $this->getModel()->getPkName()
+            ], $throughAlias]
+        ];
+    }
+
+    public function getSelectThroughJoin(QueryBuilder $qb, $topAlias)
+    {
+        $throughAlias = $qb->makeAliasKey($this->getTableName());
+        $alias = $qb->makeAliasKey($this->getRelatedTable());
+        if (empty($this->throughLink)) {
+            $from = $this->getRelatedModelColumn();
+            $to = $this->getModelColumn();
+        } else {
+            list($from, $to) = $this->throughLink;
+        }
+        return [
+            [
+                'LEFT JOIN',
+                $this->getTableName(),
+                [
+                    $throughAlias . '.' . $from => $topAlias . '.' . $this->getModel()->getPkName()
+                ],
+                $throughAlias
+            ]
+        ];
+    }
+
     /**
      * @return \Mindy\Orm\ManyToManyManager QuerySet of related objects
      */
     public function getManager()
     {
-        if ($this->_manager === null) {
-            $className = get_class($this->getRelatedModel()->objects());
-            $this->_manager = new $className($this->getRelatedModel(), [
-                'modelColumn' => $this->getRelatedModelColumn(),
-                'primaryModelColumn' => $this->getModelColumn(),
-                'primaryModel' => $this->getModel(),
-                'relatedTable' => $this->getTableName(),
-                'extra' => $this->extra,
-                'through' => $this->through,
-                'throughLink' => $this->throughLink
-            ]);
+        $className = get_class($this->getRelatedModel()->objects());
+        $config = [
+            'modelColumn' => $this->getRelatedModelColumn(),
+            'primaryModelColumn' => $this->getModelColumn(),
+            'primaryModel' => $this->getModel(),
+            'relatedTable' => $this->getTableName(),
+            'extra' => $this->extra,
+            'through' => $this->through,
+            'throughLink' => $this->throughLink
+        ];
+        /** @var \Mindy\Orm\Manager $manager */
+        $manager = new $className($this->getRelatedModel(), $config);
+
+        if (!empty($this->throughLink)) {
+            list($from, $to) = $this->throughLink;
+            $throughAlias = $manager->getQueryBuilder()->makeAliasKey($this->getTableName());
+            $this->buildSelectQuery($manager->getQueryBuilder(), $manager->getQueryBuilder()->makeAliasKey($this->getModel()->tableName()));
+            if (empty($this->getModel()->pk)) {
+                $manager->filter('[[' . $throughAlias . ']].[[' . $from . ']] IS NULL');
+            } else {
+                $manager->filter('[[' . $throughAlias . ']].[[' . $from . ']]=@' . $this->getModel()->pk . '@');
+            }
+
+        } else {
+            $from = $this->getRelatedModelColumn();
+            $to = $this->getModelColumn();
+
+            $throughAlias = $manager->getQueryBuilder()->makeAliasKey($this->getTableName());
+            $this->buildSelectQuery($manager->getQueryBuilder(), $manager->getQueryBuilder()->makeAliasKey($this->getModel()->tableName()));
+            if (empty($this->getModel()->pk)) {
+                $manager->filter('[[' . $throughAlias . ']].[[' . $from . ']] IS NULL');
+            } else {
+                $manager->filter('[[' . $throughAlias . ']].[[' . $from . ']]=@' . $this->getModel()->pk . '@');
+            }
         }
-        return $this->_manager;
+
+        if (!empty($this->extra)) {
+            $manager->filter($this->extra);
+        }
+
+        return $manager;
+    }
+
+    private $_build_through = false;
+
+    public function buildThroughQuery(QueryBuilder $qb, $topAlias)
+    {
+        $this->_build_through = true;
+        $joinAlias = '???';
+        foreach ($this->getSelectThroughJoin($qb, $topAlias) as $join) {
+            list($joinType, $tableName, $on, $alias) = $join;
+            $qb->join($joinType, $tableName, $on, $alias);
+            $joinAlias = $alias;
+        }
+        return $joinAlias;
     }
 
     /**
@@ -239,12 +308,20 @@ class ManyToManyField extends RelatedField
      */
     public function getColumns()
     {
-        if (!$this->through) {
+        if (empty($this->throughLink)) {
             $fields = $this->getRelatedModel()->getFieldsInit();
             $this->addColumn($this->getRelatedModelColumn(), $fields[$this->getRelatedModelPk()]->sqlType());
 
             $fields = MetaData::getInstance($this->ownerClassName)->getFieldsInit();
             $this->addColumn($this->getModelColumn(), $fields[$this->getModelPk()]->sqlType());
+        } else {
+            list($from, $to) = $this->throughLink;
+
+            $fields = $this->getRelatedModel()->getFieldsInit();
+            $this->addColumn($from, $fields[$this->getRelatedModelPk()]->sqlType());
+
+            $fields = MetaData::getInstance($this->ownerClassName)->getFieldsInit();
+            $this->addColumn($to, $fields[$this->getModelPk()]->sqlType());
         }
         return $this->_columns;
     }
@@ -328,22 +405,20 @@ class ManyToManyField extends RelatedField
         $relatedModel = $this->getRelatedModel();
         $throughAlias = $qb->makeAliasKey($this->getTableName());
         $alias = $qb->makeAliasKey($this->getRelatedTable());
+        if (empty($this->throughLink)) {
+            $to = $this->getRelatedModelColumn();
+            $from = $this->getModelColumn();
+        } else {
+            list($to, $from) = $this->throughLink;
+        }
         return [
-            [
-                'LEFT JOIN',
-                $this->getTableName(),
-                [
-                    $this->getRelatedModelColumn() => $topAlias . '.' . $relatedModel->getPkName()
-                ],
-                $throughAlias
-            ], [
-                'LEFT JOIN',
-                $this->getRelatedTable(),
-                [
-                    $alias . '.' . $this->getModel()->getPkName() => $throughAlias . '.' . $this->getModelColumn()
-                ],
-                $alias
-            ]
+            ['LEFT JOIN', $this->getTableName(), [
+                $throughAlias . '.' . $to => $topAlias . '.' . $relatedModel->getPkName()
+            ], $throughAlias],
+
+            ['LEFT JOIN', $this->getRelatedTable(), [
+                $alias . '.' . $this->getModel()->getPkName() => $throughAlias . '.' . $from
+            ], $alias]
         ];
     }
 

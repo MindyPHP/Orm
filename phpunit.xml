@@ -7,40 +7,34 @@
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
          processIsolation="false"
-         stopOnFailure="true"
+         stopOnFailure="false"
          syntaxCheck="true"
          bootstrap="test/bootstrap.php">
     <php>
-        <ini name="memory_limit" value="-1"/>
-        <ini name="display_errors" value="1"/>
-        <ini name="error_reporting" value="-1"/>
-        <ini name="date.timezone" value="Europe/Moscow"/>
+        <ini name="error_reporting" value="32767"/>
     </php>
 
     <testsuites>
+        <testsuite name="Orm/Basic">
+            <directory>test/Basic/</directory>
+        </testsuite>
         <testsuite name="Orm/QueryBuilder">
             <directory>test/QueryBuilder/</directory>
         </testsuite>
-        <!--<testsuite name="Orm/Sqlite">-->
-            <!--<directory>test/Sqlite/</directory>-->
-        <!--</testsuite>-->
-        <testsuite name="Orm/Mysql">
-            <directory>test/Mysql/</directory>
+        <testsuite name="Orm/Databases/Sqlite">
+            <directory>test/Databases/Sqlite/</directory>
         </testsuite>
-        <!--<testsuite name="Orm/Pgsql">-->
-            <!--<directory>test/Pgsql/</directory>-->
-        <!--</testsuite>-->
+        <testsuite name="Orm/Databases/Mysql">
+            <directory>test/Databases/Mysql/</directory>
+        </testsuite>
+        <testsuite name="Orm/Databases/Pgsql">
+            <directory>test/Databases/Pgsql/</directory>
+        </testsuite>
         <!--<testsuite name="Orm/Fields">-->
-            <!--<directory>test/Fields/</directory>-->
-        <!--</testsuite>-->
-        <!--<testsuite name="Orm/Validation">-->
-            <!--<directory>test/Validation/</directory>-->
-        <!--</testsuite>-->
-        <!--<testsuite name="Orm/Basic">-->
-            <!--<directory>test/Basic/</directory>-->
+        <!--<directory>test/Fields/</directory>-->
         <!--</testsuite>-->
         <!--<testsuite name="Orm/Issues">-->
-            <!--<directory>test/Issues/</directory>-->
+        <!--<directory>test/Issues/</directory>-->
         <!--</testsuite>-->
     </testsuites>
 

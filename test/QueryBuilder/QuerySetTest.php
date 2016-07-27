@@ -17,8 +17,7 @@ use Modules\Tests\Models\Hits;
 use Modules\Tests\Models\Membership;
 use Modules\Tests\Models\Permission;
 use Modules\Tests\Models\User;
-use Modules\Tests\Models\UserManager;
-use Tests\OrmDatabaseTestCase;
+use Mindy\Orm\Tests\OrmDatabaseTestCase;
 
 class QuerySetTest extends OrmDatabaseTestCase
 {
@@ -106,11 +105,14 @@ class QuerySetTest extends OrmDatabaseTestCase
         $count = Hits::objects()->count();
         $this->assertEquals(3, $count);
 
-        $count = Hits::objects()->orExclude(['id' => 2])->exclude(['id' => 1])->count();
-        $this->assertEquals(1, $count);
+        $qs = Hits::objects()->orExclude(['id' => 2])->exclude(['id' => 1]);
+        $count = $qs->count();
+        $sql = $qs->countSql();
+        $this->assertSql('SELECT COUNT(*) FROM [[hits]] AS [[hits_1]] WHERE ((NOT ([[hits_1]].[[id]]=1))) OR ((NOT ([[hits_1]].[[id]]=2)))', $sql);
+        $this->assertEquals(3, $count);
 
         $count = Hits::objects()->exclude(['id' => 1])->orExclude(['id' => 2])->count();
-        $this->assertEquals(1, $count);
+        $this->assertEquals(3, $count);
     }
 
     public function testFetchColumn()
@@ -176,6 +178,32 @@ class QuerySetTest extends OrmDatabaseTestCase
         $this->assertEquals(1, $count);
     }
 
+    public function testFind()
+    {
+        $this->assertTrue((new User(['username' => 'foo', 'password' => 'bar']))->save());
+        $this->assertTrue((new User(['username' => 'foo', 'password' => 'bar']))->save());
+        $qs = User::objects();
+        $this->assertEquals(2, $qs->count());
+        $this->assertEquals([[
+            'id' => 1,
+            'username' => 'foo',
+            'password' => 'bar'
+        ], [
+            'id' => 2,
+            'username' => 'foo',
+            'password' => 'bar'
+        ]], $qs->asArray()->all());
+    }
+
+    public function testMultipleQuery()
+    {
+        $this->assertSql('SELECT COUNT(*) FROM [[user]] AS [[user_1]]', User::objects()->countSql());
+        $this->assertSql('SELECT [[user_1]].* FROM [[user]] AS [[user_1]]', User::objects()->allSql());
+
+        $this->assertSql('SELECT [[user_1]].* FROM [[user]] AS [[user_1]]', User::objects()->allSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[user]] AS [[user_1]]', User::objects()->countSql());
+    }
+
     public function testForeignField()
     {
         $this->assertTrue((new User(['username' => 'foo', 'password' => 'bar']))->save());
@@ -186,14 +214,11 @@ class QuerySetTest extends OrmDatabaseTestCase
         $count = Customer::objects()->count();
         $this->assertEquals(1, $count);
 
-        $count = Customer::objects()->filter([
-            'user__id__gt' => 1
-        ])->count();
+        $count = Customer::objects()->filter(['user__id__gt' => 1])->count();
         $this->assertEquals(0, $count);
 
-        $count = Customer::objects()->filter([
-            'user__id' => 1
-        ])->count();
+        $qs = Customer::objects()->filter(['user__id' => 1]);
+        $count = $qs->count();
         $this->assertEquals(1, $count);
     }
 
