@@ -14,3 +14,7 @@ before_script:
 services:
   - mysql
   - postgresql
+
+matrix:
+    allow_failures:
+        - php: hhvm
