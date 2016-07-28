@@ -18,9 +18,8 @@ use Mindy\Base\Mindy;
 use Mindy\Orm\Sync;
 use Mindy\Query\Connection;
 use Mindy\Query\ConnectionManager;
-use Mindy\Tests\DatabaseTestCase;
 
-class OrmDatabaseTestCase extends DatabaseTestCase
+class OrmDatabaseTestCase extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var array
