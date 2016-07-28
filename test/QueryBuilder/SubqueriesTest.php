@@ -1,0 +1,119 @@
+<?php
+/**
+ *
+ *
+ * All rights reserved.
+ *
+ * @author Falaleev Maxim
+ * @email max@studio107.ru
+ * @version 1.0
+ * @company Studio107
+ * @site http://studio107.ru
+ * @date 04/01/14.01.2014 00:53
+ */
+
+namespace Mindy\Orm\Tests\QueryBuilder;
+
+use Modules\Tests\Models\Customer;
+use Modules\Tests\Models\Group;
+use Modules\Tests\Models\Membership;
+use Modules\Tests\Models\User;
+use Mindy\Orm\Tests\OrmDatabaseTestCase;
+
+abstract class SubqueriesTest extends OrmDatabaseTestCase
+{
+//    public function setUp()
+//    {
+//        parent::setUp();
+//
+//        $this->initModels([new User, new Group, new Membership, new Customer], $this->getConnection());
+//
+//        $group = new Group();
+//        $group->name = 'Administrators';
+//        $group->save();
+//
+//        $group_prog = new Group();
+//        $group_prog->name = 'Programmers';
+//        $group_prog->save();
+//
+//        $anton = new User();
+//        $anton->username = 'Anton';
+//        $anton->password = 'Passwords';
+//        $anton->save();
+//
+//        $group_prog->users->link($anton);
+//
+//        $anton_home = new Customer();
+//        $anton_home->address = "Anton home";
+//        $anton_home->user = $anton;
+//        $anton_home->save();
+//
+//        $anton_work = new Customer();
+//        $anton_work->address = "Anton work";
+//        $anton_work->user = $anton;
+//        $anton_work->save();
+//
+//        $max = new User();
+//        $max->username = 'Max';
+//        $max->password = 'MaxPassword';
+//        $max->save();
+//
+//        $group->users->link($max);
+//
+//        $max_home = new Customer();
+//        $max_home->address = "Max home";
+//        $max_home->user = $max;
+//        $max_home->save();
+//    }
+
+    public function getModels()
+    {
+        return [new User, new Group, new Membership, new Customer];
+    }
+
+    public function tearDown()
+    {
+
+    }
+
+    public function testSubqueryIn()
+    {
+        $user1 = new User(['username' => 'foo']);
+        $this->assertTrue($user1->save());
+        $user2 = new User(['username' => 'bar']);
+        $this->assertTrue($user2->save());
+
+        $group = new Group(['name' => 'example']);
+        $this->assertTrue($group->save());
+        $groupEmpty = new Group(['name' => 'empty']);
+        $this->assertTrue($groupEmpty->save());
+
+//        $user1->groups->link($group);
+//        $user2->groups->link($group);
+//        Also should work
+        $group->users->link($user1);
+        $group->users->link($user2);
+
+        $links = Membership::objects()->asArray()->all();
+        $this->assertEquals([
+            ['id' => '1', 'group_id' => '1', 'user_id' => '1'],
+            ['id' => '2', 'group_id' => '1', 'user_id' => '2'],
+        ], $links);
+
+        $qs = User::objects()->filter([
+            'groups__pk__in' => Group::objects()->filter(['id' => 2])->select('id')
+        ]);
+        $this->assertSql('SELECT [[user_1]].* FROM [[user]] AS [[user_1]] LEFT JOIN [[membership]] AS [[membership_1]] ON [[membership_1]].[[user_id]]=[[user_1]].[[id]] LEFT JOIN [[group]] AS [[group_1]] ON [[group_1]].[[id]]=[[membership_1]].[[group_id]] WHERE ([[group_1]].[[id]] IN (SELECT [[group_1]].[[id]] FROM [[group]] AS [[group_1]] WHERE ([[group_1]].[[id]]=2)))', $qs->allSql());
+        $this->assertEquals([], $qs->asArray()->all());
+
+        $qs = User::objects()->filter([
+            'groups__pk__in' => Group::objects()->filter(['id' => 1])->select('id')
+        ])->order(['id']);
+        $this->assertSql('SELECT [[user_1]].* FROM [[user]] AS [[user_1]] LEFT JOIN [[membership]] AS [[membership_1]] ON [[membership_1]].[[user_id]]=[[user_1]].[[id]] LEFT JOIN [[group]] AS [[group_1]] ON [[group_1]].[[id]]=[[membership_1]].[[group_id]] WHERE ([[group_1]].[[id]] IN (SELECT [[group_1]].[[id]] FROM [[group]] AS [[group_1]] WHERE ([[group_1]].[[id]]=1))) ORDER BY [[user_1]].[[id]] ASC', $qs->allSql());
+        $users = $qs->asArray()->all();
+        $this->assertEquals([
+            ['id' => 1, 'username' => 'foo', 'password' => ''],
+            ['id' => 2, 'username' => 'bar', 'password' => '']
+        ], $users);
+    }
+}

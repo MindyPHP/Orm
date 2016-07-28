@@ -2,15 +2,16 @@
 .phpcomplete_extended
 .idea
 *.iml
-
+*.log
 benchmark
 build
 composer.lock
 vendor
-Tests/media/*
-Tests/runtime/*
-Tests/migration/*
-Tests/config_local.php
+test/app/media/*
+test/app/runtime/*
+test/app/migration/*
+test/app/sqlite.db
+test/config_local.php
 test.php
 phpunit.phar
 

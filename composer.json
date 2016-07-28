@@ -4,17 +4,25 @@
   "license": "MIT",
   "autoload": {
     "psr-4": {
-      "Mindy\\Orm\\": "src/Mindy/Orm"
+      "Mindy\\Orm\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Mindy\\Orm\\Tests\\": "test/",
+      "Modules\\Tests\\Models\\": "test/app/Models"
     }
   },
   "require": {
     "imagine/imagine": "*",
     "mindy/helper": "*",
     "mindy/application": "*",
-    "mindy/query": "*",
+    "mindy/query": "dev-master",
+    "mindy/query_builder": "dev-master",
     "mindy/tests": "*",
     "mindy/validation": "*",
-    "mindy/storage": "*"
+    "mindy/storage": "*",
+    "mindy/console": "dev-master"
   },
   "authors": [
     {
@@ -25,6 +33,6 @@
     }
   ],
   "support": {
-    "issues": "https://github.com/MindyPHP/Mindy_Orm/issues?state=open"
+    "issues": "https://github.com/MindyPHP/Mindy/issues?state=open"
   }
 }

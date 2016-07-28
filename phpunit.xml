@@ -9,39 +9,29 @@
          processIsolation="false"
          stopOnFailure="false"
          syntaxCheck="true"
-         bootstrap="Tests/bootstrap.php"
-        >
+         bootstrap="test/bootstrap.php">
     <php>
-        <ini name="memory_limit" value="-1"/>
-        <ini name="display_errors" value="1"/>
-        <ini name="error_reporting" value="-1"/>
-        <ini name="date.timezone" value="Europe/Moscow"/>
+        <ini name="error_reporting" value="32767"/>
     </php>
 
     <testsuites>
-        <testsuite name="Orm/Sqlite">
-            <directory>Tests/Cases/Orm/Sqlite/</directory>
+        <testsuite name="Orm/Basic">
+            <directory>test/Basic/</directory>
         </testsuite>
-        <testsuite name="Orm/Mysql">
-            <directory>Tests/Cases/Orm/Mysql/</directory>
+        <testsuite name="Orm/QueryBuilder">
+            <directory>test/QueryBuilder/</directory>
         </testsuite>
-        <testsuite name="Orm/Pgsql">
-            <directory>Tests/Cases/Orm/Pgsql/</directory>
+        <testsuite name="Orm/Databases/Sqlite">
+            <directory>test/Databases/Sqlite/</directory>
+        </testsuite>
+        <testsuite name="Orm/Databases/Mysql">
+            <directory>test/Databases/Mysql/</directory>
+        </testsuite>
+        <testsuite name="Orm/Databases/Pgsql">
+            <directory>test/Databases/Pgsql/</directory>
         </testsuite>
         <testsuite name="Orm/Fields">
-            <directory>Tests/Cases/Orm/Fields/</directory>
-        </testsuite>
-        <testsuite name="Orm/Migration">
-            <directory>Tests/Cases/Migration/</directory>
-        </testsuite>
-        <testsuite name="Orm/Validation">
-            <directory>Tests/Cases/Orm/Validation/</directory>
-        </testsuite>
-        <testsuite name="Orm/Basic">
-            <directory>Tests/Cases/Orm/Basic/</directory>
-        </testsuite>
-        <testsuite name="Orm/Issues">
-            <directory>Tests/Cases/Orm/Issues/</directory>
+            <directory>test/Fields/</directory>
         </testsuite>
     </testsuites>
 
@@ -51,13 +41,13 @@
         </exclude>
     </groups>
 
+    <!--
     <filter>
         <whitelist>
             <directory suffix=".php">../src/</directory>
         </whitelist>
     </filter>
 
-    <!--
     <logging>
         <log type="coverage-html" target="build/logs/coverage" charset="UTF-8"
              yui="true" highlight="true" lowUpperBound="50" highLowerBound="80"/>
