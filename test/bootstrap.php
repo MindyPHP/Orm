@@ -1,5 +1,9 @@
 <?php
 
+set_error_handler(function() {
+    var_dump(func_get_args());
+}, E_WARNING);
+
 use Mindy\Base\Mindy;
 
 define('MINDY_TEST', true);
@@ -22,7 +26,7 @@ $app = Mindy::getInstance([
     'components' => [
         'db' => [
             'class' => \Mindy\Query\ConnectionManager::class,
-            'databases' => require(__DIR__ . '/config_local.php')
+            'databases' => require(__DIR__ . (@getenv('TRAVIS') ? '/config_travis.php' : '/config_local.php'))
         ],
         'storage' => [
             'class' => '\Mindy\Storage\Storage',

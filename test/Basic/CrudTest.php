@@ -365,6 +365,7 @@ abstract class CrudTest extends OrmDatabaseTestCase
 
     public function testCreateMore()
     {
+        $this->assertTrue((new User(['username' => 'foo']))->save());
         $user = User::objects()->get(['pk' => 1]);
 
         Customer::objects()->create([
@@ -377,8 +378,8 @@ abstract class CrudTest extends OrmDatabaseTestCase
             'address' => 'Broadway'
         ]);
 
-        $address1 = Customer::objects()->get(['pk' => 3]);
-        $address2 = Customer::objects()->get(['pk' => 4]);
+        $address1 = Customer::objects()->get(['pk' => 1]);
+        $address2 = Customer::objects()->get(['pk' => 1]);
 
         $this->assertEquals($user->id, $address1->user->id);
         $this->assertEquals($user->id, $address2->user_id);

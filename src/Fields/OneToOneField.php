@@ -51,8 +51,6 @@ class OneToOneField extends ForeignField
             //
 //            $sequenceName = $db->getSchema()->getTableSchema($this->getModel()->tableName())->sequenceName;
 //            return new Expression("nextval('" . $sequenceName . "')");
-
-            var_dump(123);
             return new Expression("DEFAULT");
         } else {
             return parent::getDbPrepValue();
