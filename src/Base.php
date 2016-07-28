@@ -857,6 +857,11 @@ abstract class Base implements ArrayAccess, Serializable
                 $field = $meta->getForeignField($name);
                 $field->setModel($this)->setValue($value);
                 $prepValues[$name] = $field->getDbPrepValue();
+            } else if ($meta->hasOneToOneField($name)) {
+                /** @var \Mindy\Orm\Fields\ForeignField $field */
+                $field = $meta->getOneToOneField($name);
+                $field->setModel($this)->setValue($value);
+                $prepValues[$name] = $field->getDbPrepValue();
             } else if ($this->hasField($name)) {
                 /** @var \Mindy\Orm\Fields\Field $field */
                 $field = $this->getField($name);

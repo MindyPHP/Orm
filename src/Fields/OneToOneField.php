@@ -4,6 +4,7 @@ namespace Mindy\Orm\Fields;
 
 use Exception;
 use Mindy\Orm\Model;
+use Mindy\QueryBuilder\Expression;
 use Mindy\Validation\UniqueValidator;
 
 /**
@@ -40,6 +41,22 @@ class OneToOneField extends ForeignField
             return $model->normalizeTableName($model->classNameShort()) . '_' . $model->getPkName();
         }
         return $this->to;
+    }
+
+    public function getDbPrepValue()
+    {
+        if ($this->primary && $this->getModel()->getDb()->driverName == 'pgsql') {
+            // Primary key всегда передается по логике Query, а для корректной работы pk в pgsql
+            // необходимо передать curval($seq) или nextval($seq) или не экранированный DEFAULT.
+            //
+//            $sequenceName = $db->getSchema()->getTableSchema($this->getModel()->tableName())->sequenceName;
+//            return new Expression("nextval('" . $sequenceName . "')");
+
+            var_dump(123);
+            return new Expression("DEFAULT");
+        } else {
+            return parent::getDbPrepValue();
+        }
     }
 
     public function setValue($value)

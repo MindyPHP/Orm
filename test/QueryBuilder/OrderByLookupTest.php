@@ -98,7 +98,8 @@ abstract class OrderByLookupTest extends OrmDatabaseTestCase
         $state = (new Customer(['address' => 'C', 'user_id' => 3]))->save();
         $this->assertTrue($state);
 
-        $users = User::objects()->order(['-addresses__address'])->all();
+        $qs = User::objects()->order(['-addresses__address']);
+        $users = $qs->all();
         $this->assertEquals(3, count($users));
         $this->assertEquals($users[0]->username, 'C');
         $this->assertEquals($users[1]->username, 'B');

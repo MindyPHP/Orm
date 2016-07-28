@@ -24,6 +24,11 @@ abstract class AutoSlugFieldTest extends OrmDatabaseTestCase
         return [new NestedModel];
     }
 
+    public function tearDown()
+    {
+        
+    }
+
     public function testInit()
     {
         list($rootModel, $created) = NestedModel::objects()->getOrCreate(['name' => 'test']);

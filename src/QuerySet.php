@@ -786,10 +786,12 @@ class QuerySet extends QuerySetBase
 
     private function buildAggregateSql(Aggregation $q)
     {
-        $qb = $this->getQueryBuilder();
+        $qb = clone $this->getQueryBuilder();
+        
+        list($order, $orderOptions) = $qb->getOrder();
         $select = $qb->getSelect();
-        $sql = $qb->select($q)->toSQL();
-        $qb->select($select);
+        $sql = $qb->order(null)->select($q)->toSQL();
+        $qb->select($select)->order($order, $orderOptions);
         return $sql;
     }
 
