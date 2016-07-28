@@ -105,7 +105,7 @@ abstract class Base implements ArrayAccess, Serializable
             if (class_exists('\Mindy\Base\Mindy')) {
                 $this->_logger = \Mindy\Base\Mindy::app()->getComponent('logger');
             } else {
-                $this->_logger = new \Mindy\Logger\LoggerManager();
+                $this->_logger = new DummyObject();
             }
         }
         return $this->_logger;
@@ -117,7 +117,7 @@ abstract class Base implements ArrayAccess, Serializable
             if (class_exists('\Mindy\Base\Mindy') && \Mindy\Base\Mindy::app()) {
                 $this->_eventManager = \Mindy\Base\Mindy::app()->getComponent('signal');
             } else {
-                $this->_eventManager = new \Mindy\Event\EventManager();
+                $this->_eventManager = new DummyObject();
             }
         }
         return $this->_eventManager;
