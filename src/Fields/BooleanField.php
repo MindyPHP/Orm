@@ -2,9 +2,6 @@
 
 namespace Mindy\Orm\Fields;
 
-use Mindy\Form\Fields\CheckboxField;
-use Mindy\Query\ConnectionManager;
-
 /**
  * Class BooleanField
  * @package Mindy\Orm
@@ -13,22 +10,16 @@ class BooleanField extends Field
 {
     public $default = false;
 
-    public function sql()
-    {
-        return trim(sprintf('%s %s %s', $this->sqlType(), $this->sqlNullable(), $this->sqlDefault()));
-    }
-
     public function sqlType()
     {
-        return 'bool';
+        return 'boolean';
     }
 
     public function sqlDefault()
     {
-        /** @var \Mindy\Query\Mysql\Lookup|\Mindy\Query\Pgsql\Lookup $queryBuilder */
-        $queryBuilder = ConnectionManager::getDb()->getQueryBuilder();
-        $default = $queryBuilder->convertToBoolean($this->default);
-        return $this->default === null ? '' : "DEFAULT {$default}";
+        $adapter = $this->getModel()->getDb()->getAdapter();
+        $default = $adapter->getBoolean($this->default);
+        return empty($this->default) ? '' : "DEFAULT {$default}";
     }
 
     public function setValue($value)
@@ -46,8 +37,8 @@ class BooleanField extends Field
         return (bool)$this->value;
     }
 
-    public function getFormField($form, $fieldClass = null, array $extra = [])
+    public function getFormField($form, $fieldClass = '\Mindy\Form\Filds\CheckboxField', array $extra = [])
     {
-        return parent::getFormField($form, CheckboxField::className(), $extra);
+        return parent::getFormField($form, $fieldClass, $extra);
     }
 }

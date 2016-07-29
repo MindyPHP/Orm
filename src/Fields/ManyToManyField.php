@@ -6,6 +6,7 @@ use Exception;
 use Mindy\Orm\MetaData;
 use Mindy\Orm\Model;
 use Mindy\Orm\Orm;
+use Mindy\Query\Schema\Schema;
 use Mindy\QueryBuilder\QueryBuilder;
 
 /**
@@ -295,35 +296,21 @@ class ManyToManyField extends RelatedField
     }
 
     /**
-     * @param string $column Column name in "link" table
-     * @param null|string $type Type of the column ('int' by default)
-     */
-    public function addColumn($column, $type = null)
-    {
-        $this->_columns[$column] = (empty($type) || $type == 'pk') ? 'int' : $type;
-    }
-
-    /**
      * @return array "link" table columns
      */
-    public function getColumns()
+    public function getColumns(Schema $schema)
     {
         if (empty($this->throughLink)) {
-            $fields = $this->getRelatedModel()->getFieldsInit();
-            $this->addColumn($this->getRelatedModelColumn(), $fields[$this->getRelatedModelPk()]->sqlType());
-
-            $fields = MetaData::getInstance($this->ownerClassName)->getFieldsInit();
-            $this->addColumn($this->getModelColumn(), $fields[$this->getModelPk()]->sqlType());
+            $from = $this->getRelatedModelColumn();
+            $to = $this->getModelColumn();
         } else {
             list($from, $to) = $this->throughLink;
-
-            $fields = $this->getRelatedModel()->getFieldsInit();
-            $this->addColumn($from, $fields[$this->getRelatedModelPk()]->sqlType());
-
-            $fields = MetaData::getInstance($this->ownerClassName)->getFieldsInit();
-            $this->addColumn($to, $fields[$this->getModelPk()]->sqlType());
         }
-        return $this->_columns;
+
+        return [
+            $from => (new IntField(['name' => $from]))->getSql($schema),
+            $to => (new IntField(['name' => $to]))->getSql($schema)
+        ];
     }
 
     /**
