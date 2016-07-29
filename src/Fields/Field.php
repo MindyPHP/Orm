@@ -7,6 +7,7 @@ use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
 use Mindy\Orm\Base;
 use Mindy\Orm\Model;
+use Mindy\Query\Schema\Schema;
 use Mindy\Validation\Interfaces\IValidateField;
 use Mindy\Validation\RequiredValidator;
 use Mindy\Validation\Traits\ValidateField;
@@ -56,6 +57,58 @@ abstract class Field implements IValidateField
      * @var \Mindy\Orm\Model
      */
     private $_model;
+
+    public function sqlDefault()
+    {
+        if (empty($this->default) || $this->default === '') {
+            return '';
+        }
+
+        return 'DEFAULT ' . $this->default;
+    }
+
+    public function sqlNullable()
+    {
+        return $this->null ? 'NULL' : 'NOT NULL';
+    }
+
+    abstract public function sqlType();
+
+    public function getSql(Schema $schema)
+    {
+        $sql = $this->getSqlType($schema);
+        if ($sql === false) {
+            return false;
+        }
+
+        if (($nullable = $this->sqlNullable()) && empty($nullable) === false) {
+            $sql .= ' ' . $nullable;
+        }
+
+        if (($default = $this->sqlDefault()) && empty($default) === false) {
+            $sql .= ' ' . $default;
+        }
+
+        if (($extra = $this->sqlExtra()) && empty($extra) === false) {
+            $sql .= ' ' . $extra;
+        }
+
+        return trim($sql);
+    }
+
+    public function sqlExtra()
+    {
+        return '';
+    }
+
+    /**
+     * @param Schema $schema
+     * @return string
+     */
+    protected function getSqlType(Schema $schema)
+    {
+        return $schema->getColumnType($this->sqlType());
+    }
 
     /**
      * @return Field[]
@@ -199,25 +252,6 @@ abstract class Field implements IValidateField
         return md5(serialize($this->getOptions()));
     }
 
-    public function sql()
-    {
-        $type = $this->sqlType();
-        $nullable = $this->sqlNullable();
-        $default = $this->sqlDefault();
-        $extra = $this->sqlExtra();
-        return trim(strtr('{type}{nullable}{default}{extra}', [
-            '{type}' => $type,
-            '{nullable}' => empty($nullable) ? '' : ' ' . $nullable,
-            '{default}' => empty($default) ? '' : ' ' . $default,
-            '{extra}' => empty($extra) ? '' : ' ' . $extra
-        ]));
-    }
-
-    public function sqlExtra()
-    {
-        return '';
-    }
-
     public function getFormValue()
     {
         return $this->getValue();
@@ -226,16 +260,6 @@ abstract class Field implements IValidateField
     public function isRequired()
     {
         return $this->required === true;
-    }
-
-    public function sqlDefault()
-    {
-        return ($this->default === null || $this->default === false) ? '' : "DEFAULT {$this->default}";
-    }
-
-    public function sqlNullable()
-    {
-        return $this->null ? 'NULL' : 'NOT NULL';
     }
 
     public function setName($name)
@@ -371,6 +395,4 @@ abstract class Field implements IValidateField
     {
         return !empty($this->choices);
     }
-
-    abstract public function sqlType();
 }

@@ -64,23 +64,23 @@ class Sync
         $columns = [];
         $schema = $this->getDb()->getSchema();
         foreach ($model->getFieldsInit() as $name => $field) {
-            if ($field->sqlType() !== false) {
-                if (is_a($field, OneToOneField::class) && $field->reversed) {
-                    continue;
-                } elseif (is_a($field, ForeignField::class)) {
+            if (is_a($field, OneToOneField::class) && $field->reversed) {
+                continue;
+            }
+
+            $field->setModel($model);
+            $sqlColumn = $field->getSql($schema);
+            if (empty($sqlColumn) === false) {
+                if ($field instanceof ForeignField) {
                     $name .= "_id";
                 }
 
-                $columns[$name] = $field->sql();
-            } else if (is_a($field, ManyToManyField::class)) {
+                $columns[$name] = $sqlColumn;
+            } else if ($field instanceof ManyToManyField) {
                 /* @var $field \Mindy\Orm\Fields\ManyToManyField */
-                if (!$this->hasTable($field->getTableName())) {
-                    if ($field->through === null) {
-                        $fieldColumns = array_map(function ($column) use ($schema) {
-                            return $schema->getColumnType($column);
-                        }, $field->getColumns());
-                        $sql[] = $this->getQueryBuilder()->createTable($field->getTableName(), $fieldColumns, null, true);
-                    }
+                if ($field->through === null) {
+                    $fieldColumns = $field->getColumns($schema);
+                    $sql[] = $this->getQueryBuilder()->createTable($field->getTableName(), $fieldColumns, null, true);
                 }
             }
         }
@@ -89,7 +89,6 @@ class Sync
             return $schema->getColumnType($column);
         }, $columns);
         $sql[] = $this->getQueryBuilder()->createTable($model->tableName(), $mainColumns, null, true);
-
         return $sql;
     }
 
