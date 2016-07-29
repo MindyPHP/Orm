@@ -535,15 +535,6 @@ abstract class Base implements ArrayAccess, Serializable
     }
 
     /**
-     * @deprecated
-     * @return \Mindy\Query\Connection
-     */
-    public static function getConnection()
-    {
-        return ConnectionManager::getDb();
-    }
-
-    /**
      * Return table name based on this class name.
      * Override this method for custom table name.
      * @return string
@@ -559,10 +550,10 @@ abstract class Base implements ArrayAccess, Serializable
         }
 
         $object = new ReflectionClass($className);
-        $modulesPath = Alias::get('Modules');
-        if (empty($modulesPath) || defined('MINDY_TEST')) {
+        if (defined('MINDY_TEST') && MINDY_TEST) {
             $tableName = self::normalizeTableName($class);
         } else {
+            $modulesPath = Alias::get('Modules');
             $tmp = str_replace([$modulesPath, 'Models'], '', dirname($object->getFilename()));
             $nameString = str_replace(DIRECTORY_SEPARATOR, '', $tmp);
             $tableName = self::normalizeTableName($nameString) . '_' . self::normalizeTableName($class);
@@ -1490,23 +1481,8 @@ abstract class Base implements ArrayAccess, Serializable
      */
     public static function create(array $row)
     {
-        $meta = self::getMeta();
-        /*
-        foreach ($meta->getRelatedFields() as $related) {
-            if (isset($row[$related])) {
-                $cls = $meta->getRelatedField($related)->getRelatedModel()->className();
-
-                $relatedAttributes = $row[$related];
-                $cacheKey = $cls . '_' . $relatedAttributes[$cls::primaryKeyName()];
-                if (!self::getCache()->exists($cacheKey)) {
-                    self::getCache()->set($cacheKey, $cls::create($relatedAttributes));
-                }
-                unset($row[$related]);
-            }
-        }
-        */
+        /** @var Model $record */
         $className = self::className();
-        /** @var Base $record */
         $record = new $className;
         $record->setDbAttributes($row);
         $record->setOldAttributes($row);
