@@ -1023,33 +1023,12 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param $fields
+     * @param $columns
      * @return $this
      */
-    public function group($fields)
+    public function group($columns)
     {
-        if (is_string($fields)) {
-            if (strpos($fields, '.') !== false) {
-                $this->groupBy[] = $this->quoteColumnName($fields);
-            } else {
-                if ($fields == 'pk') {
-                    $fields = $this->retreivePrimaryKey();
-                }
-                $this->groupBy[] = $this->_tableAlias . '.' . $this->quoteColumnName($fields);
-            }
-        } else if (is_array($fields)) {
-            foreach ($fields as $field) {
-                if (strpos($field, '.') !== false) {
-                    $this->groupBy[] = $this->quoteColumnName($field);
-                } else {
-                    if ($fields == 'pk') {
-                        $fields = $this->retreivePrimaryKey();
-                    }
-                    $this->groupBy[] = $this->_tableAlias . '.' . $this->quoteColumnName($field);
-                }
-            }
-        }
-        $this->groupBy = array_unique($this->groupBy);
+        $this->getQueryBuilder()->group($columns);
         return $this;
     }
 

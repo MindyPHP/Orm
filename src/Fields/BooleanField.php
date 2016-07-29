@@ -37,7 +37,7 @@ class BooleanField extends Field
         return (bool)$this->value;
     }
 
-    public function getFormField($form, $fieldClass = '\Mindy\Form\Filds\CheckboxField', array $extra = [])
+    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\CheckboxField', array $extra = [])
     {
         return parent::getFormField($form, $fieldClass, $extra);
     }

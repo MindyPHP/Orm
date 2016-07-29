@@ -451,30 +451,6 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
         return $this->getQuerySet()->group($fields);
     }
 
-    public function cache($duration = null, $dependency = null)
-    {
-        $this->getQuerySet()->cache($duration, $dependency);
-        return $this;
-    }
-
-    public function noCache()
-    {
-        $this->getQuerySet()->noCache();
-        return $this;
-    }
-
-    public function join($type, $table, $on = '', $params = [])
-    {
-        $this->getQuerySet()->join($type, $table, $on, $params);
-        return $this;
-    }
-
-    public function from($tables)
-    {
-        $this->getQuerySet()->from($tables);
-        return $this;
-    }
-
     public function getTableAlias()
     {
         return $this->getQuerySet()->getTableAlias();
