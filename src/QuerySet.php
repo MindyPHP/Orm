@@ -7,7 +7,6 @@ use Mindy\Helper\Creator;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\ManyToManyField;
-use Mindy\Orm\Q\Q;
 use Mindy\QueryBuilder\Aggregation\Aggregation;
 use Mindy\QueryBuilder\Aggregation\Avg;
 use Mindy\QueryBuilder\Aggregation\Count;
@@ -15,9 +14,7 @@ use Mindy\QueryBuilder\Aggregation\Max;
 use Mindy\QueryBuilder\Aggregation\Min;
 use Mindy\QueryBuilder\Aggregation\Sum;
 use Mindy\QueryBuilder\Q\QAndNot;
-use Mindy\QueryBuilder\Q\QOr;
 use Mindy\QueryBuilder\Q\QOrNot;
-use Modules\AltWork\Models\Issue;
 
 /**
  * Class QuerySet
@@ -119,14 +116,14 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param array $fieldsList
+     * @param array $columns
      * @param bool $flat
      * @return array
      */
-    public function valuesList($select, $flat = false)
+    public function valuesList($columns, $flat = false)
     {
-        $qb = $this->getQueryBuilder();
-        $rows = $this->createCommand($qb->select($select)->toSQL())->queryAll();
+        $qb = clone $this->getQueryBuilder();
+        $rows = $this->createCommand($qb->select($columns)->toSQL())->queryAll();
 
         if ($flat) {
             $flatArr = [];
