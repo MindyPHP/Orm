@@ -156,7 +156,8 @@ class BatchDataIterator implements Iterator
     protected function fetchData()
     {
         if ($this->_dataReader === null) {
-            $this->_dataReader = $this->qs->createCommand()->query();
+            $qb = clone $this->qs->getQueryBuilder();
+            $this->_dataReader = $this->qs->createCommand($qb->toSQL())->query();
         }
         $rows = [];
         $count = 0;

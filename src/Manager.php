@@ -5,6 +5,7 @@ namespace Mindy\Orm;
 use ArrayAccess;
 use Countable;
 use IteratorAggregate;
+use Mindy\QueryBuilder\Expression;
 use Serializable;
 use Traversable;
 
@@ -55,7 +56,7 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
     }
 
     /**
-     * @param array $q
+     * @param array|string|Expression $q
      * @return \Mindy\Orm\Manager
      */
     public function filter($q)
