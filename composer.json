@@ -21,7 +21,8 @@
     "mindy/query_builder": "1.*",
     "mindy/tests": "*",
     "mindy/validation": "*",
-    "mindy/storage": "*"
+    "mindy/storage": "*",
+    "mindy/console": "*"
   },
   "authors": [
     {
