@@ -60,10 +60,9 @@ abstract class Field implements IValidateField
 
     public function sqlDefault()
     {
-        if (empty($this->default) || $this->default === '') {
+        if (is_numeric($this->default) === false && empty($this->default)) {
             return '';
         }
-
         return 'DEFAULT ' . $this->default;
     }
 

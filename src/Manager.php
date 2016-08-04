@@ -144,6 +144,15 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
     }
 
     /**
+     * @param int $batchSize
+     * @return \Mindy\Orm\BatchDataIterator
+     */
+    public function each($batchSize = 100)
+    {
+        return $this->getQuerySet()->each($batchSize);
+    }
+
+    /**
      * @param string $q
      * @return string|int|float
      */

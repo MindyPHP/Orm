@@ -18,11 +18,10 @@
     "mindy/helper": "*",
     "mindy/application": "*",
     "mindy/query": "2.*",
-    "mindy/query_builder": "2.*",
+    "mindy/query_builder": "1.*",
     "mindy/tests": "*",
     "mindy/validation": "*",
-    "mindy/storage": "*",
-    "mindy/console": "dev-master"
+    "mindy/storage": "*"
   },
   "authors": [
     {

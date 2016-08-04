@@ -136,9 +136,7 @@ class BatchDataIterator implements Iterator
         }
         if ($this->each) {
             $this->_value = current($this->_batch);
-            if ($this->qs->indexBy !== null) {
-                $this->_key = key($this->_batch);
-            } elseif (key($this->_batch) !== null) {
+            if (key($this->_batch) !== null) {
                 $this->_key++;
             } else {
                 $this->_key = null;

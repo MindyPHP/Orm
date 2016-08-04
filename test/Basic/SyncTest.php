@@ -16,6 +16,7 @@ namespace Mindy\Orm\Tests\Basic;
 
 use Mindy\Orm\Sync;
 use Modules\Tests\Models\Category;
+use Modules\Tests\Models\Hits;
 use Modules\Tests\Models\Product;
 use Modules\Tests\Models\ProductList;
 use Modules\Tests\Models\User;
@@ -41,6 +42,19 @@ abstract class SyncTest extends OrmDatabaseTestCase
         $sync->delete();
         $tables = $this->getConnection()->getSchema()->getTableNames('', true);
         $this->assertFalse(in_array('product_list', $tables));
+    }
+
+    public function testFieldDefaultValue()
+    {
+        $c = $this->getConnection();
+        $tables = $c->getSchema()->getTableNames('', true);
+        foreach ($tables as $table) {
+            $c->createCommand($c->getQueryBuilder()->dropTable($table))->execute();
+        }
+        $sync = new Sync([new Hits], $c);
+        $sql = $sync->createSql();
+        $part = array_shift($sql);
+        $this->assertTrue(strpos(implode('', $part), 'DEFAULT 0') !== false);
     }
 
     public function testSyncBoth()

@@ -19,10 +19,34 @@ class BatchDataIteratorTest extends OrmDatabaseTestCase
         return [new User];
     }
 
+    public function testEach()
+    {
+        foreach (range(1, 100) as $i) {
+            (new User(['id' => $i, 'username' => 'user_' . $i, 'password' => 'pass_' . $i]))->save();
+        }
+        $this->assertEquals(100, User::objects()->count());
+
+        $qs = User::objects();
+        $iterator = new BatchDataIterator([
+            'qs' => $qs,
+            'batchSize' => 10,
+            'db' => $this->getConnection(),
+            'each' => true,
+            'asArray' => false,
+        ]);
+        $this->assertInstanceOf(BatchDataIterator::class, $iterator);
+        $id = 1;
+        foreach ($iterator as $i => $model) {
+            $this->assertInstanceOf(User::class, $model);
+            $this->assertEquals($id, $model->pk);
+            $id++;
+        }
+    }
+
     public function testForeach()
     {
         foreach (range(1, 100) as $i) {
-            (new User(['username' => 'user_' . $i, 'password' => 'pass_' . $i]))->save();
+            (new User(['id' => $i, 'username' => 'user_' . $i, 'password' => 'pass_' . $i]))->save();
         }
         $this->assertEquals(100, User::objects()->count());
 
@@ -32,14 +56,16 @@ class BatchDataIteratorTest extends OrmDatabaseTestCase
             'batchSize' => 10,
             'db' => $this->getConnection(),
             'each' => false,
-            'asArray' => true,
+            'asArray' => false,
         ]);
         $this->assertInstanceOf(BatchDataIterator::class, $iterator);
+        $id = 1;
         foreach ($iterator as $i => $models) {
             $this->assertEquals(10, count($models));
             foreach ($models as $t => $model) {
                 $this->assertInstanceOf(User::class, $model);
-                $this->assertEquals($i + 1 * $t + 1, $model->pk);
+                $this->assertEquals($id, $model->pk);
+                $id++;
             }
         }
     }
@@ -47,23 +73,27 @@ class BatchDataIteratorTest extends OrmDatabaseTestCase
     public function testQuerySet()
     {
         foreach (range(1, 100) as $i) {
-            (new User(['username' => 'user_' . $i, 'password' => 'pass_' . $i]))->save();
+            (new User(['id' => $i, 'username' => 'user_' . $i, 'password' => 'pass_' . $i]))->save();
         }
         $this->assertEquals(100, User::objects()->count());
 
-        foreach (User::objects()->batch(100) as $i => $models) {
-            $this->assertEquals(10, count($models));
+        $id = 1;
+        foreach (User::objects()->batch(25) as $i => $models) {
+            $this->assertEquals(25, count($models));
             foreach ($models as $t => $model) {
                 $this->assertInstanceOf(User::class, $model);
-                $this->assertEquals($i + 1 * $t + 1, $model->pk);
+                $this->assertEquals($id, $model->pk);
+                $id++;
             }
         }
 
-        foreach (User::objects()->getQuerySet()->batch(100) as $i => $models) {
-            $this->assertEquals(10, count($models));
+        $id = 1;
+        foreach (User::objects()->getQuerySet()->batch(20) as $i => $models) {
+            $this->assertEquals(20, count($models));
             foreach ($models as $t => $model) {
                 $this->assertInstanceOf(User::class, $model);
-                $this->assertEquals($i + 1 * $t + 1, $model->pk);
+                $this->assertEquals($id, $model->pk);
+                $id++;
             }
         }
     }
