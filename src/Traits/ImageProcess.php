@@ -151,6 +151,15 @@ trait ImageProcess
 
             $repeat = false;
 
+            // If watermark bigger of original image, resize watermark.
+            if ($sWidth < $wWidth || $sHeight < $wHeight) {
+                $watermark = $this->resize($watermark, $sWidth * 0.9, $sHeight * 0.9, 'resize');
+
+                $wSize = $watermark->getSize();
+                $wWidth = $wSize->getWidth();
+                $wHeight = $wSize->getHeight();
+            }
+
             if (is_array($position)) {
                 list($x, $y) = $position;
             } else {
