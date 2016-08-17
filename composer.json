@@ -16,7 +16,6 @@
   "require": {
     "imagine/imagine": "*",
     "mindy/helper": "*",
-    "mindy/application": "*",
     "mindy/query": "2.*",
     "mindy/query_builder": "1.*",
     "mindy/tests": "*",
