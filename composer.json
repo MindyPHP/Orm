@@ -14,14 +14,11 @@
     }
   },
   "require": {
+    "php": ">=7.0",
     "imagine/imagine": "*",
-    "mindy/helper": "*",
     "mindy/query": "2.*",
     "mindy/query_builder": "1.*",
-    "mindy/tests": "*",
-    "mindy/validation": "*",
-    "mindy/storage": "*",
-    "mindy/console": "*"
+    "mindy/validation": "*"
   },
   "authors": [
     {
