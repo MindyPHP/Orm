@@ -16,8 +16,6 @@
   "require": {
     "php": ">=7.0",
     "imagine/imagine": "*",
-    "mindy/query": "2.*",
-    "mindy/query_builder": "1.*",
     "mindy/validation": "*"
   },
   "authors": [
