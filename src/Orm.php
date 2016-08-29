@@ -2,7 +2,7 @@
 
 namespace Mindy\Orm;
 
-use Mindy\Helper\Interfaces\Arrayable;
+use Mindy\Interfaces\Arrayable;
 
 /**
  * Class Orm
