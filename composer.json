@@ -15,8 +15,7 @@
   },
   "require": {
     "php": ">=7.0",
-    "imagine/imagine": "*",
-    "mindy/validation": "*"
+    "imagine/imagine": "*"
   },
   "authors": [
     {
