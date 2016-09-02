@@ -8,10 +8,8 @@ use Mindy\Orm\Fields\TreeForeignField;
 use Mindy\QueryBuilder\Expression;
 
 /**
- * Nested set based on creocoder Yii2 Nested Set https://github.com/creocoder/yii2-nested-set-behavior
  * Class TreeModel
- * @method static \Mindy\Orm\TreeManager tree($instance = null)
- * @method static \Mindy\Orm\Manager objects($instance = null)
+ * @method static \Mindy\Orm\TreeManager objects($instance = null)
  * @package Mindy\Orm
  */
 abstract class TreeModel extends Model

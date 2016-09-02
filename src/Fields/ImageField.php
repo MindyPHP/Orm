@@ -117,7 +117,7 @@ class ImageField extends FileField
         $name = $name ? $name : $file->name;
 
         if ($this->MD5Name) {
-            $ext = FileHelper::mbPathinfo($name, PATHINFO_EXTENSION);
+            $ext = pathinfo($name, PATHINFO_EXTENSION);
             $name = md5($name) . '.' . $ext;
         }
 

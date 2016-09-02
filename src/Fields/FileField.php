@@ -2,10 +2,10 @@
 
 namespace Mindy\Orm\Fields;
 
+use function GuzzleHttp\Psr7\mimetype_from_extension;
+use function Mindy\app;
 use Mindy\Base\Mindy;
 use Mindy\Form\Fields\FileField as FormFileField;
-use Mindy\Helper\File as FileHelper;
-use Mindy\Locale\Translate;
 use Mindy\Storage\Files\File;
 use Mindy\Storage\Files\LocalFile;
 use Mindy\Storage\Files\ResourceFile;
@@ -197,7 +197,7 @@ class FileField extends CharField
         $name = $name ? $name : $file->name;
 
         if ($this->MD5Name) {
-            $ext = FileHelper::mbPathinfo($name, PATHINFO_EXTENSION);
+            $ext = pathinfo($name, PATHINFO_EXTENSION);
             $name = md5($name) . '.' . $ext;
         }
 
@@ -253,7 +253,7 @@ class FileField extends CharField
     {
         parent::isValid();
         if (isset($this->value['error']) && $this->value['error'] == UPLOAD_ERR_NO_FILE && $this->null == false) {
-            $this->addErrors(Translate::getInstance()->t('validation', 'Cannot be empty'));
+            $this->addErrors(app()->t('validation', 'Cannot be empty'));
         }
         return $this->hasErrors() === false;
     }
@@ -263,7 +263,7 @@ class FileField extends CharField
         if (!empty($this->types)) {
             $types = [];
             foreach ($this->types as $type) {
-                $types[] = FileHelper::getMimeTypeByExtension($type);
+                $types[] = mimetype_from_extension($type);
             }
             $extra = array_merge($extra, [
                 'html' => ['accept' => implode('|', $types)]
