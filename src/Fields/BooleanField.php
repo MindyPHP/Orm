@@ -18,8 +18,9 @@ class BooleanField extends Field
     public function sqlDefault()
     {
         $adapter = $this->getModel()->getDb()->getAdapter();
-        $default = $adapter->getBoolean($this->default);
-        return empty($this->default) ? '' : "DEFAULT {$default}";
+        $default = (string)$adapter->getBoolean($this->default);
+        $sql = $this->default === null ? '' : "DEFAULT {$default}";
+        return $sql;
     }
 
     public function setValue($value)
