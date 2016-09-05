@@ -3,6 +3,7 @@
 namespace Mindy\Orm;
 
 use Exception;
+use function Mindy\app;
 use Mindy\Helper\Json;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Orm\Fields\ForeignField;
@@ -81,7 +82,7 @@ class Migration
         $modelFields = $this->_model->getFieldsInit();
         foreach ($modelFields as $name => $field) {
             if ($field->sqlType() !== false) {
-                if (is_a($field, ForeignField::className())) {
+                if ($field instanceof ForeignField) {
                     $name .= "_id";
                 }
             }
@@ -240,20 +241,23 @@ class Migration
             }
         }
 
+        $schema = app()->db->getDb()->getSchema();
         if (empty($lastMigrationFields)) {
             $columns = [];
             foreach ($this->_model->getFieldsInit() as $name => $field) {
+                $field->setModel($this->_model);
+
                 if ($field->sqlType() !== false) {
-                    if (is_a($field, ForeignField::className())) {
+                    if ($field instanceof ForeignField) {
                         $name .= "_id";
                     }
 
-                    $columns[$name] = $field->sql();
-                } else if (is_a($field, ManyToManyField::className())) {
+                    $columns[$name] = $field->getSql($schema);
+                } else if ($field instanceof ManyToManyField) {
                     /* @var $field \Mindy\Orm\Fields\ManyToManyField */
                     if ($field->through === null) {
                         $lines[] = $this->space . 'if ($this->hasTable("' . $field->getTableName() . '") === false) {';
-                        $lines[] = $this->space . $this->space . '$this->createTable("' . $field->getTableName() . '", ' . $this->compileColumns($field->getColumns()) . ', null, true);';
+                        $lines[] = $this->space . $this->space . '$this->createTable("' . $field->getTableName() . '", ' . $this->compileColumns($field->getColumns($schema)) . ', null, true);';
                         $lines[] = $this->space . '}';
                     }
                 }

@@ -2,7 +2,7 @@
 
 namespace Mindy\Orm\Fields;
 
-use Mindy\Helper\Meta;
+use Cocur\Slugify\Slugify;
 use Mindy\Orm\Traits\UniqueUrl;
 
 /**
@@ -24,7 +24,7 @@ class SlugField extends CharField
     public function onBeforeInsert()
     {
         $model = $this->getModel();
-        $this->value = empty($this->value) ? Meta::cleanString($model->{$this->source}) : $this->value;
+        $this->value = empty($this->value) ? (new Slugify())->slugify($model->{$this->source}) : $this->value;
         if ($this->unique) {
             $this->value = $this->uniqueUrl($this->value);
         }
@@ -43,7 +43,7 @@ class SlugField extends CharField
 
         // Случай когда обнулен slug, например из админки
         if (empty($model->{$this->name})) {
-            $this->value = Meta::cleanString($model->{$this->source});
+            $this->value = (new Slugify())->slugify($model->{$this->source});
         }
         if ($this->unique) {
             $this->value = $this->uniqueUrl($this->value, 0, $model->pk);
