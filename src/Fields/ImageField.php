@@ -112,6 +112,15 @@ class ImageField extends FileField
      */
     public $_originalName = null;
 
+    /**
+     * @param array $params
+     * @return string
+     */
+    public function getUrl(array $params = [])
+    {
+        return $this->getFileSystem()->url($this->value, $params);
+    }
+
     public function setFile(File $file, $name = null)
     {
         $name = $name ? $name : $file->name;
@@ -262,18 +271,36 @@ class ImageField extends FileField
         if (!$this->getValue()) {
             return '';
         }
-        $path = $this->sizeStoragePath($prefix, $this->value);
         $fs = $this->getFileSystem();
-        if ($this->force || $this->checkMissing && !$fs->has($path)) {
-            if ($fs->has($this->getValue())) {
-                if ($this->_originalName != $this->getValue()) {
-                    $this->_originalName = $this->getValue();
-                    $this->_original = $this->getImagine()->load($fs->read($this->getValue()));
-                }
-                $this->processSource($this->_original->copy(), true, [$prefix]);
+
+        if ($fs instanceof \Mimibox\Flysystem\Mimibox) {
+            if (strpos($prefix, 'x') === false) {
+                $params = $this->sizes[$prefix];
+                list($width, $height) = $params;
+            } else {
+                $sizes = explode('x', $prefix);
+                $width = $sizes[0];
+                $height = $sizes[1];
             }
+
+            return $this->getUrl([
+                'width' => $width,
+                'height' => $height
+            ]);
+        } else {
+            $path = $this->sizeStoragePath($prefix, $this->value);
+            if ($this->force || $this->checkMissing && !$fs->has($path)) {
+                if ($fs->has($this->getValue())) {
+                    if ($this->_originalName != $this->getValue()) {
+                        $this->_originalName = $this->getValue();
+                        $this->_original = $this->getImagine()->load($fs->read($this->getValue()));
+                    }
+                    $this->processSource($this->_original->copy(), true, [$prefix]);
+                }
+            }
+
+            return $this->getStorage()->url($path);
         }
-        return $this->getStorage()->url($path);
     }
 
     public function onAfterDelete()
