@@ -15,7 +15,10 @@
   },
   "require": {
     "php": ">=7.0",
-    "imagine/imagine": "*"
+    "imagine/imagine": "*",
+    "doctrine/dbal": "^2.5",
+    "doctrine/migrations": "^1.4",
+    "mindy/creator": "^1.0"
   },
   "authors": [
     {
