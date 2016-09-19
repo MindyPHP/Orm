@@ -1,45 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<phpunit backupGlobals="false"
-         backupStaticAttributes="false"
-         colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         processIsolation="false"
-         stopOnFailure="false"
-         syntaxCheck="true"
-         bootstrap="test/bootstrap.php">
+<phpunit colors="true" strict="true" stopOnError="false" backupGlobals="false"
+         bootstrap="vendor/autoload.php">
     <php>
         <ini name="error_reporting" value="32767"/>
     </php>
 
     <testsuites>
-        <testsuite name="Orm/Basic">
-            <directory>test/Basic/</directory>
-        </testsuite>
-        <testsuite name="Orm/QueryBuilder">
-            <directory>test/QueryBuilder/</directory>
-        </testsuite>
-        <testsuite name="Orm/Databases/Sqlite">
-            <directory>test/Databases/Sqlite/</directory>
-        </testsuite>
-        <testsuite name="Orm/Databases/Mysql">
-            <directory>test/Databases/Mysql/</directory>
-        </testsuite>
-        <testsuite name="Orm/Databases/Pgsql">
-            <directory>test/Databases/Pgsql/</directory>
-        </testsuite>
-        <testsuite name="Orm/Fields">
-            <directory>test/Fields/</directory>
+        <testsuite name="all">
+            <directory>test/</directory>
         </testsuite>
     </testsuites>
-
-    <groups>
-        <exclude>
-            <group>benchmark</group>
-        </exclude>
-    </groups>
 
     <!--
     <filter>

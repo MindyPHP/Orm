@@ -9,7 +9,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Mindy\\Orm\\Tests\\": "test/",
+      "Mindy\\Tests\\": "test/",
       "Modules\\Tests\\Models\\": "test/app/Models"
     }
   },
