@@ -4,9 +4,9 @@ namespace Mindy\Orm;
 
 use Doctrine\DBAL\Connection;
 use Mindy\Interfaces\Arrayable;
-use Mindy\Orm\QueryBuilder\Expression;
-use Mindy\Orm\QueryBuilder\Q\QAndNot;
-use Mindy\Orm\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\Expression;
+use Mindy\QueryBuilder\Q\QAndNot;
+use Mindy\QueryBuilder\QueryBuilder;
 
 /**
  * Class TreeQuerySet

@@ -3,7 +3,8 @@
 namespace Mindy\Orm\Fields;
 
 use Mindy\Helper\Json;
-use Mindy\Validation\Json as JsonValidator;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * Class JsonField
@@ -17,7 +18,15 @@ class JsonField extends TextField
     public function getValidationConstraints() : array
     {
         return array_merge(parent::getValidationConstraints(), [
-            new JsonValidator()
+            new Assert\Callback(function ($value, ExecutionContextInterface $context, $payload) {
+                if (
+                    is_object($value) &&
+                    method_exists($value, 'toJson') === false &&
+                    method_exists($value, 'toArray') === false
+                ) {
+                    $context->addViolation('Not json serialize object: %type%', ['%type%' => gettype($value)]);
+                }
+            })
         ]);
     }
 

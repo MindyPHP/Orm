@@ -1,8 +1,9 @@
 <?php
 
-namespace Mindy\Orm\Traits;
+namespace Mindy\Orm\Image;
 
 use Imagine\Image\Box;
+use Imagine\Image\ImageInterface;
 use Imagine\Image\ImagineInterface;
 use Imagine\Image\ManipulatorInterface;
 use Imagine\Image\Metadata\DefaultMetadataReader;
@@ -54,7 +55,12 @@ trait ImageProcess
      */
     protected static function createImagine()
     {
-        $drivers = [self::$DRIVER_GMAGICK, self::$DRIVER_IMAGICK, self::$DRIVER_GD2];
+        $drivers = [
+            self::$DRIVER_GMAGICK,
+            self::$DRIVER_IMAGICK,
+            self::$DRIVER_GD2
+        ];
+
         foreach ((array)$drivers as $driver) {
             switch ($driver) {
                 case self::$DRIVER_GMAGICK:
@@ -86,13 +92,13 @@ trait ImageProcess
     }
 
     /**
-     * @param $img \Imagine\Gmagick\Imagine|\Imagine\Imagick\Imagine|\Imagine\Gd\Imagine
+     * @param $img ImageInterface
      * @param $width
      * @param $height
      * @param $method
      * @return null
      */
-    public function resize($img, $width, $height, $method)
+    public function resize(ImageInterface $img, $width, $height, $method) : ImageInterface
     {
         $box = new Box($width, $height);
 
@@ -130,7 +136,7 @@ trait ImageProcess
         return $img;
     }
 
-    public function applyWatermark($source, $options)
+    public function applyWatermark(ImageInterface $source, $options)
     {
         if ($options && is_array($options) && isset($options['file']) && isset($options['position'])) {
             $file = Alias::get('www') . DIRECTORY_SEPARATOR . $options['file'];
@@ -241,7 +247,7 @@ trait ImageProcess
      * @param null $height
      * @return array
      */
-    protected function imageScale($source, $width = null, $height = null)
+    protected function imageScale(ImageInterface $source, $width = null, $height = null)
     {
         $size = $source->getSize();
         $ratio = $size->getWidth() / $size->getHeight();

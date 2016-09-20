@@ -8,7 +8,7 @@
 
 namespace Mindy\Tests\Orm\Basic;
 
-use Mindy\Orm\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilder;
 use Mindy\Tests\Orm\OrmDatabaseTestCase;
 use Mindy\Tests\Orm\Models\Customer;
 use Mindy\Tests\Orm\Models\Solution;

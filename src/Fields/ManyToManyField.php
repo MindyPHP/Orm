@@ -6,7 +6,7 @@ use Exception;
 use Mindy\Orm\MetaData;
 use Mindy\Orm\Model;
 use Mindy\Orm\NewOrm;
-use Mindy\Orm\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilder;
 use Mindy\Orm\ManagerInterface;
 
 /**

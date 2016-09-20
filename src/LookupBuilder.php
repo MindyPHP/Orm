@@ -2,7 +2,7 @@
 
 namespace Mindy\Orm;
 
-use Mindy\Orm\QueryBuilder\LookupBuilder\Legacy;
+use Mindy\QueryBuilder\LookupBuilder\Legacy;
 
 /**
  * Class LookupBuilder

@@ -21,7 +21,9 @@ class DataIteratorTest extends OrmDatabaseTestCase
 {
     public function getModels()
     {
-        return [new BookCategory];
+        return [
+            new BookCategory
+        ];
     }
 
     public function testDataQuerySet()

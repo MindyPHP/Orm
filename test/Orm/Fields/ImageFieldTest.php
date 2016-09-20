@@ -14,23 +14,28 @@
 
 namespace Tests\Orm\Fields;
 
-use Mindy\Helper\Alias;
+use League\Flysystem\Util\MimeType;
+use function Mindy\app;
+use Mindy\Orm\Fields\FileField;
 use Mindy\Orm\Fields\ImageField;
-use Mindy\Storage\Files\LocalFile;
+use Mindy\Orm\Files\ResourceFile;
+use Mindy\Orm\Files\UploadedFile;
+use Mindy\Orm\Files\LocalFile;
+use Mindy\Tests\Orm\Models\User;
+use Mindy\Tests\Orm\OrmDatabaseTestCase;
 
-class ImageFieldTest extends \PHPUnit_Framework_TestCase
+class ImageFieldTest extends OrmDatabaseTestCase
 {
     public $media;
     public $mock;
 
-    protected function setUp()
+    public function setUp()
     {
-        if (\Mindy\Base\Mindy::app() === null) {
-            $this->markTestSkipped('Application is not initialized');
-        }
         parent::setUp();
-        $this->media = Alias::get('www.media');
-        $this->mock = Alias::get('www.media') . '/../mock';
+
+        $this->app = app();
+        $this->media = realpath(__DIR__ . '/../app/media');
+        $this->mock = realpath(__DIR__ . '/../app/mock');
     }
 
     public function testSet()
@@ -101,5 +106,65 @@ class ImageFieldTest extends \PHPUnit_Framework_TestCase
                 unlink($file);
             }
         }
+    }
+
+    public function testFileField()
+    {
+        $model = new User;
+
+        $file = new FileField();
+        $file->setModel($model);
+        $file->setFile(new LocalFile(__FILE__));
+
+        $content = $this->app->storage->getFilesystem()->has('qwe');
+    }
+
+    public function testFileFieldValidation()
+    {
+        $mediaPath = realpath(__DIR__ . '/../app/media');
+        $model = new User;
+
+        $field = new FileField([
+            'name' => 'file',
+            'required' => true,
+            'uploadTo' => $mediaPath
+        ]);
+        $field->setModel($model);
+        $this->assertFalse($field->isValid());
+        $this->assertEquals(['This value should not be blank.'], $field->getErrors());
+
+        $path = __DIR__ . '/test.txt';
+        file_put_contents($path, '123');
+        $file = [
+            'name' => 'Test.php',
+            'type' => MimeType::detectByFilename($path),
+            'tmp_name' => $path,
+            'error' => UPLOAD_ERR_OK,
+            'size' => 10000000
+        ];
+        $uploadedFile = new UploadedFile($file['tmp_name'], $file['name'], $file['type'], $file['size'], $file['error']);
+        $field->setValue($uploadedFile);
+        $this->assertFalse($field->isValid());
+        $this->assertEquals(['The file could not be uploaded.'], $field->getErrors());
+
+        $field = new FileField([
+            'mimeTypes' => [
+                'image/*'
+            ],
+            'name' => 'file',
+            'required' => true,
+            'uploadTo' => $mediaPath,
+        ]);
+        $field->setModel($model);
+
+        $uploadedFile = new LocalFile('qweqwe', false);
+        $field->setValue($uploadedFile);
+        $this->assertFalse($field->isValid());
+        $this->assertEquals('The file could not be found.', $field->getErrors()[0]);
+
+        $uploadedFile = new ResourceFile(base64_encode(file_get_contents(__FILE__)));
+        $field->setValue($uploadedFile);
+        $this->assertFalse($field->isValid());
+        $this->assertEquals('The mime type of the file is invalid ("text/plain"). Allowed mime types are "image/*".', $field->getErrors()[0]);
     }
 }

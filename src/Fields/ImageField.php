@@ -2,17 +2,11 @@
 
 namespace Mindy\Orm\Fields;
 
-use Exception;
-use Imagine\Image\ImageInterface;
 use Imagine\Image\Point;
-use Mindy\Base\Mindy;
-use Mindy\Exception\WarningException;
-use Mindy\Orm\Traits\ImageProcess;
-use Mindy\Storage\Files\File;
-use Mindy\Storage\FileSystemStorage;
-use Mindy\Storage\Interfaces\IExternalStorage;
-use Mindy\Storage\MimiBoxStorage;
-use Mindy\Helper\File as FileHelper;
+use Mindy\Orm\Image\ImageProcessor;
+use Mindy\Orm\Image\ImageProcessorInterface;
+use Mindy\Orm\ModelInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class ImageField
@@ -20,11 +14,6 @@ use Mindy\Helper\File as FileHelper;
  */
 class ImageField extends FileField
 {
-    use ImageProcess;
-
-    protected $availableResizeMethods = [
-        'resize', 'adaptiveResize', 'adaptiveResizeFromTop'
-    ];
     /**
      * Array with image sizes
      * key 'original' is reserved!
@@ -43,302 +32,152 @@ class ImageField extends FileField
      */
     public $sizes = [];
     /**
-     * Force resize images
-     * @var bool
-     */
-    public $force = false;
-    /**
-     * Imagine default options
      * @var array
      */
-    public $options = [
-        'resolution-units' => ImageInterface::RESOLUTION_PIXELSPERINCH,
-        'resolution-x' => 72,
-        'resolution-y' => 72,
-        'jpeg_quality' => 100,
-        'quality' => 100,
-        'png_compression_level' => 0
+    public $mimeTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/gif',
     ];
     /**
-     * @var array|null
-     *
-     * File MUST be described relative to "www" directory!
-     *
-     * example
-     * [
-     *  'file' => 'static/images/watermark.png',
-     *  'position' => [200,100]
-     * ]
-     *
-     * OR
-     *
-     * [
-     *  'file' => 'static/images/watermark.png',
-     *  'position' => 'top'
-     * ]
-     *
-     * position can be array [x,y] coordinates or
-     * string with one of available position
-     * top, top-left, top-right, bottom, bottom-left, bottom-right, left, right, center, repeat
+     * @var ImageProcessor
      */
-    public $watermark = null;
-    /**
-     * All supported image types
-     * @var array|null
-     */
-    public $types = ['jpg', 'jpeg', 'png', 'gif'];
-    /**
-     * Default resize method
-     * @var string
-     */
-    public $defaultResize = 'adaptiveResizeFromTop';
-    /**
-     * @var bool
-     */
-    public $storeOriginal = true;
-    /**
-     * Recreate file if missing
-     * @var bool
-     */
-    public $checkMissing = false;
-    /**
-     * Cached original
-     * @var null | \Imagine\Image\ImagineInterface
-     */
-    public $_original = null;
-    /**
-     * Cached original name
-     * @var null | string
-     */
-    public $_originalName = null;
+    protected $processor;
 
     /**
-     * @param array $params
-     * @return string
+     * @var Assert\Image validation settings
      */
-    public function getUrl(array $params = [])
+    public $minWidth;
+    public $maxWidth;
+    public $maxHeight;
+    public $minHeight;
+    public $maxRatio;
+    public $minRatio;
+    public $allowSquare = true;
+    public $allowLandscape = true;
+    public $allowPortrait = true;
+    public $detectCorrupted = false;
+
+    /**
+     * @return array
+     */
+    public function getValidationConstraints() : array
     {
-        return $this->getFileSystem()->url($this->value, $params);
+        return array_merge(parent::getValidationConstraints(), [
+            new Assert\Image([
+                'minWidth' => $this->minWidth,
+                'maxWidth' => $this->maxWidth,
+                'maxHeight' => $this->maxHeight,
+                'minHeight' => $this->minHeight,
+                'maxRatio' => $this->maxRatio,
+                'minRatio' => $this->minRatio,
+                'allowSquare' => $this->allowSquare,
+                'allowLandscape' => $this->allowLandscape,
+                'allowPortrait' => $this->allowPortrait,
+                'detectCorrupted' => $this->detectCorrupted,
+            ])
+        ]);
     }
 
-    public function setFile(File $file, $name = null)
+    /**
+     * @param ImageProcessorInterface $processor
+     * @return $this
+     */
+    public function setProcessor(ImageProcessorInterface $processor)
     {
-        $name = $name ? $name : $file->name;
-
-        if ($this->MD5Name) {
-            $ext = pathinfo($name, PATHINFO_EXTENSION);
-            $name = md5($name) . '.' . $ext;
-        }
-
-        if ($name) {
-            $this->value = $this->makeFilePath($name);
-            $fileContent = $file->getContent();
-
-            try {
-                $image = $this->getImagine()->load($fileContent);
-            } catch (Exception $e) {
-                Mindy::app()->logger->error($e->getMessage(), [
-                    'line' => $e->getLine(),
-                ]);
-                $image = null;
-            }
-            if ($image) {
-                $fileContent = $this->processSource($image);
-                if ($this->storeOriginal) {
-                    if ($this->getFileSystem()->write($this->value, $fileContent) === false) {
-                        throw new Exception("Failed to save original file");
-                    }
-                }
-            } else {
-                $this->value = null;
-            }
-        }
-
-        return $this->value;
+        $this->processor = $processor;
+        return $this;
     }
 
-    public function deleteOld()
+    /**
+     * @param \Mindy\Orm\Model|ModelInterface $model
+     * @param $value
+     */
+    public function afterDelete(ModelInterface $model, $value)
     {
-        if ($this->getOldValue()) {
-            $fs = $this->getFileSystem();
-            if ($fs->has($this->getOldValue())) {
-                $fs->delete($this->getOldValue());
-            }
-            foreach (array_keys($this->sizes) as $prefix) {
-                $path = $this->sizeStoragePath($prefix, $this->getOldValue());
-                if ($fs->has($path)) {
-                    $fs->delete($path);
-                }
+        parent::afterDelete($model, $value);
+
+        $processor = $this->getProcessor();
+        foreach ($processor->getSizes() as $prefix => $config) {
+            $path = $processor->path($value, $prefix);
+            if (is_file($path)) {
+                unlink($path);
             }
         }
     }
 
     /**
-     * @param $source
-     * @param bool $force
-     * @param array|null $onlySizes - Resize and save only sizes, described in this array
-     * @return
-     * @throws Exception
+     * @param \Mindy\Orm\Model|ModelInterface $model
+     * @param $value
      */
-    public function processSource($source, $force = false, $onlySizes = null)
+    public function afterUpdate(ModelInterface $model, $value)
     {
-        $ext = pathinfo($this->value, PATHINFO_EXTENSION);
-        foreach ($this->sizes as $prefix => $size) {
-            if (is_array($onlySizes) && !in_array($prefix, $onlySizes)) {
-                continue;
-            }
-            $width = isset($size[0]) ? $size[0] : null;
-            $height = isset($size[1]) ? $size[1] : null;
-            if (!$width || !$height) {
-                list($width, $height) = $this->imageScale($source, $width, $height);
-            }
-            $method = isset($size['method']) ? $size['method'] : $this->defaultResize;
-            if (!in_array($method, $this->availableResizeMethods)) {
-                throw new Exception('Unknown resize method: ' . $method);
-            }
-            $options = isset($size['options']) ? $size['options'] : $this->options;
-            $extSize = isset($size['format']) ? $size['format'] : $ext;
+        parent::afterUpdate($model, $value);
 
-            $watermark = isset($size['watermark']) ? $size['watermark'] : $this->watermark;
-            if (($width || $height) && $method) {
-                $newSource = $this->resize($source->copy(), $width, $height, $method);
-                if ($watermark) {
-                    $newSource = $this->applyWatermark($newSource, $watermark);
-                }
-                $fs = $this->getFileSystem();
-                $sizePath = $this->sizeStoragePath($prefix, $this->value);
-                if ($force && $fs->has($sizePath)) {
-                    $fs->delete($sizePath);
-                }
-                $this->getFileSystem()->write($sizePath, $newSource->get($extSize, $options));
+        if ($model->hasAttribute($this->getAttributeName())) {
+            if (
+                ($oldValue = $model->getOldAttribute($this->getAttributeName())) &&
+                $value != $oldValue
+            ) {
+                $this->getProcessor()->process($value);
             }
         }
-
-        if ($this->watermark) {
-            $source = $this->applyWatermark($source, $this->watermark);
-        }
-
-        return $source->get($ext, $this->options);
     }
 
     /**
      * @param $prefix
-     * @param null $value
      * @return string
      */
-    public function sizeStoragePath($prefix, $value)
+    public function path($prefix) : string
     {
-        $dir = mb_substr_count($value, '/', 'UTF-8') > 0 ? dirname($value) : '';
-        // TODO not working with cyrillic
-        $filename = ltrim(mb_substr($value, mb_strlen($dir, 'UTF-8'), null, 'UTF-8'), '/');
-        // TODO ugly, refactor it
-        $size = explode('x', $prefix);
-        if (strpos($prefix, 'x') !== false && count($size) == 2 && is_numeric($size[0]) && is_numeric($size[1])) {
-            $prefix = $this->findSizePrefix($prefix);
-        }
-
-        $sizeOptions = isset($this->sizes[$prefix]) ? $this->sizes[$prefix] : [];
-        $prefix = $prefix === null ? '' : $this->preparePrefix($prefix);
-
-        if (isset($sizeOptions['format'])) {
-            $name = FileHelper::mbPathinfo($filename, PATHINFO_FILENAME);
-            $filename = $name . '.' . $sizeOptions['format'];
-        }
-        return ($dir ? $dir . DIRECTORY_SEPARATOR : '') . $prefix . $filename;
-    }
-
-    public function __get($name)
-    {
-        if (strpos($name, 'url_') === 0) {
-            return $this->sizeUrl(str_replace('url_', '', $name));
-        } else {
-            return parent::__getInternal($name);
-        }
-    }
-
-    protected function preparePrefix($prefix)
-    {
-        return rtrim($prefix, '_') . '_';
+        return $this->getProcessor()->path($this->value, $prefix);
     }
 
     /**
      * @param $prefix
-     * @return mixed
+     * @return string
      */
-    public function sizeUrl($prefix)
+    public function url($prefix) : string
     {
-        // Original file does not exists, return empty string
-        if (!$this->getValue()) {
-            return '';
-        }
-        $fs = $this->getFileSystem();
+        return $this->getProcessor()->url($this->value, $prefix);
+    }
 
-        if ($fs instanceof \Mimibox\Flysystem\Mimibox) {
-            if (strpos($prefix, 'x') === false) {
-                $params = $this->sizes[$prefix];
-                list($width, $height) = $params;
-            } else {
-                $sizes = explode('x', $prefix);
-                $width = $sizes[0];
-                $height = $sizes[1];
-            }
-
-            return $this->getUrl([
-                'width' => $width,
-                'height' => $height
+    /**
+     * @return ImageProcessor
+     */
+    protected function getProcessor()
+    {
+        if ($this->processor === null) {
+            $this->processor = new ImageProcessor([
+                'sizes' => $this->sizes,
+                'basePath' => $this->getBasePath()
             ]);
-        } else {
-            $path = $this->sizeStoragePath($prefix, $this->value);
-            if ($this->force || $this->checkMissing && !$fs->has($path)) {
-                if ($fs->has($this->getValue())) {
-                    if ($this->_originalName != $this->getValue()) {
-                        $this->_originalName = $this->getValue();
-                        $this->_original = $this->getImagine()->load($fs->read($this->getValue()));
-                    }
-                    $this->processSource($this->_original->copy(), true, [$prefix]);
-                }
-            }
-
-            return $this->getStorage()->url($path);
         }
+        return $this->processor;
     }
 
-    public function onAfterDelete()
-    {
-        $this->deleteOld();
-    }
-
+    /**
+     * @return array
+     */
     public function toArray()
     {
         $sizes = [];
         if ($this->getValue()) {
-            foreach ($this->sizes as $name => $params) {
-                $sizes[$name] = $this->sizeUrl($name);
+            $processor = $this->getProcessor();
+            foreach ($processor->getSizes() as $prefix => $config) {
+                $sizes[$prefix] = $this->url($prefix);
             }
-            $sizes['original'] = $this->getStorage()->url($this->getValue());
+            $sizes['original'] = $this->url($this->value);
         }
         return $sizes;
     }
 
-    protected function findSizePrefix($prefix, $throw = true)
-    {
-        $newPrefix = null;
-        list($width, $height) = explode('x', trim($prefix, '_'));
-        foreach ($this->sizes as $sizePrefix => $size) {
-            list($sizeWidth, $sizeHeight) = $size;
-            if ($sizeWidth == $width && $sizeHeight == $height) {
-                $newPrefix = $sizePrefix;
-                break;
-            }
-        }
-
-        if ($newPrefix === null && $throw) {
-            throw new Exception("Prefix with width $width and height $height not found");
-        }
-
-        return $newPrefix;
-    }
-
+    /**
+     * @param $form
+     * @param string $fieldClass
+     * @param array $extra
+     * @return null|object
+     */
     public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\ImageField', array $extra = [])
     {
         return parent::getFormField($form, $fieldClass, $extra);

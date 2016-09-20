@@ -16,7 +16,7 @@ class ConnectionTest extends OrmDatabaseTestCase
 {
     public function testId()
     {
-        $db = Mindy::app()->db;
+        $db = $this->connectionManager;
         $this->assertInstanceOf(Connection::class, $db->getConnection('mysql'));
         $this->assertInstanceOf(Connection::class, $db->getConnection('sqlite'));
         $this->assertInstanceOf(Connection::class, $db->getConnection('pgsql'));

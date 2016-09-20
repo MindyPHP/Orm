@@ -11,7 +11,7 @@ use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Fields\OneToOneField;
-use Mindy\Orm\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilder;
 
 /**
  * Class Sync

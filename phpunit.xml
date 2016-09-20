@@ -1,5 +1,5 @@
 <phpunit colors="true" strict="true" stopOnError="false" backupGlobals="false"
-         bootstrap="vendor/autoload.php">
+         bootstrap="test/bootstrap.php">
     <php>
         <ini name="error_reporting" value="32767"/>
     </php>

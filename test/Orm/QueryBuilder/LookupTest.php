@@ -14,9 +14,9 @@
 
 namespace Mindy\Tests\Orm\QueryBuilder;
 
-use Mindy\Orm\QueryBuilder\Expression;
-use Mindy\Orm\QueryBuilder\Q\QAnd;
-use Mindy\Orm\QueryBuilder\Q\QOr;
+use Mindy\QueryBuilder\Expression;
+use Mindy\QueryBuilder\Q\QAnd;
+use Mindy\QueryBuilder\Q\QOr;
 use Mindy\Tests\Orm\OrmDatabaseTestCase;
 use Mindy\Tests\Orm\Models\Category;
 use Mindy\Tests\Orm\Models\Customer;

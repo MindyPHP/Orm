@@ -10,7 +10,7 @@ namespace Mindy\Orm;
 
 use Doctrine\DBAL\DBALException;
 use Exception;
-use Mindy\Orm\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilder;
 
 /**
  * Class NewOrm
@@ -72,7 +72,7 @@ class NewOrm extends NewBase
         $adapter = $qb->getAdapter();
 
         $tableName = $adapter->quoteTableName($adapter->getRawTableName($this->tableName()));
-        $inserted = $connection->executeUpdate($qb->insert($tableName, array_keys($values), [$values]));
+        $inserted = $connection->executeUpdate($qb->insert($tableName, $values));
         if ($inserted === false) {
             return false;
         }

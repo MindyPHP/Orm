@@ -9,7 +9,7 @@
 namespace Mindy\Orm;
 
 use Mindy\Exception\Exception;
-use Mindy\Orm\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilder;
 
 /**
  * Class ManyToManyManager

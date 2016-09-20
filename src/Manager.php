@@ -5,7 +5,7 @@ namespace Mindy\Orm;
 use ArrayAccess;
 use Countable;
 use IteratorAggregate;
-use Mindy\Orm\QueryBuilder\Expression;
+use Mindy\QueryBuilder\Expression;
 use Serializable;
 use Traversable;
 

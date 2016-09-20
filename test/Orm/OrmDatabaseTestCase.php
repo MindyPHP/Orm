@@ -14,12 +14,13 @@
 
 namespace Mindy\Tests\Orm;
 
+use Connections;
 use Doctrine\DBAL\Connection;
-use League\Flysystem\Adapter\Local;
 use Mindy\Base\Mindy;
+use Mindy\MockApp;
 use Mindy\Orm\Sync;
-use Mindy\Orm\QueryBuilder\ConnectionManager;
-use Mindy\Orm\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\ConnectionManager;
+use Mindy\QueryBuilder\QueryBuilder;
 
 class OrmDatabaseTestCase extends \PHPUnit_Framework_TestCase
 {
@@ -32,13 +33,13 @@ class OrmDatabaseTestCase extends \PHPUnit_Framework_TestCase
      */
     public $driver = 'sqlite';
     /**
-     * @var ConnectionManager
-     */
-    protected $manager;
-    /**
      * @var Connection
      */
     protected $connection;
+    /**
+     * @var ConnectionManager
+     */
+    protected $connectionManager;
 
     public function setUp()
     {
@@ -46,8 +47,7 @@ class OrmDatabaseTestCase extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('pdo_' . $this->driver . ' ext required');
         }
 
-        $databases = require(__DIR__ . (@getenv('TRAVIS') ? '/config_travis.php' : '/config_local.php'));
-        $this->connectionManager = new ConnectionManager($databases, $this->driver);
+        $this->connectionManager = Connections::getConnectionManager()->setDefaultConnection($this->driver);
 
         $this->initModels($this->getModels(), $this->getConnection());
     }
@@ -103,5 +103,14 @@ class OrmDatabaseTestCase extends \PHPUnit_Framework_TestCase
     {
         $params = explode(':', $this->connection->dsn);
         return array_pop($params);
+    }
+
+    protected function mockModel($className)
+    {
+        $instance = $this->getMockBuilder($className)
+            ->disableOriginalConstructor()
+            ->setMethods(['setConnection'])->getMock();
+        $instance->method('getConnection')->willReturn($this->connection);
+        return $instance;
     }
 }

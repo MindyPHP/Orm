@@ -33,14 +33,6 @@ class QuerySetTest extends OrmDatabaseTestCase
         ];
     }
 
-    public function setUp()
-    {
-        parent::setUp();
-        if (Mindy::app() === null) {
-            $this->markTestSkipped('Application not initialized');
-        }
-    }
-
     public function testCount()
     {
         $this->assertTrue((new Hits)->save());

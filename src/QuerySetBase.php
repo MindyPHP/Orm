@@ -14,7 +14,7 @@ use Mindy\Helper\Traits\Configurator;
 use Mindy\Orm\Callback\FetchColumnCallback;
 use Mindy\Orm\Callback\JoinCallback;
 use Mindy\Orm\Callback\LookupCallback;
-use Mindy\Orm\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilder;
 use Serializable;
 
 /**

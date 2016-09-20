@@ -4,7 +4,7 @@ namespace Mindy\Orm\Fields;
 
 use Doctrine\DBAL\Connection;
 use Mindy\Orm\ManagerInterface;
-use Mindy\Orm\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilder;
 
 /**
  * Class RelatedField

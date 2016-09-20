@@ -8,7 +8,7 @@ use Mindy\Orm\Manager;
 use Mindy\Orm\ManagerInterface;
 use Mindy\Orm\Model;
 use Mindy\Orm\QuerySet;
-use Mindy\Orm\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilder;
 
 /**
  * Class HasManyField

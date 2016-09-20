@@ -2,15 +2,16 @@
 
 namespace Mindy\Orm\Fields;
 
-use function GuzzleHttp\Psr7\mimetype_from_extension;
 use function Mindy\app;
-use Mindy\Base\Mindy;
-use Mindy\Form\Fields\FileField as FormFileField;
-use Mindy\Storage\Files\File;
-use Mindy\Storage\Files\LocalFile;
-use Mindy\Storage\Files\ResourceFile;
-use Mindy\Storage\Files\UploadedFile;
-use Mindy\Validation\FileValidator;
+use Mindy\Orm\Files\File;
+use Mindy\Orm\Files\LocalFile;
+use Mindy\Orm\Files\ResourceFile;
+use Mindy\Orm\Files\UploadedFile;
+use Mindy\Orm\ModelInterface;
+use Mindy\Orm\Traits\FilesystemAwareTrait;
+use Mindy\Orm\Validation;
+use SplFileInfo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class FileField
@@ -18,13 +19,8 @@ use Mindy\Validation\FileValidator;
  */
 class FileField extends CharField
 {
-    const MODE_LOCAL = 1;
-    const MODE_POST = 2;
+    use FilesystemAwareTrait;
 
-    /**
-     * @var string fs storage name
-     */
-    public $storageName = 'default';
     /**
      * Upload to template, you can use these variables:
      * %Y - Current year (4 digits)
@@ -34,191 +30,193 @@ class FileField extends CharField
      * %i - Current minutes
      * %s - Current seconds
      * %O - Current object class (lower-based)
-     * @var string
+     * @var string|callable|\Closure
      */
     public $uploadTo = '%M/%O/%Y-%m-%d/';
     /**
      * List of allowed file types
      * @var array|null
      */
-    public $types = [];
+    public $mimeTypes = [];
     /**
      * @var null|int maximum file size or null for unlimited. Default value 2 mb.
      */
-    public $maxSize = 2097152;
+    public $maxSize = '5M';
     /**
-     * @var bool convert file name to md5
+     * @var callable convert file name
      */
-    public $MD5Name = true;
+    public $nameHasher;
+    /**
+     * @var string
+     */
+    protected $basePath;
 
-    /*
-    public function init()
+    /**
+     * @return callable|\Closure
+     */
+    protected function getNameHasher()
     {
-        if (!$this->isRequired()) {
-            $this->null = true;
+        if ($this->nameHasher === null) {
+            $this->nameHasher = $this->getDefaultNameHasher();
         }
-
-        $hasFileValidator = false;
-        foreach ($this->validators as $validator) {
-            if ($validator instanceof FileValidator) {
-                $hasFileValidator = true;
-                break;
-            }
-        }
-
-        if ($hasFileValidator === false) {
-            $this->validators = array_merge([
-                new FileValidator($this->null, $this->types, $this->maxSize)
-            ], $this->validators);
-        }
+        return $this->nameHasher;
     }
-    */
 
+    /**
+     * @return \Closure
+     */
+    protected function getDefaultNameHasher() : \Closure
+    {
+        return function ($filePath) {
+            $meta = $this->getFilesystem()->getMetadata($filePath);
+            return md5($meta['filename']) . '.' . $meta['extension'];
+        };
+    }
+
+    /**
+     * @return array
+     */
+    public function getValidationConstraints() : array
+    {
+        $constraints = [];
+        if ($this->required) {
+            $constraints[] = new Assert\NotBlank();
+        }
+
+        $constraints[] = new Validation\File([
+            'maxSize' => $this->maxSize,
+            'mimeTypes' => $this->mimeTypes,
+        ]);
+
+        return $constraints;
+    }
+
+    /**
+     * @return string
+     */
     public function __toString()
     {
-        return (string)$this->getUrl();
+        return (string)$this->url();
     }
 
     /**
-     * @return string|null
+     * @param array $options
+     * @return string
      */
-    public function getUrl()
+    public function url(array $options = []) : string
     {
-        if ($this->value) {
-            return $this->getStorage()->url(is_array($this->value) ? $this->value['name'] : $this->value);
-        }
-        return null;
+        return $this->getFilesystem()->url($this->value, $options);
     }
 
     /**
-     * @return \Mindy\Storage\Storage
+     * @return string
      */
-    public function getStorage()
+    public function path() : string
     {
-        return Mindy::app()->storage;
+        return $this->getFilesystem()->get($this->value);
     }
 
     /**
-     * @return \League\Flysystem\Filesystem
+     * @return bool
      */
-    public function getFileSystem()
-    {
-        return $this->getStorage()->getFileSystem($this->storageName);
-    }
-
-    public function getPath()
-    {
-        $meta = $this->getFileSystem()->getMetadata($this->value);
-        return $meta['path'];
-    }
-
-    public function getExtension()
-    {
-        $meta = $this->getFileSystem()->getMetadata($this->value);
-        return $meta;
-    }
-
-//    public function getValue()
-//    {
-//        return $this->getUrl();
-//    }
-
     public function delete()
     {
-        return $this->getFileSystem()->delete($this->value);
+        return $this->getFilesystem()->delete($this->value);
     }
 
     /**
-     * Delete old file from storage (replacing or deleting old file)
+     * @return int
      */
-    public function deleteOld()
+    public function size()
     {
-        if ($this->getOldValue()) {
-            $fs = $this->getFileSystem();
-            if ($fs->has($this->getOldValue())) {
-                $fs->delete($this->getOldValue());
+        if (empty($this->value)) {
+            return 0;
+        }
+        if ($this->getFilesystem()->has($this->value)) {
+            /** @var \League\Flysystem\File $file */
+            $file = $this->getFilesystem()->get($this->value);
+            return $file->getSize();
+        }
+        return 0;
+    }
+
+    /**
+     * @param \Mindy\Orm\Model|ModelInterface $model
+     * @param $value
+     */
+    public function afterUpdate(ModelInterface $model, $value)
+    {
+        if ($model->hasAttribute($this->getAttributeName())) {
+            if ($oldValue = $model->getOldAttribute($this->getAttributeName())) {
+                $fs = $this->getFilesystem();
+                if ($fs->has($oldValue)) {
+                    $fs->delete($oldValue);
+                }
             }
         }
     }
 
-    public function getSize()
+    /**
+     * @param \Mindy\Orm\Model|ModelInterface $model
+     * @param $value
+     */
+    public function afterDelete(ModelInterface $model, $value)
     {
-        return $this->getFileSystem()->getSize($this->value);
-    }
-
-    public function getOldValue()
-    {
-        if ($this->getModel()) {
-            return $this->getModel()->getOldAttribute($this->name);
+        if ($model->hasAttribute($this->getAttributeName())) {
+            $fs = $this->getFilesystem();
+            if ($fs->has($value)) {
+                $fs->delete($value);
+            }
         }
     }
 
     public function setValue($value)
     {
-        if (is_null($value)) {
-            $this->deleteOld();
-            $this->value = $value;
-        } else {
-            if (is_array($value) && isset($value['error']) && $value['error'] === UPLOAD_ERR_OK) {
-                $this->deleteOld();
-                $value = $this->setFile(new UploadedFile($value));
-                $this->value = $value;
-            } else if (is_string($value) && $value !== $this->value && is_file($value)) {
-                $this->deleteOld();
-                $value = $this->setFile(new LocalFile($value));
-                $this->value = $value;
-            } else if (is_string($value) && strpos($value, 'data:') !== false) {
+        if (
+            is_array($value) &&
+            isset($value['error']) &&
+            isset($value['tmp_name']) &&
+            isset($value['size']) &&
+            isset($value['name']) &&
+            isset($value['type'])
+        ) {
+
+            $value = new UploadedFile($value['tmp_name'], $value['name'], $value['type'], $value['size'], $value['error']);
+
+        } else if (is_string($value)) {
+            if (strpos($value, 'data:') !== false) {
                 list($type, $value) = explode(';', $value);
                 list(, $value) = explode(',', $value);
                 $value = base64_decode($value);
-                $this->deleteOld();
-                $value = $this->setFile(new ResourceFile($value, null, null, $type));
-                $this->value = $value;
-            } else if ($value instanceof File) {
-                $this->deleteOld();
-                $value = $this->setFile($value);
-                $this->value = $value;
+                $value = new ResourceFile($value, null, null, $type);
+            } else if (realpath($value)) {
+                $value = new LocalFile(realpath($value));
             }
         }
-    }
 
-    public function toArray()
-    {
-        return $this->value ? [
-            'url' => $this->getUrl()
-        ] : null;
+        if ($value === null) {
+            $this->value = null;
+        } else if ($value instanceof File) {
+            $this->value = $value;
+        }
     }
 
     /**
-     * @param \Mindy\Storage\Files\File $file
-     * @param null $name
-     * @return null|string
+     * @return array|null
      */
-    public function setFile(File $file, $name = null)
+    public function toArray()
     {
-        $name = $name ? $name : $file->name;
-
-        if ($this->MD5Name) {
-            $ext = pathinfo($name, PATHINFO_EXTENSION);
-            $name = md5($name) . '.' . $ext;
-        }
-
-        if ($name) {
-            // Folder for upload
-            $filePath = $this->makeFilePath($name);
-            if ($this->getFileSystem()->write($filePath, $file->getContent())) {
-                return $filePath;
-            }
-        }
-
-        return null;
+        return empty($this->value) ? null : ['url' => $this->url()];
     }
 
-    public function makeFilePath($fileName)
+    /**
+     * @param $fileName
+     * @return string
+     */
+    public function getAvailableFileName($fileName)
     {
         if (is_callable($this->uploadTo)) {
-            $func = $this->uploadTo;
-            $uploadTo = $func();
+            $uploadTo = $this->uploadTo->__invoke();
         } else {
             $uploadTo = strtr($this->uploadTo, [
                 '%Y' => date('Y'),
@@ -231,14 +229,16 @@ class FileField extends CharField
                 '%M' => $this->getModel()->getModuleName(),
             ]);
         }
-        $fs = $this->getFileSystem();
+        $fs = $this->getFilesystem();
         if (mb_strlen($fileName, 'UTF-8') > 255) {
             $fileName = mb_substr($fileName, 0, 255, 'UTF-8');
         }
         $path = $uploadTo . $fileName;
         $count = 0;
         if ($fs->has($path)) {
-            $meta = $fs->get($path)->getMetadata();
+            /** @var \League\Flysystem\File $file */
+            $file = $fs->get($path);
+            $meta = $file->getMetadata();
             while ($fs->has($path)) {
                 $fileName = strtr("{filename}_{count}.{extension}", [
                     '{filename}' => $meta['filename'],
@@ -251,32 +251,14 @@ class FileField extends CharField
         return $path;
     }
 
-    public function isValid() : bool
+    /**
+     * @param $form
+     * @param string $fieldClass
+     * @param array $extra
+     * @return null|object
+     */
+    public function getFormField($form, $fieldClass = '\Mindy\Forms\Fields\FileField', array $extra = [])
     {
-        throw new \Exception('TODO');
-        parent::isValid();
-        if (isset($this->value['error']) && $this->value['error'] == UPLOAD_ERR_NO_FILE && $this->null == false) {
-            $this->addErrors(app()->t('validation', 'Cannot be empty'));
-        }
-        return $this->hasErrors() === false;
-    }
-
-    public function getFormField($form, $fieldClass = null, array $extra = [])
-    {
-        if (!empty($this->types)) {
-            $types = [];
-            foreach ($this->types as $type) {
-                $types[] = mimetype_from_extension($type);
-            }
-            $extra = array_merge($extra, [
-                'html' => ['accept' => implode('|', $types)]
-            ]);
-        }
-        return parent::getFormField($form, FormFileField::className(), $extra);
-    }
-
-    public function onAfterDelete()
-    {
-        $this->deleteOld();
+        return parent::getFormField($form, $fieldClass, $extra);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Mindy\Orm\Fields;
 use Doctrine\DBAL\Types\Type;
-use Mindy\Orm\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilder;
 
 /**
  * Class BooleanField

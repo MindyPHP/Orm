@@ -12,9 +12,15 @@ use ReflectionClass;
  */
 class Model extends NewOrm
 {
-    public function getVerboseName()
+    public function getVerboseName() : string
     {
         return $this->classNameShort();
+    }
+
+    public function classNameShort() : string
+    {
+        $classMap = explode('\\', get_called_class());
+        return end($classMap);
     }
 
     /**

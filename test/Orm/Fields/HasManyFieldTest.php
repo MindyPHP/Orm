@@ -14,7 +14,7 @@
 
 namespace Mindy\Tests\Orm\Fields;
 
-use Mindy\Orm\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilder;
 use Mindy\Tests\Orm\OrmDatabaseTestCase;
 use Mindy\Tests\Orm\Models\Category;
 use Mindy\Tests\Orm\Models\Color;

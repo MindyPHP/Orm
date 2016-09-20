@@ -8,6 +8,9 @@
     }
   },
   "autoload-dev": {
+    "files": [
+      "test/functions.php"
+    ],
     "psr-4": {
       "Mindy\\Tests\\": "test/",
       "Modules\\Tests\\Models\\": "test/app/Models"
@@ -18,7 +21,10 @@
     "imagine/imagine": "*",
     "doctrine/dbal": "^2.5",
     "doctrine/migrations": "^1.4",
-    "mindy/creator": "^1.0"
+    "mindy/creator": "^1.0",
+    "symfony/validator": "^3.1",
+    "mindy/query_builder": "1.11",
+    "cocur/slugify": "^2.3"
   },
   "authors": [
     {

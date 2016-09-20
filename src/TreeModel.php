@@ -7,7 +7,7 @@ namespace Mindy\Orm;
 use Exception;
 use Mindy\Orm\Fields\IntField;
 use Mindy\Orm\Fields\TreeForeignField;
-use Mindy\Orm\QueryBuilder\Expression;
+use Mindy\QueryBuilder\Expression;
 
 /**
  * Class TreeModel

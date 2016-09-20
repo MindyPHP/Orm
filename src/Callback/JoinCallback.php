@@ -11,8 +11,8 @@ namespace Mindy\Orm\Callback;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Fields\RelatedField;
 use Mindy\Orm\ModelInterface;
-use Mindy\Orm\QueryBuilder\LookupBuilder\LookupBuilder;
-use Mindy\Orm\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\LookupBuilder\LookupBuilder;
+use Mindy\QueryBuilder\QueryBuilder;
 
 class JoinCallback
 {

@@ -7,15 +7,15 @@ use Mindy\Creator\Creator;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\ManyToManyField;
-use Mindy\Orm\QueryBuilder\Aggregation\Aggregation;
-use Mindy\Orm\QueryBuilder\Aggregation\Avg;
-use Mindy\Orm\QueryBuilder\Aggregation\Count;
-use Mindy\Orm\QueryBuilder\Aggregation\Max;
-use Mindy\Orm\QueryBuilder\Aggregation\Min;
-use Mindy\Orm\QueryBuilder\Aggregation\Sum;
-use Mindy\Orm\QueryBuilder\Q\QAndNot;
-use Mindy\Orm\QueryBuilder\Q\QOrNot;
-use Mindy\Orm\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\Aggregation\Aggregation;
+use Mindy\QueryBuilder\Aggregation\Avg;
+use Mindy\QueryBuilder\Aggregation\Count;
+use Mindy\QueryBuilder\Aggregation\Max;
+use Mindy\QueryBuilder\Aggregation\Min;
+use Mindy\QueryBuilder\Aggregation\Sum;
+use Mindy\QueryBuilder\Q\QAndNot;
+use Mindy\QueryBuilder\Q\QOrNot;
+use Mindy\QueryBuilder\QueryBuilder;
 
 /**
  * Class QuerySet

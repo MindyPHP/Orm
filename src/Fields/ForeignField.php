@@ -8,7 +8,7 @@ use InvalidArgumentException;
 use Mindy\Orm\Base;
 use Mindy\Orm\ModelInterface;
 use Mindy\Orm\ManagerInterface;
-use Mindy\Orm\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilder;
 
 /**
  * Class ForeignField

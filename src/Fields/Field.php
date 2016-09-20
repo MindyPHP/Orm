@@ -8,12 +8,10 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Types\Type;
 use Mindy\Creator\Creator;
-use Mindy\Helper\Traits\Accessors;
-use Mindy\Helper\Traits\Configurator;
 use Mindy\Orm\Model;
 use Mindy\Orm\ModelInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use Mindy\Validation\ValidationAwareTrait;
+use Mindy\Orm\ValidationTrait;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
@@ -22,9 +20,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  */
 abstract class Field implements ModelFieldInterface
 {
-    use Accessors;
-    use Configurator;
-    use ValidationAwareTrait;
+    use ValidationTrait;
 
     /**
      * @var string|null|false
@@ -80,6 +76,19 @@ abstract class Field implements ModelFieldInterface
      * @var mixed
      */
     protected $dbValue;
+
+    /**
+     * Field constructor.
+     * @param array $config
+     */
+    public function __construct(array $config = [])
+    {
+        foreach ($config as $key => $value) {
+            if (property_exists($this, $key)) {
+                $this->{$key} = $value;
+            }
+        }
+    }
 
     /**
      * @return array

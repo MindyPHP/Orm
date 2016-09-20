@@ -4,7 +4,7 @@ namespace Mindy\Orm\Fields;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
-use Mindy\Orm\QueryBuilder\Expression;
+use Mindy\QueryBuilder\Expression;
 
 /**
  * Class AutoField
