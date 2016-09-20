@@ -257,7 +257,7 @@ trait ImageProcess
      * @param null $height
      * @return array
      */
-    protected function imageScale(ImageInterface $source, $width = null, $height = null)
+    protected function imageScale(ImageInterface $source, $width = null, $height = null) : array
     {
         $size = $source->getSize();
         $ratio = $size->getWidth() / $size->getHeight();
@@ -267,6 +267,9 @@ trait ImageProcess
             $width = $height * $ratio;
         }
 
-        return [(int)$width, (int)$height];
+        return [
+            (int)$width,
+            (int)$height
+        ];
     }
 }

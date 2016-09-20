@@ -2,6 +2,8 @@
 
 namespace Mindy\Orm\Fields;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Mindy\Orm\Files\File;
 use Mindy\Orm\Image\ImageProcessor;
 use Mindy\Orm\Image\ImageProcessorInterface;
 use Mindy\Orm\ModelInterface;
@@ -97,8 +99,8 @@ class ImageField extends FileField
         parent::afterDelete($model, $value);
 
         $processor = $this->getProcessor();
-        foreach ($processor->getSizes() as $prefix => $config) {
-            $path = $processor->path($value, $prefix);
+        foreach ($processor->getSizes() as $config) {
+            $path = $processor->path($value, $config);
             $fs = $this->getFilesystem();
             if ($fs->has($path)) {
                 $fs->delete($path);
@@ -125,21 +127,22 @@ class ImageField extends FileField
     }
 
     /**
-     * @param $prefix
+     * @param array $options
      * @return string
      */
-    public function path($prefix) : string
+    public function path(array $options = []) : string
     {
-        return $this->getProcessor()->path($this->value, $prefix);
+        $value = $this->getProcessor()->path($this->value, $options);
+        return $this->getFilesystem()->get($value);
     }
 
     /**
-     * @param $prefix
+     * @param array $options
      * @return string
      */
-    public function url($prefix) : string
+    public function url(array $options = []) : string
     {
-        return $this->getProcessor()->url($this->value, $prefix);
+        return $this->getProcessor()->url($this->value, $options);
     }
 
     /**
@@ -164,8 +167,8 @@ class ImageField extends FileField
         $sizes = [];
         if ($this->getValue()) {
             $processor = $this->getProcessor();
-            foreach ($processor->getSizes() as $prefix => $config) {
-                $sizes[$prefix] = $this->url($prefix);
+            foreach ($processor->getSizes() as $config) {
+                $sizes[$config['name']] = $this->url($config);
             }
             $sizes['original'] = $this->url($this->value);
         }
@@ -181,5 +184,14 @@ class ImageField extends FileField
     public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\ImageField', array $extra = [])
     {
         return parent::getFormField($form, $fieldClass, $extra);
+    }
+
+    public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)
+    {
+        if ($value instanceof File) {
+            $path = $this->saveFile($value);
+            $this->getProcessor()->process($path);
+        }
+        return parent::convertToDatabaseValueSQL($value, $platform);
     }
 }

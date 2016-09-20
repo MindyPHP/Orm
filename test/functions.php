@@ -9,6 +9,7 @@
 namespace Mindy;
 
 use League\Flysystem\Adapter\Local;
+use League\Flysystem\Config;
 use League\Flysystem\Filesystem;
 use Mindy\Orm\Flysystem\UrlPlugin;
 
@@ -28,7 +29,9 @@ class MockStorage
     {
         if ($this->filesystem === null) {
             $adapter = new Local(realpath(__DIR__ . '/Orm/app/media'));
-            $this->filesystem = new Filesystem($adapter);
+            $this->filesystem = new Filesystem($adapter, new Config([
+                'disable_asserts' => true,
+            ]));
 
             $this->filesystem->addPlugin(new UrlPlugin);
         }

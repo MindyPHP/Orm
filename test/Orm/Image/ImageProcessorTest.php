@@ -34,6 +34,7 @@ class ImageProcessorTest extends \PHPUnit_Framework_TestCase
     public function testResize()
     {
         $options = [
+            'name' => 'thumb',
             'width' => 200,
             'height' => null,
             'options' => [
@@ -45,35 +46,34 @@ class ImageProcessorTest extends \PHPUnit_Framework_TestCase
             'uploadTo' => '/temp',
             'storeOriginal' => false,
             'sizes' => [
-                'thumb' => $options
+                $options
             ]
         ]);
 
         $fileName = $processor->generateFilename('/temp/cat.jpg', $options);
+        $this->assertEquals('cat_0343c5aa39.jpg', basename($fileName));
 
-        $processor->process(__DIR__ . '/../app/media/cat.jpg');
-
-        $this->assertEquals('cat_d434de1940.jpg', basename($fileName));
+        $processor->process(__DIR__ . '/cat.jpg');
 
         /** @var \League\Flysystem\FilesystemInterface $fs */
         $fs = app()->storage->getFilesystem();
-        $this->assertTrue($fs->has('/temp/cat_d434de1940.jpg'));
-        $this->assertEquals('/media/temp/cat_40cd750bba.jpg', $processor->url('/temp/cat.jpg', 'thumb'));
-        $this->assertEquals('/media/temp/cat_40cd750bba.jpg', $processor->url('/temp/cat.jpg', '200x'));
+        $this->assertTrue($fs->has('/temp/cat_0343c5aa39.jpg'));
+        $this->assertEquals('/media/temp/cat_0343c5aa39.jpg', $processor->url('/temp/cat.jpg', ['name' => 'thumb']));
+        $this->assertEquals('/media/temp/cat_0343c5aa39.jpg', $processor->url('/temp/cat.jpg', ['width' => 200]));
     }
 
     public function testWatermark()
     {
         $options = [
+            'name' => 'thumb',
             'width' => 200,
             'height' => null,
-            'uploadTo' => __DIR__ . '/temp',
             'options' => [
                 'jpeg_quality' => 100,
                 'quality' => 100,
             ],
             'watermark' => [
-                'file' => '/watermark.png',
+                'file' => __DIR__ . '/watermark.png',
                 'position' => 'repeat'
             ]
         ];
@@ -81,14 +81,17 @@ class ImageProcessorTest extends \PHPUnit_Framework_TestCase
             'uploadTo' => '/temp',
             'storeOriginal' => false,
             'sizes' => [
-                'thumb' => $options
+                $options
             ]
         ]);
 
-        $processor->process(__DIR__ . '/../app/media/cat.jpg');
+        $fileName = $processor->generateFilename('/temp/cat.jpg', $options);
+        $this->assertEquals('cat_839599d30e.jpg', basename($fileName));
+
+        $processor->process(__DIR__ . '/cat.jpg');
 
         /** @var \League\Flysystem\FilesystemInterface $fs */
         $fs = app()->storage->getFilesystem();
-        $this->assertTrue($fs->has('/temp/cat_2ebd697cce.jpg'));
+        $this->assertTrue($fs->has('/temp/cat_839599d30e.jpg'));
     }
 }

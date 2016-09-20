@@ -47,7 +47,7 @@ trait FilesystemAwareTrait
     }
 
     /**
-     * @return FilesystemInterface
+     * @return FilesystemInterface|\League\Flysystem\Filesystem
      */
     public function getFilesystem() : FilesystemInterface
     {

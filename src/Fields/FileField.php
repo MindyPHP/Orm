@@ -2,6 +2,8 @@
 
 namespace Mindy\Orm\Fields;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Exception;
 use function Mindy\app;
 use Mindy\Orm\Files\File;
 use Mindy\Orm\Files\LocalFile;
@@ -109,9 +111,10 @@ class FileField extends CharField
     }
 
     /**
+     * @param array $options
      * @return string
      */
-    public function path() : string
+    public function path(array $options = []) : string
     {
         return $this->getFilesystem()->get($this->value);
     }
@@ -240,5 +243,29 @@ class FileField extends CharField
     public function getFormField($form, $fieldClass = '\Mindy\Forms\Fields\FileField', array $extra = [])
     {
         return parent::getFormField($form, $fieldClass, $extra);
+    }
+
+    public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)
+    {
+        if ($value instanceof File) {
+            $this->saveFile($value);
+        }
+        return parent::convertToDatabaseValueSQL($value, $platform);
+    }
+
+    protected function saveFile(File $file)
+    {
+        $contents = file_get_contents($file->getRealPath());
+        $value = $this->getUploadTo() . DIRECTORY_SEPARATOR . $file->getFilename();
+        $fs = $this->getFilesystem();
+        if ($fs->has($value)) {
+            $fs->delete($value);
+        }
+
+        if (!$fs->write($value, $contents)) {
+            throw new Exception('Failed to save file');
+        }
+
+        return $file->getRealPath();
     }
 }

@@ -102,45 +102,43 @@ class ImageProcessor extends AbstractProcessor implements ImageProcessorInterfac
     }
 
     /**
-     * @param string $prefix
+     * @param array $options
      * @return array
      * @throws Exception
      */
-    protected function findOptionsByPrefix(string $prefix) : array
+    protected function findOptionsByConfigPart(array $options) : array
     {
         $sizes = $this->getSizes();
 
-        if (strpos($prefix, 'x') !== false) {
-            list($width, $height) = explode('x', $prefix);
-            $options = null;
-            foreach ($sizes as $prefix => $config) {
-                if ($config['width'] ?? null === $width && $config['height'] ?? null === $height) {
-                    $options = $config;
-                    break;
+        if (isset($options['name'])) {
+            foreach ($sizes as $config) {
+                if ($config['name'] ?? '' === $options['name']) {
+                    return $config;
                 }
             }
-
-            if ($options === null) {
-                throw new Exception('Unknown sizes. Failed to find prefix for width: ' . $width . ' and height: ' . $height);
-            }
-        } else if (isset($sizes[$prefix])) {
-            $options = $sizes[$prefix];
         } else {
-            throw new Exception('Unknown prefix');
+            foreach ($sizes as $config) {
+                if (
+                    sprintf("%sx%s", $config['width'] ?? '', $config['height'] ?? '') ==
+                    sprintf("%sx%s", $options['width'] ?? '', $options['height'] ?? '')
+                ) {
+                    return $config;
+                }
+            }
         }
 
-        return $options;
+        throw new Exception('Cannot find options for: ' . print_r($options, true));
     }
 
     /**
      * @param string $value
-     * @param string $prefix
+     * @param array $config
      * @return string
      * @throws Exception
      */
-    public function path(string $value, string $prefix) : string
+    public function path(string $value, array $config = []) : string
     {
-        $options = $this->findOptionsByPrefix($prefix);
+        $options = $this->findOptionsByConfigPart($config);
 
         if ($options['force'] ?? false || ($options['checkMissing'] ?? false && !$this->has($value))) {
             $this->process($value);
@@ -155,15 +153,15 @@ class ImageProcessor extends AbstractProcessor implements ImageProcessorInterfac
      * @param array $config
      * @return string
      */
-    public function url(string $value, string $prefix, array $config = []) : string
+    public function url(string $value, array $config = []) : string
     {
-        $options = $this->findOptionsByPrefix($prefix);
+        $options = $this->findOptionsByConfigPart($config);
 
         if ($options['force'] ?? false || ($options['checkMissing'] ?? false && !$this->has($value))) {
             $this->process($value);
         }
 
-        $fileName = $this->generateFilename($value, $config);
+        $fileName = $this->generateFilename($value, $options);
         return $this->getFilesystem()->url($fileName, $config);
     }
 
@@ -176,59 +174,53 @@ class ImageProcessor extends AbstractProcessor implements ImageProcessorInterfac
      */
     public function processSource(string $path, ImageInterface $image, $prefix = null)
     {
-        foreach ($this->getSizes() as $name => $config) {
+        foreach ($this->getSizes() as $config) {
 
             /**
              * Skip unused sizes
              */
-            if (!is_null($prefix) && $name !== $prefix) {
+            if (is_null($prefix) === false && $config['name'] !== $prefix) {
                 continue;
             }
 
-            if ($config instanceof \Closure) {
-                $image = $config->__invoke($path, $image);
-            } else {
-                $width = $config['width'] ?? null;
-                $height = $config['height'] ?? null;
-                $method = $config['method'] ?? $this->defaultResize;
-                $options = $config['config'] ?? [];
-                $extSize = $config['format'] ?? pathinfo($path, PATHINFO_EXTENSION);
+            $width = $config['width'] ?? null;
+            $height = $config['height'] ?? null;
+            $method = $config['method'] ?? $this->defaultResize;
+            $options = $config['config'] ?? [];
+            $extSize = $config['format'] ?? pathinfo($path, PATHINFO_EXTENSION);
 
-                if (!in_array($method, $this->availableResizeMethods)) {
-                    throw new Exception('Unknown resize method: ' . $method);
-                }
-
-                if (!$width || !$height) {
-                    list($width, $height) = $this->imageScale($image, $width, $height);
-                }
-
-                $newSource = $this->resize($image->copy(), $width, $height, $method);
-                if (isset($config['watermark'])) {
-                    $watermarkConfig = $config['watermark'];
-                    if (!isset($watermarkConfig['file']) || !$this->has($watermarkConfig['file'])) {
-                        throw new Exception('Watermark image missing or not exists');
-                    }
-
-                    $watermark = self::getImagine()->load($this->getFilesystem()->read($watermarkConfig['file']));
-                    $newSource = $this->applyWatermark($newSource, $watermark, $watermarkConfig['position'] ?? 'center');
-                }
-
-                $sizePath = $this->generateFilename($path, $config);
-                $resultPath = $this->uploadTo . DIRECTORY_SEPARATOR . $sizePath;
-                if ($this->has($resultPath)) {
-                    $this->getFilesystem()->delete($resultPath);
-                }
-                $this->write($resultPath, $newSource->get($extSize, $options));
+            if (!in_array($method, $this->availableResizeMethods)) {
+                throw new Exception('Unknown resize method: ' . $method);
             }
+
+            if (!$width || !$height) {
+                list($width, $height) = $this->imageScale($image, $width, $height);
+            }
+
+            $newSource = $this->resize($image->copy(), $width, $height, $method);
+            if (isset($config['watermark'])) {
+                $watermarkConfig = $config['watermark'];
+                if (!isset($watermarkConfig['file']) || !is_file($watermarkConfig['file'])) {
+                    throw new Exception('Watermark image missing or not exists');
+                }
+
+                $watermark = self::getImagine()->open($watermarkConfig['file']);
+                $newSource = $this->applyWatermark($newSource, $watermark, $watermarkConfig['position'] ?? 'center');
+            }
+
+            $sizePath = $this->generateFilename($path, $config);
+            if ($this->has($sizePath)) {
+                $this->getFilesystem()->delete($sizePath);
+            }
+            $this->write($sizePath, $newSource->get($extSize, $options));
         }
 
         if ($this->storeOriginal) {
-            $sizePath = $this->generateFilename($path, ['original' => true]);
-            $resultPath = $this->uploadTo . DIRECTORY_SEPARATOR . $sizePath;
-            if ($this->has($resultPath)) {
-                $this->getFilesystem()->delete($resultPath);
+            $sizePath = $this->uploadTo . DIRECTORY_SEPARATOR . basename($path);
+            if ($this->has($sizePath)) {
+                $this->getFilesystem()->delete($sizePath);
             }
-            if ($this->write($resultPath, $this->read($path)) === false) {
+            if ($this->write($sizePath, file_get_contents($path)) === false) {
                 throw new Exception("Failed to save original file");
             }
         }
@@ -244,12 +236,12 @@ class ImageProcessor extends AbstractProcessor implements ImageProcessorInterfac
     public function generateFilename(string $path, array $options = []) : string
     {
         ksort($options);
-        $hash = substr(md5(serialize($options)), 0, 10);
-        $dir = dirname($path);
+        $serialized = serialize($options);
+        $hash = substr(md5($serialized), 0, 10);
         $name = basename($path);
         $ext = pathinfo($path, PATHINFO_EXTENSION);
         $basename = substr($name, 0, strpos($name, $ext) - 1);
-        return $dir . DIRECTORY_SEPARATOR . implode('_', [$basename, $hash]) . '.' . $ext;
+        return $this->uploadTo . DIRECTORY_SEPARATOR . implode('_', [$basename, $hash]) . '.' . $ext;
     }
 
     /**
@@ -261,7 +253,7 @@ class ImageProcessor extends AbstractProcessor implements ImageProcessorInterfac
     public function process(string $path, $prefix = null)
     {
         if (!is_file($path)) {
-            throw new Exception('File not found');
+            throw new Exception('File not found: ' . $path);
         }
 
         $image = $this->getImagine()->open($path);

@@ -14,7 +14,6 @@
 
 namespace Tests\Orm\Fields;
 
-use League\Flysystem\Util\MimeType;
 use function Mindy\app;
 use Mindy\Orm\Fields\FileField;
 use Mindy\Orm\Fields\ImageField;
@@ -42,81 +41,29 @@ class ImageFieldTest extends OrmDatabaseTestCase
     {
         $field = new ImageField([
             'uploadTo' => function () {
-                return '';
-            }
-        ]);
-        $image = $this->mock . '/lena.png';
-        $imageName = $field->setFile(new LocalFile($image));
-
-        $this->assertFileExists($this->media . '/' . $imageName);
-    }
-
-    public function testResize()
-    {
-        $field = new ImageField([
-            'uploadTo' => function () {
-                return '';
+                return '/fields';
             },
             'sizes' => [
-                'preview' => [
-                    120, 160,
-                    'method' => 'resize'
-                ],
-                'mini' => [
-                    60, 50,
-                    'method' => 'adaptiveResize'
-                ],
-                'big' => [
-                    400, 300,
-                    'method' => 'adaptiveResize'
-                ],
-                'watermarked' => [
-                    400, 400,
-                    'method' => 'adaptiveResize',
-                    'watermark' => [
-                        'file' => '/mock/watermark.png',
-                        'position' => 'repeat'
-                    ]
-                ],
-                'jpg' => [
-                    60, 50,
-                    'method' => 'adaptiveResize',
-                    'format' => 'jpg'
-                ],
+                ['name' => 'test', 'width' => 200]
             ]
         ]);
+        $field->setValue(new LocalFile(__DIR__ . '/../Image/cat.jpg'));
+        $field->convertToDatabaseValueSQL($field->getValue(), $this->getConnection()->getDatabasePlatform());
 
-        $image = $this->mock . '/lena.png';
-        $imageName = $field->setFile(new LocalFile($image));
-
-        $this->assertFileExists($this->media . '/' . $imageName);
-        $this->assertFileExists($this->media . '/' . $field->sizeStoragePath('mini', $imageName));
-        $this->assertFileExists($this->media . '/' . $field->sizeStoragePath('preview', $imageName));
-        $this->assertFileExists($this->media . '/' . $field->sizeStoragePath('big', $imageName));
-        $this->assertFileExists($this->media . '/' . $field->sizeStoragePath('watermarked', $imageName));
-        $this->assertFileExists($this->media . '/' . $field->sizeStoragePath('jpg', $imageName));
+        /** @var \League\Flysystem\FilesystemInterface $fs */
+        $fs = app()->storage->getFilesystem();
+        $this->assertTrue($fs->has('/fields/cat.jpg'));
     }
 
     protected function tearDown()
     {
         parent::tearDown();
-        $files = glob($this->media . '/*');
+        $files = glob($this->media . '/fields/*');
         foreach ($files as $file) {
             if (is_file($file)) {
                 unlink($file);
             }
         }
-    }
-
-    public function testFileField()
-    {
-        $model = new User;
-
-        $file = new FileField();
-        $file->setModel($model);
-        $file->setFile(new LocalFile(__FILE__));
-
-        $content = $this->app->storage->getFilesystem()->has('qwe');
     }
 
     public function testFileFieldValidation()
@@ -137,7 +84,7 @@ class ImageFieldTest extends OrmDatabaseTestCase
         file_put_contents($path, '123');
         $file = [
             'name' => 'Test.php',
-            'type' => MimeType::detectByFilename($path),
+            'type' => 'text/php',
             'tmp_name' => $path,
             'error' => UPLOAD_ERR_OK,
             'size' => 10000000
@@ -166,5 +113,7 @@ class ImageFieldTest extends OrmDatabaseTestCase
         $field->setValue($uploadedFile);
         $this->assertFalse($field->isValid());
         $this->assertEquals('The mime type of the file is invalid ("text/plain"). Allowed mime types are "image/*".', $field->getErrors()[0]);
+
+        @unlink($path);
     }
 }
