@@ -15,7 +15,7 @@ return [
     ],
     'pgsql' => [
         'dbname' => 'test',
-        'user' => 'root',
+        'user' => 'postgres',
         'password' => '',
         'host' => 'localhost',
         'driver' => 'pdo_pgsql',
