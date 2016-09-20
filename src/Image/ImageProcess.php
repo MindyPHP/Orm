@@ -2,14 +2,13 @@
 
 namespace Mindy\Orm\Image;
 
+use Exception;
 use Imagine\Image\Box;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\ImagineInterface;
 use Imagine\Image\ManipulatorInterface;
 use Imagine\Image\Metadata\DefaultMetadataReader;
 use Imagine\Image\Point;
-use Mindy\Exception\Exception;
-use Mindy\Helper\Alias;
 
 /**
  * Class ImageProcess
@@ -136,108 +135,119 @@ trait ImageProcess
         return $img;
     }
 
-    public function applyWatermark(ImageInterface $source, $options)
+    /**
+     * @param ImageInterface $source
+     * @param ImageInterface $watermark
+     * @param string $position
+     * @return ImageInterface
+     */
+    public function applyWatermark(ImageInterface $source, ImageInterface $watermark, string $position = 'center') : ImageInterface
     {
-        if ($options && is_array($options) && isset($options['file']) && isset($options['position'])) {
-            $file = Alias::get('www') . DIRECTORY_SEPARATOR . $options['file'];
-            $watermark = $this->getImagine()->open($file);
-            $position = $options['position'];
+        $x = 0;
+        $y = 0;
 
-            $x = 0;
-            $y = 0;
+        $wSize = $watermark->getSize();
+        $sSize = $source->getSize();
 
+        $wWidth = $wSize->getWidth();
+        $wHeight = $wSize->getHeight();
+
+        $sWidth = $sSize->getWidth();
+        $sHeight = $sSize->getHeight();
+
+        $repeat = false;
+
+        // If watermark bigger of original image, resize watermark.
+        // https://github.com/MindyPHP/Mindy_Orm/pull/140
+        if ($sWidth < $wWidth || $sHeight < $wHeight) {
+            $watermark = $this->resize($watermark, $sWidth * 0.9, $sHeight * 0.9, 'resize');
             $wSize = $watermark->getSize();
-            $sSize = $source->getSize();
-
             $wWidth = $wSize->getWidth();
             $wHeight = $wSize->getHeight();
+        }
 
-            $sWidth = $sSize->getWidth();
-            $sHeight = $sSize->getHeight();
-
-            $repeat = false;
-
-            if (is_array($position)) {
-                list($x, $y) = $position;
-            } else {
-                switch ($position) {
-                    case 'top':
-                        $x = $sWidth / 2 - $wWidth / 2;
-                        $y = 0;
-                        break;
-                    case 'bottom':
-                        $x = $sWidth / 2 - $wWidth / 2;
-                        $y = $sHeight - $wHeight;
-                        break;
-                    case 'center':
-                        $x = $sWidth / 2 - $wWidth / 2;
-                        $y = $sHeight / 2 - $wHeight / 2;
-                        break;
-                    case 'left':
-                        $x = 0;
-                        $y = $sHeight / 2 - $wHeight / 2;
-                        break;
-                    case 'right':
-                        $x = $sWidth - $wWidth;
-                        $y = $sHeight / 2 - $wHeight / 2;
-                        break;
-                    case 'top-left':
-                        $x = 0;
-                        $y = 0;
-                        break;
-                    case 'top-right':
-                        $x = $sWidth - $wWidth;
-                        $y = 0;
-                        break;
-                    case 'bottom-left':
-                        $x = 0;
-                        $y = $sHeight - $wHeight;
-                        break;
-                    case 'bottom-right':
-                        $x = $sWidth - $wWidth;
-                        $y = $sHeight - $wHeight;
-                        break;
-                    case 'repeat':
-                        $repeat = true;
-                        break;
-                }
-                if ($x < 0) {
-                    $x = 0;
-                }
-                if ($y < 0) {
+        if (is_array($position)) {
+            list($x, $y) = $position;
+        } else {
+            switch ($position) {
+                case 'top':
+                    $x = $sWidth / 2 - $wWidth / 2;
                     $y = 0;
-                }
-            }
-
-            if ($repeat) {
-                while($y < $sHeight) {
-                    $appendY = $wHeight;
-                    if ($y + $appendY > $sHeight) {
-                        $appendY = $sHeight - $y;
-                    }
+                    break;
+                case 'bottom':
+                    $x = $sWidth / 2 - $wWidth / 2;
+                    $y = $sHeight - $wHeight;
+                    break;
+                case 'center':
+                    $x = $sWidth / 2 - $wWidth / 2;
+                    $y = $sHeight / 2 - $wHeight / 2;
+                    break;
+                case 'left':
                     $x = 0;
-                    while ($x < $sWidth) {
-                        $appendX = $wWidth;
-                        if ($x + $appendX > $sWidth) {
-                            $appendX = $sWidth - $x;
-                        }
-
-                        if ($appendY != $wHeight || $appendX != $wWidth) {
-                            $source->paste($watermark->copy()->crop(new Point(0, 0), new Box($appendX, $appendY)),
-                                new Point($x, $y));
-                        } else {
-                            $source->paste($watermark, new Point($x, $y));
-                        }
-
-                        $x += $appendX;
-                    }
-                    $y += $appendY;
-                }
-            } else {
-                if (($x + $wWidth <= $sWidth) && ($y + $wHeight <= $sHeight))
-                    return $source->paste($watermark, new Point($x, $y));
+                    $y = $sHeight / 2 - $wHeight / 2;
+                    break;
+                case 'right':
+                    $x = $sWidth - $wWidth;
+                    $y = $sHeight / 2 - $wHeight / 2;
+                    break;
+                case 'top-left':
+                    $x = 0;
+                    $y = 0;
+                    break;
+                case 'top-right':
+                    $x = $sWidth - $wWidth;
+                    $y = 0;
+                    break;
+                case 'bottom-left':
+                    $x = 0;
+                    $y = $sHeight - $wHeight;
+                    break;
+                case 'bottom-right':
+                    $x = $sWidth - $wWidth;
+                    $y = $sHeight - $wHeight;
+                    break;
+                case 'repeat':
+                    $repeat = true;
+                    break;
+            }
+            if ($x < 0) {
+                $x = 0;
+            }
+            if ($y < 0) {
+                $y = 0;
             }
         }
+
+        if ($repeat) {
+            while ($y < $sHeight) {
+                $appendY = $wHeight;
+                if ($y + $appendY > $sHeight) {
+                    $appendY = $sHeight - $y;
+                }
+                $x = 0;
+                while ($x < $sWidth) {
+                    $appendX = $wWidth;
+                    if ($x + $appendX > $sWidth) {
+                        $appendX = $sWidth - $x;
+                    }
+
+                    if ($appendY != $wHeight || $appendX != $wWidth) {
+                        $source->paste($watermark->copy()->crop(new Point(0, 0), new Box($appendX, $appendY)),
+                            new Point($x, $y));
+                    } else {
+                        $source->paste($watermark, new Point($x, $y));
+                    }
+
+                    $x += $appendX;
+                }
+                $y += $appendY;
+            }
+        } else {
+            if (($x + $wWidth <= $sWidth) && ($y + $wHeight <= $sHeight)) {
+                return $source->paste($watermark, new Point($x, $y));
+            }
+        }
+
         return $source;
     }
 

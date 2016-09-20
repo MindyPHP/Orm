@@ -3,7 +3,6 @@
 namespace Mindy\Orm;
 
 use Doctrine\DBAL\Connection;
-use Mindy\Interfaces\Arrayable;
 use Mindy\QueryBuilder\Expression;
 use Mindy\QueryBuilder\Q\QAndNot;
 use Mindy\QueryBuilder\QueryBuilder;
@@ -26,20 +25,20 @@ class TreeQuerySet extends QuerySet
     public function descendants($includeSelf = false, $depth = null)
     {
         $this->filter([
-            'lft__gte' => $this->model->lft,
-            'rgt__lte' => $this->model->rgt,
-            'root' => $this->model->root
+            'lft__gte' => $this->getModel()->lft,
+            'rgt__lte' => $this->getModel()->rgt,
+            'root' => $this->getModel()->root
         ])->order(['lft']);
 
         if ($includeSelf === false) {
             $this->exclude([
-                'pk' => $this->model->pk
+                'pk' => $this->getModel()->pk
             ]);
         }
 
         if ($depth !== null) {
             $this->filter([
-                'level__lte' => $this->model->level + $depth
+                'level__lte' => $this->getModel()->level + $depth
             ]);
         }
 
@@ -65,19 +64,19 @@ class TreeQuerySet extends QuerySet
     public function ancestors($includeSelf = false, $depth = null)
     {
         $qs = $this->filter([
-            'lft__lte' => $this->model->lft,
-            'rgt__gte' => $this->model->rgt,
-            'root' => $this->model->root
+            'lft__lte' => $this->getModel()->lft,
+            'rgt__gte' => $this->getModel()->rgt,
+            'root' => $this->getModel()->root
         ])->order(['-lft']);
 
         if ($includeSelf === false) {
             $this->exclude([
-                'pk' => $this->model->pk
+                'pk' => $this->getModel()->pk
             ]);
         }
 
         if ($depth !== null) {
-            $qs = $qs->filter(['level__lte' => $this->model->level - $depth]);
+            $qs = $qs->filter(['level__lte' => $this->getModel()->level - $depth]);
         }
 
         return $qs;
@@ -108,10 +107,10 @@ class TreeQuerySet extends QuerySet
     public function parent()
     {
         return $this->filter([
-            'lft__lt' => $this->model->lft,
-            'rgt__gt' => $this->model->rgt,
-            'level' => $this->model->level - 1,
-            'root' => $this->model->root
+            'lft__lt' => $this->getModel()->lft,
+            'rgt__gt' => $this->getModel()->rgt,
+            'level' => $this->getModel()->level - 1,
+            'root' => $this->getModel()->root
         ]);
     }
 
@@ -122,8 +121,8 @@ class TreeQuerySet extends QuerySet
     public function prev()
     {
         return $this->filter([
-            'rgt' => $this->model->lft - 1,
-            'root' => $this->model->root,
+            'rgt' => $this->getModel()->lft - 1,
+            'root' => $this->getModel()->root,
         ]);
     }
 
@@ -134,8 +133,8 @@ class TreeQuerySet extends QuerySet
     public function next()
     {
         return $this->filter([
-            'lft' => $this->model->rgt + 1,
-            'root' => $this->model->root,
+            'lft' => $this->getModel()->rgt + 1,
+            'root' => $this->getModel()->root,
         ]);
     }
 
@@ -270,11 +269,11 @@ class TreeQuerySet extends QuerySet
      * WARNING: Don't use QuerySet inside QuerySet in this
      * method because recursion...
      *
-     * @throws \Mindy\Query\Exception
+     * @throws \Exception
      */
     protected function findAndFixCorruptedTree()
     {
-        $model = $this->model;
+        $model = $this->getModel();
         $db = $model->getConnection();
         $table = $model->tableName();
         $this->deleteBranchWithoutRoot($db, $table);

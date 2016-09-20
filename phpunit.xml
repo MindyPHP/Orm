@@ -10,16 +10,13 @@
         </testsuite>
     </testsuites>
 
-    <!--
     <filter>
         <whitelist>
-            <directory suffix=".php">../src/</directory>
+            <directory suffix=".php">./src/Image/</directory>
         </whitelist>
     </filter>
-
     <logging>
-        <log type="coverage-html" target="build/logs/coverage" charset="UTF-8"
+        <log type="coverage-html" target="./coverage" charset="UTF-8"
              yui="true" highlight="true" lowUpperBound="50" highLowerBound="80"/>
     </logging>
-    -->
 </phpunit>

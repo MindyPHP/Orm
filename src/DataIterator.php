@@ -23,8 +23,6 @@ use Mindy\Helper\Traits\Configurator;
  */
 class DataIterator extends ArrayIterator
 {
-    use Configurator;
-
     /**
      * @var bool
      */
@@ -34,9 +32,20 @@ class DataIterator extends ArrayIterator
      */
     public $qs;
 
-    public function __construct(array $data, array $options = [], $flags = 0)
+    /**
+     * DataIterator constructor.
+     * @param array $data
+     * @param array $config
+     * @param int $flags
+     */
+    public function __construct(array $data, array $config = [], $flags = 0)
     {
         parent::__construct($data, $flags);
-        $this->configure($options);
+
+        foreach ($config as $key => $value) {
+            if (property_exists($this, $key)) {
+                $this->{$key} = $value;
+            }
+        }
     }
 }

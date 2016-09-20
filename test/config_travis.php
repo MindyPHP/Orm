@@ -2,18 +2,22 @@
 
 return [
     'mysql' => [
-        'class' => '\Mindy\Query\Connection',
-        'dsn' => 'mysql:host=localhost;dbname=test',
-        'username' => 'root',
-        'charset' => 'utf8',
+        'dbname' => 'test',
+        'user' => 'root',
+        'password' => '',
+        'host' => 'localhost',
+        'driver' => 'pdo_mysql',
     ],
     'sqlite' => [
-        'class' => '\Mindy\Query\Connection',
-        'dsn' => 'sqlite::memory:',
+        'memory' => true,
+        'driver' => 'pdo_sqlite',
+        'driverClass' => 'Mindy\QueryBuilder\Driver\SqliteDriver',
     ],
     'pgsql' => [
-        'class' => '\Mindy\Query\Connection',
-        'dsn' => 'pgsql:host=localhost;dbname=test',
-        'username' => 'postgres'
+        'dbname' => 'test',
+        'user' => 'root',
+        'password' => '',
+        'host' => 'localhost',
+        'driver' => 'pdo_pgsql',
     ]
 ];

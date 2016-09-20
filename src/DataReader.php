@@ -10,9 +10,6 @@ namespace Mindy\Orm;
 
 use Countable;
 use Iterator;
-use Mindy\Exception\InvalidCallException;
-use Mindy\Helper\Traits\Accessors;
-use Mindy\Helper\Traits\Configurator;
 
 /**
  * DataReader represents a forward-only stream of rows from a query result set.
@@ -55,8 +52,6 @@ use Mindy\Helper\Traits\Configurator;
  */
 class DataReader implements Iterator, Countable
 {
-    use Accessors, Configurator;
-
     /**
      * @var \PDOStatement the PDOStatement associated with the command
      */
@@ -74,8 +69,12 @@ class DataReader implements Iterator, Countable
     {
         $this->_statement = $statement;
         $this->_statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $this->configure($config);
-        $this->init();
+
+        foreach ($config as $key => $value) {
+            if (property_exists($this, $key)) {
+                $this->{$key} = $value;
+            }
+        }
     }
 
     /**

@@ -7,10 +7,7 @@ use Doctrine\DBAL\Connection;
 use Exception;
 use IteratorAggregate;
 use function Mindy\app;
-use Mindy\Base\Mindy;
 use Mindy\Creator\Creator;
-use Mindy\Helper\Traits\Accessors;
-use Mindy\Helper\Traits\Configurator;
 use Mindy\Orm\Callback\FetchColumnCallback;
 use Mindy\Orm\Callback\JoinCallback;
 use Mindy\Orm\Callback\LookupCallback;
@@ -23,8 +20,6 @@ use Serializable;
  */
 abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializable
 {
-    use Accessors, Configurator;
-
     /**
      * @var string the name of the ActiveRecord class.
      */
@@ -53,18 +48,23 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
     /**
      * @var \Mindy\Orm\Model
      */
-    private $_model;
+    private $model;
     /**
      * @var string
      */
     private $_tableAlias;
 
     /**
-     * @return \Mindy\Event\EventManager
+     * QuerySetBase constructor.
+     * @param array $config
      */
-    protected function getEventManager()
+    public function __construct(array $config)
     {
-        return Mindy::app()->getComponent('signal');
+        foreach ($config as $key => $value) {
+            if (property_exists($this, $key)) {
+                $this->{$key} = $value;
+            }
+        }
     }
 
     /**
@@ -81,7 +81,7 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
      */
     public function getModel()
     {
-        return $this->_model;
+        return $this->model;
     }
 
     /**
@@ -90,7 +90,7 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
      */
     public function setModel(ModelInterface $model)
     {
-        $this->_model = $model;
+        $this->model = $model;
         return $this;
     }
 

@@ -74,8 +74,6 @@ class OrmDatabaseTestCase extends \PHPUnit_Framework_TestCase
     {
         parent::tearDown();
         $this->dropModels($this->getModels(), $this->getConnection());
-        Mindy::setApplication(null);
-        $this->app = null;
     }
 
     public function initModels(array $models, Connection $connection)

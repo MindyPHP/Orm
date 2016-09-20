@@ -2,7 +2,6 @@
 
 namespace Mindy\Orm\Fields;
 
-use Imagine\Image\Point;
 use Mindy\Orm\Image\ImageProcessor;
 use Mindy\Orm\Image\ImageProcessorInterface;
 use Mindy\Orm\ModelInterface;
@@ -100,8 +99,9 @@ class ImageField extends FileField
         $processor = $this->getProcessor();
         foreach ($processor->getSizes() as $prefix => $config) {
             $path = $processor->path($value, $prefix);
-            if (is_file($path)) {
-                unlink($path);
+            $fs = $this->getFilesystem();
+            if ($fs->has($path)) {
+                $fs->delete($path);
             }
         }
     }
@@ -119,7 +119,7 @@ class ImageField extends FileField
                 ($oldValue = $model->getOldAttribute($this->getAttributeName())) &&
                 $value != $oldValue
             ) {
-                $this->getProcessor()->process($value);
+                $this->getProcessor()->process($value, $this->getUploadTo());
             }
         }
     }
@@ -150,7 +150,7 @@ class ImageField extends FileField
         if ($this->processor === null) {
             $this->processor = new ImageProcessor([
                 'sizes' => $this->sizes,
-                'basePath' => $this->getBasePath()
+                'uploadTo' => $this->getUploadTo()
             ]);
         }
         return $this->processor;

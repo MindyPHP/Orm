@@ -210,45 +210,25 @@ class FileField extends CharField
     }
 
     /**
-     * @param $fileName
      * @return string
      */
-    public function getAvailableFileName($fileName)
+    protected function getUploadTo() : string
     {
         if (is_callable($this->uploadTo)) {
-            $uploadTo = $this->uploadTo->__invoke();
+            return $this->uploadTo->__invoke();
         } else {
-            $uploadTo = strtr($this->uploadTo, [
+            $model = $this->getModel();
+            return strtr($this->uploadTo, [
                 '%Y' => date('Y'),
                 '%m' => date('m'),
                 '%d' => date('d'),
                 '%H' => date('H'),
                 '%i' => date('i'),
                 '%s' => date('s'),
-                '%O' => $this->getModel()->classNameShort(),
-                '%M' => $this->getModel()->getModuleName(),
+                '%O' => $model->classNameShort(),
+                '%M' => $model->getModuleName(),
             ]);
         }
-        $fs = $this->getFilesystem();
-        if (mb_strlen($fileName, 'UTF-8') > 255) {
-            $fileName = mb_substr($fileName, 0, 255, 'UTF-8');
-        }
-        $path = $uploadTo . $fileName;
-        $count = 0;
-        if ($fs->has($path)) {
-            /** @var \League\Flysystem\File $file */
-            $file = $fs->get($path);
-            $meta = $file->getMetadata();
-            while ($fs->has($path)) {
-                $fileName = strtr("{filename}_{count}.{extension}", [
-                    '{filename}' => $meta['filename'],
-                    '{extension}' => $meta['extension'],
-                    '{count}' => $count += 1
-                ]);
-                $path = $uploadTo . $fileName;
-            }
-        }
-        return $path;
     }
 
     /**

@@ -112,7 +112,7 @@ class QuerySet extends QuerySetBase
         foreach ($attributes as $key => $value) {
             $attrs[$this->getModel()->convertToPrimaryKeyName($key)] = $value;
         }
-        return $this->getQueryBuilder()->setTypeUpdate()->update($this->model->tableName(), $attrs)->toSQL();
+        return $this->getQueryBuilder()->setTypeUpdate()->update($this->getModel()->tableName(), $attrs)->toSQL();
     }
 
     /**
@@ -222,6 +222,7 @@ class QuerySet extends QuerySetBase
     }
 
     /**
+     * todo remove me
      * Searching closest already connected relation
      * Example: User::objects()->filter(['group__name' => 'Admin', 'group__list__pk' => 2])
      * at the second time we already have connected 'group' relation, return it
@@ -230,7 +231,7 @@ class QuerySet extends QuerySetBase
      */
     protected function searchChain($prefix)
     {
-        $model = $this->model;
+        $model = $this->getModel();
         $alias = $this->tableAlias;
 
         $prefixRemains = [];
@@ -258,7 +259,7 @@ class QuerySet extends QuerySetBase
                 $name = $fields;
             }
 
-            if ($this->model->getMeta()->hasRelatedField($name)) {
+            if ($this->getModel()->getMeta()->hasRelatedField($name)) {
                 $this->with[] = $name;
                 $this->getOrCreateChainAlias([$name], true, true, is_array($fields) ? $fields : []);
             }
@@ -537,7 +538,7 @@ class QuerySet extends QuerySetBase
     {
         $connection = $this->getConnection();
         $adapter = QueryBuilder::getInstance($connection)->getAdapter();
-        $tableName = $adapter->quoteTableName($adapter->getRawTableName($this->model->tableName()));
+        $tableName = $adapter->quoteTableName($adapter->getRawTableName($this->getModel()->tableName()));
         $q = $connection->getDatabasePlatform()->getTruncateTableSQL($tableName);
         return $connection->executeUpdate($q);
     }

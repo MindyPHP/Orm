@@ -8,60 +8,62 @@
 
 namespace Mindy\Tests\Orm\Image;
 
+use function Mindy\app;
 use Mindy\Orm\Image\ImageProcessor;
 
 class ImageProcessorTest extends \PHPUnit_Framework_TestCase
 {
+    public function tearDown()
+    {
+        /** @var \League\Flysystem\FilesystemInterface $fs */
+        $fs = app()->storage->getFilesystem();
+        foreach ($fs->listContents('/temp') as $file) {
+            $fs->delete($file['path']);
+        }
+    }
+
     public function testGeneratePath()
     {
-        $file = new \SplFileInfo(__FILE__);
-        $processor = new ImageProcessor([
-            'basePath' => __DIR__ . '/temp'
-        ]);
-        $this->assertEquals('ImageProcessorTest_cef4527f9f.php', $processor->generateFilename($file, ['width' => 100]));
-        $this->assertEquals('ImageProcessorTest_e0bcc3e26e.php', $processor->generateFilename($file, ['height' => null, 'width' => 100]));
-        $this->assertEquals('ImageProcessorTest_e0bcc3e26e.php', $processor->generateFilename($file, ['width' => 100, 'height' => null]));
-
-        $this->assertEquals(__DIR__ . '/temp', dirname($processor->generatePath($file, ['width' => 100])));
+        $file = __FILE__;
+        $processor = new ImageProcessor();
+        $this->assertEquals('ImageProcessorTest_cef4527f9f.php', basename($processor->generateFilename($file, ['width' => 100])));
+        $this->assertEquals('ImageProcessorTest_e0bcc3e26e.php', basename($processor->generateFilename($file, ['height' => null, 'width' => 100])));
+        $this->assertEquals('ImageProcessorTest_e0bcc3e26e.php', basename($processor->generateFilename($file, ['width' => 100, 'height' => null])));
     }
 
     public function testResize()
     {
-        $file = __DIR__ . '/cat.jpg';
         $options = [
             'width' => 200,
             'height' => null,
-            'uploadTo' => __DIR__ . '/temp',
             'options' => [
                 'jpeg_quality' => 100,
                 'quality' => 100,
             ]
         ];
         $processor = new ImageProcessor([
-            'basePath' => __DIR__ . '/temp',
+            'uploadTo' => '/temp',
             'storeOriginal' => false,
             'sizes' => [
                 'thumb' => $options
             ]
         ]);
 
-        $processor->process($file);
+        $fileName = $processor->generateFilename('/temp/cat.jpg', $options);
 
-        $fileInfo = new \SplFileInfo($file);
-        $fileName = $processor->generateFilename($fileInfo, $options);
-        $filePath = $processor->generatePath($fileInfo, $options);
-        $this->assertEquals('cat_12e7b941de.jpg', $fileName);
-        $this->assertTrue(is_file(__DIR__ . '/temp/' . $fileName));
-        unlink($filePath);
+        $processor->process(__DIR__ . '/../app/media/cat.jpg');
 
-        $this->assertEquals('/cat_12e7b941de.jpg', $processor->url($fileInfo, 'thumb'));
-        $this->assertEquals('/cat_12e7b941de.jpg', $processor->url($fileInfo, '200x'));
-        $this->assertEquals($filePath, $processor->path($fileInfo, 'thumb'));
+        $this->assertEquals('cat_d434de1940.jpg', basename($fileName));
+
+        /** @var \League\Flysystem\FilesystemInterface $fs */
+        $fs = app()->storage->getFilesystem();
+        $this->assertTrue($fs->has('/temp/cat_d434de1940.jpg'));
+        $this->assertEquals('/media/temp/cat_40cd750bba.jpg', $processor->url('/temp/cat.jpg', 'thumb'));
+        $this->assertEquals('/media/temp/cat_40cd750bba.jpg', $processor->url('/temp/cat.jpg', '200x'));
     }
 
     public function testWatermark()
     {
-        $file = __DIR__ . '/cat.jpg';
         $options = [
             'width' => 200,
             'height' => null,
@@ -71,22 +73,22 @@ class ImageProcessorTest extends \PHPUnit_Framework_TestCase
                 'quality' => 100,
             ],
             'watermark' => [
-                'file' => __DIR__ . '/watermark.png',
-                'position' => 'top'
+                'file' => '/watermark.png',
+                'position' => 'repeat'
             ]
         ];
         $processor = new ImageProcessor([
-            'basePath' => __DIR__ . '/temp',
+            'uploadTo' => '/temp',
             'storeOriginal' => false,
             'sizes' => [
                 'thumb' => $options
             ]
         ]);
 
-        $processor->process($file);
+        $processor->process(__DIR__ . '/../app/media/cat.jpg');
 
-        $filePath = __DIR__ . '/temp/cat_821035a60a.jpg';
-        $this->assertTrue(is_file($filePath));
-        unlink($filePath);
+        /** @var \League\Flysystem\FilesystemInterface $fs */
+        $fs = app()->storage->getFilesystem();
+        $this->assertTrue($fs->has('/temp/cat_2ebd697cce.jpg'));
     }
 }
