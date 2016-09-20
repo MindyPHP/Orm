@@ -9,7 +9,6 @@ build
 
 test/app/media/*
 test/app/runtime/*
-test/config_local.php
 
 *.db
 *.swp

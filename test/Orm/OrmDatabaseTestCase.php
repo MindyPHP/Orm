@@ -16,7 +16,6 @@ namespace Mindy\Tests\Orm;
 
 use Connections;
 use Doctrine\DBAL\Connection;
-use Mindy\Base\Mindy;
 use Mindy\MockApp;
 use Mindy\Orm\Sync;
 use Mindy\QueryBuilder\ConnectionManager;
