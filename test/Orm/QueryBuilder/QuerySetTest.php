@@ -44,6 +44,16 @@ class QuerySetTest extends OrmDatabaseTestCase
         $this->assertEquals(2, $count);
     }
 
+    public function testValuesList()
+    {
+        $this->assertTrue((new Hits)->save());
+        $count = Hits::objects()->count();
+        $this->assertEquals(1, $count);
+
+        $ids = Hits::objects()->valuesList(['pk'], true);
+        $this->assertEquals([1], $ids);
+    }
+
     public function testFilter()
     {
         $this->assertTrue((new Hits)->save());
