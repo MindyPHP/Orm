@@ -5,6 +5,10 @@
 [![Latest Stable Version](https://poser.pugx.org/mindy/orm/v/stable.svg)](https://packagist.org/packages/mindy/orm)
 [![Total Downloads](https://poser.pugx.org/mindy/orm/downloads.svg)](https://packagist.org/packages/mindy/orm)
 
+## Компоненты
+
+[Migrations](https://github.com/MindyPHP/Mindy_Orm_Migrations)
+
 ***Еще одна*** реализация Django ORM на PHP. На текущий момент находится в стадии активной доработки и не
 рекомендуется к использованию в `production` до версии ***1.0***.
 
