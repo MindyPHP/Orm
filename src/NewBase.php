@@ -12,6 +12,7 @@ use Doctrine\DBAL\Connection;
 use Exception;
 use ArrayAccess;
 use function Mindy\app;
+use Mindy\Auth\UserInterface;
 use Mindy\Orm\Fields\AutoField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
