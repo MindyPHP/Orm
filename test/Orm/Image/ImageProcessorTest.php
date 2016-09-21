@@ -57,7 +57,7 @@ class ImageProcessorTest extends \PHPUnit_Framework_TestCase
 
         /** @var \League\Flysystem\FilesystemInterface $fs */
         $fs = app()->storage->getFilesystem();
-        $this->assertTrue($fs->has('/temp/cat_0343c5aa39.jpg'));
+        $this->assertEquals(1, count($fs->listContents('/temp/')));
         $this->assertEquals('/media/temp/cat_0343c5aa39.jpg', $processor->url('/temp/cat.jpg', ['name' => 'thumb']));
         $this->assertEquals('/media/temp/cat_0343c5aa39.jpg', $processor->url('/temp/cat.jpg', ['width' => 200]));
     }
@@ -85,13 +85,10 @@ class ImageProcessorTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $fileName = $processor->generateFilename('/temp/cat.jpg', $options);
-        $this->assertEquals('cat_839599d30e.jpg', basename($fileName));
-
         $processor->process(__DIR__ . '/cat.jpg');
 
         /** @var \League\Flysystem\FilesystemInterface $fs */
         $fs = app()->storage->getFilesystem();
-        $this->assertTrue($fs->has('/temp/cat_839599d30e.jpg'));
+        $this->assertEquals(1, count($fs->listContents('/temp/')));
     }
 }
