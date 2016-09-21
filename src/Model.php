@@ -24,6 +24,7 @@ class Model extends NewOrm
     }
 
     /**
+     * todo refact
      * Return module name
      * @return string
      */
@@ -54,23 +55,6 @@ class Model extends NewOrm
         return null;
     }
 
-    public function getAdminNames($instance = null)
-    {
-        $module = $this->getModule();
-        $cls = self::classNameShort();
-        $name = self::normalizeName($cls);
-        if ($instance) {
-            $updateTranslate = $module->t('Update ' . $name . ': {name}', ['{name}' => (string)$instance]);
-        } else {
-            $updateTranslate = $module->t('Update ' . $name);
-        }
-        return [
-            $module->t(ucfirst($name . 's')),
-            $module->t('Create ' . $name),
-            $updateTranslate,
-        ];
-    }
-
     public static function normalizeName($name)
     {
         return trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', ' \0', $name)), '_ ');
@@ -81,8 +65,33 @@ class Model extends NewOrm
         return app()->urlManager->reverse($route, $data);
     }
 
-    public static function t($str, $params = [], $dic = 'main')
+    public function getAdminNames($instance = null)
     {
-        return self::getModule()->t($str, $params, $dic);
+        $module = $this->getModule();
+        $id = $module->getId();
+        $cls = self::classNameShort();
+        $name = self::normalizeName($cls);
+        if ($instance) {
+            $updateTranslate = $module->t('modules.' . $id, 'Update ' . $name . ': {name}', ['{name}' => (string)$instance]);
+        } else {
+            $updateTranslate = $module->t('modules.' . $id, 'Update ' . $name);
+        }
+        return [
+            $module->t('modules.' . $id, ucfirst($name . 's')),
+            $module->t('modules.' . $id, 'Create ' . $name),
+            $updateTranslate,
+        ];
+    }
+
+    /**
+     * @param $domain
+     * @param $message
+     * @param array $parameters
+     * @param null $locale
+     * @return string
+     */
+    public static function t($domain, $message, array $parameters = [], $locale = null) : string
+    {
+        return app()->t($domain, $message, $parameters, $locale);
     }
 }
