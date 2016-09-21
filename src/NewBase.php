@@ -492,7 +492,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess
      * @param array $row
      * @return ModelInterface
      */
-    public static function create(array $row = [])
+    public static function create(array $row = []) : UserInterface
     {
         $className = get_called_class();
         return new $className($row);
