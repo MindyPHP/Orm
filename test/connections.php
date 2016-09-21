@@ -12,4 +12,4 @@ use Mindy\QueryBuilder\ConnectionManager;
 
 $path = (@getenv('TRAVIS') ? '/config_travis.php' : '/config_local.php');
 $databases = require(__DIR__ . $path);
-return new ConnectionManager($databases);
+return new ConnectionManager(['connections' => $databases]);

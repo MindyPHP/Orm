@@ -12,7 +12,6 @@ use Doctrine\DBAL\Connection;
 use Exception;
 use ArrayAccess;
 use function Mindy\app;
-use Mindy\Auth\UserInterface;
 use Mindy\Orm\Fields\AutoField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
@@ -493,7 +492,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess
      * @param array $row
      * @return ModelInterface
      */
-    public static function create(array $row = []) : UserInterface
+    public static function create(array $row = [])
     {
         $className = get_called_class();
         return new $className($row);
