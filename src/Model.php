@@ -26,6 +26,7 @@ class Model extends NewOrm implements FormModelInterface
     }
 
     /**
+     * todo refact
      * Return module name
      * @return string
      */
@@ -66,12 +67,6 @@ class Model extends NewOrm implements FormModelInterface
         return app()->urlManager->reverse($route, $data);
     }
 
-    /**
-     * @param $id
-     * @param array $parameters
-     * @param null $locale
-     * @return string
-     */
     public static function t($id, array $parameters = [], $locale = null)
     {
         return trans(sprintf('modules.%s', self::getModuleName()), $id, $parameters, $locale);
