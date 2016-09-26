@@ -3,14 +3,16 @@
 namespace Mindy\Orm;
 
 use function Mindy\app;
+use Mindy\Form\FormModelInterface;
 use Mindy\Helper\Alias;
+use function Mindy\trans;
 use ReflectionClass;
 
 /**
  * Class Model
  * @package Mindy\Orm
  */
-class Model extends NewOrm
+class Model extends NewOrm implements FormModelInterface
 {
     public function getVerboseName() : string
     {
@@ -54,23 +56,6 @@ class Model extends NewOrm
         return null;
     }
 
-    public function getAdminNames($instance = null)
-    {
-        $module = $this->getModule();
-        $cls = self::classNameShort();
-        $name = self::normalizeName($cls);
-        if ($instance) {
-            $updateTranslate = $module->t('Update ' . $name . ': {name}', ['{name}' => (string)$instance]);
-        } else {
-            $updateTranslate = $module->t('Update ' . $name);
-        }
-        return [
-            $module->t(ucfirst($name . 's')),
-            $module->t('Create ' . $name),
-            $updateTranslate,
-        ];
-    }
-
     public static function normalizeName($name)
     {
         return trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', ' \0', $name)), '_ ');
@@ -81,8 +66,14 @@ class Model extends NewOrm
         return app()->urlManager->reverse($route, $data);
     }
 
-    public static function t($str, $params = [], $dic = 'main')
+    /**
+     * @param $id
+     * @param array $parameters
+     * @param null $locale
+     * @return string
+     */
+    public static function t($id, array $parameters = [], $locale = null)
     {
-        return self::getModule()->t($str, $params, $dic);
+        return trans(sprintf('modules.%s', self::getModuleName()), $id, $parameters, $locale);
     }
 }

@@ -235,14 +235,12 @@ class FileField extends CharField
     }
 
     /**
-     * @param $form
      * @param string $fieldClass
-     * @param array $extra
-     * @return null|object
+     * @return false|null|string
      */
-    public function getFormField($form, $fieldClass = '\Mindy\Forms\Fields\FileField', array $extra = [])
+    public function getFormField($fieldClass = '\Mindy\Forms\Fields\FileField')
     {
-        return parent::getFormField($form, $fieldClass, $extra);
+        return parent::getFormField($fieldClass);
     }
 
     public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)

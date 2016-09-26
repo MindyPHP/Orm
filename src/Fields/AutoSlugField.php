@@ -141,13 +141,11 @@ class AutoSlugField extends CharField
     }
 
     /**
-     * @param $form
      * @param string $fieldClass
-     * @param array $extra
-     * @return mixed|null
+     * @return false|null|string
      */
-    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\SlugField', array $extra = [])
+    public function getFormField($fieldClass = '\Mindy\Form\Fields\SlugField')
     {
-        return parent::getFormField($form, $fieldClass, $extra);
+        return parent::getFormField($fieldClass);
     }
 }

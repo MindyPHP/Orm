@@ -1,6 +1,7 @@
 <?php
 
 namespace Mindy\Orm\Fields;
+use Mindy\Creator\Creator;
 
 /**
  * Class TreeForeignField
@@ -8,8 +9,16 @@ namespace Mindy\Orm\Fields;
  */
 class TreeForeignField extends ForeignField
 {
-    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DropDownField', array $extra = [])
+    /**
+     * @param string $fieldClass
+     * @return false|null|string
+     */
+    public function getFormField($fieldClass = '\Mindy\Form\Fields\SelectField')
     {
+        if ($this->primary || $this->editable === false) {
+            return null;
+        }
+
         $relatedModel = $this->getRelatedModel();
 
         $choices = function () use ($relatedModel) {
@@ -24,25 +33,21 @@ class TreeForeignField extends ForeignField
             return $list;
         };
 
-        if ($this->primary || $this->editable === false) {
-            return null;
-        }
-
-        if ($fieldClass === null) {
-            $fieldClass = $this->choices ? \Mindy\Form\Fields\SelectField::class : \Mindy\Form\Fields\TextField::class;
-        } elseif ($fieldClass === false) {
-            return null;
-        }
-
         $model = $this->getModel();
         $disabled = [];
-        if ($model->className() == $relatedModel->className() && $relatedModel->getIsNewRecord() === false) {
+        if (get_class($model) == get_class($relatedModel) && $relatedModel->getIsNewRecord() === false) {
             $disabled[] = $model->pk;
         }
 
-        return parent::getFormField($form, $fieldClass, array_merge([
+        return [
             'disabled' => $disabled,
-            'choices' => empty($this->choices) ? $choices : $this->choices
-        ], $extra));
+            'choices' => empty($this->choices) ? $choices : $this->choices,
+            'class' => $fieldClass,
+            'required' => !$this->canBeEmpty(),
+            'name' => $this->name,
+            'label' => $this->verboseName,
+            'hint' => $this->helpText,
+            'value' => $this->default ? $this->default : null
+        ];
     }
 }

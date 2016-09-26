@@ -7,6 +7,7 @@
  */
 
 namespace Mindy\Orm;
+use Mindy\Form\FieldInterface;
 
 /**
  * Interface ModelInterface
@@ -91,4 +92,11 @@ interface ModelInterface
      * @param $value
      */
     public function setAttribute(string $name, $value);
+
+    /**
+     * @param string $name
+     * @param bool $throw
+     * @return null|FieldInterface
+     */
+    public function getField(string $name, $throw = false);
 }

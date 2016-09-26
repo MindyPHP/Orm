@@ -20,8 +20,12 @@ class DateTimeField extends DateField
         return Type::getType(Type::DATETIME);
     }
 
-    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DateTimeField', array $extra = [])
+    /**
+     * @param string $fieldClass
+     * @return false|null|string
+     */
+    public function getFormField($fieldClass = '\Mindy\Form\Fields\DateTimeField')
     {
-        return parent::getFormField($form, $fieldClass, $extra);
+        return parent::getFormField($fieldClass);
     }
 }

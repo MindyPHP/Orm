@@ -55,9 +55,13 @@ class DateField extends Field
         return $adapter->getDate($this->value);
     }
 
-    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\DateField', array $extra = [])
+    /**
+     * @param string $fieldClass
+     * @return false|null|string
+     */
+    public function getFormField($fieldClass = '\Mindy\Form\Fields\DateField')
     {
-        return parent::getFormField($form, $fieldClass, $extra);
+        return parent::getFormField($fieldClass);
     }
 
     /**

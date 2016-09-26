@@ -176,14 +176,12 @@ class ImageField extends FileField
     }
 
     /**
-     * @param $form
      * @param string $fieldClass
-     * @param array $extra
-     * @return null|object
+     * @return false|null|string
      */
-    public function getFormField($form, $fieldClass = '\Mindy\Form\Fields\ImageField', array $extra = [])
+    public function getFormField($fieldClass = '\Mindy\Form\Fields\ImageField')
     {
-        return parent::getFormField($form, $fieldClass, $extra);
+        return parent::getFormField($fieldClass);
     }
 
     public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)

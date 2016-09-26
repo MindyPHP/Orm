@@ -7,7 +7,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Types\Type;
-use Mindy\Creator\Creator;
 use Mindy\Orm\Model;
 use Mindy\Orm\ModelInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -347,7 +346,11 @@ abstract class Field implements ModelFieldInterface
 
     }
 
-    public function getFormField($form, $fieldClass = null, array $extra = [])
+    /**
+     * @param null $fieldClass
+     * @return null|string|false
+     */
+    public function getFormField($fieldClass = null)
     {
         if ($this->primary || $this->editable === false) {
             return null;
@@ -359,20 +362,15 @@ abstract class Field implements ModelFieldInterface
             return null;
         }
 
-        return Creator::createObject(array_merge([
+        return [
             'class' => $fieldClass,
             'required' => !$this->canBeEmpty(),
-            'form' => $form,
             'choices' => $this->choices,
             'name' => $this->name,
             'label' => $this->verboseName,
             'hint' => $this->helpText,
             'value' => $this->default ? $this->default : null
-
-//            'html' => [
-//                'multiple' => $this->value instanceof RelatedManager
-//            ]
-        ], $extra));
+        ];
     }
 
     public function toArray()

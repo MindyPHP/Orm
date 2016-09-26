@@ -132,4 +132,10 @@ interface ModelFieldInterface
      * @return
      */
     public function beforeDelete(ModelInterface $model, $value);
+
+    /**
+     * @param null $fieldClass
+     * @return null|string|false
+     */
+    public function getFormField($fieldClass = null);
 }
