@@ -8,8 +8,11 @@
 
 namespace Mindy\Orm;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Schema\Table;
 use Exception;
+use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\QueryBuilder\QueryBuilder;
 
 /**
@@ -218,5 +221,44 @@ class NewOrm extends NewBase
         }
 
         return $changed;
+    }
+
+    /**
+     * @return array|Table[]
+     */
+    public static function createSchemaTables() : array
+    {
+        $columns = [];
+        $indexes = [];
+
+        $meta = self::getMeta();
+        $model = self::create();
+
+        $tables = [];
+        foreach ($meta->getFields() as $name => $field) {
+            $field->setModel($model);
+
+            if ($field instanceof ManyToManyField) {
+                /* @var $field \Mindy\Orm\Fields\ManyToManyField */
+                if ($field->through === null) {
+                    $tables[] = new Table($field->getTableName(), $field->getColumns());
+                }
+            } else {
+                $column = $field->getColumn();
+                if (empty($column)) {
+                    continue;
+                }
+
+                $columns[] = $column;
+                $indexes = array_merge($indexes, $field->getSqlIndexes());
+            }
+        }
+
+        $table = new Table(self::tableName(), $columns, []);
+        $table->setPrimaryKey($model->getPrimaryKeyName(true), 'primary');
+
+        $tables[] = $table;
+
+        return $tables;
     }
 }
