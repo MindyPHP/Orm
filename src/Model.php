@@ -36,7 +36,7 @@ class Model extends NewOrm implements FormModelInterface
      */
     public static function tableName() : string
     {
-        return sprintf("%s_%s", self::normalizeName(self::getModuleName()), parent::tableName());
+        return sprintf("%s_%s", self::normalizeTableName(self::getModuleName()), parent::tableName());
     }
 
     /**
@@ -69,11 +69,6 @@ class Model extends NewOrm implements FormModelInterface
         }
 
         return null;
-    }
-
-    public static function normalizeName($name)
-    {
-        return trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', ' \0', $name)), '_ ');
     }
 
     public function reverse($route, $data = null)
