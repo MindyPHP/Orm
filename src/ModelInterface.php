@@ -13,6 +13,7 @@ use Mindy\Form\FieldInterface;
  * Interface ModelInterface
  * @package Mindy\Orm
  * @property int|string $pk
+ * @method static \Mindy\Orm\Manager objects($instance = null)
  */
 interface ModelInterface
 {
