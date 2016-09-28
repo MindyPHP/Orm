@@ -8,6 +8,7 @@ use Exception;
 use Mindy\Orm\Fields\IntField;
 use Mindy\Orm\Fields\TreeForeignField;
 use Mindy\QueryBuilder\Expression;
+use function Mindy\trans;
 
 /**
  * Class TreeModel
@@ -24,12 +25,11 @@ abstract class TreeModel extends Model
 {
     public static function getFields()
     {
-        $parent = 'Parent';
-        if (class_exists('\Mindy\Base\Mindy') && \Mindy\Base\Mindy::app()) {
-            if (\Mindy\Base\Mindy::app()->hasModule(self::getModuleName())) {
-                $module = \Mindy\Base\Mindy::app()->getModule(self::getModuleName());
-                $parent = $module->t('Parent');
-            }
+        $module = self::getModule();
+        if ($module) {
+            $parent = trans('modules.' . $module->getId(), 'Parent');
+        } else {
+            $parent = 'Parent';
         }
         return [
             'parent' => [

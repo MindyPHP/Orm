@@ -14,15 +14,29 @@ use ReflectionClass;
  */
 class Model extends NewOrm implements FormModelInterface
 {
+    /**
+     * @return string
+     */
     public function getVerboseName() : string
     {
         return $this->classNameShort();
     }
 
+    /**
+     * @return string
+     */
     public function classNameShort() : string
     {
         $classMap = explode('\\', get_called_class());
         return end($classMap);
+    }
+
+    /**
+     * @return string
+     */
+    public static function tableName() : string
+    {
+        return sprintf("%s_%s", self::normalizeName(self::getModuleName()), parent::tableName());
     }
 
     /**

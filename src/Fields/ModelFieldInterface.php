@@ -44,6 +44,11 @@ interface ModelFieldInterface
     public function getSqlType();
 
     /**
+     * @return array|null
+     */
+    public function getSqlOptions() : array;
+
+    /**
      * @return \Doctrine\Dbal\Schema\Column|null|false
      */
     public function getColumn();
