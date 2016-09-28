@@ -2,6 +2,7 @@
 
 namespace Mindy\Orm\Fields;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Mindy\Helper\Json;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -58,5 +59,44 @@ class JsonField extends TextField
     public function getDbPrepValue()
     {
         return is_string($this->value) ? $this->value : Json::encode($this->value);
+    }
+
+    /**
+     * @param $value
+     * @param AbstractPlatform $platform
+     * @return mixed
+     */
+    public function convertToPHPValueSQL($value, AbstractPlatform $platform)
+    {
+        if (is_string($value)) {
+            $value = Json::decode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            if (is_string($value)) {
+                $value = Json::decode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            }
+        }
+
+        return parent::convertToDatabaseValue($value, $platform);
+    }
+
+    /**
+     * @param $value
+     * @param AbstractPlatform $platform
+     * @return mixed
+     */
+    public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)
+    {
+        $opts = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
+
+        if (is_object($value)) {
+            if (method_exists($value, 'toJson')) {
+                $value = $value->toJson();
+            } else if (method_exists($value, 'toArray')) {
+                $value = Json::encode($value->toArray(), $opts);
+            }
+        } else {
+            $value = Json::encode($value, $opts);
+        }
+
+        return parent::convertToDatabaseValue($value, $platform);
     }
 }
