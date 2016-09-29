@@ -4,6 +4,7 @@ namespace Mindy\Orm\Fields;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Exception;
+use GuzzleHttp\Psr7\UploadedFile as GuzzleUploadedFile;
 use function Mindy\app;
 use Mindy\Orm\Files\File;
 use Mindy\Orm\Files\LocalFile;
@@ -12,7 +13,6 @@ use Mindy\Orm\Files\UploadedFile;
 use Mindy\Orm\ModelInterface;
 use Mindy\Orm\Traits\FilesystemAwareTrait;
 use Mindy\Orm\Validation;
-use SplFileInfo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -116,7 +116,7 @@ class FileField extends CharField
      */
     public function path(array $options = []) : string
     {
-        return $this->getFilesystem()->get($this->value);
+        return $this->value;
     }
 
     /**
@@ -199,7 +199,7 @@ class FileField extends CharField
 
         if ($value === null) {
             $this->value = null;
-        } else if ($value instanceof File) {
+        } else if ($value instanceof File || $value instanceof GuzzleUploadedFile) {
             $this->value = $value;
         }
     }
@@ -245,10 +245,39 @@ class FileField extends CharField
 
     public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)
     {
-        if ($value instanceof File) {
-            $this->saveFile($value);
+        if ($value instanceof GuzzleUploadedFile) {
+            $value = $this->saveGuzzleFile($value);
+        } else if ($value instanceof File) {
+            $value = $this->saveFile($value);
         }
+        $value = $this->normalizeValue($value);
         return parent::convertToDatabaseValueSQL($value, $platform);
+    }
+
+    public function convertToPHPValueSQL($value, AbstractPlatform $platform)
+    {
+        $this->value = $value;
+        return $this;
+    }
+
+    protected function normalizeValue(string $value)
+    {
+        return str_replace('//', '/', $value);
+    }
+
+    protected function saveGuzzleFile(GuzzleUploadedFile $file)
+    {
+        $path = $this->getUploadTo() . DIRECTORY_SEPARATOR;
+
+        $fs = $this->getFilesystem();
+        if ($fs->has($path . DIRECTORY_SEPARATOR . $file->getClientFilename())) {
+            $fs->delete($path . DIRECTORY_SEPARATOR . $file->getClientFilename());
+        }
+        if (!$fs->write($path . DIRECTORY_SEPARATOR . $file->getClientFilename(), $file->getStream()->getContents())) {
+            throw new Exception('Failed to save file');
+        }
+
+        return $path . DIRECTORY_SEPARATOR . $file->getClientFilename();
     }
 
     protected function saveFile(File $file)
@@ -264,6 +293,6 @@ class FileField extends CharField
             throw new Exception('Failed to save file');
         }
 
-        return $file->getRealPath();
+        return $value;
     }
 }

@@ -7,6 +7,7 @@ use Mindy\Orm\Files\File;
 use Mindy\Orm\Image\ImageProcessor;
 use Mindy\Orm\Image\ImageProcessorInterface;
 use Mindy\Orm\ModelInterface;
+use GuzzleHttp\Psr7\UploadedFile as GuzzleUploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -132,8 +133,7 @@ class ImageField extends FileField
      */
     public function path(array $options = []) : string
     {
-        $value = $this->getProcessor()->path($this->value, $options);
-        return $this->getFilesystem()->get($value);
+        return $this->getProcessor()->path($this->value, $options);
     }
 
     /**
@@ -184,12 +184,32 @@ class ImageField extends FileField
         return parent::getFormField($fieldClass);
     }
 
-    public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)
+    public function beforeInsert(ModelInterface $model, $value)
     {
-        if ($value instanceof File) {
-            $path = $this->saveFile($value);
-            $this->getProcessor()->process($path);
+        if ($value) {
+            $this->resizeAndSaveImage($model, $value);
         }
-        return parent::convertToDatabaseValueSQL($value, $platform);
+    }
+
+    public function beforeUpdate(ModelInterface $model, $value)
+    {
+        if (in_array($this->getName(), $model->getDirtyAttributes()) && $value) {
+            $this->resizeAndSaveImage($model, $value);
+        }
+    }
+
+    private function resizeAndSaveImage(ModelInterface $model, $value)
+    {
+        if ($value instanceof GuzzleUploadedFile) {
+            $value = $this->saveGuzzleFile($value);
+        } else if ($value instanceof File) {
+            $value = $this->saveFile($value);
+        }
+        $value = $this->normalizeValue($value);
+
+        $realPath = $this->getFilesystem()->getAdapter()->applyPathPrefix($value);
+        if (is_file($realPath)) {
+            $this->getProcessor()->process($realPath);
+        }
     }
 }

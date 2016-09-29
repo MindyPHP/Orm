@@ -1,7 +1,9 @@
 <?php
 
 namespace Mindy\Orm\Files;
+
 use Exception;
+use GuzzleHttp\Psr7\UploadedFile as GuzzleUploadedFile;
 
 /**
  * Class UploadedFile

@@ -178,7 +178,7 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
     /**
      * Converts found rows into model instances
      * @param array $rows
-     * @return array|Orm[]
+     * @return array|ModelInterface[]
      */
     public function createModels($rows)
     {

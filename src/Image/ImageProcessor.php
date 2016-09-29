@@ -112,7 +112,7 @@ class ImageProcessor extends AbstractProcessor implements ImageProcessorInterfac
 
         if (isset($options['name'])) {
             foreach ($sizes as $config) {
-                if ($config['name'] ?? '' === $options['name']) {
+                if (isset($config['name']) && $config['name'] == $options['name']) {
                     return $config;
                 }
             }
@@ -157,8 +157,13 @@ class ImageProcessor extends AbstractProcessor implements ImageProcessorInterfac
     {
         $options = $this->findOptionsByConfigPart($config);
 
-        if ($options['force'] ?? false || ($options['checkMissing'] ?? false && !$this->has($value))) {
-            $this->process($value);
+        if (
+            (isset($options['force']) && $options['force']) ||
+            (isset($options['checkMissing']) && $options['checkMissing'] && $this->has($this->generateFilename($value, $options)) == false)
+        ) {
+            $contents = $this->getFilesystem()->read($value);
+            $image = $this->getImagine()->load($contents);
+            $this->processSource($value, $image, null);
         }
 
         $fileName = $this->generateFilename($value, $options);
@@ -174,6 +179,15 @@ class ImageProcessor extends AbstractProcessor implements ImageProcessorInterfac
      */
     public function processSource(string $path, ImageInterface $image, $prefix = null)
     {
+        $defaultConfig = [
+            'resolution-units' => ImageInterface::RESOLUTION_PIXELSPERINCH,
+            'resolution-x' => 72,
+            'resolution-y' => 72,
+            'jpeg_quality' => 100,
+            'quality' => 100,
+            'png_compression_level' => 0
+        ];
+
         foreach ($this->getSizes() as $config) {
 
             /**
@@ -186,7 +200,6 @@ class ImageProcessor extends AbstractProcessor implements ImageProcessorInterfac
             $width = $config['width'] ?? null;
             $height = $config['height'] ?? null;
             $method = $config['method'] ?? $this->defaultResize;
-            $options = $config['config'] ?? [];
             $extSize = $config['format'] ?? pathinfo($path, PATHINFO_EXTENSION);
 
             if (!in_array($method, $this->availableResizeMethods)) {
@@ -212,16 +225,13 @@ class ImageProcessor extends AbstractProcessor implements ImageProcessorInterfac
             if ($this->has($sizePath)) {
                 $this->getFilesystem()->delete($sizePath);
             }
-            $this->write($sizePath, $newSource->get($extSize, $options));
+            $this->write($sizePath, $newSource->get($extSize, isset($config['config']) ? $config['config'] : $defaultConfig));
         }
 
-        if ($this->storeOriginal) {
-            $sizePath = $this->uploadTo . DIRECTORY_SEPARATOR . basename($path);
-            if ($this->has($sizePath)) {
-                $this->getFilesystem()->delete($sizePath);
-            }
-            if ($this->write($sizePath, file_get_contents($path)) === false) {
-                throw new Exception("Failed to save original file");
+        if ($this->storeOriginal === false) {
+            $originalPath = $this->uploadTo . DIRECTORY_SEPARATOR . basename($path);
+            if ($this->has($originalPath)) {
+                $this->getFilesystem()->delete($originalPath);
             }
         }
 
@@ -241,7 +251,7 @@ class ImageProcessor extends AbstractProcessor implements ImageProcessorInterfac
         $name = basename($path);
         $ext = pathinfo($path, PATHINFO_EXTENSION);
         $basename = substr($name, 0, strpos($name, $ext) - 1);
-        return $this->uploadTo . DIRECTORY_SEPARATOR . implode('_', [$basename, $hash]) . '.' . $ext;
+        return rtrim($this->uploadTo, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . implode('_', [$basename, $hash]) . '.' . $ext;
     }
 
     /**
