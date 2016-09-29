@@ -184,7 +184,11 @@ class FileField extends CharField
             isset($value['type'])
         ) {
 
-            $value = new UploadedFile($value['tmp_name'], $value['name'], $value['type'], $value['size'], $value['error']);
+            if ($value['error'] === UPLOAD_ERR_NO_FILE) {
+                $value = null;
+            } else {
+                $value = new UploadedFile($value['tmp_name'], $value['name'], $value['type'], $value['size'], $value['error']);
+            }
 
         } else if (is_string($value)) {
             if (strpos($value, 'data:') !== false) {
@@ -199,7 +203,13 @@ class FileField extends CharField
 
         if ($value === null) {
             $this->value = null;
-        } else if ($value instanceof File || $value instanceof GuzzleUploadedFile) {
+        } else if ($value instanceof GuzzleUploadedFile) {
+            if ($value->getError() === UPLOAD_ERR_NO_FILE) {
+                $this->value = null;
+            } else {
+                $this->value = $value;
+            }
+        } else if ($value instanceof File) {
             $this->value = $value;
         }
     }
@@ -250,7 +260,11 @@ class FileField extends CharField
         } else if ($value instanceof File) {
             $value = $this->saveFile($value);
         }
-        $value = $this->normalizeValue($value);
+
+        if (is_string($value)) {
+            $value = $this->normalizeValue($value);
+        }
+
         return parent::convertToDatabaseValueSQL($value, $platform);
     }
 

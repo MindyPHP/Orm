@@ -437,6 +437,8 @@ abstract class NewBase implements ModelInterface, ArrayAccess
             $field = $this->getField($name);
             $field->beforeInsert($this, $this->getAttribute($field->getAttributeName()));
         }
+
+        $this->trigger($this, 'beforeSave', $this, true);
     }
 
     protected function beforeUpdateInternal()
@@ -446,6 +448,8 @@ abstract class NewBase implements ModelInterface, ArrayAccess
             $field = $this->getField($name);
             $field->beforeUpdate($this, $this->getAttribute($field->getAttributeName()));
         }
+
+        $this->trigger($this, 'beforeSave', $this, false);
     }
 
     protected function afterInsertInternal()
@@ -479,15 +483,35 @@ abstract class NewBase implements ModelInterface, ArrayAccess
         }
     }
 
+    protected function beforeDeleteInternal()
+    {
+        $meta = self::getMeta();
+        foreach ($meta->getAttributes() as $name) {
+            $field = $this->getField($name);
+            $field->beforeDelete($this, $this->getAttribute($field->getAttributeName()));
+        }
+        $this->trigger($this, 'beforeDelete', $this);
+    }
+
+    protected function afterDeleteInternal()
+    {
+        $meta = self::getMeta();
+        foreach ($meta->getAttributes() as $name) {
+            $field = $this->getField($name);
+            $field->afterDelete($this, $this->getAttribute($field->getAttributeName()));
+        }
+        $this->trigger($this, 'afterDelete', $this);
+    }
+
     /**
      * @return bool
      */
     public function delete() : bool
     {
-//        $this->onBeforeDeleteInternal();
+        $this->beforeDeleteInternal();
         $result = $this->objects()->delete(['pk' => $this->pk]);
         if ($result) {
-//            $this->onAfterDeleteInternal();
+            $this->afterDeleteInternal();
         }
         return $result;
     }

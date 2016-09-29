@@ -109,6 +109,38 @@ class ImageField extends FileField
         }
     }
 
+    public function beforeInsert(ModelInterface $model, $value)
+    {
+        if ($value) {
+            $this->resizeAndSaveImage($model, $value);
+        }
+    }
+
+    private function resizeAndSaveImage(ModelInterface $model, $value)
+    {
+        if ($value instanceof GuzzleUploadedFile) {
+            $value = $this->saveGuzzleFile($value);
+        } else if ($value instanceof File) {
+            $value = $this->saveFile($value);
+        }
+        $value = $this->normalizeValue($value);
+
+        $realPath = $this->getFilesystem()->getAdapter()->applyPathPrefix($value);
+        if (is_file($realPath)) {
+            $this->getProcessor()->process($realPath);
+        }
+    }
+
+    public function afterInsert(ModelInterface $model, $value)
+    {
+        if (
+            ($oldValue = $model->getOldAttribute($this->getAttributeName())) &&
+            $value != $oldValue
+        ) {
+            $this->getProcessor()->process($value, $this->getUploadTo());
+        }
+    }
+
     /**
      * @param \Mindy\Orm\Model|ModelInterface $model
      * @param $value
@@ -182,34 +214,5 @@ class ImageField extends FileField
     public function getFormField($fieldClass = '\Mindy\Form\Fields\ImageField')
     {
         return parent::getFormField($fieldClass);
-    }
-
-    public function beforeInsert(ModelInterface $model, $value)
-    {
-        if ($value) {
-            $this->resizeAndSaveImage($model, $value);
-        }
-    }
-
-    public function beforeUpdate(ModelInterface $model, $value)
-    {
-        if (in_array($this->getName(), $model->getDirtyAttributes()) && $value) {
-            $this->resizeAndSaveImage($model, $value);
-        }
-    }
-
-    private function resizeAndSaveImage(ModelInterface $model, $value)
-    {
-        if ($value instanceof GuzzleUploadedFile) {
-            $value = $this->saveGuzzleFile($value);
-        } else if ($value instanceof File) {
-            $value = $this->saveFile($value);
-        }
-        $value = $this->normalizeValue($value);
-
-        $realPath = $this->getFilesystem()->getAdapter()->applyPathPrefix($value);
-        if (is_file($realPath)) {
-            $this->getProcessor()->process($realPath);
-        }
     }
 }

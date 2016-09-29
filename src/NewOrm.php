@@ -254,7 +254,7 @@ class NewOrm extends NewBase
             }
         }
 
-        $table = new Table($model->tableName(), $columns, []);
+        $table = new Table($model->tableName(), $columns, $indexes);
         $table->setPrimaryKey($model->getPrimaryKeyName(true), 'primary');
 
         $tables[] = $table;
