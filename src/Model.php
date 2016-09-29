@@ -78,6 +78,11 @@ class Model extends NewOrm implements FormModelInterface
 
     public static function t($id, array $parameters = [], $locale = null)
     {
-        return trans(sprintf('modules.%s', self::getModuleName()), $id, $parameters, $locale);
+        return trans(sprintf('modules.%s.main', self::getModuleName()), $id, $parameters, $locale);
+    }
+
+    public function __toString()
+    {
+        return (string)$this->classNameShort();
     }
 }

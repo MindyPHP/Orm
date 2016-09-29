@@ -18,6 +18,11 @@ use Mindy\Orm\TreeModel;
 class PositionField extends IntField
 {
     /**
+     * @var \Closure
+     */
+    public $callback;
+
+    /**
      * @param ModelInterface $model
      * @param $value
      */
@@ -34,9 +39,13 @@ class PositionField extends IntField
      */
     public function getNextPosition(ModelInterface $model) : int
     {
-        $qs = $model->objects();
-        if ($model instanceof TreeModel && !empty($model->parent_id)) {
-            $qs->filter(['parent_id' => $model->parent_id]);
+        if ($this->callback instanceof \Closure) {
+            $qs = $this->callback->__invoke($model);
+        } else {
+            $qs = $model->objects();
+            if ($model instanceof TreeModel && !empty($model->parent_id)) {
+                $qs->filter(['parent_id' => $model->parent_id]);
+            }
         }
 
         $max = (int)$qs->max($this->getName());

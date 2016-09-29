@@ -21,4 +21,9 @@ interface ManagerInterface
      * @return ManagerInterface
      */
     public function filter($conditions) : ManagerInterface;
+
+    /**
+     * @return array
+     */
+    public function all();
 }

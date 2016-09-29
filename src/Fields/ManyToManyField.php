@@ -5,6 +5,7 @@ namespace Mindy\Orm\Fields;
 use Exception;
 use Mindy\Orm\MetaData;
 use Mindy\Orm\Model;
+use Mindy\Orm\ModelInterface;
 use Mindy\Orm\NewOrm;
 use Mindy\QueryBuilder\QueryBuilder;
 use Mindy\Orm\ManagerInterface;
@@ -290,8 +291,7 @@ class ManyToManyField extends RelatedField
             sort($parts);
             return '{{%' . implode('_', $parts) . '}}';
         } else {
-            $cls = $this->through;
-            return $cls::tableName();
+            return call_user_func([$this->through, 'tableName']);
         }
     }
 
@@ -360,16 +360,16 @@ class ManyToManyField extends RelatedField
     public function setValue($value)
     {
         $value = $this->preformatValue($value);
-        $class = $this->modelClass;
         $manager = $this->getManager();
-        if (!$this->through) {
-            $manager->clean();
-        }
+        $manager->clean();
         foreach ($value as $linkModel) {
-            if (!is_a($linkModel, $this->modelClass)) {
-                $linkModel = $class::objects()->get(['pk' => $linkModel]);
+            if (
+                ($linkModel instanceof ModelInterface) === false &&
+                !is_a($linkModel, $this->modelClass)) {
+                $linkModel = call_user_func([$this->modelClass, 'objects'])->get(['pk' => $linkModel]);
             }
-            if (is_a($linkModel, $this->modelClass)) {
+
+            if ($linkModel instanceof ModelInterface) {
                 $manager->link($linkModel);
             } else {
                 throw new Exception("ManyToMany field can set only arrays of Models or existing primary keys");
@@ -380,10 +380,7 @@ class ManyToManyField extends RelatedField
     protected function getThroughTableName()
     {
         if ($this->through) {
-            $cls = $this->through;
-            return $cls::tableName();
-        } else {
-
+            return call_user_func([$this->through, 'tableName']);
         }
     }
 
@@ -420,7 +417,16 @@ class ManyToManyField extends RelatedField
      */
     public function getFormField($fieldClass = '\Mindy\Form\Fields\SelectField')
     {
-        return parent::getFormField($fieldClass);
+        $choices = [];
+        foreach ($this->getRelatedModel()->objects()->all() as $model) {
+            $choices[$model->pk] = (string)$model;
+        }
+        return array_merge(parent::getFormField($fieldClass), [
+            'html' => [
+                'multiple' => true
+            ],
+            'choices' => $choices
+        ]);
     }
 
     public function getAttributeName()

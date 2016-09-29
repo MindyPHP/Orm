@@ -256,7 +256,11 @@ abstract class NewBase implements ModelInterface, ArrayAccess
         $platform = $this->getConnection()->getDatabasePlatform();
         foreach ($attributes as $name => $value) {
             $field = $this->getField($meta->getMappingName($name));
-            $this->setAttribute($name, $field->convertToDatabaseValueSQL($value, $platform));
+            if ($field->getSqlType()) {
+                $this->setAttribute($name, $field->convertToDatabaseValueSQL($value, $platform));
+            } else {
+                $this->related[$name] = $value;
+            }
         }
     }
 

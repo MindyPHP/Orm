@@ -283,12 +283,7 @@ abstract class Field implements ModelFieldInterface
         if ($this->verboseName) {
             return $this->verboseName;
         } else {
-            $name = str_replace('_', ' ', ucfirst($this->name));
-            if (method_exists($model, 'getModule')) {
-                return $model->getModule()->t($name);
-            } else {
-                return $name;
-            }
+            return str_replace('_', ' ', ucfirst($this->name));
         }
     }
 
