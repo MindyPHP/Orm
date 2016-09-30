@@ -759,6 +759,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      */
     public function unserialize($serialized)
     {
+        $this->attributes = new AttributeCollection;
         $this->setAttributes(unserialize($serialized));
     }
 }

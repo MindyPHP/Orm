@@ -101,19 +101,18 @@ class FileField extends CharField
     }
 
     /**
-     * @param array $options
      * @return string
      */
-    public function url(array $options = []) : string
+    public function url() : string
     {
-        return $this->getFilesystem()->url($this->value, $options);
+        return $this->getStorage()->url($this->value);
     }
 
     /**
      * @param array $options
      * @return string
      */
-    public function path(array $options = []) : string
+    public function path() : string
     {
         return $this->value;
     }

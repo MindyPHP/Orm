@@ -208,12 +208,8 @@ class FileValidator extends ConstraintValidator
         }
 
         if ($constraint->mimeTypes) {
-            if (!$value instanceof FileObject) {
-                $value = new FileObject($value);
-            }
-
             $mimeTypes = (array) $constraint->mimeTypes;
-            $mime = $value->getMimeType();
+            $mime = $value->getClientMediaType();
 
             foreach ($mimeTypes as $mimeType) {
                 if ($mimeType === $mime) {

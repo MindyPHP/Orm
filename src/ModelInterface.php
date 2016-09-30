@@ -13,7 +13,7 @@ use Mindy\Form\FieldInterface;
  * Interface ModelInterface
  * @package Mindy\Orm
  * @property int|string $pk
- * @method static \Mindy\Orm\Manager objects($instance = null)
+ * @method static \Mindy\Orm\Manager|\Mindy\Orm\TreeManager objects($instance = null)
  */
 interface ModelInterface
 {
