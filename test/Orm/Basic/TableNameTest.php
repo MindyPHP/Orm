@@ -8,14 +8,14 @@
 
 namespace Mindy\Tests\Orm\Basic;
 
-use Mindy\Orm\Model;
+use Mindy\Orm\NewOrm;
 
-class TableNameModel extends Model
+class TableNameModel extends NewOrm
 {
 
 }
 
-class VeryLongTableNameModel extends Model
+class VeryLongTableNameModel extends NewOrm
 {
 
 }

@@ -48,7 +48,7 @@ class ImageFieldTest extends OrmDatabaseTestCase
             ]
         ]);
         $field->setValue(new LocalFile(__DIR__ . '/../Image/cat.jpg'));
-        $field->convertToDatabaseValueSQL($field->getValue(), $this->getConnection()->getDatabasePlatform());
+        $field->convertToDatabaseValue($field->getValue(), $this->getConnection()->getDatabasePlatform());
 
         /** @var \League\Flysystem\FilesystemInterface $fs */
         $fs = app()->storage->getFilesystem();
@@ -89,10 +89,14 @@ class ImageFieldTest extends OrmDatabaseTestCase
             'error' => UPLOAD_ERR_OK,
             'size' => 10000000
         ];
-        $uploadedFile = new UploadedFile($file['tmp_name'], $file['name'], $file['type'], $file['size'], $file['error']);
+        $uploadedFile = new UploadedFile($file['tmp_name'], $file['size'], $file['error'], $file['name'], $file['type']);
         $field->setValue($uploadedFile);
         $this->assertFalse($field->isValid());
         $this->assertEquals(['The file could not be uploaded.'], $field->getErrors());
+
+        $field->setValue($path);
+        $this->assertInstanceOf(LocalFile::class, $field->getValue());
+        $this->assertTrue($field->isValid());
 
         $field = new FileField([
             'mimeTypes' => [

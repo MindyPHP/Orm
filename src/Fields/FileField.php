@@ -83,15 +83,11 @@ class FileField extends CharField
             $constraints[] = new Assert\NotBlank();
         }
 
-        /*
-        if (empty($this->value)) {
-            $constraints[] = new Validation\File([
-                'required' => $this->isRequired(),
-                'maxSize' => $this->maxSize,
-                'mimeTypes' => $this->mimeTypes,
-            ]);
-        }
-        */
+        $constraints[] = new Validation\File([
+            'required' => $this->isRequired(),
+            'maxSize' => $this->maxSize,
+            'mimeTypes' => $this->mimeTypes,
+        ]);
 
         return $constraints;
     }
@@ -196,7 +192,7 @@ class FileField extends CharField
 
         if ($value === null) {
             $this->value = null;
-        } else if ($value instanceof File) {
+        } else if ($value instanceof File || $value instanceof UploadedFile) {
             $this->value = $value;
         }
     }
@@ -240,7 +236,7 @@ class FileField extends CharField
         return parent::getFormField($fieldClass);
     }
 
-    public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         if ($value instanceof UploadedFile) {
             $value = $this->saveUploadedFile($value);
@@ -252,7 +248,7 @@ class FileField extends CharField
             $value = $this->normalizeValue($value);
         }
 
-        return parent::convertToDatabaseValueSQL($value, $platform);
+        return parent::convertToDatabaseValue($value, $platform);
     }
 
     public function convertToPHPValueSQL($value, AbstractPlatform $platform)
