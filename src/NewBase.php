@@ -441,18 +441,15 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
 
     /**
      * Trigger event is event manager is available
-     * @param string $eventName
      */
-    public function trigger(string $eventName)
+    public function trigger()
     {
-        $signal = $this->getEventManager();
-        if ($signal) {
-
-            // get the arguments to be passed to the handler
+        $eventManager = $this->getEventManager();
+        if ($eventManager) {
             $args = func_get_args();
-            array_shift($args);
-
-            call_user_func_array([$signal, 'send'], array_merge([$this, $eventName], $args));
+            $origin = array_shift($args);
+            $signal = array_shift($args);
+            call_user_func_array([$eventManager, 'send'], [$origin, $signal, $args]);
         }
     }
 
@@ -484,7 +481,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
             $field->beforeInsert($this, $this->getAttribute($field->getAttributeName()));
         }
 
-        $this->trigger('beforeSave', $this, true);
+        $this->trigger($this, 'beforeSave', $this, true);
     }
 
     protected function afterInsertInternal()
@@ -495,7 +492,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
             $field->afterInsert($this, $this->getAttribute($field->getAttributeName()));
         }
 
-        $this->trigger('afterSave', $this, true);
+        $this->trigger($this, 'afterSave', $this, true);
     }
 
     protected function beforeUpdateInternal()
@@ -506,7 +503,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
             $field->beforeUpdate($this, $this->getAttribute($field->getAttributeName()));
         }
 
-        $this->trigger('beforeSave', $this, true);
+        $this->trigger($this, 'beforeSave', $this, true);
     }
 
     protected function afterUpdateInternal()
@@ -517,7 +514,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
             $field->afterUpdate($this, $this->getAttribute($field->getAttributeName()));
         }
 
-        $this->trigger('afterSave', $this, true);
+        $this->trigger($this, 'afterSave', $this, true);
     }
 
     /**
@@ -540,7 +537,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
             $field = $this->getField($name);
             $field->beforeDelete($this, $this->getAttribute($field->getAttributeName()));
         }
-        $this->trigger('beforeDelete', $this, true);
+        $this->trigger($this, 'beforeDelete', $this, true);
     }
 
     protected function afterDeleteInternal()
@@ -550,7 +547,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
             $field = $this->getField($name);
             $field->afterDelete($this, $this->getAttribute($field->getAttributeName()));
         }
-        $this->trigger('afterDelete', $this, true);
+        $this->trigger($this, 'afterDelete', $this, true);
     }
 
     /**

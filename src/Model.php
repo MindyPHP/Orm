@@ -3,9 +3,8 @@
 namespace Mindy\Orm;
 
 use function Mindy\app;
-use Mindy\Application\Application;
+use Mindy\Base\Application;
 use Mindy\Form\FormModelInterface;
-use Mindy\Helper\Alias;
 use function Mindy\trans;
 use ReflectionClass;
 
@@ -13,7 +12,7 @@ use ReflectionClass;
  * Class Model
  * @package Mindy\Orm
  */
-class Model extends NewOrm
+class Model extends NewOrm implements FormModelInterface
 {
     /**
      * @return string
@@ -51,14 +50,8 @@ class Model extends NewOrm
      */
     public static function getModuleName()
     {
-        /** @var array $raw */
-        // See issue #105
-        // https://github.com/studio107/Mindy_Orm/issues/105
-        // $raw = explode('\\', get_called_class());
-        // return $raw[1];
-
         $object = new ReflectionClass(get_called_class());
-        $modulesPath = Alias::get('Modules');
+        $modulesPath = app()->getModulePath();
         $tmp = explode(DIRECTORY_SEPARATOR, str_replace($modulesPath, '', dirname($object->getFilename())));
         $clean = array_filter($tmp);
         return array_shift($clean);
