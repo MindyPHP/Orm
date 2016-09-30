@@ -3,8 +3,7 @@
 namespace Mindy\Orm\Fields;
 
 use Doctrine\DBAL\Types\Type;
-use Mindy\Orm\ModelInterface;
-use Mindy\QueryBuilder\QueryBuilder;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class DateTimeField
@@ -18,6 +17,21 @@ class DateTimeField extends DateField
     public function getSqlType()
     {
         return Type::getType(Type::DATETIME);
+    }
+
+    /**
+     * @return array
+     */
+    public function getValidationConstraints() : array
+    {
+        $constraints = [];
+        if ($this->null === false) {
+            $constraints[] = new Assert\NotBlank();
+        }
+
+        $constraints[] = new Assert\DateTime();
+
+        return $constraints;
     }
 
     /**
