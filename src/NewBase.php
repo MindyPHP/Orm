@@ -12,17 +12,19 @@ use Doctrine\DBAL\Connection;
 use Exception;
 use ArrayAccess;
 use function Mindy\app;
+use Mindy\Event\EventManager;
 use Mindy\Orm\Fields\AutoField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Fields\ModelFieldInterface;
+use Serializable;
 
 /**
  * Class NewBase
  * @package Mindy\Orm
  * @method static \Mindy\Orm\Manager objects($instance = null)
  */
-abstract class NewBase implements ModelInterface, ArrayAccess
+abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
 {
     /**
      * @var bool
@@ -48,6 +50,10 @@ abstract class NewBase implements ModelInterface, ArrayAccess
      * @var Connection
      */
     protected $connection;
+    /**
+     * @var EventManager
+     */
+    protected $eventManager;
 
     /**
      * NewOrm constructor.
@@ -416,17 +422,33 @@ abstract class NewBase implements ModelInterface, ArrayAccess
      */
     public function getEventManager()
     {
-        return null;
+        if ($this->eventManager === null) {
+            $eventManager = new EventManager();
+            $signals = [
+                'beforeSave',
+                'afterSave',
+
+                'beforeDelete',
+                'afterDelete'
+            ];
+            foreach ($signals as $signal) {
+                $eventManager->handler(self::class, $signal, [self::class, $signal]);
+            }
+            $this->eventManager = $eventManager;
+        }
+        return $this->eventManager;
     }
 
     /**
      * Trigger event is event manager is available
+     * @param string $eventName
+     * @param array $params
      */
-    public function trigger()
+    public function trigger(string $eventName, array $params = [])
     {
         $signal = $this->getEventManager();
         if ($signal) {
-            call_user_func_array([$signal, 'send'], func_get_args());
+            $signal->send($this, $eventName, $params);
         }
     }
 
@@ -438,18 +460,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess
             $field->beforeInsert($this, $this->getAttribute($field->getAttributeName()));
         }
 
-        $this->trigger($this, 'beforeSave', $this, true);
-    }
-
-    protected function beforeUpdateInternal()
-    {
-        $meta = self::getMeta();
-        foreach ($meta->getAttributes() as $name) {
-            $field = $this->getField($name);
-            $field->beforeUpdate($this, $this->getAttribute($field->getAttributeName()));
-        }
-
-        $this->trigger($this, 'beforeSave', $this, false);
+        $this->trigger('beforeSave', ['owner' => $this, 'isNew' => true]);
     }
 
     protected function afterInsertInternal()
@@ -460,7 +471,18 @@ abstract class NewBase implements ModelInterface, ArrayAccess
             $field->afterInsert($this, $this->getAttribute($field->getAttributeName()));
         }
 
-        $this->trigger($this, 'afterSave', $this, true);
+        $this->trigger('afterSave', ['owner' => $this, 'isNew' => true]);
+    }
+
+    protected function beforeUpdateInternal()
+    {
+        $meta = self::getMeta();
+        foreach ($meta->getAttributes() as $name) {
+            $field = $this->getField($name);
+            $field->beforeUpdate($this, $this->getAttribute($field->getAttributeName()));
+        }
+
+        $this->trigger('beforeSave', ['owner' => $this, 'isNew' => true]);
     }
 
     protected function afterUpdateInternal()
@@ -471,7 +493,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess
             $field->afterUpdate($this, $this->getAttribute($field->getAttributeName()));
         }
 
-        $this->trigger($this, 'afterSave', $this, false);
+        $this->trigger('afterSave', ['owner' => $this, 'isNew' => true]);
     }
 
     /**
@@ -494,7 +516,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess
             $field = $this->getField($name);
             $field->beforeDelete($this, $this->getAttribute($field->getAttributeName()));
         }
-        $this->trigger($this, 'beforeDelete', $this);
+        $this->trigger('beforeDelete', ['owner' => $this, 'isNew' => true]);
     }
 
     protected function afterDeleteInternal()
@@ -504,7 +526,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess
             $field = $this->getField($name);
             $field->afterDelete($this, $this->getAttribute($field->getAttributeName()));
         }
-        $this->trigger($this, 'afterDelete', $this);
+        $this->trigger('afterDelete', ['owner' => $this, 'isNew' => true]);
     }
 
     /**
@@ -678,7 +700,6 @@ abstract class NewBase implements ModelInterface, ArrayAccess
      */
     public function updateRelated()
     {
-        $meta = static::getMeta();
         foreach ($this->related as $name => $value) {
             if ($value instanceof Manager) {
                 continue;
@@ -687,12 +708,36 @@ abstract class NewBase implements ModelInterface, ArrayAccess
             /** @var \Mindy\Orm\Fields\RelatedField $field */
             $field = $this->getField($name);
             if (empty($value)) {
-                // TODO clean method
                 $field->getManager()->clean();
             } else {
                 $field->setValue($value);
             }
         }
         $this->related = [];
+    }
+
+    /**
+     * String representation of object
+     * @link http://php.net/manual/en/serializable.serialize.php
+     * @return string the string representation of the object or null
+     * @since 5.1.0
+     */
+    public function serialize()
+    {
+        return serialize($this->getAttributes());
+    }
+
+    /**
+     * Constructs the object
+     * @link http://php.net/manual/en/serializable.unserialize.php
+     * @param string $serialized <p>
+     * The string representation of the object.
+     * </p>
+     * @return void
+     * @since 5.1.0
+     */
+    public function unserialize($serialized)
+    {
+        $this->setAttributes(unserialize($serialized));
     }
 }

@@ -120,8 +120,6 @@ class NewOrm extends NewBase
     {
         $connection = $this->getConnection();
 
-        $this->trigger('beforeInsert');
-
         $this->beforeInsertInternal();
 
         $connection->beginTransaction();
@@ -137,7 +135,6 @@ class NewOrm extends NewBase
         }
 
         $this->afterInsertInternal();
-        $this->trigger('afterInsert');
 
         if ($inserted) {
             $this->setIsNewRecord(false);
@@ -157,8 +154,6 @@ class NewOrm extends NewBase
     {
         $connection = $this->getConnection();
 
-        $this->trigger('beforeUpdate');
-
         $this->beforeUpdateInternal();
 
         $connection->beginTransaction();
@@ -174,7 +169,6 @@ class NewOrm extends NewBase
         }
 
         $this->afterUpdateInternal();
-        $this->trigger('afterUpdate');
 
         if ($updated) {
             $this->updateRelated();

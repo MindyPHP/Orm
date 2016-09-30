@@ -65,20 +65,28 @@ class ImageField extends FileField
      */
     public function getValidationConstraints() : array
     {
-        return array_merge(parent::getValidationConstraints(), [
-            new Assert\Image([
-                'minWidth' => $this->minWidth,
-                'maxWidth' => $this->maxWidth,
-                'maxHeight' => $this->maxHeight,
-                'minHeight' => $this->minHeight,
-                'maxRatio' => $this->maxRatio,
-                'minRatio' => $this->minRatio,
-                'allowSquare' => $this->allowSquare,
-                'allowLandscape' => $this->allowLandscape,
-                'allowPortrait' => $this->allowPortrait,
-                'detectCorrupted' => $this->detectCorrupted,
-            ])
-        ]);
+        $constraints = parent::getValidationConstraints();
+
+        /*
+        if (empty($this->value)) {
+            return array_merge($constraints, [
+                new Assert\Image([
+                    'minWidth' => $this->minWidth,
+                    'maxWidth' => $this->maxWidth,
+                    'maxHeight' => $this->maxHeight,
+                    'minHeight' => $this->minHeight,
+                    'maxRatio' => $this->maxRatio,
+                    'minRatio' => $this->minRatio,
+                    'allowSquare' => $this->allowSquare,
+                    'allowLandscape' => $this->allowLandscape,
+                    'allowPortrait' => $this->allowPortrait,
+                    'detectCorrupted' => $this->detectCorrupted,
+                ])
+            ]);
+        }
+        */
+
+        return $constraints;
     }
 
     /**

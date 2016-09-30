@@ -82,6 +82,19 @@ class DateField extends Field
      * @param AbstractPlatform $platform
      * @return mixed
      */
+    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    {
+        if (!is_object($value)) {
+            $value = (new \DateTime())->setTimestamp(is_numeric($value) ? $value : strtotime($value));
+        }
+        return $this->getSqlType()->convertToDatabaseValue($value, $platform);
+    }
+
+    /**
+     * @param $value
+     * @param AbstractPlatform $platform
+     * @return mixed
+     */
     public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)
     {
         if (!is_object($value)) {
