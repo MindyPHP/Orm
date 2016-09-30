@@ -11,6 +11,7 @@
 
 namespace Mindy\Orm\Validation;
 
+use function Mindy\app;
 use Mindy\Orm\Files\File as FileObject;
 use Mindy\Orm\Files\UploadedFile;
 use Symfony\Component\Validator\Constraint;
@@ -37,10 +38,46 @@ class FileValidator extends ConstraintValidator
     );
 
     /**
+     * Returns the maximum size of an uploaded file as configured in php.ini.
+     *
+     * @return int The maximum size of an uploaded file in bytes
+     */
+    public static function getMaxFilesize()
+    {
+        $iniMax = strtolower(ini_get('upload_max_filesize'));
+        if ('' === $iniMax) {
+            return PHP_INT_MAX;
+        }
+        $max = ltrim($iniMax, '+');
+        if (0 === strpos($max, '0x')) {
+            $max = intval($max, 16);
+        } elseif (0 === strpos($max, '0')) {
+            $max = intval($max, 8);
+        } else {
+            $max = (int)$max;
+        }
+        switch (substr($iniMax, -1)) {
+            /** @noinspection PhpMissingBreakStatementInspection */
+            case 't':
+                $max *= 1024;
+            /** @noinspection PhpMissingBreakStatementInspection */
+            case 'g':
+                $max *= 1024;
+            /** @noinspection PhpMissingBreakStatementInspection */
+            case 'm':
+                $max *= 1024;
+            case 'k':
+                $max *= 1024;
+        }
+        return $max;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function validate($value, Constraint $constraint)
     {
+        /** @var UploadedFile $value */
         if (!$constraint instanceof AssertFile) {
             throw new UnexpectedTypeException($constraint, __NAMESPACE__.'\File');
         }
@@ -52,7 +89,7 @@ class FileValidator extends ConstraintValidator
         if ($value instanceof UploadedFile && !$value->isValid()) {
             switch ($value->getError()) {
                 case UPLOAD_ERR_INI_SIZE:
-                    $iniLimitSize = UploadedFile::getMaxFilesize();
+                    $iniLimitSize = self::getMaxFilesize();
                     if ($constraint->maxSize && $constraint->maxSize < $iniLimitSize) {
                         $limitInBytes = $constraint->maxSize;
                         $binaryFormat = $constraint->binaryFormat;
@@ -82,9 +119,12 @@ class FileValidator extends ConstraintValidator
 
                     return;
                 case UPLOAD_ERR_NO_FILE:
-                    $this->context->buildViolation($constraint->uploadNoFileErrorMessage)
-                        ->setCode(UPLOAD_ERR_NO_FILE)
-                        ->addViolation();
+
+                    if ($constraint->required) {
+                        $this->context->buildViolation($constraint->uploadNoFileErrorMessage)
+                            ->setCode(UPLOAD_ERR_NO_FILE)
+                            ->addViolation();
+                    }
 
                     return;
                 case UPLOAD_ERR_NO_TMP_DIR:
@@ -114,11 +154,11 @@ class FileValidator extends ConstraintValidator
             }
         }
 
-        if (!is_scalar($value) && !$value instanceof FileObject && !(is_object($value) && method_exists($value, '__toString'))) {
+        if (!is_scalar($value) && !$value instanceof UploadedFile && !(is_object($value) && method_exists($value, '__toString'))) {
             throw new UnexpectedTypeException($value, 'string');
         }
 
-        $path = $value instanceof FileObject ? $value->getPathname() : (string) $value;
+        $path = $value instanceof UploadedFile ? $value->getPathname() : (string) $value;
 
         if (!is_file($path)) {
             $this->context->buildViolation($constraint->notFoundMessage)
@@ -193,6 +233,11 @@ class FileValidator extends ConstraintValidator
                 ->setCode(File::INVALID_MIME_TYPE_ERROR)
                 ->addViolation();
         }
+    }
+
+    protected function getFilesystem()
+    {
+        return app()->storage->getFilesystem();
     }
 
     private static function moreDecimalsThan($double, $numberOfDecimals)

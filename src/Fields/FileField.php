@@ -4,8 +4,6 @@ namespace Mindy\Orm\Fields;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Exception;
-use GuzzleHttp\Psr7\UploadedFile as GuzzleUploadedFile;
-use function Mindy\app;
 use Mindy\Orm\Files\File;
 use Mindy\Orm\Files\LocalFile;
 use Mindy\Orm\Files\ResourceFile;
@@ -81,11 +79,12 @@ class FileField extends CharField
     public function getValidationConstraints() : array
     {
         $constraints = [];
-        if ($this->required) {
+        if ($this->isRequired()) {
             $constraints[] = new Assert\NotBlank();
         }
 
         $constraints[] = new Validation\File([
+            'required' => $this->isRequired(),
             'maxSize' => $this->maxSize,
             'mimeTypes' => $this->mimeTypes,
         ]);
@@ -147,22 +146,6 @@ class FileField extends CharField
      * @param \Mindy\Orm\Model|ModelInterface $model
      * @param $value
      */
-    public function afterUpdate(ModelInterface $model, $value)
-    {
-        if ($model->hasAttribute($this->getAttributeName())) {
-            if ($oldValue = $model->getOldAttribute($this->getAttributeName())) {
-                $fs = $this->getFilesystem();
-                if ($fs->has($oldValue)) {
-                    $fs->delete($oldValue);
-                }
-            }
-        }
-    }
-
-    /**
-     * @param \Mindy\Orm\Model|ModelInterface $model
-     * @param $value
-     */
     public function afterDelete(ModelInterface $model, $value)
     {
         if ($model->hasAttribute($this->getAttributeName())) {
@@ -187,7 +170,13 @@ class FileField extends CharField
             if ($value['error'] === UPLOAD_ERR_NO_FILE) {
                 $value = null;
             } else {
-                $value = new UploadedFile($value['tmp_name'], $value['name'], $value['type'], $value['size'], $value['error']);
+                $value = new UploadedFile(
+                    $value['tmp_name'],
+                    (int) $value['size'],
+                    (int) $value['error'],
+                    $value['name'],
+                    $value['type']
+                );
             }
 
         } else if (is_string($value)) {
@@ -203,12 +192,6 @@ class FileField extends CharField
 
         if ($value === null) {
             $this->value = null;
-        } else if ($value instanceof GuzzleUploadedFile) {
-            if ($value->getError() === UPLOAD_ERR_NO_FILE) {
-                $this->value = null;
-            } else {
-                $this->value = $value;
-            }
         } else if ($value instanceof File) {
             $this->value = $value;
         }
@@ -255,8 +238,8 @@ class FileField extends CharField
 
     public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)
     {
-        if ($value instanceof GuzzleUploadedFile) {
-            $value = $this->saveGuzzleFile($value);
+        if ($value instanceof UploadedFile) {
+            $value = $this->saveUploadedFile($value);
         } else if ($value instanceof File) {
             $value = $this->saveFile($value);
         }
@@ -279,7 +262,7 @@ class FileField extends CharField
         return str_replace('//', '/', $value);
     }
 
-    protected function saveGuzzleFile(GuzzleUploadedFile $file)
+    protected function saveUploadedFile(UploadedFile $file)
     {
         $path = $this->getUploadTo() . DIRECTORY_SEPARATOR;
 

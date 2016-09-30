@@ -95,7 +95,7 @@ abstract class Field implements ModelFieldInterface
     public function getValidationConstraints() : array
     {
         $constraints = [];
-        if ($this->required) {
+        if ($this->null === false) {
             $constraints[] = new Assert\NotBlank();
         }
 
@@ -178,11 +178,6 @@ abstract class Field implements ModelFieldInterface
      */
     abstract public function getSqlType();
 
-    public function canBeEmpty()
-    {
-        return !$this->required && $this->null || !is_null($this->default) || $this->autoFetch === true;
-    }
-
     /**
      * @param ModelInterface $model
      * @return $this
@@ -258,9 +253,16 @@ abstract class Field implements ModelFieldInterface
         return $this->getValue();
     }
 
+    /**
+     * @return bool
+     */
     public function isRequired()
     {
-        return $this->required;
+        if ($this->autoFetch) {
+            return false;
+        }
+
+        return $this->null === false && is_null($this->default) === true;
     }
 
     /**
@@ -278,7 +280,7 @@ abstract class Field implements ModelFieldInterface
         return $this->name;
     }
 
-    public function getVerboseName(Model $model)
+    public function getVerboseName()
     {
         if ($this->verboseName) {
             return $this->verboseName;
@@ -359,7 +361,7 @@ abstract class Field implements ModelFieldInterface
 
         return [
             'class' => $fieldClass,
-            'required' => !$this->canBeEmpty(),
+            'required' => $this->isRequired(),
             'choices' => $this->choices,
             'name' => $this->name,
             'label' => $this->verboseName,

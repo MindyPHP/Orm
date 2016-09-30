@@ -459,6 +459,8 @@ abstract class NewBase implements ModelInterface, ArrayAccess
             $field = $this->getField($name);
             $field->afterInsert($this, $this->getAttribute($field->getAttributeName()));
         }
+
+        $this->trigger($this, 'afterSave', $this, true);
     }
 
     protected function afterUpdateInternal()
@@ -468,6 +470,8 @@ abstract class NewBase implements ModelInterface, ArrayAccess
             $field = $this->getField($name);
             $field->afterUpdate($this, $this->getAttribute($field->getAttributeName()));
         }
+
+        $this->trigger($this, 'afterSave', $this, false);
     }
 
     /**

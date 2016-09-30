@@ -44,9 +44,12 @@ class DateField extends Field
         }
     }
 
-    public function canBeEmpty()
+    public function isRequired()
     {
-        return ($this->autoNowAdd || $this->autoNow) || !$this->required && $this->null || !is_null($this->default);
+        if ($this->autoNowAdd || $this->autoNow) {
+            return false;
+        }
+        return parent::isRequired();
     }
 
     public function getValue()

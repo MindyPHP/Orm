@@ -39,6 +39,11 @@ interface ModelFieldInterface
     public function getValue();
 
     /**
+     * @return string|null|bool
+     */
+    public function getVerboseName();
+
+    /**
      * @return \Doctrine\Dbal\Types\Type|false|null
      */
     public function getSqlType();

@@ -43,7 +43,7 @@ class TreeForeignField extends ForeignField
             'disabled' => $disabled,
             'choices' => empty($this->choices) ? $choices : $this->choices,
             'class' => $fieldClass,
-            'required' => !$this->canBeEmpty(),
+            'required' => $this->isRequired(),
             'name' => $this->name,
             'label' => $this->verboseName,
             'hint' => $this->helpText,

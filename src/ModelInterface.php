@@ -18,6 +18,11 @@ use Mindy\Form\FieldInterface;
 interface ModelInterface
 {
     /**
+     * @return array
+     */
+    public function getAttributes() : array;
+
+    /**
      * @param null $instance
      * @return Manager
      */

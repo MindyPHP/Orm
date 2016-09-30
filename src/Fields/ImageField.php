@@ -2,12 +2,12 @@
 
 namespace Mindy\Orm\Fields;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Mindy\Exception\Exception;
 use Mindy\Orm\Files\File;
+use Mindy\Orm\Files\UploadedFile;
 use Mindy\Orm\Image\ImageProcessor;
 use Mindy\Orm\Image\ImageProcessorInterface;
 use Mindy\Orm\ModelInterface;
-use GuzzleHttp\Psr7\UploadedFile as GuzzleUploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -109,7 +109,11 @@ class ImageField extends FileField
         }
     }
 
-    public function beforeInsert(ModelInterface $model, $value)
+    /**
+     * @param \Mindy\Orm\Model|ModelInterface $model
+     * @param $value
+     */
+    public function afterInsert(ModelInterface $model, $value)
     {
         if ($value) {
             $this->resizeAndSaveImage($model, $value);
@@ -118,26 +122,9 @@ class ImageField extends FileField
 
     private function resizeAndSaveImage(ModelInterface $model, $value)
     {
-        if ($value instanceof GuzzleUploadedFile) {
-            $value = $this->saveGuzzleFile($value);
-        } else if ($value instanceof File) {
-            $value = $this->saveFile($value);
-        }
-        $value = $this->normalizeValue($value);
-
         $realPath = $this->getFilesystem()->getAdapter()->applyPathPrefix($value);
         if (is_file($realPath)) {
             $this->getProcessor()->process($realPath);
-        }
-    }
-
-    public function afterInsert(ModelInterface $model, $value)
-    {
-        if (
-            ($oldValue = $model->getOldAttribute($this->getAttributeName())) &&
-            $value != $oldValue
-        ) {
-            $this->getProcessor()->process($value, $this->getUploadTo());
         }
     }
 
@@ -147,15 +134,8 @@ class ImageField extends FileField
      */
     public function afterUpdate(ModelInterface $model, $value)
     {
-        parent::afterUpdate($model, $value);
-
-        if ($model->hasAttribute($this->getAttributeName())) {
-            if (
-                ($oldValue = $model->getOldAttribute($this->getAttributeName())) &&
-                $value != $oldValue
-            ) {
-                $this->getProcessor()->process($value, $this->getUploadTo());
-            }
+        if ($value) {
+            $this->resizeAndSaveImage($model, $value);
         }
     }
 

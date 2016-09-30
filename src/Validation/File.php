@@ -12,5 +12,6 @@ use Symfony\Component\Validator\Constraints\File as BaseFile;
 
 class File extends BaseFile
 {
+    public $required = false;
 
 }
