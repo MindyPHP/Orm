@@ -6,7 +6,6 @@ use ArrayAccess;
 use Doctrine\DBAL\Connection;
 use Exception;
 use IteratorAggregate;
-use function Mindy\app;
 use Mindy\Creator\Creator;
 use Mindy\Orm\Callback\FetchColumnCallback;
 use Mindy\Orm\Callback\JoinCallback;
@@ -95,10 +94,10 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
     }
 
     /**
-     * @param $connection
+     * @param string|\Doctrine\Dbal\Connection $connection
      * @return $this
      */
-    public function using(string $connection)
+    public function using($connection)
     {
         $this->using = $connection;
         return $this;
@@ -109,10 +108,7 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
      */
     public function getConnection()
     {
-        if ($this->connection === null) {
-            $this->connection = app()->db->getConnection($this->using);
-        }
-        return $this->connection;
+        return $this->model->getConnection();
     }
 
     /**

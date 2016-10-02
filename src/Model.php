@@ -4,7 +4,6 @@ namespace Mindy\Orm;
 
 use function Mindy\app;
 use Mindy\Form\FormModelInterface;
-use Mindy\Helper\Alias;
 use function Mindy\trans;
 use ReflectionClass;
 
@@ -40,23 +39,14 @@ class Model extends NewOrm implements FormModelInterface
     }
 
     /**
-     * todo refact
      * Return module name
      * @return string
      */
     public static function getModuleName()
     {
-        /** @var array $raw */
-        // See issue #105
-        // https://github.com/studio107/Mindy_Orm/issues/105
-        // $raw = explode('\\', get_called_class());
-        // return $raw[1];
-
         $object = new ReflectionClass(get_called_class());
-        $modulesPath = Alias::get('Modules');
-        $tmp = explode(DIRECTORY_SEPARATOR, str_replace($modulesPath, '', dirname($object->getFilename())));
-        $clean = array_filter($tmp);
-        return array_shift($clean);
+        $shortPath = substr($object->getFileName(), strpos($object->getFileName(), 'Modules') + 8);
+        return substr($shortPath, 0, strpos($shortPath, '/'));
     }
 
     /**

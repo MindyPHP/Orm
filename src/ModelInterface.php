@@ -7,6 +7,7 @@
  */
 
 namespace Mindy\Orm;
+use Doctrine\DBAL\Connection;
 use Mindy\Form\FieldInterface;
 
 /**
@@ -105,4 +106,14 @@ interface ModelInterface
      * @return null|FieldInterface
      */
     public function getField(string $name, $throw = false);
+
+    /**
+     * @return Connection
+     */
+    public function getConnection() : Connection;
+
+    /**
+     * @param Connection $connection
+     */
+    public function setConnection(Connection $connection);
 }

@@ -31,6 +31,7 @@ abstract class ManagerBase
     public function __construct(ModelInterface $model, $config = [])
     {
         $this->_model = $model;
+
         foreach ($config as $key => $value) {
             $this->{$key} = $value;
         }

@@ -39,10 +39,10 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
     }
 
     /**
-     * @param string $connection
+     * @param string|\Doctrine\Dbal\Connection $connection
      * @return $this
      */
-    public function using(string $connection)
+    public function using($connection)
     {
         $this->getQuerySet()->using($connection);
         return $this;

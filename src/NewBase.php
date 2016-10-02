@@ -265,13 +265,16 @@ abstract class NewBase implements ModelInterface, ArrayAccess
     }
 
     /**
-     * @param null $instance
+     * @param null|ModelInterface $instance
      * @return Manager
      */
     public static function objectsManager($instance = null)
     {
-        $className = get_called_class();
-        return new Manager($instance ? $instance : new $className);
+        if (!$instance) {
+            $className = get_called_class();
+            $instance = new $className;
+        }
+        return new Manager($instance, $instance->getConnection());
     }
 
     /**
@@ -656,11 +659,19 @@ abstract class NewBase implements ModelInterface, ArrayAccess
 
     /**
      * @return Connection
+     * @throws Exception
      */
     public function getConnection() : Connection
     {
         if ($this->connection === null) {
-            $this->connection = app()->db->getConnection($this->using);
+            $app = app();
+
+            $connection = $app->db->getConnection($this->using);
+            if (($connection instanceof Connection) === false) {
+                throw new Exception('Unknown connection ' . $this->using);
+            }
+
+            $this->connection = $connection;
         }
         return $this->connection;
     }
