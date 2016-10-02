@@ -37,7 +37,7 @@ class UploadedFile extends GuzzleUploadedFile
         if (is_string($streamOrFile)) {
             $this->path = $streamOrFile;
         }
-        parent::__construct($streamOrFile, $size, $errorStatus, $clientFilename, $clientMediaType);
+        parent::__construct($streamOrFile, (int)$size, (int)$errorStatus, $clientFilename, $clientMediaType);
     }
 
     /**

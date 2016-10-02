@@ -113,7 +113,7 @@ abstract class Field implements ModelFieldInterface
 
         if (!empty($this->choices)) {
             $constraints[] = new Assert\Choice([
-                'choices' => $this->choices instanceof Closure ? $this->choices->__invoke() : $this->choices
+                'choices' => array_keys($this->choices instanceof Closure ? $this->choices->__invoke() : $this->choices)
             ]);
         }
 
@@ -360,6 +360,7 @@ abstract class Field implements ModelFieldInterface
         }
 
         return [
+            'validators' => $this->getValidationConstraints(),
             'class' => $fieldClass,
             'required' => $this->isRequired(),
             'choices' => $this->choices,

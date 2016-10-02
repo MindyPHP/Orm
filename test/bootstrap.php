@@ -8,6 +8,8 @@
 
 $autoloader = require(__DIR__ . '/../vendor/autoload.php');
 
+define('MINDY_ORM_TEST', true);
+
 class Connections
 {
     protected static $cm;

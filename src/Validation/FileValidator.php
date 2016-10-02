@@ -14,6 +14,7 @@ namespace Mindy\Orm\Validation;
 use function Mindy\app;
 use Mindy\Orm\Files\File as FileObject;
 use Mindy\Orm\Files\UploadedFile;
+use Mindy\Orm\Traits\FilesystemAwareTrait;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\File as AssertFile;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -207,12 +208,8 @@ class FileValidator extends ConstraintValidator
         }
 
         if ($constraint->mimeTypes) {
-            if (!$value instanceof FileObject) {
-                $value = new FileObject($value);
-            }
-
             $mimeTypes = (array) $constraint->mimeTypes;
-            $mime = $value->getMimeType();
+            $mime = $value->getClientMediaType();
 
             foreach ($mimeTypes as $mimeType) {
                 if ($mimeType === $mime) {
@@ -233,11 +230,6 @@ class FileValidator extends ConstraintValidator
                 ->setCode(File::INVALID_MIME_TYPE_ERROR)
                 ->addViolation();
         }
-    }
-
-    protected function getFilesystem()
-    {
-        return app()->storage->getFilesystem();
     }
 
     private static function moreDecimalsThan($double, $numberOfDecimals)

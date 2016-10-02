@@ -3,6 +3,7 @@
 namespace Mindy\Orm;
 
 use function Mindy\app;
+use Mindy\Base\Application;
 use Mindy\Form\FormModelInterface;
 use function Mindy\trans;
 use ReflectionClass;
@@ -35,7 +36,11 @@ class Model extends NewOrm implements FormModelInterface
      */
     public static function tableName() : string
     {
-        return sprintf("%s_%s", self::normalizeTableName(self::getModuleName()), parent::tableName());
+        if (defined('MINDY_ORM_TEST') && MINDY_ORM_TEST) {
+            return parent::tableName();
+        } else {
+            return sprintf("%s_%s", self::normalizeTableName(self::getModuleName()), parent::tableName());
+        }
     }
 
     /**
@@ -50,12 +55,14 @@ class Model extends NewOrm implements FormModelInterface
     }
 
     /**
-     * @return \Mindy\Base\ModuleInterface
+     * @return \Mindy\Module\ModuleInterface
      */
     public static function getModule()
     {
-        if (($name = self::getModuleName()) && app()->hasModule($name)) {
-            return app()->getModule(self::getModuleName());
+        if ($app = app()) {
+            if (($name = self::getModuleName()) && $app->hasModule($name)) {
+                return $app->getModule(self::getModuleName());
+            }
         }
 
         return null;

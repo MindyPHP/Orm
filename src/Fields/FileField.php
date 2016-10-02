@@ -101,19 +101,18 @@ class FileField extends CharField
     }
 
     /**
-     * @param array $options
      * @return string
      */
-    public function url(array $options = []) : string
+    public function url() : string
     {
-        return $this->getFilesystem()->url($this->value, $options);
+        return $this->getStorage()->url($this->value);
     }
 
     /**
      * @param array $options
      * @return string
      */
-    public function path(array $options = []) : string
+    public function path() : string
     {
         return $this->value;
     }
@@ -192,7 +191,7 @@ class FileField extends CharField
 
         if ($value === null) {
             $this->value = null;
-        } else if ($value instanceof File) {
+        } else if ($value instanceof File || $value instanceof UploadedFile) {
             $this->value = $value;
         }
     }
@@ -236,7 +235,7 @@ class FileField extends CharField
         return parent::getFormField($fieldClass);
     }
 
-    public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         if ($value instanceof UploadedFile) {
             $value = $this->saveUploadedFile($value);
@@ -248,7 +247,7 @@ class FileField extends CharField
             $value = $this->normalizeValue($value);
         }
 
-        return parent::convertToDatabaseValueSQL($value, $platform);
+        return parent::convertToDatabaseValue($value, $platform);
     }
 
     public function convertToPHPValueSQL($value, AbstractPlatform $platform)

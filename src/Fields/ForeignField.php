@@ -95,7 +95,10 @@ class ForeignField extends RelatedField
     public function toArray()
     {
         $value = $this->getValue();
-        return $value instanceof Base ? $value->pk : $value;
+        if ($value instanceof ModelInterface) {
+            return $value->pk;
+        }
+        return $value;
     }
 
     public function getSelectJoin(QueryBuilder $qb, $topAlias)
@@ -144,7 +147,7 @@ class ForeignField extends RelatedField
      * @param AbstractPlatform $platform
      * @return int|string
      */
-    public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         if ($value === null) {
             return $value;

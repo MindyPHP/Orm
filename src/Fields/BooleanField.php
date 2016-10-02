@@ -1,8 +1,9 @@
 <?php
 
 namespace Mindy\Orm\Fields;
+
 use Doctrine\DBAL\Types\Type;
-use Mindy\QueryBuilder\QueryBuilder;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class BooleanField
@@ -15,19 +16,12 @@ class BooleanField extends Field
      */
     public $default = false;
 
-    public function setValue($value)
+    /**
+     * @return array
+     */
+    public function getValidationConstraints() : array
     {
-        $this->value = (bool)$value;
-    }
-
-    public function getValue()
-    {
-        return (bool)$this->value;
-    }
-
-    public function getDbPrepValue()
-    {
-        return (bool)$this->value;
+        return $this->validators;
     }
 
     /**

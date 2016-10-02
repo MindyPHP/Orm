@@ -2,10 +2,12 @@
 
 namespace Mindy\Orm\Fields;
 
+use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Mindy\Orm\ModelInterface;
 use Mindy\QueryBuilder\QueryBuilder;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class DateField
@@ -28,6 +30,21 @@ class DateField extends Field
     public function getSqlType()
     {
         return Type::getType(Type::DATE);
+    }
+
+    /**
+     * @return array
+     */
+    public function getValidationConstraints() : array
+    {
+        $constraints = [];
+        if ($this->null === false) {
+            $constraints[] = new Assert\NotBlank();
+        }
+
+        $constraints[] = new Assert\Date();
+
+        return $constraints;
     }
 
     public function beforeInsert(ModelInterface $model, $value)
@@ -72,20 +89,10 @@ class DateField extends Field
      * @param AbstractPlatform $platform
      * @return mixed
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        return $this->getSqlType()->convertToPHPValue($value, $platform);
-    }
-
-    /**
-     * @param $value
-     * @param AbstractPlatform $platform
-     * @return mixed
-     */
-    public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)
-    {
-        if (!is_object($value)) {
-            $value = (new \DateTime())->setTimestamp(is_numeric($value) ? $value : strtotime($value));
+        if (($value instanceof DateTime) == false) {
+            $value = (new DateTime())->setTimestamp(is_numeric($value) ? $value : strtotime($value));
         }
         return $this->getSqlType()->convertToDatabaseValue($value, $platform);
     }
