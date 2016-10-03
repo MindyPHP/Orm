@@ -2,7 +2,6 @@
 
 namespace Mindy\Orm\Fields;
 
-use Mindy\Orm\Validation;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -41,9 +40,9 @@ class ImageField extends FileField
     {
         $constraints = parent::getValidationConstraints();
 
-        if (empty($this->value)) {
+        if ($this->isRequired() && empty($this->value)) {
             return array_merge($constraints, [
-                new Validation\Image([
+                new Assert\Image([
                     'minWidth' => $this->minWidth,
                     'maxWidth' => $this->maxWidth,
                     'maxHeight' => $this->maxHeight,

@@ -67,10 +67,10 @@ class Model extends NewOrm implements FormModelInterface
 
         return null;
     }
-
-    public function reverse($route, $data = null)
+ 
+    public function reverse($route, array $data = [])
     {
-        return app()->urlManager->reverse($route, $data);
+        return app()->router->generate($route, $data);
     }
 
     public static function t($id, array $parameters = [], $locale = null)

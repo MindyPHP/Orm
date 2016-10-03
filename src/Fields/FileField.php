@@ -7,10 +7,9 @@ use Exception;
 use Mindy\Orm\Files\File;
 use Mindy\Orm\Files\LocalFile;
 use Mindy\Orm\Files\ResourceFile;
-use Mindy\Orm\Files\UploadedFile;
 use Mindy\Orm\ModelInterface;
 use Mindy\Orm\Traits\FilesystemAwareTrait;
-use Mindy\Orm\Validation;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -79,15 +78,15 @@ class FileField extends CharField
     public function getValidationConstraints() : array
     {
         $constraints = [];
-        if ($this->isRequired()) {
-            $constraints[] = new Assert\NotBlank();
+        if ($this->isRequired() && empty($this->value)) {
+            $constraints = [
+                new Assert\NotBlank(),
+                new Assert\File([
+                    'maxSize' => $this->maxSize,
+                    'mimeTypes' => $this->mimeTypes,
+                ])
+            ];
         }
-
-        $constraints[] = new Validation\File([
-            'required' => $this->isRequired(),
-            'maxSize' => $this->maxSize,
-            'mimeTypes' => $this->mimeTypes,
-        ]);
 
         return $constraints;
     }
@@ -171,10 +170,10 @@ class FileField extends CharField
             } else {
                 $value = new UploadedFile(
                     $value['tmp_name'],
-                    (int) $value['size'],
-                    (int) $value['error'],
                     $value['name'],
-                    $value['type']
+                    $value['type'],
+                    (int)$value['size'],
+                    (int)$value['error']
                 );
             }
 
@@ -266,14 +265,14 @@ class FileField extends CharField
         $path = $this->getUploadTo() . DIRECTORY_SEPARATOR;
 
         $fs = $this->getFilesystem();
-        if ($fs->has($path . DIRECTORY_SEPARATOR . $file->getClientFilename())) {
-            $fs->delete($path . DIRECTORY_SEPARATOR . $file->getClientFilename());
+        if ($fs->has($path . DIRECTORY_SEPARATOR . $file->getClientOriginalName())) {
+            $fs->delete($path . DIRECTORY_SEPARATOR . $file->getClientOriginalName());
         }
-        if (!$fs->write($path . DIRECTORY_SEPARATOR . $file->getClientFilename(), $file->getStream()->getContents())) {
+        if (!$fs->write($path . DIRECTORY_SEPARATOR . $file->getClientOriginalName(), file_get_contents($file->getRealPath()))) {
             throw new Exception('Failed to save file');
         }
 
-        return $path . DIRECTORY_SEPARATOR . $file->getClientFilename();
+        return $path . DIRECTORY_SEPARATOR . $file->getClientOriginalName();
     }
 
     protected function saveFile(File $file)
