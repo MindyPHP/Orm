@@ -39,33 +39,41 @@ class Model extends NewOrm implements FormModelInterface
         if (defined('MINDY_ORM_TEST') && MINDY_ORM_TEST) {
             return parent::tableName();
         } else {
+            $bundleName = self::getBundleName();
             return sprintf("%s_%s", self::normalizeTableName(self::getModuleName()), parent::tableName());
         }
     }
 
     /**
-     * Return module name
+     * @deprecated
      * @return string
      */
     public static function getModuleName()
     {
+        return self::getBundleName();
+    }
+
+    /**
+     * @return string
+     */
+    public static function getBundleName()
+    {
         $object = new ReflectionClass(get_called_class());
-        $shortPath = substr($object->getFileName(), strpos($object->getFileName(), 'Modules') + 8);
+        $shortPath = substr($object->getFileName(), strpos($object->getFileName(), 'Bundle') + 7);
         return substr($shortPath, 0, strpos($shortPath, '/'));
     }
 
     /**
-     * @return \Mindy\Module\ModuleInterface
+     * @deprecated
      */
     public static function getModule()
     {
-        if ($app = app()) {
-            if (($name = self::getModuleName()) && $app->hasModule($name)) {
-                return $app->getModule(self::getModuleName());
-            }
-        }
+        return self::getBundle();
+    }
 
-        return null;
+    public static function getBundle()
+    {
+        return app()->getKernel()->getBundle(self::getBundleName());
     }
  
     public function reverse($route, array $data = [])
@@ -73,9 +81,10 @@ class Model extends NewOrm implements FormModelInterface
         return app()->router->generate($route, $data);
     }
 
-    public static function t($id, array $parameters = [], $locale = null)
+    public static function t($id, array $parameters = [], $domain = null, $locale = null)
     {
-        return trans(sprintf('modules.%s.main', self::getModuleName()), $id, $parameters, $locale);
+        $translator = app()->getContainer()->get('translator');
+        return $translator->trans($id, $parameters, $domain ? $domain : sprintf('%s.messages', self::getBundleName()), $locale);
     }
 
     public function __toString()
