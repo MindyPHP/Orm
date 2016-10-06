@@ -28,7 +28,7 @@ abstract class TreeModel extends Model
             'parent' => [
                 'class' => TreeForeignField::class,
                 'modelClass' => get_called_class(),
-                'null' => true
+                'null' => true,
                 'verboseName' => self::t('Parent')
             ],
             'lft' => [
