@@ -12,7 +12,6 @@ use Doctrine\DBAL\Connection;
 use Exception;
 use ArrayAccess;
 use function Mindy\app;
-use Mindy\Event\EventManager;
 use Mindy\Orm\Fields\AutoField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
@@ -50,10 +49,6 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      * @var Connection
      */
     protected $connection;
-    /**
-     * @var EventManager
-     */
-    protected $eventManager;
 
     /**
      * NewOrm constructor.
@@ -420,42 +415,6 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
 
     abstract public function insert(array $fields = []) : bool;
 
-    /**
-     * @return null|\Mindy\Event\EventManager
-     */
-    public function getEventManager()
-    {
-        if ($this->eventManager === null) {
-            $eventManager = new EventManager();
-            $signals = [
-                'beforeSave',
-                'afterSave',
-
-                'beforeDelete',
-                'afterDelete'
-            ];
-            foreach ($signals as $signal) {
-                $eventManager->handler(self::class, $signal, [self::class, $signal]);
-            }
-            $this->eventManager = $eventManager;
-        }
-        return $this->eventManager;
-    }
-
-    /**
-     * Trigger event is event manager is available
-     */
-    public function trigger()
-    {
-        $eventManager = $this->getEventManager();
-        if ($eventManager) {
-            $args = func_get_args();
-            $origin = array_shift($args);
-            $signal = array_shift($args);
-            call_user_func_array([$eventManager, 'send'], [$origin, $signal, $args]);
-        }
-    }
-
     public function beforeSave($owner, $isNew)
     {
 
@@ -484,7 +443,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
             $field->beforeInsert($this, $this->getAttribute($field->getAttributeName()));
         }
 
-        $this->trigger($this, 'beforeSave', $this, true);
+        $this->beforeSave($this, true);
     }
 
     protected function afterInsertInternal()
@@ -495,7 +454,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
             $field->afterInsert($this, $this->getAttribute($field->getAttributeName()));
         }
 
-        $this->trigger($this, 'afterSave', $this, true);
+        $this->afterSave($this, true);
     }
 
     protected function beforeUpdateInternal()
@@ -506,7 +465,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
             $field->beforeUpdate($this, $this->getAttribute($field->getAttributeName()));
         }
 
-        $this->trigger($this, 'beforeSave', $this, true);
+        $this->beforeSave($this, false);
     }
 
     protected function afterUpdateInternal()
@@ -517,7 +476,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
             $field->afterUpdate($this, $this->getAttribute($field->getAttributeName()));
         }
 
-        $this->trigger($this, 'afterSave', $this, true);
+        $this->afterSave($this, false);
     }
 
     /**
@@ -540,7 +499,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
             $field = $this->getField($name);
             $field->beforeDelete($this, $this->getAttribute($field->getAttributeName()));
         }
-        $this->trigger($this, 'beforeDelete', $this, true);
+        $this->beforeDelete($this);
     }
 
     protected function afterDeleteInternal()
@@ -550,7 +509,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
             $field = $this->getField($name);
             $field->afterDelete($this, $this->getAttribute($field->getAttributeName()));
         }
-        $this->trigger($this, 'afterDelete', $this, true);
+        $this->afterDelete($this);
     }
 
     /**
@@ -624,7 +583,9 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
             $platform = $this->getConnection()->getDatabasePlatform();
 
             $attributeValue = $this->getAttribute($field->getAttributeName());
-            $field->setValue($attributeValue);
+            // todo uncommend if tests failed
+            // $field->setValue($attributeValue);
+            $field->setDbValue($attributeValue);
 
             if ($name == $field->getAttributeName()) {
                 return $field->convertToPHPValueSQL($attributeValue, $platform);

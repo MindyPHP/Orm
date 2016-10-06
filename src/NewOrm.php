@@ -8,7 +8,6 @@
 
 namespace Mindy\Orm;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\Table;
 use Exception;

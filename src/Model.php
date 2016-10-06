@@ -39,30 +39,47 @@ class Model extends NewOrm implements FormModelInterface
         if (defined('MINDY_ORM_TEST') && MINDY_ORM_TEST) {
             return parent::tableName();
         } else {
-            return sprintf("%s_%s", self::normalizeTableName(self::getModuleName()), parent::tableName());
+            $bundleName = str_replace('Bundle', '', self::getBundleName());
+            return sprintf("%s_%s", self::normalizeTableName($bundleName), parent::tableName());
         }
+    }
+
+    /**
+     * @deprecated 
+     * Return module name
+     * @return string
+     */
+    public static function getModuleName()
+    {
+        return self::getBundleName();
     }
 
     /**
      * Return module name
      * @return string
      */
-    public static function getModuleName()
+    public static function getBundleName()
     {
         $object = new ReflectionClass(get_called_class());
-        $shortPath = substr($object->getFileName(), strpos($object->getFileName(), 'Modules') + 8);
+        $shortPath = substr($object->getFileName(), strpos($object->getFileName(), 'Bundle') + 7);
         return substr($shortPath, 0, strpos($shortPath, '/'));
     }
 
     /**
-     * @return \Mindy\Module\ModuleInterface
+     * @deprecated 
      */
     public static function getModule()
     {
+        return self::getBundle();
+    }
+
+    /**
+     * @return \Symfony\Component\HttpKernel\Bundle\Bundle|null
+     */
+    public static function getBundle()
+    {
         if ($app = app()) {
-            if (($name = self::getModuleName()) && $app->hasModule($name)) {
-                return $app->getModule(self::getModuleName());
-            }
+            return $app->getKernel()->getBundle(self::getBundleName());
         }
 
         return null;
@@ -71,11 +88,6 @@ class Model extends NewOrm implements FormModelInterface
     public function reverse($route, array $data = [])
     {
         return app()->router->generate($route, $data);
-    }
-
-    public static function t($id, array $parameters = [], $locale = null)
-    {
-        return trans(sprintf('modules.%s.main', self::getModuleName()), $id, $parameters, $locale);
     }
 
     public function __toString()

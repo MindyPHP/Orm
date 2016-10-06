@@ -112,7 +112,7 @@ class TreeManager extends Manager
 
     /**
      * @param string $key
-     * @return $this
+     * @return \Mindy\Orm\TreeManager
      */
     public function asTree($key = 'items')
     {
