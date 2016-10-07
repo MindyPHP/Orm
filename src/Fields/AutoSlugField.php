@@ -29,7 +29,7 @@ class AutoSlugField extends CharField
      * @var string|null
      */
     protected $oldValue;
-
+    
     /**
      * Internal event
      * @param \Mindy\Orm\TreeModel|ModelInterface $model
