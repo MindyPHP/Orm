@@ -203,6 +203,19 @@ class FileField extends CharField
         return empty($this->value) ? null : ['url' => $this->url()];
     }
 
+    public function __get($name)
+    {
+        if ($name === 'url') {
+            return $this->url();
+        } else if ($name === 'value') {
+            return $this->getValue();
+        } else if (property_exists($this, $name)) {
+            return $this->{$name};
+        } else {
+            throw new Exception('Unknown property');
+        }
+    }
+
     /**
      * @return string
      */

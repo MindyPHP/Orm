@@ -17,6 +17,7 @@ use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Fields\ModelFieldInterface;
 use Serializable;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Class NewBase
@@ -266,6 +267,28 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
     }
 
     /**
+     * Returns the bundle's container extension class.
+     *
+     * @return string
+     */
+    protected static function getManagerClass()
+    {
+        $reflect = new \ReflectionClass(get_called_class());
+        return self::getNamespace() . '\\' . $reflect->getShortName() . 'Manager';
+    }
+
+    /**
+     * Gets the Bundle namespace.
+     *
+     * @return string The Bundle namespace
+     */
+    public static function getNamespace()
+    {
+        $class = get_called_class();
+        return substr($class, 0, strrpos($class, '\\'));
+    }
+
+    /**
      * @param null|ModelInterface $instance
      * @return Manager
      */
@@ -275,6 +298,11 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
             $className = get_called_class();
             $instance = new $className;
         }
+
+        if (class_exists($managerClass = self::getManagerClass())) {
+            return new $managerClass($instance, $instance->getConnection());
+        }
+
         return new Manager($instance, $instance->getConnection());
     }
 
