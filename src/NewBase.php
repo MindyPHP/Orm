@@ -256,11 +256,12 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
         $meta = self::getMeta();
         $platform = $this->getConnection()->getDatabasePlatform();
         foreach ($attributes as $name => $value) {
-            $field = $this->getField($meta->getMappingName($name));
-            if ($field->getSqlType()) {
-                $this->setAttribute($name, $field->convertToDatabaseValueSQL($value, $platform));
-            } else {
-                $this->related[$name] = $value;
+            if ($field = $this->getField($meta->getMappingName($name))) {
+                if ($field->getSqlType()) {
+                    $this->setAttribute($name, $field->convertToDatabaseValueSQL($value, $platform));
+                } else {
+                    $this->related[$name] = $value;
+                }
             }
         }
     }
