@@ -21,17 +21,21 @@ class TreeForeignField extends ForeignField
 
         $relatedModel = $this->getRelatedModel();
 
-        $choices = function () use ($relatedModel) {
-            $list = ['' => ''];
+        if (!empty($this->choices)) {
+            $choices = $this->choices;
+        } else {
+            $choices = function () use ($relatedModel) {
+                $list = ['' => ''];
 
-            $qs = $relatedModel->objects()->order(['root', 'lft']);
-            $parents = $qs->all();
-            foreach ($parents as $model) {
-                $level = $model->level ? $model->level - 1 : $model->level;
-                $list[$model->pk] = $level ? str_repeat("—", $level) . ' ' . $model->name : $model->name;
-            }
-            return $list;
-        };
+                $qs = $relatedModel->objects()->order(['root', 'lft']);
+                $parents = $qs->all();
+                foreach ($parents as $model) {
+                    $level = $model->level ? $model->level - 1 : $model->level;
+                    $list[$model->pk] = $level ? str_repeat("—", $level) . ' ' . $model->name : $model->name;
+                }
+                return $list;
+            };
+        }
 
         $model = $this->getModel();
         $disabled = [];
@@ -39,15 +43,20 @@ class TreeForeignField extends ForeignField
             $disabled[] = $model->pk;
         }
 
+        $value = $model->parent_id;
+        if (empty($value)) {
+            $value = $this->default ? $this->default : null;
+        }
+
         return [
             'disabled' => $disabled,
-            'choices' => empty($this->choices) ? $choices : $this->choices,
+            'choices' => $choices,
             'class' => $fieldClass,
             'required' => $this->isRequired(),
             'name' => $this->name,
             'label' => $this->verboseName,
             'hint' => $this->helpText,
-            'value' => $this->default ? $this->default : null
+            'value' => $value
         ];
     }
 }
