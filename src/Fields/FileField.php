@@ -94,23 +94,6 @@ class FileField extends CharField
     /**
      * @return string
      */
-    public function __toString()
-    {
-        return (string)$this->url();
-    }
-
-    /**
-     * @return string
-     */
-    public function url() : string
-    {
-        return $this->getStorage()->url($this->value);
-    }
-
-    /**
-     * @param array $options
-     * @return string
-     */
     public function path() : string
     {
         return $this->value;
@@ -203,19 +186,6 @@ class FileField extends CharField
         return empty($this->value) ? null : ['url' => $this->url()];
     }
 
-    public function __get($name)
-    {
-        if ($name === 'url') {
-            return $this->url();
-        } else if ($name === 'value') {
-            return $this->getValue();
-        } else if (property_exists($this, $name)) {
-            return $this->{$name};
-        } else {
-            throw new Exception('Unknown property');
-        }
-    }
-
     /**
      * @return string
      */
@@ -233,7 +203,7 @@ class FileField extends CharField
                 '%i' => date('i'),
                 '%s' => date('s'),
                 '%O' => $model->classNameShort(),
-                '%M' => $model->getModuleName(),
+                '%M' => $model->getBundleName(),
             ]);
         }
     }
@@ -264,8 +234,7 @@ class FileField extends CharField
 
     public function convertToPHPValueSQL($value, AbstractPlatform $platform)
     {
-        $this->value = $value;
-        return $this;
+        return $value;
     }
 
     protected function normalizeValue(string $value)
