@@ -33,11 +33,11 @@ class AutoField extends BigIntField
         ];
     }
 
-    public function convertToDatabase($value, AbstractPlatform $platform)
+    public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)
     {
         if ($value === null && $platform instanceof PostgreSqlPlatform) {
             $value = new Expression('DEFAULT');
         }
-        return parent::convertToDatabaseValue($value, $platform);
+        return parent::convertToDatabaseValueSQL($value, $platform);
     }
 }

@@ -187,11 +187,18 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
             $field = $meta->getField($name);
             $attributeName = $field->getAttributeName();
 
-            if (in_array($attributeName, $primaryKeyNames) && $this->getAttribute($attributeName) !== $value) {
-                $this->setIsNewRecord(true);
-            }
+            if ($field->getSqlType()) {
 
-            $this->attributes->setAttribute($attributeName, $value);
+                $platform = $this->getConnection()->getDatabasePlatform();
+                $value = $field->convertToDatabaseValueSQL($value, $platform);
+                if (in_array($attributeName, $primaryKeyNames) && $this->getAttribute($attributeName) !== $value) {
+                    $this->setIsNewRecord(true);
+                }
+
+                $this->attributes->setAttribute($attributeName, $value);
+            } else {
+                $this->related[$name] = $value;
+            }
         } else {
             throw new Exception(get_class($this) . ' has no attribute named "' . $name . '".');
         }
@@ -254,16 +261,18 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      */
     public function setAttributes(array $attributes)
     {
-        $meta = self::getMeta();
-        $platform = $this->getConnection()->getDatabasePlatform();
+//        $meta = self::getMeta();
+//        $platform = $this->getConnection()->getDatabasePlatform();
         foreach ($attributes as $name => $value) {
-            if ($field = $this->getField($meta->getMappingName($name))) {
-                if ($field->getSqlType()) {
-                    $this->setAttribute($name, $field->convertToDatabaseValueSQL($value, $platform));
-                } else {
-                    $this->related[$name] = $value;
-                }
-            }
+            $this->setAttribute($name, $value);
+
+//            if ($field = $this->getField($meta->getMappingName($name))) {
+//                if ($field->getSqlType()) {
+//                    $this->setAttribute($name, $field->convertToDatabaseValueSQL($value, $platform));
+//                } else {
+//                    $this->related[$name] = $value;
+//                }
+//            }
         }
     }
 
@@ -612,9 +621,6 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
             $platform = $this->getConnection()->getDatabasePlatform();
 
             $attributeValue = $this->getAttribute($field->getAttributeName());
-            // todo uncommend if tests failed
-             $field->setValue($attributeValue);
-//            $field->setDbValue($attributeValue);
 
             if ($name == $field->getAttributeName()) {
                 return $field->convertToPHPValueSQL($attributeValue, $platform);

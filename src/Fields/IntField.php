@@ -58,4 +58,12 @@ class IntField extends Field
         }
         return (int)$value;
     }
+
+    public function convertToPHPValue($value, AbstractPlatform $platform)
+    {
+        if ($value === null) {
+            return null;
+        }
+        return (int)parent::convertToPHPValue($value, $platform);
+    }
 }

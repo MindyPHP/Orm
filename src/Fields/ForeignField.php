@@ -139,7 +139,7 @@ class ForeignField extends RelatedField
      * @param AbstractPlatform $platform
      * @return int|string
      */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValueSql($value, AbstractPlatform $platform)
     {
         if ($value === null) {
             return $value;

@@ -45,12 +45,12 @@ class SetterGetterTest extends OrmDatabaseTestCase
         $this->assertNull($product->category_id);
 
         $product->category = $category;
-        $this->assertInstanceOf(Category::class, $product->category);
+        $this->assertNull($product->category);
         $this->assertNull($product->category_id);
 
         $product->category_id = 1;
-        $this->assertSame(1, $product->category_id);
-        $this->assertSame(1, $product->getAttribute('category_id'));
+        $this->assertEquals(1, $product->category_id);
+        $this->assertEquals(1, $product->getAttribute('category_id'));
     }
 
     public function testSetGet()
