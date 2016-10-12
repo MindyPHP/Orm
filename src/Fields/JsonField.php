@@ -55,7 +55,7 @@ class JsonField extends TextField
      * @param AbstractPlatform $platform
      * @return mixed
      */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function convertToPHPValueSql($value, AbstractPlatform $platform)
     {
         $opts = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
 
@@ -69,6 +69,6 @@ class JsonField extends TextField
             }
         }
 
-        return parent::convertToPHPValueSQL($value, $platform);
+        return parent::convertToPHPValueSql($value, $platform);
     }
 }
