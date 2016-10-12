@@ -58,7 +58,17 @@ class ForeignField extends RelatedField
      */
     public function getFormField($fieldClass = '\Mindy\Form\Fields\DropDownField')
     {
-        return parent::getFormField($fieldClass);
+        $data = parent::getFormField($fieldClass);
+
+        if ($data) {
+            $choices = [];
+            foreach ($this->getManager()->all() as $model) {
+                $choices[$model->pk] = (string)$model;
+            }
+            $data['choices'] = $choices;
+        }
+
+        return $data;
     }
 
     /**
