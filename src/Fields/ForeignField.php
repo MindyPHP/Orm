@@ -134,6 +134,14 @@ class ForeignField extends RelatedField
         return $value;
     }
 
+    public function setValue($value)
+    {
+        if ($value instanceof ModelInterface) {
+            $value = $value->pk;
+        }
+        parent::setValue($value);
+    }
+
     /**
      * @param $value
      * @param AbstractPlatform $platform
