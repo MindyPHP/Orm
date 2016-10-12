@@ -3,7 +3,7 @@
 namespace Mindy\Orm\Fields;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Mindy\Helper\Json;
+use Doctrine\DBAL\Types\Type;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -13,6 +13,11 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  */
 class JsonField extends TextField
 {
+    public function getSqlType()
+    {
+        return Type::getType(Type::JSON_ARRAY);
+    }
+
     /**
      * @return array
      */
@@ -31,51 +36,18 @@ class JsonField extends TextField
         ]);
     }
 
-    private function decode($value)
-    {
-        if (empty($value)) {
-            $value = '{}';
-        }
-        $this->value = is_string($value) ? Json::decode($value) : $value;
-        return $this->value;
-    }
-
-    public function getValue()
-    {
-        return $this->decode($this->value);
-    }
-
-    public function setDbValue($value)
-    {
-        $this->value = $this->decode($value);
-        return $this;
-    }
-
-    public function setValue($value)
-    {
-        return $this->decode($value);
-    }
-
-    public function getDbPrepValue()
-    {
-        return is_string($this->value) ? $this->value : Json::encode($this->value);
-    }
-
     /**
      * @param $value
      * @param AbstractPlatform $platform
      * @return mixed
      */
-    public function convertToPHPValueSQL($value, AbstractPlatform $platform)
+    public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         if (is_string($value)) {
-            $value = Json::decode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-            if (is_string($value)) {
-                $value = Json::decode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-            }
+            return parent::convertToPHPValue($value, $platform);
+        } else {
+            return $value;
         }
-
-        return parent::convertToDatabaseValue($value, $platform);
     }
 
     /**
@@ -83,7 +55,7 @@ class JsonField extends TextField
      * @param AbstractPlatform $platform
      * @return mixed
      */
-    public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         $opts = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
 
@@ -91,12 +63,12 @@ class JsonField extends TextField
             if (method_exists($value, 'toJson')) {
                 $value = $value->toJson();
             } else if (method_exists($value, 'toArray')) {
-                $value = Json::encode($value->toArray(), $opts);
+                $value = json_encode($value->toArray(), $opts);
+            } else {
+                $value = json_encode($value, $opts);
             }
-        } else {
-            $value = Json::encode($value, $opts);
         }
 
-        return parent::convertToDatabaseValue($value, $platform);
+        return parent::convertToPHPValueSQL($value, $platform);
     }
 }

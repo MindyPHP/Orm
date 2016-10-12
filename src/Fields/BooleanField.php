@@ -50,4 +50,12 @@ class BooleanField extends Field
         $options['default'] = $this->default;
         return $options;
     }
+
+    /**
+     * @param $value
+     */
+    public function setValue($value)
+    {
+        parent::setValue((bool)$value);
+    }
 }

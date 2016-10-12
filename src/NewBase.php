@@ -613,8 +613,8 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
 
             $attributeValue = $this->getAttribute($field->getAttributeName());
             // todo uncommend if tests failed
-            // $field->setValue($attributeValue);
-            $field->setDbValue($attributeValue);
+             $field->setValue($attributeValue);
+//            $field->setDbValue($attributeValue);
 
             if ($name == $field->getAttributeName()) {
                 return $field->convertToPHPValueSQL($attributeValue, $platform);

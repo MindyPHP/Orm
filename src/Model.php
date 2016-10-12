@@ -11,7 +11,7 @@ use ReflectionClass;
  * Class Model
  * @package Mindy\Orm
  */
-class Model extends NewOrm implements FormModelInterface
+class Model extends NewOrm
 {
     /**
      * @return string

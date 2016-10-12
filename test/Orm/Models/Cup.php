@@ -14,18 +14,14 @@
 
 namespace Mindy\Tests\Orm\Models;
 
-
 use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Fields\HasManyField;
-use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Model;
 
 /**
  * Class Cup
  * @package Mindy\Tests\Orm\Models
  * @property string name
- * @property \Mindy\Orm\HasManyManager designs
- * @property \Mindy\Orm\HasManyManager colors
  */
 class Cup extends Model
 {

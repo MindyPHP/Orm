@@ -48,7 +48,10 @@ class Product extends Model
                 'class' => CharField::class,
                 'default' => 0
             ],
-            'description' => ['class' => TextField::class, 'null' => true],
+            'description' => [
+                'class' => TextField::class,
+                'null' => true
+            ],
             'category' => [
                 'class' => ForeignField::class,
                 'modelClass' => Category::class,

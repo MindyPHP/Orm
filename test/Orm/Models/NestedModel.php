@@ -29,4 +29,9 @@ class NestedModel extends TreeModel
             ]
         ]);
     }
+
+    public static function t($id, array $parameters = [], $domain = null, $locale = null)
+    {
+        return strtr($id, $parameters);
+    }
 }

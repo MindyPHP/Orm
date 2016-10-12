@@ -34,7 +34,7 @@ class User extends Model
         return [
             'username' => [
                 'class' => CharField::class,
-                'required' => true,
+                'null' => false,
                 'validators' => [
                     new Assert\Length(['min' => 3, 'max' => 20]),
                 ]

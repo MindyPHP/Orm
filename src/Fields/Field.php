@@ -40,8 +40,6 @@ abstract class Field implements ModelFieldInterface
 
     public $verboseName = '';
 
-    public $required;
-
     public $editable = true;
 
     public $choices = [];
@@ -95,7 +93,7 @@ abstract class Field implements ModelFieldInterface
     public function getValidationConstraints() : array
     {
         $constraints = [];
-        if ($this->null === false) {
+        if ($this->isRequired()) {
             $constraints[] = new Assert\NotBlank();
         }
 

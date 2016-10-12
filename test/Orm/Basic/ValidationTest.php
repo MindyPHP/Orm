@@ -29,7 +29,8 @@ class ValidationTest extends OrmDatabaseTestCase
             'This value should not be blank.'
         ]], $model->getErrors());
         $model->username = '123456';
-        $model->isValid();
+        $this->assertSame('123456', $model->username);
+        $this->assertTrue($model->isValid());
         $this->assertEquals([], $model->getErrors());
     }
 
