@@ -49,7 +49,7 @@ class DateField extends Field
 
     public function beforeInsert(ModelInterface $model, $value)
     {
-        if ($this->autoNowAdd && $model->getIsNewRecord()) {
+        if (($this->autoNow || $this->autoNowAdd) && $model->getIsNewRecord()) {
             $model->setAttribute($this->getAttributeName(), new \DateTime());
         }
     }

@@ -13,11 +13,11 @@ class DecimalField extends Field
      * number of digits in integer or to the left of the decimal point
      * @var int
      */
-    public $precision;
+    public $precision = 10;
     /**
      * @var int number of digits to the right of the decimal point
      */
-    public $scale;
+    public $scale = 2;
 
     /**
      * @return string
