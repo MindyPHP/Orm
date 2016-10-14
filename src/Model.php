@@ -4,7 +4,6 @@ namespace Mindy\Orm;
 
 use function Mindy\app;
 use function Mindy\trans;
-use Mindy\Form\FormModelInterface;
 use ReflectionClass;
 
 /**
@@ -38,8 +37,18 @@ class Model extends NewOrm
         if (defined('MINDY_ORM_TEST') && MINDY_ORM_TEST) {
             return parent::tableName();
         } else {
-            $bundleName = str_replace('Bundle', '', self::getBundleName());
-            return sprintf("%s_%s", self::normalizeTableName($bundleName), parent::tableName());
+            $raw = explode('Model\\', get_called_class());
+            $temp = end($raw);
+            if (false === strpos($temp, '\\')) {
+                $tableName = parent::tableName();
+            } else {
+                $tableName = self::normalizeTableName(str_replace('\\', '', $temp));
+            }
+
+            return sprintf("%s_%s",
+                self::normalizeTableName(str_replace('Bundle', '', self::getBundleName())),
+                $tableName
+            );
         }
     }
 
