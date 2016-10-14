@@ -208,7 +208,7 @@ class NewOrm extends NewBase
                 $sqlType = $field->getSqlType();
                 if ($sqlType) {
                     $value = $field->convertToDatabaseValue($attribute, $platform);
-                    $changed[$name] = empty($value) ? $field->default : $value;
+                    $changed[$name] = $value === null ? $field->default : $value;
                 }
             }
         }
