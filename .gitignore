@@ -1,0 +1,6 @@
+.idea
+tests/app/runtime
+vendor
+src/Bundle/*
+app/runtime
+app/Resources/templates
