@@ -425,6 +425,9 @@ abstract class Field implements ModelFieldInterface
      */
     public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)
     {
+        if ($value === null || $value === '') {
+            $value = '';
+        }
         return $this->getSqlType()->convertToDatabaseValueSQL($value, $platform);
     }
 }
