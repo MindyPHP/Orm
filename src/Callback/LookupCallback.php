@@ -35,24 +35,36 @@ class LookupCallback
     {
         $lookup = $lookupBuilder->getDefault();
         $column = '';
-        $joinAlias = '';
-        $alias = $queryBuilder->getAlias();
+        $joinAlias = $queryBuilder->getAlias();
 
-        $prevField = null;
+        $ownerModel = $this->model;
+
+        $prevField = $prevField = $ownerModel->getField(current($lookupNodes));
+        if (!$prevField instanceof RelatedField) {
+            $prevField = null;
+        }
+
         foreach ($lookupNodes as $i => $node) {
+
             if ($node == 'through' && $prevField && $prevField instanceof ManyToManyField) {
-                $joinAlias = $prevField->setConnection($this->model->getConnection())->buildThroughQuery($queryBuilder, $queryBuilder->getAlias());
-            } else if ($this->model->hasField($node) && ($field = $this->model->getField($node)) instanceof RelatedField) {
-                $prevField = $field;
+
+                $joinAlias = $prevField
+                    ->setConnection($ownerModel->getConnection())
+                    ->buildThroughQuery($queryBuilder, $queryBuilder->getAlias());
+
+            } else if ($prevField instanceof RelatedField) {
+
+                $relatedModel = $prevField->getRelatedModel();
+
                 /** @var \Mindy\Orm\Fields\RelatedField $field */
-                $joinAlias = $field->setConnection($this->model->getConnection())->buildQuery($queryBuilder, $alias);
-            } else if ($prevField) {
-                /** @var \Mindy\Orm\Fields\RelatedField $prevField */
-                $model = $prevField->getRelatedModel();
-                if ($model->hasField($node) && ($field = $model->getField($node)) instanceof RelatedField) {
-                    /** @var \Mindy\Orm\Fields\RelatedField $field */
-                    $joinAlias = $field->setConnection($this->model->getConnection())->buildQuery($queryBuilder, $joinAlias);
+                $joinAlias = $prevField
+                    ->setConnection($relatedModel->getConnection())
+                    ->buildQuery($queryBuilder, $joinAlias);
+
+                if (($nextField = $relatedModel->getField($node)) instanceof RelatedField) {
+                    $prevField = $nextField;
                 }
+
             }
 
             if (count($lookupNodes) == $i + 1) {
