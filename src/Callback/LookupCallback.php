@@ -39,7 +39,8 @@ class LookupCallback
 
         $ownerModel = $this->model;
 
-        $prevField = $prevField = $ownerModel->getField(current($lookupNodes));
+        reset($lookupNodes);
+        $prevField = $ownerModel->getField(current($lookupNodes));
         if (!$prevField instanceof RelatedField) {
             $prevField = null;
         }
