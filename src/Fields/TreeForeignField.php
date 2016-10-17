@@ -1,7 +1,6 @@
 <?php
 
 namespace Mindy\Orm\Fields;
-use Mindy\Creator\Creator;
 
 /**
  * Class TreeForeignField

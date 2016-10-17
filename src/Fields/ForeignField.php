@@ -62,6 +62,11 @@ class ForeignField extends RelatedField
 
         if ($data) {
             $choices = [];
+
+            if (false == $this->isRequired()) {
+                $choices[] = ['' => ''];
+            }
+
             foreach ($this->getManager()->all() as $model) {
                 $choices[$model->pk] = (string)$model;
             }
@@ -159,11 +164,7 @@ class ForeignField extends RelatedField
      */
     public function convertToDatabaseValueSql($value, AbstractPlatform $platform)
     {
-        if ($value === null) {
-            return $value;
-        }
-
-        return $value instanceof ModelInterface ? $value->pk : $value;
+        return parent::convertToDatabaseValueSQL($value instanceof ModelInterface ? $value->pk : $value, $platform);
     }
 
     /**

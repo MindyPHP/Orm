@@ -3,6 +3,7 @@
 namespace Mindy\Orm\Fields;
 
 use Cocur\Slugify\Slugify;
+use Mindy\Orm\ModelInterface;
 use Mindy\Orm\Traits\UniqueUrl;
 
 /**
@@ -21,9 +22,8 @@ class SlugField extends CharField
      */
     public $autoFetch = true;
 
-    public function onBeforeInsert()
+    public function beforeInsert(ModelInterface $model, $value)
     {
-        $model = $this->getModel();
         $this->value = empty($this->value) ? (new Slugify())->slugify($model->{$this->source}) : $this->value;
         if ($this->unique) {
             $this->value = $this->uniqueUrl($this->value);
@@ -36,11 +36,8 @@ class SlugField extends CharField
         return true;
     }
 
-    public function onBeforeUpdate()
+    public function beforeUpdate(ModelInterface $model, $value)
     {
-        /** @var $model \Mindy\Orm\TreeModel */
-        $model = $this->getModel();
-
         // Случай когда обнулен slug, например из админки
         if (empty($model->{$this->name})) {
             $this->value = (new Slugify())->slugify($model->{$this->source});

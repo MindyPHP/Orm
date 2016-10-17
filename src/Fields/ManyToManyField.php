@@ -417,16 +417,22 @@ class ManyToManyField extends RelatedField
      */
     public function getFormField($fieldClass = '\Mindy\Form\Fields\SelectField')
     {
-        $choices = [];
-        foreach ($this->getRelatedModel()->objects()->all() as $model) {
-            $choices[$model->pk] = (string)$model;
+        $parent = parent::getFormField($fieldClass);
+        if ($parent) {
+            $choices = [];
+            foreach ($this->getRelatedModel()->objects()->all() as $model) {
+                $choices[$model->pk] = (string)$model;
+            }
+
+            return array_merge($parent, [
+                'html' => [
+                    'multiple' => true
+                ],
+                'choices' => $choices
+            ]);
         }
-        return array_merge(parent::getFormField($fieldClass), [
-            'html' => [
-                'multiple' => true
-            ],
-            'choices' => $choices
-        ]);
+
+        return $parent;
     }
 
     public function getAttributeName()
