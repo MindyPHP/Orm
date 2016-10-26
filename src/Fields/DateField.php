@@ -38,13 +38,20 @@ class DateField extends Field
     public function getValidationConstraints() : array
     {
         $constraints = [];
-        if ($this->null === false) {
+        if ($this->isRequired()) {
             $constraints[] = new Assert\NotBlank();
+            $constraints[] = new Assert\Date();
         }
 
-        $constraints[] = new Assert\Date();
-
         return $constraints;
+    }
+
+    public function isRequired()
+    {
+        if ($this->autoNow || $this->autoNowAdd) {
+            return false;
+        }
+        return parent::isRequired();
     }
 
     public function beforeInsert(ModelInterface $model, $value)
@@ -59,14 +66,6 @@ class DateField extends Field
         if ($this->autoNow && $model->getIsNewRecord() === false) {
             $model->setAttribute($this->getAttributeName(), new \DateTime());
         }
-    }
-
-    public function isRequired()
-    {
-        if ($this->autoNowAdd || $this->autoNow) {
-            return false;
-        }
-        return parent::isRequired();
     }
 
     public function getValue()
