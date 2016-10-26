@@ -25,11 +25,10 @@ class DateTimeField extends DateField
     public function getValidationConstraints() : array
     {
         $constraints = [];
-        if ($this->null === false) {
+        if ($this->isRequired()) {
             $constraints[] = new Assert\NotBlank();
+            $constraints[] = new Assert\DateTime();
         }
-
-        $constraints[] = new Assert\DateTime();
 
         return $constraints;
     }
