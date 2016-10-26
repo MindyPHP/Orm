@@ -30,15 +30,12 @@
     "symfony/swiftmailer-bundle": "^2.3",
     "symfony/security-bundle": "^3.1",
     "symfony/expression-language": "^3.1",
-    "filp/whoops": "^2.1",
     "mindy/orm-bundle": "^1.1",
     "mindy/template-bundle": "^1.2",
-    "mindy/framework-bundle": "^1.3",
-    "mindy/asset-bundle": "^1.1",
+    "symfony/framework-bundle": "^3.1",
     "symfony/process": "^3.1",
     "mindy/pagination": "^3.0",
-    "mindy/form": "^3.0",
-    "fzaninotto/faker": "^1.6"
+    "mindy/form": "^3.0"
   },
   "require-dev": {
     "phpunit/phpunit": "*",
