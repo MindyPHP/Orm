@@ -267,14 +267,10 @@ class QuerySet extends QuerySetBase
         return $this;
     }
 
-    /**
-     * @param array $query
-     * @return $this
-     */
-    public function filter($query)
+    protected function convertQuery($query)
     {
         if (is_array($query)) {
-            $newQuery = array_map(function ($value) {
+            return array_map(function ($value) {
                 if ($value instanceof Model) {
                     return $value->pk;
                 } else if ($value instanceof Manager || $value instanceof QuerySet) {
@@ -283,9 +279,17 @@ class QuerySet extends QuerySetBase
                 return $value;
             }, $query);
         } else {
-            $newQuery = $query;
+            return $query;
         }
-        $this->getQueryBuilder()->where($newQuery);
+    }
+
+    /**
+     * @param array $query
+     * @return $this
+     */
+    public function filter($query)
+    {
+        $this->getQueryBuilder()->where($this->convertQuery($query));
         return $this;
     }
 
@@ -295,7 +299,7 @@ class QuerySet extends QuerySetBase
      */
     public function orFilter(array $query)
     {
-        $this->getQueryBuilder()->orWhere($query);
+        $this->getQueryBuilder()->orWhere($this->convertQuery($query));
         return $this;
     }
 
@@ -305,7 +309,7 @@ class QuerySet extends QuerySetBase
      */
     public function exclude(array $query)
     {
-        $this->getQueryBuilder()->where(new QAndNot($query));
+        $this->getQueryBuilder()->where(new QAndNot($this->convertQuery($query)));
         return $this;
     }
 
@@ -315,7 +319,7 @@ class QuerySet extends QuerySetBase
      */
     public function orExclude(array $query)
     {
-        $this->getQueryBuilder()->orWhere(new QOrNot($query));
+        $this->getQueryBuilder()->orWhere(new QOrNot($this->convertQuery($query)));
         return $this;
     }
 
