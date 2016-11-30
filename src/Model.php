@@ -99,6 +99,6 @@ class Model extends NewOrm
 
     public function __toString()
     {
-        return (string) $this->classNameShort();
+        return (string)$this->classNameShort();
     }
 }

@@ -55,8 +55,16 @@ abstract class TreeModel extends Model
      */
     public static function objectsManager($instance = null)
     {
-        $className = get_called_class();
-        return new TreeManager($instance ? $instance : new $className);
+        if (!$instance) {
+            $className = get_called_class();
+            $instance = new $className;
+        }
+
+        if (class_exists($managerClass = self::getManagerClass())) {
+            return new $managerClass($instance, $instance->getConnection());
+        }
+
+        return new TreeManager($instance, $instance->getConnection());
     }
 
     /**
