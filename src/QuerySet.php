@@ -27,6 +27,7 @@ class QuerySet extends QuerySetBase
      * @var array a list of relations that this query should be performed with
      */
     protected $with = [];
+    protected $sql;
 
     /**
      * Executes query and returns all results as an array.
@@ -35,7 +36,8 @@ class QuerySet extends QuerySetBase
      */
     public function all()
     {
-        $rows = $this->getConnection()->query($this->allSql())->fetchAll();
+        $sql = $this->sql === null ? $this->allSql() : $this->sql;
+        $rows = $this->getConnection()->query($sql)->fetchAll();
         if ($this->asArray) {
             return !empty($this->with) ? $this->populateWith($rows) : $rows;
         }
@@ -209,6 +211,12 @@ class QuerySet extends QuerySetBase
             $model->setIsNewRecord(false);
             return $model;
         }
+    }
+
+    public function setSql($sql)
+    {
+        $this->sql = $sql;
+        return $this;
     }
 
     /**
