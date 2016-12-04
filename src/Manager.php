@@ -162,7 +162,7 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
     {
         return $this->getQuerySet()->createModels($rows);
     }
-    
+
     /**
      * @param bool $asArray
      * @return string
@@ -311,6 +311,12 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
     public function getOrCreate(array $attributes) : array
     {
         return $this->getQuerySet()->getOrCreate($attributes);
+    }
+
+    public function setSql($sql)
+    {
+        $this->getQuerySet()->setSql($sql);
+        return $this;
     }
 
     /**
