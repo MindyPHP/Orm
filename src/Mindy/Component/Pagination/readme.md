@@ -9,4 +9,4 @@ Resources
   * [Contributing](https://mindy-cms.com/doc/current/contributing/index.html)
   * [Report issues](https://github.com/MindyPHP/mindy/issues) and
     [send Pull Requests](https://github.com/MindyPHP/mindy/pulls)
-    in the [main Symfony repository](https://github.com/MindyPHP/mindy)
+    in the [main Mindy repository](https://github.com/MindyPHP/mindy)
