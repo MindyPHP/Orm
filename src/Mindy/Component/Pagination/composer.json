@@ -1,0 +1,23 @@
+{
+  "name": "mindy/pagination",
+  "type": "library",
+  "description": "Mindy Pagination Component",
+  "license": "MIT",
+  "homepage": "https://mindy-cms.com",
+  "autoload": {
+    "psr-4": {
+      "Mindy\\Component\\Pagination\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
+  "require": {
+    "php": ">=5.5.9"
+  },
+  "require-dev": {
+    "symfony/http-foundation": "~2.8|~3.0",
+    "symfony/routing": "~2.8|~3.0",
+    "phpunit/phpunit": "*"
+  }
+}
