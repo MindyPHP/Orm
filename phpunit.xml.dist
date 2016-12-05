@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.1/phpunit.xsd"
+         backupGlobals="false"
+         colors="true"
+         bootstrap="vendor/autoload.php"
+>
+    <php>
+        <ini name="error_reporting" value="-1" />
+        <ini name="memory_limit" value="-1" />
+    </php>
+
+    <testsuites>
+        <testsuite name="Mindy Test Suite">
+            <directory>./src/Mindy/Bridge/*/Tests/</directory>
+            <directory>./src/Mindy/Component/*/Tests/</directory>
+            <directory>./src/Mindy/Component/*/*/Tests/</directory>
+            <directory>./src/Mindy/Bundle/*/Tests/</directory>
+        </testsuite>
+    </testsuites>
+
+    <groups>
+        <exclude>
+            <group>benchmark</group>
+        </exclude>
+    </groups>
+
+    <filter>
+        <whitelist>
+            <directory>./src/Mindy/</directory>
+            <exclude>
+                <directory>./src/Mindy/Component/*/Tests</directory>
+                <directory>./src/Mindy/Component/*/*/Tests</directory>
+                <directory>./src/Mindy/Bundle/*/Tests</directory>
+
+                <directory>./src/Mindy/Bundle/*/Resources</directory>
+                <directory>./src/Mindy/Component/*/Resources</directory>
+                <directory>./src/Mindy/Component/*/*/Resources</directory>
+
+                <directory>./src/Mindy/Bundle/*/vendor</directory>
+                <directory>./src/Mindy/Component/*/vendor</directory>
+                <directory>./src/Mindy/Component/*/*/vendor</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+</phpunit>

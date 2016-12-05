@@ -6,7 +6,7 @@
  * Time: 21:05
  */
 
-namespace Mindy\Traits;
+namespace Mindy\Component\Application;
 
 /**
  * Class LegacyMethodsTrait

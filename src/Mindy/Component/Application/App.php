@@ -6,9 +6,8 @@
  * Time: 20:03
  */
 
-namespace Mindy;
+namespace Mindy\Component\Application;
 
-use Mindy\Traits\LegacyMethodsTrait;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Debug\Debug;
@@ -48,7 +47,7 @@ final class App
      * @param string $environment
      * @param bool $debug
      */
-    final private function __construct(string $className, string $environment, bool $debug)
+    final private function __construct($className, $environment, $debug = false)
     {
         $this->debug = $debug;
         $this->kernel = new $className($environment, $debug);
@@ -60,17 +59,12 @@ final class App
      * @param bool $debug
      * @return App
      */
-    public static function createInstance(string $className, string $environment, bool $debug)
+    public static function createInstance($className, $environment, $debug)
     {
         if (self::$instance === null) {
             self::$instance = new self($className, $environment, $debug);
         }
         return self::$instance;
-    }
-
-    public function enableDebugHandler()
-    {
-        Debug::enable();
     }
 
     /**

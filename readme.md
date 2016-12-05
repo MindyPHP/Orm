@@ -1,3 +1,3 @@
-# Mindy kernel
+# Mindy
 
 Оригинальный репозиторий перенесен в https://github.com/MindyPHP/MindyLegacy

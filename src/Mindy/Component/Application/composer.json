@@ -1,0 +1,26 @@
+{
+  "name": "mindy/application",
+  "type": "library",
+  "description": "Mindy Application Component",
+  "license": "MIT",
+  "homepage": "https://mindy-cms.com",
+  "autoload": {
+    "files": [
+      "functions.php"
+    ],
+    "psr-4": {
+      "Mindy\\Component\\Application\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
+  "require": {
+    "php": ">=5.5.9",
+    "symfony/framework-bundle": "^3.2",
+    "symfony/console": "^3.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "*"
+  }
+}

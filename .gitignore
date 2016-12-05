@@ -1,6 +1,9 @@
 .idea
-tests/app/runtime
-vendor
-src/Bundle/*
-app/runtime
-app/Resources/templates
+vendor/
+composer.lock
+phpunit.xml
+.php_cs.cache
+composer.phar
+package.tar
+/packages.json
+/.phpunit
