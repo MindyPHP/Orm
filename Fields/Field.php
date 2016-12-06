@@ -90,7 +90,7 @@ abstract class Field implements ModelFieldInterface
     /**
      * @return array
      */
-    public function getValidationConstraints() : array
+    public function getValidationConstraints()
     {
         $constraints = [];
         if ($this->isRequired()) {

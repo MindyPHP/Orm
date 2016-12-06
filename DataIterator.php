@@ -15,7 +15,6 @@
 namespace Mindy\Orm;
 
 use ArrayIterator;
-use Mindy\Helper\Traits\Configurator;
 
 /**
  * Class DataIterator

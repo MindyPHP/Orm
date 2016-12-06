@@ -25,7 +25,7 @@ trait ValidationTrait
     /**
      * @return array
      */
-    protected function getValidationConstraints() : array
+    protected function getValidationConstraints()
     {
         return [];
     }
@@ -41,7 +41,7 @@ trait ValidationTrait
     /**
      * @return bool
      */
-    public function isValid() : bool
+    public function isValid()
     {
         $errors = $this->getValidator()->validate($this->getValue(), $this->getValidationConstraints());
         $this->setErrors($errors);
@@ -61,7 +61,7 @@ trait ValidationTrait
     /**
      * @return array
      */
-    public function getErrors() : array
+    public function getErrors()
     {
         $errors = [];
         foreach ($this->errors as $key => $error) {

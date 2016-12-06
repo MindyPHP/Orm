@@ -3,14 +3,8 @@
 namespace Mindy\Orm;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
-use Mindy\Orm\Fields\ForeignField;
-use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
-use Mindy\Orm\Fields\OneToOneField;
 use Mindy\QueryBuilder\QueryBuilder;
 
 /**

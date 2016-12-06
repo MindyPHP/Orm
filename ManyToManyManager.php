@@ -8,7 +8,7 @@
 
 namespace Mindy\Orm;
 
-use Mindy\Exception\Exception;
+use Exception;
 use Mindy\QueryBuilder\QueryBuilder;
 
 /**

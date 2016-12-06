@@ -50,7 +50,7 @@ class AttributeCollection
      * @param $name
      * @return bool
      */
-    public function hasAttribute($name) : bool
+    public function hasAttribute($name)
     {
         return array_key_exists($name, $this->attributes);
     }
@@ -64,7 +64,7 @@ class AttributeCollection
         if (isset($this->mapping[$name])) {
             $name = $this->mapping[$name];
         }
-        return $this->attributes[$name] ?? null;
+        return isset($this->attributes[$name]) ? $this->attributes[$name] : null;
     }
 
     /**
@@ -80,7 +80,7 @@ class AttributeCollection
     /**
      * @return array
      */
-    public function getAttributes() : array
+    public function getAttributes()
     {
         return $this->attributes;
     }
@@ -91,13 +91,13 @@ class AttributeCollection
      */
     public function getOldAttribute($name)
     {
-        return $this->oldAttributes[$name] ?? null;
+        return isset($this->oldAttributes[$name]) ? $this->oldAttributes[$name] : null;
     }
 
     /**
      * @return array
      */
-    public function getOldAttributes() : array
+    public function getOldAttributes()
     {
         return $this->oldAttributes;
     }
@@ -113,7 +113,7 @@ class AttributeCollection
     /**
      * @return array
      */
-    public function getDirtyAttributes() : array
+    public function getDirtyAttributes()
     {
         return array_keys($this->getOldAttributes());
     }
@@ -121,7 +121,7 @@ class AttributeCollection
     /**
      * @param string $name
      */
-    public function remove(string $name)
+    public function remove($name)
     {
         $this->setAttribute($name, null);
     }

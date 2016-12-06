@@ -117,7 +117,7 @@ class QuerySet extends QuerySetBase
      * @param array $attributes
      * @return array
      */
-    public function getOrCreate(array $attributes) : array
+    public function getOrCreate(array $attributes)
     {
         $model = $this->get($attributes);
         if ($model === null) {

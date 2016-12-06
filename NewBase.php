@@ -11,7 +11,6 @@ namespace Mindy\Orm;
 use Doctrine\DBAL\Connection;
 use Exception;
 use ArrayAccess;
-use Mindy\Component\Application\App;
 use Mindy\Orm\Fields\AutoField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
@@ -66,7 +65,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      * @param $name
      * @return string
      */
-    public function convertToPrimaryKeyName($name) : string
+    public function convertToPrimaryKeyName($name)
     {
         return $name == 'pk' ? $this->getPrimaryKeyName() : $name;
     }
@@ -134,7 +133,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      * @param string $name
      * @return bool
      */
-    public function hasField(string $name) : bool
+    public function hasField($name)
     {
         $name = $this->convertToPrimaryKeyName($name);
         return self::getMeta()->hasField($name);
@@ -143,7 +142,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
     /**
      * @return array
      */
-    public function getDirtyAttributes() : array
+    public function getDirtyAttributes()
     {
         return $this->attributes->getDirtyAttributes();
     }
@@ -154,7 +153,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      * @return ModelFieldInterface|null
      * @throws Exception
      */
-    public function getField(string $name, $throw = false)
+    public function getField($name, $throw = false)
     {
         $name = $this->convertToPrimaryKeyName($name);
         if (self::getMeta()->hasField($name) === false) {
@@ -175,7 +174,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      * @param $value
      * @throws Exception
      */
-    public function setAttribute(string $name, $value)
+    public function setAttribute($name, $value)
     {
         $primaryKeyNames = self::getPrimaryKeyName(true);
 
@@ -208,7 +207,6 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
     }
 
     /**
-     * @param bool $asArray
      * @return array|int|null|string
      */
     public function getPrimaryKeyValues()
@@ -225,7 +223,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      * @param string $name
      * @return mixed|null
      */
-    public function getOldAttribute(string $name)
+    public function getOldAttribute($name)
     {
         return $this->attributes->getOldAttribute($name);
     }
@@ -233,7 +231,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
     /**
      * @return array
      */
-    public function getAttributes() : array
+    public function getAttributes()
     {
         $attributes = [];
         foreach (self::getMeta()->getAttributes() as $name) {
@@ -245,7 +243,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
     /**
      * @return array
      */
-    public function getOldAttributes() : array
+    public function getOldAttributes()
     {
         return $this->attributes->getOldAttributes();
     }
@@ -254,7 +252,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      * @param $name
      * @return bool
      */
-    public function hasAttribute($name) : bool
+    public function hasAttribute($name)
     {
         return in_array($name, self::getMeta()->getAttributes());
     }
@@ -334,7 +332,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      * @param string $tablePrefix
      * @return string
      */
-    public static function getRawTableName(string $name, string $tablePrefix = '') : string
+    public static function getRawTableName($name, $tablePrefix = '')
     {
         if (strpos($name, '{{') !== false) {
             $name = preg_replace('/\\{\\{(.*?)\\}\\}/', '\1', $name);
@@ -381,7 +379,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
     /**
      * @return bool
      */
-    public function isValid() : bool
+    public function isValid()
     {
         $errors = [];
         $meta = self::getMeta();
@@ -412,7 +410,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      * @param string $name
      * @return int|null|string
      */
-    public function getAttribute(string $name)
+    public function getAttribute($name)
     {
         $name = $this->convertToPrimaryKeyName($name);
 
@@ -437,14 +435,14 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
     /**
      * @return array
      */
-    public function getErrors() : array
+    public function getErrors()
     {
         return $this->errors;
     }
 
-    abstract public function update(array $fields = []) : bool;
+    abstract public function update(array $fields = []);
 
-    abstract public function insert(array $fields = []) : bool;
+    abstract public function insert(array $fields = []);
 
     public function beforeSave($owner, $isNew)
     {
@@ -514,7 +512,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      * @param array $fields
      * @return bool
      */
-    public function save(array $fields = []) : bool
+    public function save(array $fields = [])
     {
         if ($this->getIsNewRecord()) {
             return $this->insert($fields);
@@ -546,7 +544,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
     /**
      * @return bool
      */
-    public function delete() : bool
+    public function delete()
     {
         $this->beforeDeleteInternal();
         $result = $this->objects()->delete(['pk' => $this->pk]);
@@ -577,7 +575,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
     /**
      * @return bool
      */
-    public function getIsNewRecord() : bool
+    public function getIsNewRecord()
     {
         return $this->isNewRecord;
     }
@@ -585,7 +583,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
     /**
      * @param bool $value
      */
-    public function setIsNewRecord(bool $value)
+    public function setIsNewRecord($value)
     {
         $this->isNewRecord = $value;
         if ($value === false) {
@@ -606,7 +604,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      * @param string $name
      * @return mixed
      */
-    protected function getFieldValue(string $name)
+    protected function getFieldValue($name)
     {
         $field = $this->getField($name);
 
@@ -628,17 +626,42 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
     /**
      * @return string
      */
-    public static function tableName() : string
+    public static function classNameShort()
     {
+        @trigger_error('The ' . __METHOD__ . ' method is deprecated since version 3.0 and will be removed in 4.0.', E_USER_DEPRECATED);
+        /*
+        $classMap = explode('\\', get_called_class());
+        return end($classMap);
+        */
+
+        return self::getShortName();
+    }
+
+    /**
+     * @return string
+     */
+    public static function getShortName()
+    {
+        return (new \ReflectionClass(get_called_class()))->getShortName();
+    }
+
+    /**
+     * @return string
+     */
+    public static function tableName()
+    {
+        /*
         $classMap = explode('\\', get_called_class());
         return self::normalizeTableName(end($classMap));
+        */
+        return self::normalizeTableName(self::getShortName());
     }
 
     /**
      * @param string $tableName
      * @return string
      */
-    public static function normalizeTableName(string $tableName) : string
+    public static function normalizeTableName($tableName)
     {
         return trim(strtolower(preg_replace('/(?<![A-Z])[A-Z]/', '_\0', $tableName)), '_');
     }
@@ -647,7 +670,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      * @param mixed $offset
      * @return bool
      */
-    public function offsetExists($offset) : bool
+    public function offsetExists($offset)
     {
         return $this->hasField($offset);
     }
@@ -683,7 +706,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      * @param $connection
      * @return $this
      */
-    public function using(string $connection)
+    public function using($connection)
     {
         $this->using($connection);
         return $this;
@@ -693,15 +716,18 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      * @return Connection
      * @throws Exception
      */
-    public function getConnection() : Connection
+    public function getConnection()
     {
         if ($this->connection === null) {
-            $app = App::getInstance();
+            $connection = Orm::getDefaultConnection();
 
+            /*
+            $app = App::getInstance();
             $connection = $app->db->getConnection($this->using);
             if (($connection instanceof Connection) === false) {
                 throw new Exception('Unknown connection ' . $this->using);
             }
+            */
 
             $this->connection = $connection;
         }

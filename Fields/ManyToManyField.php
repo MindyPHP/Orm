@@ -6,7 +6,7 @@ use Exception;
 use Mindy\Orm\MetaData;
 use Mindy\Orm\Model;
 use Mindy\Orm\ModelInterface;
-use Mindy\Orm\NewOrm;
+use Mindy\Orm\AbstractModel;
 use Mindy\QueryBuilder\QueryBuilder;
 use Mindy\Orm\ManagerInterface;
 
@@ -118,7 +118,7 @@ class ManyToManyField extends RelatedField
                 $end = $this->reversed ? 'from_id' : 'to_id';
             }
             $tmp = explode('\\', $cls);
-            $column = NewOrm::normalizeTableName(end($tmp));
+            $column = AbstractModel::normalizeTableName(end($tmp));
             $this->_relatedModelColumn = $column . '_' . $end;
         }
         return $this->_relatedModelColumn;
@@ -171,7 +171,7 @@ class ManyToManyField extends RelatedField
                     $end = $this->reversed ? 'to_id' : 'from_id';
                 }
                 $tmp = explode('\\', $cls);
-                $column = NewOrm::normalizeTableName(end($tmp));
+                $column = AbstractModel::normalizeTableName(end($tmp));
                 $this->_modelColumn = $column . '_' . $end;
             }
         }

@@ -3,10 +3,7 @@
 namespace Mindy\Orm;
 
 use ArrayAccess;
-use Countable;
 use IteratorAggregate;
-use Mindy\QueryBuilder\Expression;
-use Serializable;
 use Traversable;
 
 /**
@@ -52,7 +49,7 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
      * @param $conditions
      * @return Manager|ManagerInterface
      */
-    public function filter($conditions) : ManagerInterface
+    public function filter($conditions)
     {
         $this->getQuerySet()->filter($conditions);
         return $this;
@@ -308,7 +305,7 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
      * @param array $attributes
      * @return array
      */
-    public function getOrCreate(array $attributes) : array
+    public function getOrCreate(array $attributes)
     {
         return $this->getQuerySet()->getOrCreate($attributes);
     }

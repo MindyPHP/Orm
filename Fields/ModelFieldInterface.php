@@ -21,7 +21,7 @@ interface ModelFieldInterface
     /**
      * @param string $name
      */
-    public function setName(string $name);
+    public function setName($name);
 
     /**
      * @param ModelInterface $model
@@ -51,7 +51,7 @@ interface ModelFieldInterface
     /**
      * @return array|null
      */
-    public function getSqlOptions() : array;
+    public function getSqlOptions();
 
     /**
      * @return \Doctrine\Dbal\Schema\Column|null|false

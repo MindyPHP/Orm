@@ -6,23 +6,10 @@
  * Time: 11:33
  */
 
-$autoloader = require(__DIR__ . '/../vendor/autoload.php');
+require(__DIR__ . '/../vendor/autoload.php');
+
+use Mindy\Orm\Tests\Connections;
 
 define('MINDY_ORM_TEST', true);
 
-class Connections
-{
-    protected static $cm;
-
-    public function __construct(\Mindy\QueryBuilder\ConnectionManager $cm)
-    {
-        self::$cm = $cm;
-    }
-
-    public static function getConnectionManager()
-    {
-        return self::$cm;
-    }
-}
-
-$mockConnections = new Connections(include(__DIR__ . '/connections.php'));
+$mockConnections = new Connections(include(__DIR__ . '/connections_settings.php'));

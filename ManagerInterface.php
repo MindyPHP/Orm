@@ -20,7 +20,7 @@ interface ManagerInterface
      * @param array $conditions
      * @return ManagerInterface
      */
-    public function filter($conditions) : ManagerInterface;
+    public function filter($conditions);
 
     /**
      * @return array

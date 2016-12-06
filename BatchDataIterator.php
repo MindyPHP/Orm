@@ -64,7 +64,7 @@ class BatchDataIterator implements Iterator
      */
     public $each = false;
     /**
-     * @var \Mindy\Query\DataReader the data reader associated with this batch query.
+     * @var DataReader the data reader associated with this batch query.
      */
     private $_dataReader;
     /**

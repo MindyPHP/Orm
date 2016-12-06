@@ -47,7 +47,7 @@ class MetaData
      * MetaData constructor.
      * @param string $className
      */
-    final private function __construct(string $className)
+    final private function __construct($className)
     {
         $this->init($className);
     }
@@ -56,7 +56,7 @@ class MetaData
      * @param $config
      * @return ModelFieldInterface
      */
-    private function createField($config) : ModelFieldInterface
+    private function createField($config)
     {
         if (is_string($config)) {
             $config = ['class' => $config];
@@ -76,7 +76,7 @@ class MetaData
     /**
      * @param string $className
      */
-    private function init(string $className)
+    private function init($className)
     {
         $primaryFields = [];
 
@@ -111,7 +111,7 @@ class MetaData
      * @param $subClass
      * @return array|[]ModelFieldInterface
      */
-    private function fetchFields($subClass) : array
+    private function fetchFields($subClass)
     {
         $fields = [];
         foreach ($this->fields as $name => $field) {
@@ -125,7 +125,7 @@ class MetaData
     /**
      * @return array|[]ModelFieldInterface
      */
-    public function getOneToOneFields() : array
+    public function getOneToOneFields()
     {
         return $this->fetchFields(OneToOneField::class);
     }
@@ -133,7 +133,7 @@ class MetaData
     /**
      * @return array|[]ModelFieldInterface
      */
-    public function getHasManyFields() : array
+    public function getHasManyFields()
     {
         return $this->fetchFields(HasManyField::class);
     }
@@ -141,7 +141,7 @@ class MetaData
     /**
      * @return array|[]ModelFieldInterface
      */
-    public function getManyToManyFields() : array
+    public function getManyToManyFields()
     {
         return $this->fetchFields(ManyToManyField::class);
     }
@@ -149,7 +149,7 @@ class MetaData
     /**
      * @return array|[]ModelFieldInterface
      */
-    public function getForeignFields() : array
+    public function getForeignFields()
     {
         return $this->fetchFields(ForeignField::class);
     }
@@ -159,7 +159,7 @@ class MetaData
      * @codeCoverageIgnore
      * @return string
      */
-    public function getPkName() : string
+    public function getPkName()
     {
         return implode('_', $this->primaryKeys);
     }
@@ -177,7 +177,7 @@ class MetaData
      * @param $name
      * @return bool
      */
-    public function hasRelatedField($name) : bool
+    public function hasRelatedField($name)
     {
         return $this->getField($name) instanceof RelatedField;
     }
@@ -195,7 +195,7 @@ class MetaData
     /**
      * @return array|[]ModelFieldInterface
      */
-    public function getRelatedFields() : array
+    public function getRelatedFields()
     {
         return $this->fetchFields(RelatedField::class);
     }
@@ -206,7 +206,7 @@ class MetaData
      * @param $name
      * @return bool
      */
-    public function hasForeignKey($name) : bool
+    public function hasForeignKey($name)
     {
         return $this->getField($name) instanceof ForeignField;
     }
@@ -215,7 +215,7 @@ class MetaData
      * @param $name
      * @return bool
      */
-    public function hasHasManyField($name) : bool
+    public function hasHasManyField($name)
     {
         return array_key_exists($name, $this->getHasManyFields());
     }
@@ -224,7 +224,7 @@ class MetaData
      * @param $name
      * @return bool
      */
-    public function hasManyToManyField($name) : bool
+    public function hasManyToManyField($name)
     {
         return array_key_exists($name, $this->getManyToManyFields());
     }
@@ -233,7 +233,7 @@ class MetaData
      * @param $name
      * @return bool
      */
-    public function hasOneToOneField($name) : bool
+    public function hasOneToOneField($name)
     {
         return array_key_exists($name, $this->getOneToOneFields());
     }
@@ -246,7 +246,8 @@ class MetaData
      */
     public function getForeignKey($name)
     {
-        return $this->getForeignFields()[$name] ?? null;
+        $fields = $this->getForeignFields();
+        return isset($fields[$name]) ? $fields[$name] : null;
     }
 
     /**
@@ -264,7 +265,7 @@ class MetaData
     /**
      * @return array
      */
-    public function getAttributes() : array
+    public function getAttributes()
     {
         if ($this->attributes === null) {
             /** @var \Mindy\Orm\Model $className */
@@ -285,7 +286,7 @@ class MetaData
      * @codeCoverageIgnore
      * @return array|[]ModelFieldInterface
      */
-    public function getFieldsInit() : array
+    public function getFieldsInit()
     {
         return $this->getFields();
     }
@@ -293,7 +294,7 @@ class MetaData
     /**
      * @return array|\Mindy\Orm\Fields\ModelFieldInterface[]
      */
-    public function getFields() : array
+    public function getFields()
     {
         return $this->fields;
     }
@@ -304,7 +305,7 @@ class MetaData
      */
     public function getMappingName($name)
     {
-        return $this->mapping[$name] ?? $name;
+        return isset($this->mapping[$name]) ? $this->mapping[$name] : $name;
     }
 
     /**
@@ -344,7 +345,7 @@ class MetaData
      * @param $name
      * @return bool
      */
-    public function hasForeignField($name) : bool
+    public function hasForeignField($name)
     {
         return $this->getField($name) instanceof ForeignField;
     }
@@ -353,7 +354,7 @@ class MetaData
      * @param $name
      * @return ModelFieldInterface
      */
-    public function getForeignField($name) : ModelFieldInterface
+    public function getForeignField($name)
     {
         $field = $this->getField($name);
         return $field instanceof ForeignField ? $field : null;
@@ -363,7 +364,7 @@ class MetaData
      * @param $name
      * @return ModelFieldInterface
      */
-    public function getOneToOneField($name) : ModelFieldInterface
+    public function getOneToOneField($name)
     {
         $field = $this->getField($name);
         return $field instanceof OneToOneField ? $field : null;

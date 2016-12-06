@@ -7,8 +7,8 @@
  */
 
 namespace Mindy\Orm;
+
 use Doctrine\DBAL\Connection;
-use Mindy\Form\FieldInterface;
 
 /**
  * Interface ModelInterface
@@ -21,7 +21,7 @@ interface ModelInterface
     /**
      * @return array
      */
-    public function getAttributes() : array;
+    public function getAttributes();
 
     /**
      * @param null $instance
@@ -32,12 +32,12 @@ interface ModelInterface
     /**
      * @param bool $value
      */
-    public function setIsNewRecord(bool $value);
+    public function setIsNewRecord($value);
 
     /**
      * @return bool
      */
-    public function getIsNewRecord() : bool;
+    public function getIsNewRecord();
 
     /**
      * @return MetaData
@@ -52,7 +52,7 @@ interface ModelInterface
     /**
      * @return bool
      */
-    public function isValid() : bool;
+    public function isValid();
 
     /**
      * @param bool $asArray
@@ -64,19 +64,19 @@ interface ModelInterface
      * @param array $fields
      * @return bool
      */
-    public function insert(array $fields = []) : bool;
+    public function insert(array $fields = []);
 
     /**
      * @param array $fields
      * @return bool
      */
-    public function update(array $fields = []) : bool;
+    public function update(array $fields = []);
 
     /**
      * @param array $fields
      * @return bool
      */
-    public function save(array $fields = []) : bool;
+    public function save(array $fields = []);
 
     /**
      * @param array $row
@@ -87,7 +87,7 @@ interface ModelInterface
     /**
      * @return string
      */
-    public static function tableName() : string;
+    public static function tableName();
 
     /**
      * @param array $attributes
@@ -98,19 +98,12 @@ interface ModelInterface
      * @param string $name
      * @param $value
      */
-    public function setAttribute(string $name, $value);
-
-    /**
-     * @param string $name
-     * @param bool $throw
-     * @return null|FieldInterface
-     */
-    public function getField(string $name, $throw = false);
+    public function setAttribute($name, $value);
 
     /**
      * @return Connection
      */
-    public function getConnection() : Connection;
+    public function getConnection();
 
     /**
      * @param Connection $connection

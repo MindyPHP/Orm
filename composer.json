@@ -1,6 +1,6 @@
 {
   "name": "mindy/orm",
-  "homepage": "https://github.com/MindyPHP/Mindy_Orm",
+  "homepage": "https://github.com/MindyPHP/Orm",
   "license": "MIT",
   "autoload": {
     "psr-4": {
@@ -9,14 +9,6 @@
     "exclude-from-classmap": [
       "/Tests/"
     ]
-  },
-  "autoload-dev": {
-    "files": [
-      "test/functions.php"
-    ],
-    "psr-4": {
-      "Modules\\Tests\\Models\\": "Tests/app/Models"
-    }
   },
   "require": {
     "php": ">=5.5.9",
@@ -37,8 +29,5 @@
   ],
   "support": {
     "issues": "https://github.com/MindyPHP/Mindy/issues?state=open"
-  },
-  "require-dev": {
-    "guzzlehttp/psr7": "^1.3"
   }
 }
