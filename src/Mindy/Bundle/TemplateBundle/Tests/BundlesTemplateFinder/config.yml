@@ -1,0 +1,9 @@
+template:
+    theme: { enabled: false }
+    helpers: { nl2br: nl2br }
+
+services:
+    example:
+        class: Mindy\Bundle\TemplateBundle\Tests\TestLibrary
+        tags:
+            - { name: template.library }

@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="template" class="Mindy\Component\Template\Renderer">
+            <argument type="collection">
+                <argument key="source" type="expression">container.get('template.finder.chain').getPaths()</argument>
+                <argument key="target">%kernel.cache_dir%/templates</argument>
+                <argument key="mode">0</argument>
+                <argument key="autoEscape">true</argument>
+            </argument>
+        </service>
+
+        <service id="template.finder.templates" class="Mindy\Bundle\TemplateBundle\TemplateFinder\TemplateFinder">
+            <argument key="base_path">%kernel.root_dir%/Resources</argument>
+            <argument key="templates_dir">templates</argument>
+        </service>
+
+        <service id="template.finder.chain" class="Mindy\Bundle\TemplateBundle\TemplateFinder\ChainTemplateFinder">
+            <argument type="collection">
+                <argument type="service" id="template.finder.templates" />
+            </argument>
+        </service>
+
+        <service id="template.variable_provider.app" class="Mindy\Bundle\TemplateBundle\VariableProvider\AppVariableProvider">
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+            <tag name="template.variable_provider" />
+        </service>
+    </services>
+</container>
