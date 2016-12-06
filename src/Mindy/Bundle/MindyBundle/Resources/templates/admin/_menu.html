@@ -1,0 +1,60 @@
+<div class="b-sidebar-container">
+    {% for menu in adminMenu %}
+        <div class="b-sidebar-menu-container">
+            <p class="b-sidebar-menu__name">
+                {% if not menu.route %}
+                    <span class="b-sidebar-menu__name_title">{{ t(menu.name) }}</span>
+                {% else %}
+                    <a class="b-sidebar-menu__name_link"
+                       href="{{ url(menu.route, menu.defaults ? menu.defaults : []) }}">
+                        {{ t(menu.name) }}
+                    </a>
+                {% endif %}
+            </p>
+
+            <ul class="b-sidebar-menu">
+                {% for item in menu.menu %}
+                    <li class="b-sidebar-menu__li">
+                        {% if item.route %}
+                            <a class="b-sidebar-menu__link" href="{{ url(item.route, item.defaults ? item.defaults : []) }}">
+                                {% if item.handler %}
+                                    {% set count = container.get(item.handler).count() %}
+                                    {% if count %}
+                                        <span>{{ count }}</span>
+                                    {% endif %}
+                                {% endif %}
+
+                                {{ t(item.name) }}
+                            </a>
+                        {% else %}
+                            <span class="b-sidebar-menu__text">{{ t(item.name) }}</span>
+                        {% endif %}
+
+                        {% if item.menu %}
+                            <ul class="b-sidebar-menu b-sidebar-menu_nested">
+                                {% for child in item.menu %}
+                                    <li class="b-sidebar-menu__li">
+                                        {% if child.route %}
+                                            <a class="b-sidebar-menu__link" href="{{ url(child.route, child.defaults ? child.defaults : []) }}">
+                                                {% if child.handler %}
+                                                    {% set count = container.get(child.handler).count() %}
+                                                    {% if count %}
+                                                        <span class="b-sidebar-menu__item-counter">{{ count }}</span>
+                                                    {% endif %}
+                                                {% endif %}
+
+                                                {{ t(child.name) }}
+                                            </a>
+                                        {% else %}
+                                            <span>{{ t(child.name) }}</span>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endfor %}
+</div>

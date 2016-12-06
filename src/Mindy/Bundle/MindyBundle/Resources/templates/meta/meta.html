@@ -1,0 +1,12 @@
+{%- if meta -%}
+<title>{{ meta.title }}</title>
+{%- if meta.keywords -%}
+    <meta name="keywords" content="{{ meta.keywords }}">
+{%- endif -%}
+{%- if meta.description -%}
+    <meta name="description" content="{{ meta.description }}">
+{%- endif -%}
+{%- if meta.canonical -%}
+    <link rel="canonical" href="{{ meta.canonical }}" />
+{%- endif -%}
+{%- endif -%}

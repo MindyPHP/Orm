@@ -1,0 +1,34 @@
+{% extends 'admin/base_login.html' %}
+
+{% block content %}
+    <div class="b-login">
+        <div class="b-login-logo">
+            {% include "admin/logo.svg" %}
+        </div>
+
+        {% if error %}
+            <div>{{ error.getMessage() }}</div>
+        {% endif %}
+
+        <form action="" method="post" class="form--main">
+            <div class="form-row">
+                <label for="username">{{ t('admin.username') }}:</label>
+                <input type="text" id="username" name="_username" value="{{ last_username }}"/>
+            </div>
+
+            <div class="form-row">
+                <label for="password">{{ t('admin.password') }}:</label>
+                <input type="password" id="password" name="_password"/>
+            </div>
+
+            <div class="form-row">
+                <input type="checkbox" id="remember" name="_remember"/>
+                <label for="remember">{{ t('admin.remember_me') }}</label>
+            </div>
+
+            <input type="hidden" name="_target_path" value="{{ url('admin_index') }}"/>
+
+            <input type="submit" value="{{ t('admin.sign_in') }}" class="button"/>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,83 @@
+.order-admin-info-container {
+  .info-block {
+    input {
+      width: 100%;
+    }
+  }
+}
+
+.order-product-container {
+  .order-product-table {
+    width: 100%;
+
+    tr {
+      td, th {
+        padding: 4px;
+      }
+    }
+
+    thead {
+      tr {
+        border-bottom: 1px solid #ccc;
+
+        th, td {
+          cursor: default;
+          color: #838383;
+          font-size: .8rem;
+
+          &.order-product-td-name {
+          }
+
+          &.order-product-td-price {
+            width: 100px;
+          }
+
+          &.order-product-td-count {
+            width: 100px;
+
+            &, [type="text"] {
+              text-align: center;
+            }
+          }
+
+          &.order-product-td-total {
+            width: 140px;
+          }
+
+          &.order-product-td-actions {
+            width: 40px;
+          }
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        border-bottom: 1px solid #ccc;
+
+        th, td {
+          vertical-align: middle;
+
+          &, p {
+            font-size: .9rem;
+          }
+
+          p {
+            margin: 0;
+
+            &.order-product-vendor-code {
+              font-size: .8rem;
+              color: #838383;
+            }
+          }
+
+          a {
+            font-size: 1.8rem;
+            text-decoration: none;
+            color: $pomegranate;
+          }
+        }
+      }
+    }
+  }
+}

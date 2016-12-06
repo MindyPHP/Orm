@@ -1,0 +1,48 @@
+.b-order {
+  &__header {
+    border-bottom: 1px solid #e1e1e1;
+    @include clearfix;
+    padding: 10px;
+  }
+
+  &__status {
+    float: left;
+    margin-right: 15px;
+    font-size: .9rem;
+    @include antialias;
+    padding: 1px 15px;
+    color: #fff;
+    border-radius: 0 $border-radius $border-radius 0;
+    margin-left: -10px;
+  }
+
+  &__time {
+    float: right;
+  }
+
+  &__title {
+    font-size: 1rem;
+    color: #353535;
+    text-decoration: none;
+  }
+
+  &__item {
+    margin-bottom: 20px;
+    border: 1px solid #e1e1e1;
+  }
+
+  &__content {
+    padding: 10px;
+  }
+
+  &__panel {
+    border-top: 1px solid #e1e1e1;
+    padding: 10px;
+    background: {
+      color: #fafafa;
+    }
+  }
+
+  &__panel-link {
+  }
+}

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="robots" content="noindex, nofollow"/>
+    <title>{%- block title -%}{% endblock %} - {{ trans('admin.title') }} - {{ app.name }}</title>
+    <link rel="stylesheet" href="{{ asset('/bundles/mindy/css/admin.css') }}"/>
+    <script type='text/javascript' src="{{ asset('/bundles/mindy/js/vendor.admin.js') }}"></script>
+    <script type='text/javascript' src="{{ asset('/bundles/mindy/js/admin.js') }}"></script>
+
+    {#<script type='text/javascript' src="{{ asset('/bundles/mindy/ckeditor/ckeditor.js') }}"></script>#}
+    {#<script type='text/javascript' src="{{ asset('/bundles/mindy/ckeditor/adapters/jquery.js') }}"></script>#}
+
+    {#<script>$(function () {$('.ckeditor').ckeditor();});</script>#}
+
+    {% block css %}{% endblock %}
+</head>
+{% set open_sidebar = request.cookies.get('__sidebar_padding', 'true') == 'true' %}
+<body>
+<header class="b-header {{ open_sidebar ? 'b-header_padding' : '' }}">
+    <div class="b-header__panel">
+        <a class="b-aw-button b-header__burger {{ open_sidebar ? 'b-header__burger_hide' : '' }}" href="#">
+            <i class="icon content"></i>
+        </a>
+    </div>
+    <div class="b-header__panel b-header__panel_full">
+        {% block breadcrumbs %}
+            {% include "admin/_breadcrumbs.html" %}
+        {% endblock breadcrumbs %}
+    </div>
+    <div class="b-header__panel">
+        <div class="b-header__user">{{ user.getUsername() }}</div>
+    </div>
+</header>
+
+<div class="b-sidebar {{ open_sidebar ? 'b-sidebar_show' : '' }}">
+    <div class="b-sidebar-buttons">
+        <a class="b-aw-button b-sidebar-buttons__burger" href="#">
+            <i class="icon content"></i>
+        </a>
+        <a class="show-for-large-up b-aw-button b-sidebar-buttons__pin {{ open_sidebar ? 'b-sidebar-buttons__pin_checked' : '' }}"
+           href="#">
+            <i class="icon pin"></i>
+        </a>
+    </div>
+
+    {{ admin_menu()|safe }}
+</div>
+
+<div class="b-page {{ open_sidebar ? 'b-page_padding' : '' }}">
+    {% block flash %}
+        {% include "admin/_flash.html" %}
+    {% endblock flash %}
+
+    {% block content %}
+    {% endblock content %}
+    <footer class="b-footer clearfix">
+        <div class="columns small-12">
+            <p class="b-footer__text">
+                <a class="b-footer__link" href="http://mindy-cms.com" target="_blank">Mindy Framework</a> &copy;
+                Проект разработан <a class="b-footer__link" href="http://studio107.ru"
+                                     target="_blank">Studio107</a> &copy;
+                Запрещено использование для коммерческих проектов без предварительного письменного согласия
+                автора.
+            </p>
+        </div>
+    </footer>
+</div>
+<script type='text/javascript' src="{{ asset('/bundles/admin/js/admin.js') }}"></script>
+{% block javascript %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,59 @@
+admin:
+    file:
+        name: Файлы
+    menu:
+        name: Меню
+    meta:
+        name: Мета информация
+    dashboard: Рабочий стол
+    flash:
+        success: 'Данные успешно сохранены'
+        error: 'Ошибка при сохранении данных'
+    actions:
+        batch_remove: 'Remove all'
+    action:
+        create: Создать
+        save: Сохранить
+        save_and_continue: Сохранить и продолжить
+        save_and_create: Сохранить и создать
+    search.placeholder: Поиск
+
+admin.title: Панель администратора
+admin.delete_confirm: Вы действительно хотите удалить данный объект?
+admin.view_at_site: Посмотреть на сайте
+admin.primary_key: Идентификатор
+admin.action.info: Информация
+admin.action.update: Редактирование
+admin.print: Печать
+admin.open_at_site: Открыть на сайте
+admin.action.choice: Действия
+admin.action.create: Создать
+admin.export: Экспорт
+admin.logout_confirm: Вы действительно хотите выйти?
+admin.open_site: Открыть сайт
+admin.change_password: Изменить пароль
+admin.logout: Выход
+admin.title: Панель управления
+admin.menu: Меню
+admin.sign_out: Выход
+admin.sign_in: Вход
+admin.username: Имя пользователя
+admin.password: Пароль
+admin.remember_me: Запомнить меня
+file:
+    upload_files: Загрузка файлов
+    copy_link: Копировать ссылку
+    create_directory: Создать директорию
+    column:
+        name: Название
+        actions: Действия
+    root: Корень
+    admin:
+        title: Файлы
+meta.admin.admin_title: Мета информация
+meta.model.domain: Хост
+meta.model.url: Адрес
+meta.model.keywords: Ключевые слова
+meta.model.title: Заголовок
+meta.model.description: Описание
+meta.model.canonical: Canonical адрес

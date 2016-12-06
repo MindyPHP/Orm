@@ -1,0 +1,37 @@
+{% if this.getPagesCount() > 1 %}
+    <section class="pager-container">
+        <ul class="pager">
+            {% if this.hasPrevPage() %}
+                <li class="prev">
+                    <a href="{{ this.getUrl(this.currentPage - 1) }}">&larr;</a>
+                </li>
+            {% endif %}
+
+            {% if this.hasPrevPage() %}
+                {% for page in this.iterPrevPage() %}
+                    <li>
+                        <a href="{{ this.getUrl(page) }}">{{ page }}</a>
+                    </li>
+                {% endfor %}
+            {% endif %}
+
+            <li class="active">
+                <span class="active">{{ this.currentPage }}</span>
+            </li>
+
+            {% if this.hasNextPage() %}
+                {% for page in this.iterNextPage() %}
+                    <li>
+                        <a href="{{ this.getUrl(page) }}">{{ page }}</a>
+                    </li>
+                {% endfor %}
+            {% endif %}
+
+            {% if this.hasNextPage %}
+                <li class="next">
+                    <a href="{{ this.getUrl(this.currentPage+1) }}">&rarr;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </section>
+{% endif %}

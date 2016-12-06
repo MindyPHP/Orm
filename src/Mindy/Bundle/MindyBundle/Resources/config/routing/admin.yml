@@ -1,0 +1,35 @@
+file_list:
+    path: /file/list
+    defaults: { _controller: MindyBundle:File:list }
+
+file_upload:
+    path: /file/upload
+    defaults: { _controller: MindyBundle:File:upload }
+
+file_delete:
+    path: /file/delete
+    defaults: { _controller: MindyBundle:File:delete }
+
+file_create_directory:
+    path: /file/create_directory
+    defaults: { _controller: MindyBundle:File:createDirectory }
+
+admin_index:
+    path: /
+    defaults: { _controller: MindyBundle:Admin:index }
+
+admin_dispatch:
+    path: /{bundle}/{admin}/{action}
+    defaults: { _controller: MindyBundle:Admin:dispatch }
+    requirements:
+        bundle: \w+
+        admin: \w+
+        action: \w+
+
+admin_login:
+    path: /login
+    defaults: { _controller: MindyBundle:Admin:login }
+
+admin_logout:
+    path: /logout
+    defaults: { _controller: MindyBundle:Admin:logout }

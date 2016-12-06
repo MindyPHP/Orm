@@ -1,0 +1,19 @@
+{% extends 'admin/base_login.html' %}
+
+{% block content %}
+    <div class="login--container">
+        <div class="row">
+            <div class="columns small-12">
+                <h1>{{ t('admin.sign_in') }}</h1>
+
+                <form action="" method="post" class="form--main">
+                    {{ form.render()|safe }}
+
+                    <input type="hidden" name="_target_path" value="{% url 'admin_index' %}" />
+
+                    <button type="submit" class="ui button fluid tiny primary">{{ t('admin.sign_in') }}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

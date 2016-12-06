@@ -1,0 +1,295 @@
+@import "mindy/colors/flat";
+@import "mindy/mixins/base";
+
+$blue: #005ECB;
+$base-color: $blue;
+
+.file-manager__breadcrumbs {
+  list-style: none;
+  margin: 0 0 20px 0;
+  padding: 4px 10px;
+  @include clearfix;
+  @include antialias;
+  background: {
+    color: #fafafa;
+  }
+  border: 1px solid #e5e5e5;
+
+  li {
+    float: left;
+    color: $concrete;
+
+    &:not(:last-child) {
+      margin-right: 20px;
+    }
+
+    a, span {
+      color: #000;
+      position: relative;
+      font-weight: bold;
+      border-radius: 4px;
+      padding: 5px 0;
+      text-decoration: none;
+
+      svg {
+        width: auto;
+        height: 16px;
+        margin-bottom: -2px;
+        margin-right: 6px;
+      }
+    }
+
+    a {
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+#progress {
+  $height: 26px;
+
+  display: block;
+  width: 100%;
+  height: $height;
+  border-radius: 4px;
+  background: {
+    color: #fafafa;
+  }
+  transition: all .2s ease;
+  opacity: 0;
+
+  &.visible {
+    opacity: 1;
+  }
+
+  &.hide {
+    display: none;
+  }
+
+  .progress-state {
+    height: $height;
+    line-height: $height;
+    text-align: center;
+    width: 60%;
+    background: {
+      color: $emerald;
+    }
+    color: #fff;
+    font-size: .9rem;
+    border-radius: 4px;
+  }
+}
+
+#dropzone {
+  background: {
+    color: rgba(#fafafa, 40%);
+  }
+  border: 2px dashed #e1e1e1;
+  text-align: center;
+  transition: border-radius 0.2s ease;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  padding: 40px 0;
+
+  &.in {
+    display: block;
+  }
+}
+
+.file-manager__upload {
+  display: block;
+  padding: 10px;
+  background: {
+    color: #fafafa;
+  }
+  border: 2px dashed #e1e1e1;
+  margin: 10px 0;
+
+  &.is-dragover {
+    border-color: #00a0e9;
+  }
+}
+
+.file-manager__table-input {
+  width: 240px;
+  font-size: .8rem;
+  background: {
+    color: #fff;
+  }
+}
+
+.file-manager__table {
+  th, td {
+    padding: 5px;
+    font-size: .9rem;
+  }
+
+  thead {
+    tr {
+      border-bottom: 1px solid #e1e1e1;
+
+      th {
+        color: #aaa;
+        font-weight: 400;
+
+        &.file-manager__table-actions {
+          text-align: right;
+        }
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #e1e1e1;
+
+      td {
+        &.file-manager__table-actions {
+          a {
+            font-size: .9rem;
+            text-align: center;
+            padding: 0 10px;
+            line-height: 24px;
+            display: inline-block;
+            color: #000;
+            height: 26px;
+
+            svg {
+              height: 24px;
+              width: auto;
+
+              path {
+                fill: #000;
+              }
+            }
+
+            &.remove {
+              font-size: 1.2rem;
+            }
+
+            &:hover {
+              background: {
+                color: #fafafa;
+              }
+            }
+          }
+        }
+
+        &.file-manager__table-icon {
+          width: 32px;
+          text-align: center;
+          vertical-align: middle;
+
+          svg {
+            display: block;
+            height: 16px;
+            width: auto;
+          }
+        }
+
+        a {
+          color: #000;
+          display: block;
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}
+
+.files-frop {
+  cursor: pointer;
+  border: {
+    width: 2px;
+    style: dashed;
+    color: rgba(#838383, 0.4);
+  }
+  font-size: 1.1rem;
+  color: #838383;
+  letter-spacing: .2px;
+  border-radius: 0;
+  text-align: center;
+  @include antialias;
+
+  &:hover {
+    color: $base-color;
+    background: {
+      color: rgba($base-color, 0.2);
+    }
+
+    .files-upload-icon {
+      .icon {
+        color: $base-color;
+      }
+    }
+  }
+
+  .files-upload-icon {
+    .icon {
+      font-size: 2.4rem;
+      color: #838383;
+    }
+  }
+}
+
+.files-content {
+  margin: 20px 0;
+
+  $padding: 20px;
+  $size: 200px;
+
+  .image-field-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      float: left;
+      padding: $padding;
+      margin-right: 20px;
+      background: {
+        color: #f1f1f1;
+      }
+      width: $size + ($padding * 2);
+      height: $size + ($padding * 2);
+
+      &:hover {
+        background: {
+          color: rgba($base-color, 0.2);
+        }
+      }
+    }
+  }
+
+  .file-item {
+    background: {
+      color: #fff;
+      size: cover;
+    }
+    width: $size;
+    height: $size;
+    cursor: move;
+    position: relative;
+    overflow: hidden;
+    display: block;
+
+    .remove {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 24px;
+      height: 24px;
+      background: {
+        color: rgba(#000, 0.4);
+      }
+      color: #fff;
+      text-align: center;
+      line-height: 24px;
+      cursor: pointer;
+    }
+  }
+}

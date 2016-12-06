@@ -1,0 +1,13 @@
+{% extends 'admin/base_print.html' %}
+
+{% block title %}{{ t('admin.action.info') }} {{ model }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="columns small-12">
+            <h1>{{ t('admin.action.info') }} {{ model }}</h1>
+            {% include admin.findTemplate("_info_table.html") %}
+        </div>
+    </div>
+    <script type="text/javascript">window.print();</script>
+{% endblock %}

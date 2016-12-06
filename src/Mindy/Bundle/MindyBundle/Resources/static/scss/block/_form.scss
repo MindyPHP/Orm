@@ -1,0 +1,160 @@
+[type="checkbox"] ~ label, [type="radio"] ~ label {
+  display: inline-block;
+  margin-left: 5px;
+}
+
+#{$text-inputs} {
+  width: 100%;
+  @include input_base;
+}
+
+select {
+  width: 100%;
+  @include input_base;
+}
+
+.buttons-block {
+  clear: both;
+  padding: 15px 0;
+}
+
+select {
+  -moz-appearance: none;
+  width: 100%;
+}
+
+.select-holder:not(.multiple) {
+  position: relative;
+  display: inline;
+
+  select {
+    padding-right: 18px;
+  }
+
+  &::after {
+    content: "▼";
+    position: absolute;
+    right: 10px;
+    color: #838383;
+    top: -1px;
+    font-size: .8rem;
+    pointer-events: none;
+  }
+}
+
+.form-row {
+  margin-bottom: 15px;
+
+  label {
+    color: #000;
+    display: inline-block;
+    font-size: .85rem;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    .required {
+      color: $pomegranate;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+  }
+
+  .form-hint-text {
+    margin: 0;
+    font-size: .85rem;
+    color: #838383;
+  }
+
+  &.error {
+    #{$text-inputs} {
+      border-color: $alizarin;
+    }
+  }
+}
+
+// todo why it needed?
+.form-ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    margin-bottom: 15px;
+  }
+}
+
+.form-input-text {
+  // todo why?
+  font-size: .9rem;
+  color: #7c7c7c;
+  margin: 0;
+}
+
+#main-form {
+  // todo why?
+  position: relative;
+}
+
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+
+  legend {
+    letter-spacing: -.5px;
+    @include antialias;
+    font-size: 1.2rem;
+    padding: 5px 0;
+    border: {
+      width: 0 0 1px 0;
+      color: rgba(#838383, 0.2);
+      style: solid;
+    }
+    display: block;
+    width: 100%;
+    margin-bottom: 15px;
+  }
+}
+
+.form-error-list-input {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  color: $pomegranate;
+  font-size: .85rem;
+  font-weight: bold;
+}
+
+.form-error-list {
+  border-radius: 4px;
+  list-style: none;
+  background: {
+    color: $alizarin;
+  }
+  border: 1px solid $alizarin;
+  padding: 10px;
+  margin-bottom: 20px;
+  color: #fff;
+
+  li {
+    font-size: .9rem;
+
+    p {
+      margin: 0;
+      text-decoration: underline;
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      li {
+        font-size: .85rem;
+      }
+    }
+  }
+}

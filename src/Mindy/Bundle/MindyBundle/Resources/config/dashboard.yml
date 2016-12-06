@@ -1,0 +1,10 @@
+services:
+    admin.dashboard:
+        class: Mindy\Bundle\MindyBundle\Dashboard\Dashboard
+        arguments: [ '@template' ]
+
+    admin.dashboard.admin_menu:
+        class: Mindy\Bundle\MindyBundle\Dashboard\AdminMenuWidget
+        arguments: [ '@admin.menu' ]
+        tags:
+            - { name: admin.dashboard.widget }

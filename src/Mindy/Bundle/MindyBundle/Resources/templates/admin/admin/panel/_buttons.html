@@ -1,0 +1,48 @@
+{% if admin.can('create') or admin.can('export') or admin.searchFields|length > 0 %}
+    <div class="b-list-buttons">
+        {% if admin.can('create') %}
+            <div class="b-list-buttons__panel">
+                <a href="{{ admin.getAdminUrl('create') }}" class="b-button b-button_primary">
+                    {{ t('admin.action.create') }}
+                </a>
+            </div>
+        {% endif %}
+
+        {% if filterForm %}
+            <div class="b-list-buttons__panel">
+                <a href="#" class="b-button b-filter-button">
+                    <i class="icon filter"></i>
+                </a>
+            </div>
+        {% endif %}
+
+        {% if admin.getSearchFields()|length > 0 %}
+            <div class="b-list-buttons__panel">
+                <form action="" method="get" class="b-search-form">
+                    <input type="text" name="search" placeholder="{{ t('admin.search.placeholder') }}"
+                           class="b-search-form__input"
+                           value="{{ request.query.get('search') }}"/>
+                    <button type="submit"
+                            class="b-search-form__submit"
+                            value="{{ t('admin.search.placeholder') }}">
+                        <i class="icon search"></i>
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+
+        {% if admin.can('export') %}
+            <div class="b-list-buttons__panel">
+                <a href="{{ admin.getAdminUrl('export') }}" target="_blank" class="b-button">
+                    {{ t('admin.export') }}
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endif %}
+
+{% if filterForm %}
+    <div class="b-filter-form">
+        {{ form_render(filterForm)|safe }}
+    </div>
+{% endif %}

@@ -1,0 +1,18 @@
+{% set actions = admin.getActions() %}
+{% if actions|length > 0 %}
+    <form class="actions-form" action="{{ admin.getAdminUrl('list') }}" method="post">
+        <div class="actions--container">
+            <div class="select-holder">
+                <select name="action" id="actions" class="actions">
+                    <option value="" disabled="disabled" selected="selected">{{ t('admin.action.choice', [], 'MindyBundle') }}</option>
+                    {% for key, value in actions %}
+                        <option value="{{ key }}">{{ value }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="ui button tiny primary icon">
+                <i class="fa fa-check" aria-hidden="true"></i>
+            </button>
+        </div>
+    </form>
+{% endif %}

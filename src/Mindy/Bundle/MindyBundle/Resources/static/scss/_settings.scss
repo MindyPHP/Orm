@@ -1,0 +1,21 @@
+@import "mindy/colors/flat";
+@import "mindy/fonts";
+
+$main-color: $sun;
+$row-width: 2500px !default;
+$body-bg: #F2F4FA;
+$body-font-family: Lato, Arial, Helvetica, sans-serif;
+// $body-font-family: $helvetica;
+$button-padding: 4px 10px;
+
+$blue: #005ECB;
+$base-color: $blue;
+$button-color: lighten($base-color, 20%);
+$scrollbar-color: lighten($base-color, 30%);
+$tab-color: $base-color;
+
+$background-color: #fff !default;
+$border-radius: 0 !default;
+$button-border-radius: 0 !default;
+//$text-color: $wet-asphalt;
+$text-color: #000;

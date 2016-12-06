@@ -1,0 +1,105 @@
+@mixin crossbrowser($name, $value) {
+  -webkit-#{$name}: $value;
+  -khtml-#{$name}: $value;
+  -moz-#{$name}: $value;
+  -o-#{$name}: $value;
+  #{$name}: $value;
+}
+
+@mixin keyframes($name) {
+  @-webkit-keyframes #{$name} {
+    @content;
+  }
+
+  @-moz-keyframes #{$name} {
+    @content;
+  }
+
+  @-ms-keyframes #{$name} {
+    @content;
+  }
+
+  @-o-keyframes #{$name} {
+    @content;
+  }
+
+  @keyframes #{$name} {
+    @content;
+  }
+}
+
+@mixin clearfix {
+  *zoom: 1;
+  &:before, &:after {
+    display: table;
+    content: "";
+    line-height: 0;
+  }
+  &:after {
+    clear: both;
+  }
+}
+
+@mixin reset-list {
+  margin: 0;
+  border: 0 none;
+  outline: 0 none;
+  padding: 0;
+  list-style: none;
+}
+
+@mixin opacity($opacity) {
+  opacity: $opacity;
+  -moz-opacity: $opacity;
+  $opacity: $opacity * 100;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=#{$opacity})";
+  filter: "alpha(opacity=#{$opacity})";
+}
+
+@mixin inline-block {
+  display: inline-block;
+  *zoom: 1;
+  *display: inline;
+}
+
+@mixin antialias($value: true) {
+  @if $value == true {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  @else {
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: auto;
+    text-rendering: auto;
+  }
+}
+
+@mixin disable-user-select {
+  -webkit-touch-callout: none;
+  @include crossbrowser(user-select, none);
+}
+
+@mixin hide-text($direction: left) {
+  @if $direction == left {
+    $approximate-em-value: 12px / 1em;
+    $wider-than-any-screen: -9999em;
+    text-indent: $wider-than-any-screen * $approximate-em-value;
+    overflow: hidden;
+    text-align: left;
+  }
+  @else {
+    // slightly wider than the box prevents issues with inline-block elements
+    text-indent: 110%;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}
+
+@mixin ellipsis($no-wrap: true) {
+  @if $no-wrap {
+    white-space: nowrap;
+  }
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

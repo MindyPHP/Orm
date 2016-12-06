@@ -1,0 +1,37 @@
+@mixin border-radius($size: 5px) {
+  border-radius: $size;
+}
+
+@mixin box-shadow($params...) {
+  box-shadow: $params;
+}
+
+@mixin transition($params...) {
+  transition: $params;
+}
+
+@mixin float-left {
+  display: inline;
+  float: left;
+}
+
+@mixin float-right {
+  display: inline;
+  float: right;
+}
+
+@mixin transform($params...) {
+  transform: $params;
+}
+
+@mixin background-clip($params...) {
+  background-clip: $params;
+}
+
+@mixin clear {
+  clear: both;
+  height: 0;
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+}

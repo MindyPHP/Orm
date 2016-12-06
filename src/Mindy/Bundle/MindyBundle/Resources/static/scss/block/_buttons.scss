@@ -1,0 +1,101 @@
+@mixin mindy-button($backgroundColor) {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0)) left no-repeat, center no-repeat $backgroundColor;
+
+  &:hover {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0)) left no-repeat, center no-repeat darken($backgroundColor, 5%);
+    box-shadow: 0 1px 1px rgba(16, 22, 26, 0.2);
+  }
+
+  &:active {
+    border-color: rgba(16, 22, 26, 0.6) rgba(16, 22, 26, 0.2) rgba(16, 22, 26, 0.2) rgba(16, 22, 26, 0.2);
+    box-shadow: inset 0 1px 1px rgba(16, 22, 26, 0.2);
+    background-color: darken($backgroundColor, 10%);
+    background-image: none;
+  }
+
+  @content;
+}
+
+[type="submit"] {
+  -webkit-font-smoothing: antialiased;
+  font-weight: bold;
+
+  outline: none;
+  display: inline-block;
+  border: 1px solid;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 0 10px;
+  vertical-align: middle;
+  font-size: 14px;
+  min-width: 30px;
+  min-height: 30px;
+  line-height: 28px;
+  text-decoration: none;
+  font-family: Lato;
+  border-color: rgba(16, 22, 26, 0.1) rgba(16, 22, 26, 0.1) rgba(16, 22, 26, 0.17) rgba(16, 22, 26, 0.1);
+  box-shadow: 0 1px 1px rgba(16, 22, 26, 0.1);
+  background-clip: padding-box;
+  color: #182026;
+
+  @include mindy-button($button-color) {
+    color: #fff;
+  }
+}
+
+.b-button {
+  -webkit-font-smoothing: antialiased;
+  font-weight: bold;
+
+  outline: none;
+  display: inline-block;
+  border: 1px solid;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 0 10px;
+  vertical-align: middle;
+  font-size: 14px;
+  min-width: 30px;
+  min-height: 30px;
+  line-height: 28px;
+  text-decoration: none;
+  font-family: Lato;
+  background: linear-gradient(to bottom, #ffffff, rgba(255, 255, 255, 0)) left no-repeat, center no-repeat #f5f8fa;
+  border-color: rgba(16, 22, 26, 0.1) rgba(16, 22, 26, 0.1) rgba(16, 22, 26, 0.17) rgba(16, 22, 26, 0.1);
+  box-shadow: 0 1px 1px rgba(16, 22, 26, 0.1);
+  background-clip: padding-box;
+  color: #182026;
+
+  &:hover {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0)) left no-repeat, center no-repeat #ebf1f5;
+    border-color: rgba(16, 22, 26, 0.2) rgba(16, 22, 26, 0.2) rgba(16, 22, 26, 0.27) rgba(16, 22, 26, 0.2);
+    box-shadow: 0 1px 1px rgba(16, 22, 26, 0.1);
+    background-clip: padding-box;
+  }
+
+  &:active {
+    border-color: rgba(16, 22, 26, 0.35) rgba(16, 22, 26, 0.25) rgba(16, 22, 26, 0.25) rgba(16, 22, 26, 0.25);
+    box-shadow: inset 0 1px 1px rgba(16, 22, 26, 0.1);
+    background-color: #ced9e0;
+    background-image: none;
+    cursor: default !important;
+  }
+
+  &_primary {
+    @include mindy-button($button-color) {
+      color: #fff;
+    }
+  }
+
+  &.disabled {
+    $disabled-color: #838383;
+    background: {
+      color: $disabled-color;
+    }
+    box-shadow: 0 -2px 0 darken($disabled-color, 5%) inset;
+  }
+
+  .icon {
+    margin: 0;
+  }
+}

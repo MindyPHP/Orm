@@ -1,0 +1,123 @@
+<div class="table--container__main">
+    {{ pager.render(admin.findTemplate('_pager.html'))|safe }}
+    <table id="table-main" data-toggle="checkboxes" data-range="true" class="b-table">
+        <thead>
+        <tr>
+            <th class="check all">
+                <input type="checkbox" id="check-all">
+                <label class="checkbox-state" for="check-all"></label>
+            </th>
+            {% if sorting %}
+                <th class="sorting"></th>
+            {% endif %}
+            {%- for column in columns -%}
+                <th class="th-{{ column }}">
+                    {% set orderUrl = admin.getOrderUrl(request, column) %}
+                    {% if orderUrl %}
+                        <a href="{{ admin.getOrderUrl(request, column) }}">
+                            {{ admin.getVerboseName(column) }}
+                            {% if request.query.has('order') %}
+                                {% if request.query.get('order') == column %}
+                                    <i class="icon caret down"></i>
+                                    {% elif request.query.get('order') == ('-' ~ column) %}
+                                    <i class="icon caret up"></i>
+                                {% endif %}
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        {{ admin.getVerboseName(column) }}
+                    {% endif %}
+                </th>
+            {%- endfor -%}
+            <th class="actions" align="right"></th>
+        </tr>
+        </thead>
+        <tbody id="sortable">
+        {% if models|length %}
+            {% for model in models %}
+                <tr data-pk="{{ model.pk }}">
+                    {% for column in columns %}
+                        {% if loop.first %}
+                            <td class="check" align="left">
+                                <input type="checkbox" name="models[]" id="check-{{ loop.counter }}" value="{{ model.pk }}">
+                                <label class="checkbox-state" for="check-{{ loop.counter }}"></label>
+                            </td>
+                            {% if sorting %}
+                                <td class="sorting">
+                                <span class="sorting--container">
+                                    <i class="icon content" aria-hidden="true"></i>
+                                </span>
+                                </td>
+                            {% endif %}
+                        {% endif %}
+
+                        <td class="td-{{ column }}">
+                            {% if tree and ((treeLinkColumn and treeLinkColumn == column) or (not treeLinkColumn and loop.first)) and not model.getIsLeaf() %}
+                                <a href="{{ admin.getAdminUrl('info') }}?pk={{ model.pk }}">
+                                    {{ admin.renderCell(column, model)|safe }}
+                                </a>
+                            {% else %}
+                                {{ admin.renderCell(column, model)|safe }}
+                            {% endif %}
+                        </td>
+
+                        {% if loop.last %}
+                            <td class="actions" align="right">
+                                {% include admin.findTemplate('_actions.html') %}
+                            </td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="{{ columns|length + (sorting ? 3 : 2) }}">Записи отсутствуют</td>
+            </tr>
+        {% endif %}
+        </tbody>
+    </table>
+    {{ pager.render(admin.findTemplate('_pager.html'))|safe }}
+
+    <div class="table--loader">
+        Загрузка...
+    </div>
+</div>
+
+{% if sorting %}
+    <script type="text/javascript">
+        $(".table--container__main tbody").sortable({
+            items: 'tr',
+            handle: '.sorting--container',
+            axis: 'y',
+            placeholder: "highlight",
+            helper: function (e, ui) {
+                ui.children().each(function () {
+                    var $this = $(this);
+                    $this.width($this.width());
+                });
+                return ui;
+            },
+            update: function (event, ui) {
+                var $to = $(ui.item),
+                        $prev = $to.prev(),
+                        $next = $to.next(),
+                        data = $(this).sortable('toArray', { attribute: 'data-pk' });
+
+                fetch.post('{{ admin.getAdminUrl('sorting', ['pk' => request.query.get('pk')]) }}', {}, {
+                    models: data,
+                    pk: $to.data('pk'),
+                    insertAfter: $prev.data('pk'),
+                    insertBefore: $next.data('pk')
+                }).then(function (data) {
+                    $('.table--loader').hide();
+                    $('#main-form').replaceWith(data);
+                }).catch(function () {
+                    $('.table--loader').hide();
+                    notify({ title: 'Произошла ошибка' });
+                });
+            }
+        });
+
+        $('table').checkboxes('range', true);
+    </script>
+{% endif %}

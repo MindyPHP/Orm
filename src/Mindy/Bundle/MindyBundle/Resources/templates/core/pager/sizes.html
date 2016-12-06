@@ -1,0 +1,10 @@
+{% set pageSizes = this.getPageSizes() %}
+<div class="b-select-container">
+    <select name="{{ this.getPageSizeKey() }}" id="pageSize" onchange="window.location=this.value">
+        {% for pageSize in pageSizes %}
+            <option value="{{ this.urlPageSize(pageSize) }}" {% if this.getPageSize() == pageSize %}selected="selected"{% endif %}>
+                {{ pageSize }}
+            </option>
+        {% endfor %}
+    </select>
+</div>

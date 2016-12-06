@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="ru"> <![endif]-->
+<!--[if IE 7]>
+<html class="no-js lt-ie9 lt-ie8" lang="ru"> <![endif]-->
+<!--[if IE 8]>
+<html class="no-js lt-ie9" lang="ru"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="Cache-Control" content="no-cache" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="robots" content="noindex, nofollow"/>
+    {% spaceless %}
+    <title>
+    {%- block title -%}
+        {%- if title or this.title -%}
+            {% if this.title %}{% for title in this.title %}{{ title }}{% if not loop.last %} - {% endif %}
+            {% endfor %}{% else %}{{ title }}{% endif %} - Mindy
+        {%- endif -%}
+    {%- endblock -%}
+    </title>
+    {% endspaceless %}
+
+    <link rel="stylesheet" href="/static_admin/dist/1.0.0/css/bundle.css"/>
+    <script type='text/javascript' src="/static_admin/dist/1.0.0/js/bundle.js"></script>
+    <script type='text/javascript' src="/static_admin/dist/1.0.0/ueditor107/ueditor.all.js"></script>
+</head>
+<body>
+<div id="wrapper-table">
+    <div class="overflow-wrapper">
+        <div class="webkit-fix-padding-td">
+            <section id="content" class="{% block content_class %}{% endblock %}">
+                <section class="content-wrap">
+                    <section class="heading">
+                        {% block heading %}{% endblock %}
+                    </section>
+
+                    {% block content %}{% endblock %}
+                </section>
+            </section>
+        </div>
+    </div>
+</div>
+</body>
+</html>

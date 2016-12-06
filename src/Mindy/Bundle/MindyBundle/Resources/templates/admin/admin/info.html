@@ -1,0 +1,34 @@
+{% extends request.isAjax ? "ajax.html" : 'admin/base.html' %}
+
+{% block title %}{{ t('admin.action.info') }} {{ model }}{% endblock %}
+
+{% macro buttons %}
+    <p>
+        <a href="{{ admin.getAdminUrl('update', ['pk' => model.pk]) }}"
+           class="ui button">
+            {{ t('admin.action.update') }}
+        </a>
+        <a href="{{ admin.getAdminUrl('print') }}?pk={{ model.pk }}" target="_blank"
+           class="window-open ui button tiny basic print-button">
+            <i class="icon print"></i> {{ t('admin.print') }}
+        </a>
+        {% if method_exists(model, 'getAbsoluteUrl') %}
+            <a href="{{ model.getAbsoluteUrl() }}" target="_blank"
+               class="ui button tiny basic">
+                {{ t('admin.open_at_site') }}
+            </a>
+        {% endif %}
+    </p>
+{% endmacro %}
+
+{% block content %}
+    <div class="b-content">
+        <h1>{{ t('admin.action.info') }} {{ model }}</h1>
+
+        {{ @buttons }}
+
+        {% include admin.findTemplate("_info_table.html") %}
+
+        {{ @buttons }}
+    </div>
+{% endblock %}

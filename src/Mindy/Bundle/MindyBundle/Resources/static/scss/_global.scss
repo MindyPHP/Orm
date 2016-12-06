@@ -1,0 +1,52 @@
+$sidebar-width: 320px;
+
+p {
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: $base-color;
+}
+
+.heading {
+  #{$headings} {
+    margin: 0 0 20px 0;
+  }
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -.5px;
+  @include antialias;
+
+  a {
+    font-weight: normal;
+  }
+}
+
+@for $i from 1 through 6 {
+  h#{$i} {
+    font-size: 1.5rem - ($i * 0.10rem);
+  }
+}
+
+@mixin inline-title {
+  font-weight: bold;
+  padding-bottom: 5px;
+  border-bottom: 2px dotted rgba(#838383, 0.4);
+}
+
+hr {
+  margin: 20px 0;
+  background: none;
+  border: {
+    width: 0 0 1px 0;
+    style: solid;
+    color: #e1e1e1;
+  }
+}
+
+@mixin placeholder {
+  @include antialias;
+  font-size: .95rem;
+}

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="robots" content="noindex, nofollow"/>
+    <title>{%- block title -%}{% endblock %} - {{ trans('admin.title') }} - {{ app.name }}</title>
+    <link rel="stylesheet" href="{{ asset('/bundles/mindy/css/admin.css') }}"/>
+    <script type='text/javascript' src="{{ asset('/bundles/mindy/js/vendor.admin.js') }}"></script>
+    <script type='text/javascript' src="{{ asset('/bundles/mindy/js/admin.js') }}"></script>
+
+    {#<script type='text/javascript' src="{{ asset('/bundles/mindy/ckeditor/ckeditor.js') }}"></script>#}
+    {#<script type='text/javascript' src="{{ asset('/bundles/mindy/ckeditor/adapters/jquery.js') }}"></script>#}
+
+    {#<script>$(function () {$('.ckeditor').ckeditor();});</script>#}
+
+    {% block css %}{% endblock %}
+</head>
+{% set open_sidebar = request.cookies.get('__sidebar_padding', 'true') == 'true' %}
+<body>
+{% block content %}
+{% endblock content %}
+</body>

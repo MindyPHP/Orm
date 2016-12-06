@@ -1,0 +1,16 @@
+<ul class="b-breadcrumbs">
+    <li class="b-breadcrumbs__item{% if breadcrumbs|length == 0 %} b-breadcrumbs__item_current{% endif %}">
+        <a class="b-breadcrumbs__link"
+           href="{{ url('admin_index') }}"><i class="icon home"></i></a>
+    </li>
+    {% for bc in breadcrumbs %}
+        <li class="b-breadcrumbs__item{% if loop.last %} b-breadcrumbs__item_current{% endif %}">
+            {% if bc.url and not loop.last %}
+                <a class="b-breadcrumbs__link"
+                   href="{{ bc.url }}">{{ bc.name|trim }}</a>
+            {% else %}
+                {{ bc.name|trim }}
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>

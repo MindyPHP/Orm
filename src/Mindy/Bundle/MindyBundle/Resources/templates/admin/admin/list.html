@@ -1,0 +1,15 @@
+{% extends admin.findTemplate("base.html") %}
+
+{% block content %}
+    <div class="b-content">
+        {% include admin.findTemplate('panel/_buttons.html') %}
+
+        <div class="list--container">
+            {% include admin.findTemplate('panel/_actions.html') %}
+
+            <form action="" method="post" id="main-form">
+                {% include admin.findTemplate('_table.html') %}
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% if this.getPagesCount() > 1 %}
+    <div class="b-pager">
+        <div class="float-right b-pager__size">
+            {% include "core/pager/sizes.html" %}
+        </div>
+
+        <ul class="b-pager__list">
+            {% if this.hasPrevPage() %}
+                {% for page in this.iterPrevPage() %}
+                    <li class="b-pager__item b-pager__item_prev">
+                        <a href="{{ this.getUrl(page) }}">{{ page }}</a>
+                    </li>
+                {% endfor %}
+            {% endif %}
+
+            <li class="b-pager__item b-pager__item_current">
+                <span class="current">{{ this.getCurrentPage() }}</span>
+            </li>
+
+            {% if this.hasNextPage() %}
+                {% for page in this.iterNextPage() %}
+                    <li class="b-pager__item b-pager__item_next">
+                        <a href="{{ this.getUrl(page) }}">{{ page }}</a>
+                    </li>
+                {% endfor %}
+            {% endif %}
+        </ul>
+    </div>
+{% endif %}

@@ -1,0 +1,77 @@
+.b-header {
+  width: 100%;
+  height: 60px;
+  line-height: 60px;
+  position: fixed;
+  z-index: 5;
+  background: {
+    color: $body-bg;
+  }
+  top: 0;
+  left: 0;
+  padding: 0;
+  border-bottom: 1px solid darken(#fafafa, 10%);
+  display: flex;
+
+  &_padding {
+    padding-left: $sidebar-width;
+  }
+
+  &__panel {
+    padding: 0 10px;
+
+    &_full {
+      flex: 1;
+    }
+  }
+
+  &__user {
+    color: $asbestos;
+    padding-right: 10px;
+    display: inline-block;
+  }
+
+  &__burger {
+    display: inline !important;
+
+    &_hide {
+      display: none !important;
+    }
+  }
+
+  &__current-page {
+    margin-left: 10px;
+  }
+}
+
+.b-aw-button {
+  text-align: center;
+  color: $asbestos;
+  text-decoration: none;
+  font-size: 1.1rem;
+  border-radius: 3px;
+  transition: background-color .2s ease, color .2s ease;
+
+  &:hover {
+    &, .icon {
+      color: $button-color;
+    }
+  }
+}
+
+.b-logo {
+  width: 40px;
+  height: 40px;
+  filter: grayscale(20%);
+
+  &_center {
+    margin: 0 auto;
+  }
+
+  &__img {
+    svg {
+      width: auto;
+      height: 40px;
+    }
+  }
+}

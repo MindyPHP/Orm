@@ -1,0 +1,8 @@
+{% extends "admin/admin/_actions.html" %}
+
+{% block actions %}
+    <a href="{{ admin.getAdminUrl('changePassword', ['pk' => model.pk]) }}">
+        <i class="icon key" aria-hidden="true"></i>
+    </a>
+    {% parent %}
+{% endblock %}

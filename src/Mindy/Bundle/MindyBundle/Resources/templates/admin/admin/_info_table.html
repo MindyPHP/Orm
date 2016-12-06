@@ -1,0 +1,52 @@
+<table class="table--information">
+    <tbody>
+    {% for name, field in fields %}
+        {% if field.className == 'Mindy\\Orm\\Fields\\JsonField' %}
+            {% continue %}
+        {% endif %}
+        <tr>
+            <th>
+                {% if field.verboseName %}
+                    {{ field.verboseName }}
+                {% else %}
+                    {% if name == 'id' %}
+                        {{ t('admin.primary_key') }}
+                    {% else %}
+                        {{ name|capitalize }}
+                    {% endif %}
+                {% endif %}
+            </th>
+            <td>
+                {% set value = model[name] %}
+                {% if field.choices %}
+                    {{ field.choices[value] }}
+                {% elseif field.className == 'Mindy\\Orm\\Fields\\BooleanField' %}
+                    {{ t(value ? 'admin.yes' : 'admin.no') }}
+                {% elseif field.className == 'Mindy\\Orm\\Fields\\DateTimeField' or field.className == 'Mindy\\Orm\\Fields\\DateField' %}
+                    {% if value %}
+                        {{ value|humanizeDateTime }}
+                    {% else %}
+                        {{ value }}
+                    {% endif %}
+                {% elseif field.className == 'Mindy\\Orm\\Fields\\ForeignField' and method_exists(model[name], 'getAbsoluteUrl') %}
+                    <a href="{{ model[name].getAbsoluteUrl() }}" target="_blank">
+                        {{ model[name] }}
+                    </a>
+                {% elseif field.className == 'Mindy\\Orm\\Fields\\TreeForeignField' and method_exists(model[name], 'getAbsoluteUrl') %}
+                    <a href="{{ model[name].getAbsoluteUrl() }}" target="_blank">
+                        {{ model[name] }}
+                    </a>
+                {% elseif field.className == 'Mindy\\Orm\\Fields\\TextField' %}
+                    {{ value ? value|safe : t('admin.empty_value') }}
+                {% else %}
+                    {% if field.className == 'Mindy\\Orm\\Fields\\FileField' %}
+                        <a href="{{ value }}">{{ value }}</a>
+                    {% else %}
+                        {{ value }}
+                    {% endif %}
+                {% endif %}
+                </td>
+                </tr>
+    {% endfor %}
+    </tbody>
+</table>

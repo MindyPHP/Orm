@@ -1,0 +1,24 @@
+body.login {
+  background: {
+    color: #f1f1f1;
+  }
+
+  .b-login {
+    width: 450px;
+    margin: 60px auto;
+    padding: 20px;
+    background: {
+      color: #fff;
+    }
+  }
+
+  .b-login-logo {
+    margin: 0 auto 20px;
+    text-align: center;
+
+    svg {
+      width: 64px;
+      height: auto;
+    }
+  }
+}

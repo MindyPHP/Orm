@@ -1,0 +1,54 @@
+.image-field--container {
+  margin-bottom: 10px;
+}
+
+.files-field--container {
+  margin: 10px 0;
+
+  .files-field--empty {
+    font-size: .9rem;
+    background: {
+      color: #fafafa;
+    }
+    padding: 10px;
+  }
+}
+
+.list--container {
+  position: relative;
+}
+
+.admin--list__button-container {
+  margin-bottom: 20px;
+}
+
+.table--toolbar {
+  margin-bottom: 20px;
+
+  thead, tbody {
+    th, td {
+      padding: 0;
+    }
+
+    th {
+      letter-spacing: -.5px;
+      font-size: .95rem;
+      text-align: left;
+      color: #aaa;
+      font-weight: normal;
+
+      &.buttons {
+        width: 10%;
+        min-width: 200px;
+      }
+
+      &.search {
+        width: 90%;
+      }
+
+      &.actions {
+
+      }
+    }
+  }
+}

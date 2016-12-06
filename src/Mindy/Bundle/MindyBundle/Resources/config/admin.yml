@@ -1,0 +1,43 @@
+services:
+    admin.registry:
+        class: Mindy\Bundle\MindyBundle\Admin\AdminRegistry
+
+    admin:
+        class: Mindy\Bundle\MindyBundle\Admin\AdminManager
+        arguments: [ '@kernel', '@admin.template.finder' ]
+
+    admin.menu:
+        class: Mindy\Bundle\MindyBundle\Admin\AdminMenu
+        arguments: [ "%admin.menu%" ]
+
+    admin.template.finder:
+        class: Mindy\Bundle\MindyBundle\Admin\AdminTemplateFinder
+        arguments: [ '@template.finder.chain' ]
+        public: false
+
+    template.menu.library:
+        class: Mindy\Bundle\MindyBundle\Library\MenuLibrary
+        arguments: [ "@template" ]
+        tags:
+            - { name: template.library }
+
+    template.meta.library:
+        class: Mindy\Bundle\MindyBundle\Library\MetaLibrary
+        calls:
+            - [ setContainer, [ "@service_container" ]]
+        tags:
+            - { name: template.library }
+
+    meta_provider:
+        class: Mindy\Bundle\MindyBundle\Provider\MetaProvider
+
+    admin.user_provider:
+        class: Mindy\Bundle\MindyBundle\Provider\UserProvider
+
+    template.admin.library:
+        class: Mindy\Bundle\MindyBundle\Library\AdminLibrary
+        arguments:
+            - '@admin.menu'
+            - '@template'
+        tags:
+            - { name: template.library }

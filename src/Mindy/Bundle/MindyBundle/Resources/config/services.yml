@@ -1,0 +1,64 @@
+services:
+    mindy.form.data_transformer.file:
+        class: Mindy\Bundle\MindyBundle\Form\DataTransformer\FileDataTransformer
+        arguments: [ '%storage.media_dir%' ]
+
+    mindy.form.extension.file_type:
+        class: Mindy\Bundle\MindyBundle\Form\Extension\FileExtension
+        arguments: [ '@mindy.form.data_transformer.file' ]
+        tags:
+            - { name: form.type_extension, extended_type: Symfony\Component\Form\Extension\Core\Type\FileType }
+        arguments: [ '%storage.media_dir%' ]
+
+    mindy.form.extension.query_set_type:
+        class: Mindy\Bundle\MindyBundle\Form\Extension\QuerySetExtension
+        tags:
+            - { name: form.type_extension, extended_type: Symfony\Component\Form\Extension\Core\Type\ChoiceType }
+
+    mindy.form.extension.checkbox_type:
+        class: Mindy\Bundle\MindyBundle\Form\Extension\CheckboxExtension
+        tags:
+            - { name: form.type_extension, extended_type: Symfony\Component\Form\Extension\Core\Type\CheckboxType }
+
+    storage.local:
+        class: League\Flysystem\Adapter\Local
+        arguments: [ "%storage.media_dir%" ]
+
+    storage:
+        class: Mindy\Storage\Storage
+        arguments:
+            -
+                filesystems: { default: "@storage.local" }
+
+    template.core_image.library:
+        class: Mindy\Bundle\MindyBundle\Library\ImageLibrary
+        tags:
+            - { name: template.library }
+
+    mindy.form_errors.normalizer:
+        class: Mindy\Bundle\MindyBundle\Normalizer\FormErrorsNormalizer
+        tags:
+            - { name: serializer.normalizer }
+
+    template.core.library:
+        class: Mindy\Bundle\MindyBundle\Library\CoreLibrary
+        calls:
+            - [ setContainer, [ "@service_container" ]]
+        tags:
+            - { name: template.library }
+
+    mail:
+        class: Mindy\Bundle\MindyBundle\Helper\Mail
+        arguments: [ "@mailer", "@template.finder.chain", "@template", %mail.from% ]
+
+    template.assets.library:
+        class: Mindy\Bundle\MindyBundle\Library\AssetLibrary
+        arguments: [ "@assets.packages" ]
+        tags:
+            - { name: template.library }
+
+    template.form.library:
+        class: Mindy\Bundle\MindyBundle\Library\FormLibrary
+        arguments: [ "@templating.helper.form" ]
+        tags:
+            - { name: template.library }

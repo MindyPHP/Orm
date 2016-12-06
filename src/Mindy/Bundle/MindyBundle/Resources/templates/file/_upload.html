@@ -1,0 +1,12 @@
+<div id="dropzone">{{ t('file.drop_zone') }}</div>
+<div id="progress" class="hide">
+    <div class="progress-state">0%</div>
+</div>
+
+<div class="file-manager__upload">
+    <p><label for="fileupload">{{ t('file.upload_files') }}</label></p>
+    <input class="fileupload"
+           type="file" name="files[]"
+           data-url="{{ url('file_upload', ['path' => path]) }}"
+           multiple>
+</div>

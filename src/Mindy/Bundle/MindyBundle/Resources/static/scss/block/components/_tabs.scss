@@ -1,0 +1,95 @@
+.tabs {
+  margin-top: 10px;
+  margin-bottom: -15px;
+  padding: 0;
+  border-top: 1px solid #e5e5e5;
+  background: {
+    color: #f5f5f5;
+  }
+
+  &--list {
+    @include clearfix;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    .tab {
+      &--item {
+        padding: 6px 0;
+        border-radius: 3px 3px 0 0;
+        display: block;
+        float: left;
+        transition: background-color .2s ease, border-color .2s ease;
+
+        a {
+          text-decoration: none;
+        }
+
+        a, span {
+          display: block;
+          font-size: .9rem;
+          color: $text-color;
+          border: {
+            width: 0 0 2px 0;
+            style: solid;
+            color: transparent;
+          }
+
+          &:hover {
+            border-color: $tab-color;
+          }
+
+          &__active, &__active:hover {
+            border-color: $tab-color;
+            cursor: default;
+          }
+        }
+
+        &:not(:last-child) {
+          margin-right: 20px;
+        }
+      }
+    }
+  }
+}
+
+.b-tab {
+  margin: 10px 0;
+}
+
+.b-tab-header {
+  @include clearfix;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid rgba($button-color, .4);
+
+  &__item {
+    float: left;
+    display: block;
+    padding: 4px 16px;
+    cursor: pointer;
+    font-size: .9rem;
+
+    &_active {
+      border-radius: $border-radius $border-radius 0 0;
+      display: block;
+      color: #fff;
+      background: {
+        color: $button-color;
+      }
+    }
+  }
+}
+
+.b-tab-content {
+  margin-top: 10px;
+
+  &__item {
+    display: none;
+
+    &_active {
+      display: block;
+    }
+  }
+}

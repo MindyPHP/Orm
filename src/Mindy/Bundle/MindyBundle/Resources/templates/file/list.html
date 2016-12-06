@@ -1,0 +1,98 @@
+{% extends request.query.get('wysiwyg') ? "file/base.html" : "admin/base.html" %}
+
+{% block title %}{{ t('file.admin.title') }}{% endblock %}
+
+{% block content %}
+    {% set path = request.query.get('path', '/') %}
+    {% set wysiwyg = request.query.get('wysiwyg') %}
+    {% set isWysiwyg = wysiwyg == 'tinymce' or wysiwyg == 'ckeditor' %}
+    {% set isTinymce = wysiwyg == 'tinymce' %}
+    {% set isCkeditor = wysiwyg == 'ckeditor' %}
+
+    <div class="b-content">
+        {% include "file/_upload.html" %}
+
+        <hr>
+
+        <p>
+            <a href="{{ url('file_create_directory', ['path' => path]) }}"
+               class="b-button b-button_primary files-create-directory">{{ t('file.create_directory') }}</a>
+        </p>
+
+        <hr>
+
+        <div class="files-container" data-filemanager="true" data-wysiwyg="{{ request.query.get('wysiwyg') }}">
+            <ul class="file-manager__breadcrumbs">
+                {% for bc in breadcrumbs %}
+                    <li>
+                        {% if loop.last %}
+                            {{ bc.name }}
+                        {% else %}
+                            <a href="{{ bc.url }}">
+                                <i class="icon folder"></i> {{ bc.name }}
+                            </a>
+                        {% endif %}
+                    </li>
+                    {% if not loop.last %}
+                        <li class="arrow">
+                            <i class="icon chevron right"></i>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+
+            {% if objects|length %}
+                <table class="file-manager__table">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>{{ t('file.column.name') }}</th>
+                        <th align="right" class="file-manager__table-actions">{{ t('file.column.actions') }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for entry in objects %}
+                        <tr>
+                            <td class="file-manager__table-icon">
+                                {% if entry.is_dir %}
+                                    <i class="icon folder"></i>
+                                {% else %}
+                                    <i class="icon file outline"></i>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if entry.is_dir %}
+                                    <a href="{{ url('file_list', ['path' => entry.path, 'wysiwyg' => wysiwyg]) }}">{{ entry.name }}</a>
+                                {% else %}
+                                    <a href="{{ asset(entry.url, 'media') }}" target="_blank">{{ entry.name }}</a>
+                                {% endif %}
+                            </td>
+                            <td align="right" class="file-manager__table-actions">
+                                {% if not entry.is_dir %}
+                                    <input type="text" value="{{ entry.url }}" class="file-manager__table-input" readonly>
+                                    <a href="#"
+                                       class="file-manager__table-copy"
+                                       data-text="{{ entry.url }}">{{ t('file.copy_link') }}</a>
+                                    {% if isWysiwyg %}
+                                        <a href="#"
+                                           data-name="{{ entry.name }}"
+                                           data-url="{{ asset(entry.url, 'media') }}"
+                                           class="file-manager__table-paste"
+                                           data-text="{{ entry.url }}">Вставить элемент</a>
+                                    {% endif %}
+                                {% endif %}
+                                <a href="{{ url('file_delete', ['path' => entry.path]) }}"
+                                   class="file-manager__table-remove"
+                                   data-confirm-message="{{ t('file.delete_confirm') }}"
+                                   title="{{ t('file.remove') }}">&times;</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>{{ t('file.empty') }}</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

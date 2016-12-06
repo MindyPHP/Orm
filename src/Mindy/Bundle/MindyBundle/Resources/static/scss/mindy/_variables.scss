@@ -1,0 +1,18 @@
+$transition: all 0.4s;
+$headings: 'h1, h2, h3, h4, h5, h6' !default;
+$text-inputs: "[type='color'],
+[type='date'],
+[type='datetime'],
+[type='datetime-local'],
+[type='email'],
+[type='month'],
+[type='number'],
+[type='password'],
+[type='search'],
+[type='tel'],
+[type='text'],
+[type='time'],
+[type='url'],
+[type='week'],
+input:not([type]),
+textarea" !default;

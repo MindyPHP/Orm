@@ -1,0 +1,26 @@
+{% block actions %}
+    {% set modelUrl = admin.getAbsoluteUrl(model) %}
+    {% if modelUrl %}
+        <a target="_blank" href="{{ modelUrl }}">
+            <i class="icon search" aria-hidden="true"></i>
+        </a>
+    {% endif %}
+
+    {% if admin.can('update') %}
+        <a href="{{ admin.getAdminUrl('update', ['pk' => model.pk]) }}">
+            <i class="icon write" aria-hidden="true"></i>
+        </a>
+    {% endif %}
+
+    {% if admin.can('info') %}
+        <a href="{{ admin.getAdminUrl('info', ['pk' => model.pk]) }}">
+            <i class="icon browser" aria-hidden="true"></i>
+        </a>
+    {% endif %}
+
+    {% if admin.can('remove') %}
+        <a data-confirm="{{ t('admin.delete_confirm', [], 'MindyBundle') }}" href="{{ admin.getAdminUrl('remove', ['pk' => model.pk]) }}">
+            <i class="icon trash" aria-hidden="true"></i>
+        </a>
+    {% endif %}
+{% endblock %}

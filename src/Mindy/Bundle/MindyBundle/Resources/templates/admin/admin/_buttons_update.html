@@ -1,0 +1,22 @@
+<div class="buttons-block">
+    <input type="submit" class="button"
+           name="save" value="{{ t('admin.action.save') }}"/>
+    <input type="submit" class="button basic"
+           name="save_continue" value="{{ t('admin.action.save_and_continue') }}"/>
+    <input type="submit" class="button basic"
+           name="save_create" value="{{ t('admin.action.save_and_create') }}"/>
+
+    {% if instance %}
+        <div class="float-right">
+            {% if method_exists(instance, "getAbsoluteUrl") %}
+                <a class="button basic" href="{{ instance.getAbsoluteUrl() }}"
+                   target="_blank">{{ t('admin.view_at_site') }}</a>
+            {% endif %}
+            <a class="button basic"
+               data-confirm="{{ t('admin.delete_confirm') }}"
+               href="{{ admin.getAdminUrl('remove', ['pk' => instance.pk]) }}">
+                <i class="fa fa-trash"></i>
+            </a>
+        </div>
+    {% endif %}
+</div>
