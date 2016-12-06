@@ -23,7 +23,7 @@
     "imagine/imagine": "*",
     "doctrine/dbal": "~2.0",
     "symfony/validator": "~3.0",
-    "mindy/query_builder": "^2.0",
+    "mindy/query_builder": "~2.0",
     "cocur/slugify": "~2.0",
     "league/flysystem": "~1.0",
     "mindy/validation": "~2.0"
