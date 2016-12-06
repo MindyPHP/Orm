@@ -21,7 +21,7 @@
         </service>
 
         <service id="pagination.template_library" class="Mindy\Bundle\PaginationBundle\Library\PaginationLibrary">
-            <argument type="service" id="template"/>
+            <argument type="service" id="template" on-invalid="ignore"/>
             <tag name="template.library"/>
         </service>
     </services>

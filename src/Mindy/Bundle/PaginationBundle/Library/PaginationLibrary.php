@@ -19,7 +19,7 @@ class PaginationLibrary extends Library
      */
     protected $template;
 
-    public function __construct(Renderer $template)
+    public function __construct(Renderer $template = null)
     {
         $this->template = $template;
     }
@@ -31,6 +31,9 @@ class PaginationLibrary extends Library
     {
         return [
             'pagination_render' => function (PaginationView $view, $template = 'pagination/default.html') {
+                if (null === $this->template) {
+                    throw new \LogicException('Template component not injected to PaginationLibrary');
+                }
                 return $this->template->render($template, [
                     'pager' => $view
                 ]);
