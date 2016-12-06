@@ -1,0 +1,34 @@
+{
+  "name": "mindy/template",
+  "description": "Fast PHP templating engine",
+  "keywords": [
+    "template",
+    "templating"
+  ],
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Mindy\\Component\\Template\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
+  "require": {
+    "php": ">=5.5.9"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "*"
+  },
+  "authors": [
+    {
+      "name": "Falaleev Maxim",
+      "email": "max@studio107.ru"
+    },
+    {
+      "name": "Nofriandi Ramenta",
+      "email": "nramenta@gmail.com"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="ru"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8" lang="ru"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9" lang="ru"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="ru"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>{{ exception }}</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="message">
+        <h1>Template Syntax Error</h1>
+        <h2>{{ exception }}</h2>
+    </div>
+
+    <div class="source">
+        <pre class="brush: php; highlight: {{ exception.getToken().getLine() }}; first-line: 1; toolbar: false;">{{ source }}</pre>
+    </div>
+
+    <div class="version">
+        Mindy template version: {{ loader.getVersion() }}
+    </div>
+</div>
+<style type="text/css">{{ styles|safe }}</style>
+<script src="//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/scripts/shCore.min.js" type="text/javascript"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/scripts/shBrushJScript.min.js" type="text/javascript"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/scripts/shBrushPhp.min.js" type="text/javascript"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/scripts/shBrushCss.min.js" type="text/javascript"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/scripts/shBrushXml.js" type="text/javascript"></script>
+<script type="text/javascript">
+    SyntaxHighlighter.all()
+</script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td {
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    line-height: 1;
+}
+
+ol, ul {
+    list-style: none;
+}
+
+blockquote, q {
+    quotes: none;
+}
+
+blockquote:before, blockquote:after, q:before, q:after {
+    content: none;
+}
+
+:focus {
+    outline: 0;
+}
+
+ins {
+    text-decoration: none;
+}
+
+del {
+    text-decoration: line-through;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+body {
+    font-size: 14px;
+    font-weight: 400;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #353535;
+    background: #fff;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    -webkit-font-smoothing: antialiased;
+    font-family: "Helvetica Neue", Arial;
+    color: #353535;
+    margin-bottom: .5em;
+    font-weight: 700;
+}
+
+h1 {
+    font-size: 32px;
+}
+
+h2 {
+    font-size: 22px;
+}
+
+h3 {
+    font-size: 14px;
+}
+
+pre {
+    font: normal 11pt Menlo, Consolas, "Lucida Console", Monospace;
+}
+
+pre span.error {
+    display: block;
+    background: #fce3e3;
+}
+
+pre span.ln {
+    color: #999;
+    padding-right: 0.5em;
+    border-right: 1px solid #ccc;
+}
+
+pre span.error-ln {
+    font-weight: bold;
+}
+
+.container {
+    margin: 1em 4em;
+}
+
+.version {
+    color: gray;
+    font-size: 8pt;
+    border-top: 1px solid #aaa;
+    padding-top: 1em;
+    margin-bottom: 1em;
+}
+
+.message {
+    padding: 20px 0;
+    font-size: 11pt;
+    margin-bottom: 1em;
+    border-bottom: 3px solid #F7C8C8;
+}
+
+.source {
+    margin-bottom: 1em;
+}
+
+.code pre {
+    background-color: #ffe;
+    margin: 0.5em 0;
+    padding: 0.5em;
+    line-height: 125%;
+    border: 1px solid #eee;
+}
+
+.source .file {
+    margin-bottom: 1em;
+    font-weight: bold;
+}
+
+.traces {
+    margin: 2em 0;
+}
+
+.trace {
+    margin: 0.5em 0;
+    padding: 0.5em;
+}
+
+.trace.collapsed pre {
+    display: none;
+}
+
+.trace-file {
+    cursor: pointer;
+    margin-bottom: 20px;
+    background-color: #f1f1f1;
+    padding: 15px 25px;
+}
+
+.trace .content {
+    padding-bottom: 20px;
+}
