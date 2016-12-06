@@ -7,6 +7,7 @@ use Mindy\Component\Pagination\Handler\RequestPaginationHandler;
 use Mindy\Component\Pagination\Pagination;
 use Mindy\Component\Pagination\PaginationFactory;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Route;
@@ -34,8 +35,10 @@ class PaginationTest extends \PHPUnit_Framework_TestCase
         $routes = new RouteCollection();
         $routes->add('list', new Route('/'));
 
+        $requestStack = new RequestStack();
+        $requestStack->push($request ? $request : Request::create('/'));
         $handler = new RequestPaginationHandler(
-            $request ? $request : Request::create('/'),
+            $requestStack,
             new UrlGenerator($routes, new RequestContext('/'))
         );
         $handler->setIncorrectPageCallback(function ($h) {

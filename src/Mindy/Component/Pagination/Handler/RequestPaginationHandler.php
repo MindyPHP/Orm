@@ -10,8 +10,8 @@ namespace Mindy\Component\Pagination\Handler;
 
 use Mindy\Component\Pagination\Exception\IncorrectPageException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * Class RequestPaginationHandler
@@ -36,12 +36,12 @@ class RequestPaginationHandler implements PaginationHandlerInterface
 
     /**
      * RequestPaginationHandler constructor.
-     * @param Request $request
+     * @param RequestStack $requestStack
      * @param UrlGeneratorInterface $urlGenerator
      */
-    public function __construct(Request $request, UrlGeneratorInterface $urlGenerator)
+    public function __construct(RequestStack $requestStack, UrlGeneratorInterface $urlGenerator)
     {
-        $this->request = $request;
+        $this->request = $requestStack->getCurrentRequest();
         $this->urlGenerator = $urlGenerator;
     }
 
