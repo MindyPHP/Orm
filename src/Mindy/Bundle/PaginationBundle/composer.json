@@ -1,0 +1,32 @@
+{
+  "name": "mindy/pagination-bundle",
+  "type": "symfony-bundle",
+  "keywords": [
+    "pagination",
+    "pager"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Falaleev Maxim",
+      "email": "max@studio107.ru"
+    }
+  ],
+  "require": {
+    "php": ">=5.5.9",
+    "symfony/http-kernel": "~3.0",
+    "symfony/config": "~3.0",
+    "symfony/dependency-injection": "~3.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Mindy\\Bundle\\PaginationBundle\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  }
+}

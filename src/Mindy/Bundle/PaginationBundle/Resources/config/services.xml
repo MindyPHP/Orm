@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="pagination.factory" class="Mindy\Bundle\PaginationFactory"/>
+
+        <service id="pagination.handler" class="Mindy\Bundle\Handler\RequestPaginationHandler">
+            <argument type="collection">
+                <argument type="service" id="request_stack"/>
+                <argument type="service" id="router"/>
+            </argument>
+        </service>
+
+        <service id="pagination.data_source.array" class="Mindy\Component\Pagination\DataSource\ArrayDataSource">
+            <tag name="pagination.data_source"/>
+        </service>
+
+        <service id="pagination.data_source.query_set" class="Mindy\Component\Pagination\DataSource\QuerySetDataSource">
+            <tag name="pagination.data_source"/>
+        </service>
+    </services>
+</container>

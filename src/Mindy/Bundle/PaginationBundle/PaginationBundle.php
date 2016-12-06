@@ -8,8 +8,14 @@
 
 namespace Mindy\Bundle\PaginationBundle;
 
+use Mindy\Bundle\PaginationBundle\DependencyInjection\Compiler\PaginationPass;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class PaginationBundle
+class PaginationBundle extends Bundle
 {
-
+    public function build(ContainerBuilder $container)
+    {
+        $container->addCompilerPass(new PaginationPass());
+    }
 }
