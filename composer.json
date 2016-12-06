@@ -4,35 +4,35 @@
   "license": "MIT",
   "autoload": {
     "psr-4": {
-      "Mindy\\Orm\\": "src/"
-    }
+      "Mindy\\Orm\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
   },
   "autoload-dev": {
     "files": [
       "test/functions.php"
     ],
     "psr-4": {
-      "Mindy\\Tests\\": "test/",
-      "Modules\\Tests\\Models\\": "test/app/Models"
+      "Modules\\Tests\\Models\\": "Tests/app/Models"
     }
   },
   "require": {
-    "php": ">=7.0",
+    "php": ">=5.5.9",
     "imagine/imagine": "*",
-    "doctrine/dbal": "^2.5",
-    "mindy/creator": "^1.0",
-    "symfony/validator": "^3.1",
+    "doctrine/dbal": "~2.0",
+    "symfony/validator": "~3.0",
     "mindy/query_builder": "^2.0",
-    "cocur/slugify": "^2.3",
-    "league/flysystem": "^1.0",
-    "mindy/validation": "^2.0"
+    "cocur/slugify": "~2.0",
+    "league/flysystem": "~1.0",
+    "mindy/validation": "~2.0"
   },
   "authors": [
     {
       "name": "Maxim Falaleev",
       "email": "max@studio107.ru",
-      "homepage": "http://studio107.ru",
-      "role": "Developer"
+      "homepage": "http://studio107.ru"
     }
   ],
   "support": {

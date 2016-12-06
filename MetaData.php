@@ -1,13 +1,8 @@
 <?php
 
-declare(strict_types = 1);
-
 namespace Mindy\Orm;
 
-use Mindy\Creator\Creator;
 use Mindy\Orm\Fields\AutoField;
-use Mindy\Orm\Fields\Field;
-use Mindy\Orm\Fields\FileField;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
@@ -68,7 +63,9 @@ class MetaData
         }
 
         if (is_array($config)) {
-            $field = Creator::createObject($config);
+            $className = $config['class'];
+            unset($config['class']);
+            $field = (new ReflectionClass($className))->newInstanceArgs($config);
         } else {
             $field = $config;
         }

@@ -6,7 +6,6 @@ use ArrayAccess;
 use Doctrine\DBAL\Connection;
 use Exception;
 use IteratorAggregate;
-use Mindy\Creator\Creator;
 use Mindy\Orm\Callback\FetchColumnCallback;
 use Mindy\Orm\Callback\JoinCallback;
 use Mindy\Orm\Callback\LookupCallback;
@@ -278,8 +277,7 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
      */
     public function serialize()
     {
-        $props = Creator::getObjectVars($this);
-        return serialize($props);
+        return serialize(get_object_vars($this));
     }
 
     /**
@@ -294,6 +292,10 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
     public function unserialize($data)
     {
         $props = unserialize($data);
-        Creator::configure($this, $props);
+        foreach ($props as $key => $value) {
+            if (property_exists($this, $key)) {
+                $this->{$key} = $value;
+            }
+        }
     }
 }

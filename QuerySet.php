@@ -2,11 +2,7 @@
 
 namespace Mindy\Orm;
 
-use Mindy\Exception\Exception;
-use Mindy\Creator\Creator;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
-use Mindy\Orm\Fields\ForeignField;
-use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\QueryBuilder\Aggregation\Aggregation;
 use Mindy\QueryBuilder\Aggregation\Avg;
 use Mindy\QueryBuilder\Aggregation\Count;
