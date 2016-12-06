@@ -46,5 +46,6 @@ class BundleTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->container->has('pagination.data_source.array'));
         $this->assertTrue($this->container->has('pagination.data_source.query_set'));
         $this->assertTrue($this->container->has('pagination.handler'));
+        $this->assertTrue($this->container->has('pagination.template_library'));
     }
 }

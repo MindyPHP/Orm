@@ -8,10 +8,8 @@
         <service id="pagination.factory" class="Mindy\Bundle\PaginationFactory"/>
 
         <service id="pagination.handler" class="Mindy\Bundle\Handler\RequestPaginationHandler">
-            <argument type="collection">
-                <argument type="service" id="request_stack"/>
-                <argument type="service" id="router"/>
-            </argument>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="router"/>
         </service>
 
         <service id="pagination.data_source.array" class="Mindy\Component\Pagination\DataSource\ArrayDataSource">
@@ -20,6 +18,11 @@
 
         <service id="pagination.data_source.query_set" class="Mindy\Component\Pagination\DataSource\QuerySetDataSource">
             <tag name="pagination.data_source"/>
+        </service>
+
+        <service id="pagination.template_library" class="Mindy\Bundle\PaginationBundle\Library\PaginationLibrary">
+            <argument type="service" id="template"/>
+            <tag name="template.library"/>
         </service>
     </services>
 </container>

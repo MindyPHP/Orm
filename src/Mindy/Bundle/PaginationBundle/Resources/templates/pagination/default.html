@@ -1,0 +1,49 @@
+<div class="b-pager">
+    <ul class="b-pager__list">
+        {% if pager.getPagesCount() > 1 %}
+            <li class="prev">
+                {% if pager.hasPrevPage() %}
+                    <a href="{{ pager.getUrl(pager.currentPage - 1) }}">&larr;</a>
+                {% else %}
+                    <span class="prev">&larr;</span>
+                {% endif %}
+            </li>
+
+            {% if pager.hasPrevPage() %}
+                {% for page in pager.iterPrevPage() %}
+                    <li>
+                        <a href="{{ pager.getUrl(page) }}">{{ page }}</a>
+                    </li>
+                {% endfor %}
+            {% endif %}
+
+            <li>
+                <span class="current">{{ pager.getCurrentPage() }}</span>
+            </li>
+
+            {% if pager.hasNextPage() %}
+                {% for page in pager.iterNextPage() %}
+                    <li>
+                        <a href="{{ pager.getUrl(page) }}">{{ page }}</a>
+                    </li>
+                {% endfor %}
+            {% endif %}
+
+            <li class="next">
+                {% if pager.hasNextPage %}
+                    <a href="{{ pager.getUrl(pager.currentPage+1) }}">&rarr;</a>
+                {% else %}
+                    <span class="next">&rarr;</span>
+                {% endif %}
+            </li>
+        {% endif %}
+    </ul>
+
+    {% if pager.getPagesCount() > 1 %}
+        <div class="b-pager__total">Всего: {{ pager.getTotal() }}</div>
+
+        <div class="b-pager__size">
+            {% include "core/pager/sizes.html" %}
+        </div>
+    {% endif %}
+</div>
