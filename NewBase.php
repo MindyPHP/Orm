@@ -11,7 +11,7 @@ namespace Mindy\Orm;
 use Doctrine\DBAL\Connection;
 use Exception;
 use ArrayAccess;
-use function Mindy\app;
+use Mindy\Component\Application\App;
 use Mindy\Orm\Fields\AutoField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
@@ -264,18 +264,8 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
      */
     public function setAttributes(array $attributes)
     {
-//        $meta = self::getMeta();
-//        $platform = $this->getConnection()->getDatabasePlatform();
         foreach ($attributes as $name => $value) {
             $this->setAttribute($name, $value);
-
-//            if ($field = $this->getField($meta->getMappingName($name))) {
-//                if ($field->getSqlType()) {
-//                    $this->setAttribute($name, $field->convertToDatabaseValueSQL($value, $platform));
-//                } else {
-//                    $this->related[$name] = $value;
-//                }
-//            }
         }
     }
 
@@ -706,7 +696,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
     public function getConnection() : Connection
     {
         if ($this->connection === null) {
-            $app = app();
+            $app = App::getInstance();
 
             $connection = $app->db->getConnection($this->using);
             if (($connection instanceof Connection) === false) {

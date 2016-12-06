@@ -65,7 +65,7 @@ class MetaData
         if (is_array($config)) {
             $className = $config['class'];
             unset($config['class']);
-            $field = (new ReflectionClass($className))->newInstanceArgs($config);
+            $field = (new ReflectionClass($className))->newInstance($config);
         } else {
             $field = $config;
         }
