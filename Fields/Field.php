@@ -256,10 +256,6 @@ abstract class Field implements ModelFieldInterface
      */
     public function isRequired()
     {
-        if ($this->autoFetch) {
-            return false;
-        }
-
         return $this->null === false && is_null($this->default) === true;
     }
 
