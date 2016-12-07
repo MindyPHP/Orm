@@ -8,9 +8,9 @@
 
 namespace Mindy\Orm\Tests\Models;
 
-use Mindy\Orm\NewBase;
+use Mindy\Orm\Base;
 
-class DummyModel extends NewBase
+class DummyModel extends Base
 {
     public function update(array $fields = []) : bool
     {

@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class DateTimeField extends DateField
 {
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function getSqlType()
     {
@@ -20,25 +20,17 @@ class DateTimeField extends DateField
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
-    public function getValidationConstraints() : array
+    public function getValidationConstraints()
     {
-        $constraints = [];
+        $constraints = [
+            new Assert\DateTime()
+        ];
         if ($this->isRequired()) {
             $constraints[] = new Assert\NotBlank();
-            $constraints[] = new Assert\DateTime();
         }
 
         return $constraints;
-    }
-
-    /**
-     * @param string $fieldClass
-     * @return false|null|string
-     */
-    public function getFormField($fieldClass = '\Mindy\Form\Fields\DateTimeField')
-    {
-        return parent::getFormField($fieldClass);
     }
 }

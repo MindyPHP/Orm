@@ -17,4 +17,9 @@ class FloatField extends Field
     {
         return Type::getType(Type::FLOAT);
     }
+
+    public function getValue()
+    {
+        return floatval(parent::getValue());
+    }
 }

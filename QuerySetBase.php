@@ -32,10 +32,6 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
      */
     protected $connection;
     /**
-     * @var string
-     */
-    protected $using;
-    /**
      * @var DataIterator
      */
     private $_iterator;
@@ -56,7 +52,7 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
      * QuerySetBase constructor.
      * @param array $config
      */
-    public function __construct(array $config)
+    public function __construct(array $config = [])
     {
         foreach ($config as $key => $value) {
             if (property_exists($this, $key)) {
@@ -93,12 +89,12 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
     }
 
     /**
-     * @param string|\Doctrine\Dbal\Connection $connection
+     * @param \Doctrine\Dbal\Connection $connection
      * @return $this
      */
-    public function using($connection)
+    public function setConnection(Connection $connection)
     {
-        $this->using = $connection;
+        $this->connection = $connection;
         return $this;
     }
 

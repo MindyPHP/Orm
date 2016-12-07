@@ -230,17 +230,6 @@ abstract class Field implements ModelFieldInterface
         return $this;
     }
 
-    /**
-     * @return int|mixed|null|string
-     */
-    public function getDbValue()
-    {
-        if (empty($this->dbValue)) {
-            return $this->null === true ? null : $this->default;
-        }
-        return $this->dbValue;
-    }
-
     public function cleanValue()
     {
         $this->value = null;

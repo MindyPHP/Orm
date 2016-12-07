@@ -55,7 +55,7 @@ class OrmDatabaseTestCase extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('pdo_' . $this->driver . ' ext required');
         }
 
-        if ($this->driver != 'sqlite') {
+        if ($this->driver != 'mysql') {
             $this->markTestSkipped('TODO');
         }
 

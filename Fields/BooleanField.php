@@ -19,18 +19,9 @@ class BooleanField extends Field
     /**
      * @return array
      */
-    public function getValidationConstraints() : array
+    public function getValidationConstraints()
     {
         return $this->validators;
-    }
-
-    /**
-     * @param string $fieldClass
-     * @return false|null|string
-     */
-    public function getFormField($fieldClass = '\Mindy\Form\Fields\CheckboxField')
-    {
-        return parent::getFormField($fieldClass);
     }
 
     /**
@@ -44,18 +35,26 @@ class BooleanField extends Field
     /**
      * @return array
      */
-    public function getSqlOptions() : array
+    public function getSqlOptions()
     {
-        $options = parent::getSqlOptions();
-        $options['default'] = $this->default;
-        return $options;
+        return array_merge(parent::getSqlOptions(), [
+            'default' => $this->default
+        ]);
     }
 
     /**
-     * @param $value
+     * {@inheritdoc}
      */
     public function setValue($value)
     {
         parent::setValue((bool)$value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getValue()
+    {
+        return (bool)parent::getValue();
     }
 }

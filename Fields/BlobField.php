@@ -1,6 +1,7 @@
 <?php
 
 namespace Mindy\Orm\Fields;
+
 use Doctrine\DBAL\Types\Type;
 
 /**

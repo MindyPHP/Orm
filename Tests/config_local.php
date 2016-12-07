@@ -9,8 +9,8 @@ return [
         'driver' => 'pdo_mysql',
     ],
     'sqlite' => [
-        // 'memory' => true,
-        'path' => __DIR__ . '/sqlite.db',
+         'memory' => true,
+//        'path' => __DIR__ . '/sqlite.db',
         'driver' => 'pdo_sqlite',
         'driverClass' => 'Mindy\QueryBuilder\Driver\SqliteDriver',
     ],

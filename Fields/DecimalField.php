@@ -10,12 +10,11 @@ use Doctrine\DBAL\Types\Type;
 class DecimalField extends Field
 {
     /**
-     * number of digits in integer or to the left of the decimal point
-     * @var int
+     * @var int Number of digits in integer or to the left of the decimal point
      */
     public $precision = 10;
     /**
-     * @var int number of digits to the right of the decimal point
+     * @var int Number of digits to the right of the decimal point
      */
     public $scale = 2;
 
@@ -30,7 +29,7 @@ class DecimalField extends Field
     /**
      * @return array
      */
-    public function getSqlOptions() : array
+    public function getSqlOptions()
     {
         return array_merge(parent::getSqlOptions(), [
             'precision' => $this->precision,

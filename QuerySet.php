@@ -256,8 +256,12 @@ class QuerySet extends QuerySetBase
         return [$model, $alias, $prefixRemains, $chainRemains];
     }
 
-    public function with(array $with)
+    public function with($with)
     {
+        if (!is_array($with)) {
+            $with = [$with];
+        }
+
         foreach ($with as $name => $fields) {
             if (is_numeric($name)) {
                 $name = $fields;

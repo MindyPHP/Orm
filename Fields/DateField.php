@@ -6,7 +6,6 @@ use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Mindy\Orm\ModelInterface;
-use Mindy\QueryBuilder\QueryBuilder;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -19,13 +18,14 @@ class DateField extends Field
      * @var bool
      */
     public $autoNowAdd = false;
+
     /**
      * @var bool
      */
     public $autoNow = false;
 
     /**
-     * @return Type
+     * {@inheritdoc}
      */
     public function getSqlType()
     {
@@ -33,19 +33,23 @@ class DateField extends Field
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
-    public function getValidationConstraints() : array
+    public function getValidationConstraints()
     {
-        $constraints = [];
+        $constraints = [
+            new Assert\Date()
+        ];
         if ($this->isRequired()) {
             $constraints[] = new Assert\NotBlank();
-            $constraints[] = new Assert\Date();
         }
 
         return $constraints;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function isRequired()
     {
         if ($this->autoNow || $this->autoNowAdd) {
@@ -54,6 +58,9 @@ class DateField extends Field
         return parent::isRequired();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function beforeInsert(ModelInterface $model, $value)
     {
         if (($this->autoNow || $this->autoNowAdd) && $model->getIsNewRecord()) {
@@ -61,6 +68,9 @@ class DateField extends Field
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function beforeUpdate(ModelInterface $model, $value)
     {
         if ($this->autoNow && $model->getIsNewRecord() === false) {
@@ -68,25 +78,17 @@ class DateField extends Field
         }
     }
 
-    public function getValue()
-    {
-        $adapter = QueryBuilder::getInstance($this->getModel()->getConnection())->getAdapter();
-        return $adapter->getDate($this->value);
-    }
-
     /**
-     * @param string $fieldClass
-     * @return false|null|string
+     * {@inheritdoc}
      */
-    public function getFormField($fieldClass = '\Mindy\Form\Fields\DateField')
-    {
-        return parent::getFormField($fieldClass);
-    }
+//    public function getValue()
+//    {
+//        $adapter = QueryBuilder::getInstance($this->getModel()->getConnection())->getAdapter();
+//        return $adapter->getDate($this->value);
+//    }
 
     /**
-     * @param $value
-     * @param AbstractPlatform $platform
-     * @return mixed
+     * {@inheritdoc}
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {

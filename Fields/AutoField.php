@@ -24,7 +24,7 @@ class AutoField extends BigIntField
     /**
      * @return array
      */
-    public function getSqlOptions() : array
+    public function getSqlOptions()
     {
         return [
             'autoincrement' => true,

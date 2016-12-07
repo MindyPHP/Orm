@@ -127,15 +127,6 @@ class HasManyField extends RelatedField
         */
     }
 
-    /**
-     * @param string $fieldClass
-     * @return false|null|string
-     */
-    public function getFormField($fieldClass = '\Mindy\Form\Fields\SelectField')
-    {
-        return parent::getFormField($fieldClass);
-    }
-
     public function getSelectJoin(QueryBuilder $qb, $topAlias)
     {
         // TODO: Implement getSelectJoin() method.

@@ -2,15 +2,11 @@
 
 namespace Mindy\Orm;
 
-use ArrayAccess;
-use IteratorAggregate;
-use Traversable;
-
 /**
  * Class Manager
  * @package Mindy\Orm
  */
-class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAccess, ManagerInterface
+class Manager extends ManyToManyManager
 {
     /**
      * @param string|array $value
@@ -18,60 +14,16 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
      */
     public function with($value)
     {
-        if (!is_array($value)) {
-            $value = [$value];
-        }
         $this->getQuerySet()->with($value);
         return $this;
     }
 
     /**
-     * @param bool $value
-     * @return $this
+     * {@inheritdoc}
      */
     public function asArray($value = true)
     {
         $this->getQuerySet()->asArray($value);
-        return $this;
-    }
-
-    /**
-     * @param string|\Doctrine\Dbal\Connection $connection
-     * @return $this
-     */
-    public function using($connection)
-    {
-        $this->getQuerySet()->using($connection);
-        return $this;
-    }
-
-    /**
-     * @param $conditions
-     * @return Manager|ManagerInterface
-     */
-    public function filter($conditions)
-    {
-        $this->getQuerySet()->filter($conditions);
-        return $this;
-    }
-
-    /**
-     * @param array $q
-     * @return \Mindy\Orm\Manager
-     */
-    public function orFilter(array $q)
-    {
-        $this->getQuerySet()->orFilter($q);
-        return $this;
-    }
-
-    /**
-     * @param array $q
-     * @return \Mindy\Orm\Manager
-     */
-    public function orExclude(array $q)
-    {
-        $this->getQuerySet()->orExclude($q);
         return $this;
     }
 
@@ -87,23 +39,11 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
     }
 
     /**
-     * @param array $q
-     * @return \Mindy\Orm\Manager
-     */
-    public function exclude(array $q)
-    {
-        $this->getQuerySet()->exclude($q);
-        return $this;
-    }
-
-    /**
-     * @param $conditions
-     * @return ModelInterface|array|null
+     * {@inheritdoc}
      */
     public function get($conditions = [])
     {
-        $this->filter($conditions);
-        return $this->getQuerySet()->get();
+        return $this->getQuerySet()->get($conditions);
     }
 
     /**
@@ -112,43 +52,7 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
      */
     public function getSql(array $q = [])
     {
-        $this->filter($q);
-        return $this->getQuerySet()->getSql();
-    }
-
-    /**
-     * @return array
-     */
-    public function all()
-    {
-        return $this->getQuerySet()->all();
-    }
-
-    /**
-     * @param int $batchSize
-     * @return \Mindy\Orm\BatchDataIterator
-     */
-    public function batch($batchSize = 100)
-    {
-        return $this->getQuerySet()->batch($batchSize);
-    }
-
-    /**
-     * @param int $batchSize
-     * @return \Mindy\Orm\BatchDataIterator
-     */
-    public function each($batchSize = 100)
-    {
-        return $this->getQuerySet()->each($batchSize);
-    }
-
-    /**
-     * @param string $q
-     * @return string|int|float
-     */
-    public function count($q = '*')
-    {
-        return $this->getQuerySet()->count($q);
+        return $this->filter($q)->getQuerySet()->getSql();
     }
 
     /**
@@ -178,49 +82,7 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
     }
 
     /**
-     * @param $columns
-     * @return $this
-     */
-    public function order($columns)
-    {
-        $this->getQuerySet()->order($columns);
-        return $this;
-    }
-
-    /**
-     * @param $page
-     * @param int $pageSize
-     * @return array
-     */
-    public function paginate($page, $pageSize = 10)
-    {
-        $this->getQuerySet()->paginate($page, $pageSize);
-        return $this;
-    }
-
-    /**
-     * @param $limit
-     * @return static
-     */
-    public function limit($limit)
-    {
-        $this->getQuerySet()->limit($limit);
-        return $this;
-    }
-
-    /**
-     * @param $offset int
-     * @return static
-     */
-    public function offset($offset)
-    {
-        $this->getQuerySet()->offset($offset);
-        return $this;
-    }
-
-    /**
-     * @param $q
-     * @return int
+     * {@inheritdoc}
      */
     public function average($q)
     {
@@ -229,7 +91,7 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
 
     /**
      * @param $q
-     * @return int
+     * @return string
      */
     public function averageSql($q)
     {
@@ -237,8 +99,7 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
     }
 
     /**
-     * @param $q
-     * @return int
+     * {@inheritdoc}
      */
     public function min($q)
     {
@@ -247,7 +108,7 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
 
     /**
      * @param $q
-     * @return int
+     * @return string
      */
     public function minSql($q)
     {
@@ -255,8 +116,7 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
     }
 
     /**
-     * @param $q
-     * @return int
+     * {@inheritdoc}
      */
     public function max($q)
     {
@@ -265,7 +125,7 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
 
     /**
      * @param $q
-     * @return int
+     * @return string
      */
     public function maxSql($q)
     {
@@ -273,8 +133,7 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
     }
 
     /**
-     * @param $q
-     * @return int
+     * {@inheritdoc}
      */
     public function sum($q)
     {
@@ -283,7 +142,7 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
 
     /**
      * @param $q
-     * @return int
+     * @return string
      */
     public function sumSql($q)
     {
@@ -354,80 +213,6 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
         return $model->save();
     }
 
-    /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Retrieve an external iterator
-     * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
-     * @return Traversable An instance of an object implementing <b>Iterator</b> or
-     * <b>Traversable</b>
-     */
-    public function getIterator()
-    {
-        return $this->getQuerySet()->getIterator();
-    }
-
-    /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Whether a offset exists
-     * @link http://php.net/manual/en/arrayaccess.offsetexists.php
-     * @param mixed $offset <p>
-     * An offset to check for.
-     * </p>
-     * @return boolean true on success or false on failure.
-     * </p>
-     * <p>
-     * The return value will be casted to boolean if non-boolean was returned.
-     */
-    public function offsetExists($offset)
-    {
-        return $this->getQuerySet()->offsetExists($offset);
-    }
-
-    /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Offset to retrieve
-     * @link http://php.net/manual/en/arrayaccess.offsetget.php
-     * @param mixed $offset <p>
-     * The offset to retrieve.
-     * </p>
-     * @return mixed Can return all value types.
-     */
-    public function offsetGet($offset)
-    {
-        return $this->getQuerySet()->offsetGet($offset);
-    }
-
-    /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Offset to set
-     * @link http://php.net/manual/en/arrayaccess.offsetset.php
-     * @param mixed $offset <p>
-     * The offset to assign the value to.
-     * </p>
-     * @param mixed $value <p>
-     * The value to set.
-     * </p>
-     * @return void
-     */
-    public function offsetSet($offset, $value)
-    {
-        $this->getQuerySet()->offsetSet($offset, $value);
-    }
-
-    /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Offset to unset
-     * @link http://php.net/manual/en/arrayaccess.offsetunset.php
-     * @param mixed $offset <p>
-     * The offset to unset.
-     * </p>
-     * @return void
-     */
-    public function offsetUnset($offset)
-    {
-        $this->getQuerySet()->offsetUnset($offset);
-    }
-
     public function addGroupBy($column)
     {
         $this->getQuerySet()->addGroupBy($column);
@@ -439,14 +224,21 @@ class Manager extends ManyToManyManager implements IteratorAggregate, ArrayAcces
         return $this->getQuerySet()->truncate();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function distinct($fields = true)
     {
         return $this->getQuerySet()->distinct($fields);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function group($fields)
     {
-        return $this->getQuerySet()->group($fields);
+        $this->getQuerySet()->group($fields);
+        return $this;
     }
 
     public function getTableAlias()

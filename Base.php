@@ -22,7 +22,7 @@ use Serializable;
  * @package Mindy\Orm
  * @method static \Mindy\Orm\Manager objects($instance = null)
  */
-abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
+abstract class Base implements ModelInterface, ArrayAccess, Serializable
 {
     /**
      * @var bool

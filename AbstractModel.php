@@ -18,7 +18,7 @@ use Mindy\QueryBuilder\QueryBuilder;
  * Class NewOrm
  * @package Mindy\Orm
  */
-class AbstractModel extends NewBase
+class AbstractModel extends Base
 {
     /**
      * @return QueryBuilder

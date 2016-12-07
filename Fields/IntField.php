@@ -28,7 +28,7 @@ class IntField extends Field
         return Type::getType(Type::INTEGER);
     }
 
-    public function getSqlOptions() : array
+    public function getSqlOptions()
     {
         $options = parent::getSqlOptions();
         if ($this->primary) {
@@ -45,18 +45,6 @@ class IntField extends Field
     public function setValue($value)
     {
         parent::setValue($this->null ? $value : (int)$value);
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getDbValue()
-    {
-        $value = parent::getDbValue();
-        if ($this->null === true) {
-            return $value;
-        }
-        return (int)$value;
     }
 
     public function convertToPHPValue($value, AbstractPlatform $platform)

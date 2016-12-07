@@ -53,30 +53,6 @@ class ForeignField extends RelatedField
     }
 
     /**
-     * @param string $fieldClass
-     * @return false|null|string
-     */
-    public function getFormField($fieldClass = '\Mindy\Form\Fields\DropDownField')
-    {
-        $data = parent::getFormField($fieldClass);
-
-        if ($data) {
-            $choices = [];
-
-            if (false == $this->isRequired()) {
-                $choices[] = ['' => ''];
-            }
-
-            foreach ($this->getManager()->all() as $model) {
-                $choices[$model->pk] = (string)$model;
-            }
-            $data['choices'] = $choices;
-        }
-
-        return $data;
-    }
-
-    /**
      * @param $value
      * @return \Mindy\Orm\Model|\Mindy\Orm\TreeModel|null
      * @throws Exception

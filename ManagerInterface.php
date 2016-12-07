@@ -8,22 +8,19 @@
 
 namespace Mindy\Orm;
 
-interface ManagerInterface
+/**
+ * Interface ManagerInterface
+ * @package Mindy\Orm
+ */
+interface ManagerInterface extends QuerySetInterface
 {
     /**
-     * @param $conditions
-     * @return mixed
+     * @return ModelInterface
      */
-    public function get($conditions = []);
+    public function getModel();
 
     /**
-     * @param array $conditions
-     * @return ManagerInterface
+     * @return \Mindy\Orm\QuerySet
      */
-    public function filter($conditions);
-
-    /**
-     * @return array
-     */
-    public function all();
+    public function getQuerySet();
 }

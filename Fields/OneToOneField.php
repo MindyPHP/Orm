@@ -51,7 +51,7 @@ class OneToOneField extends ForeignField
         }
     }
 
-    public function getValidationConstraints() : array
+    public function getValidationConstraints()
     {
         if ($this->primary) {
             $constraints = [
@@ -98,7 +98,7 @@ class OneToOneField extends ForeignField
         ]);
     }
 
-    public function getSqlIndexes() : array
+    public function getSqlIndexes()
     {
         $indexes = [];
         $name = $this->primary ? $this->name . '_id' : $this->name;
