@@ -32,7 +32,7 @@ class Issue extends Model
         ];
     }
 
-    public static function tableName() : string
+    public static function tableName()
     {
         return "issue";
     }

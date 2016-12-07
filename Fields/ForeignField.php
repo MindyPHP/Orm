@@ -92,7 +92,7 @@ class ForeignField extends RelatedField
     /**
      * @return string
      */
-    public function getAttributeName() : string
+    public function getAttributeName()
     {
         return $this->name . '_id';
     }

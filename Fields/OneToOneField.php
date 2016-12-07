@@ -113,7 +113,7 @@ class OneToOneField extends ForeignField
     /**
      * @return string
      */
-    public function getAttributeName() : string
+    public function getAttributeName()
     {
         if ($this->primary) {
             $primaryKeyName = call_user_func([$this->modelClass, 'getPrimaryKeyName']);

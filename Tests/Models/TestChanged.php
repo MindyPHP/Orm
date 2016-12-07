@@ -17,14 +17,14 @@ class TestChanged extends Model
     {
         return [
             'name' => [
-                'class' => CharField::className(),
+                'class' => CharField::class,
                 'length' => 50,
                 'verboseName' => "Name"
             ]
         ];
     }
 
-    public static function tableName() : string
+    public static function tableName()
     {
         return "tests_test_changed";
     }

@@ -43,7 +43,7 @@ class MyModel extends Model
             // Ключ - название поля при обращении к модели
             'name' => [
                 // Тип поля
-                'class' => CharField::className(),
+                'class' => CharField::class,
                 // Длинна поля
                 'length' => 100,
                 // NULL|NOT NULL
@@ -64,22 +64,22 @@ class MyModel extends Model
                 ]
             ],
             'price' => [
-                'class' => CharField::className(),
+                'class' => CharField::class,
                 // Значение по умолчанию
                 'default' => 0
             ],
             'description' => [
-                'class' => TextField::className(),
+                'class' => TextField::class,
                 'default' => ''
             ],
             'category' => [
-                'class' => ForeignField::className(),
-                'modelClass' => Category::className(),
+                'class' => ForeignField::class,
+                'modelClass' => Category::class,
                 'null' => true
             ],
             'lists' => [
-                'class' => ManyToManyField::className(),
-                'modelClass' => ProductList::className()
+                'class' => ManyToManyField::class,
+                'modelClass' => ProductList::class
             ]
         ];
     }
@@ -182,10 +182,10 @@ class User extends Model
     public function getFields()
     {
         'name' => [
-            'class' => CharField::className(),
+            'class' => CharField::class,
         ],
         'status' => [
-            'class' => BooleanField::className(),
+            'class' => BooleanField::class,
             'default' => false
         ]
     }

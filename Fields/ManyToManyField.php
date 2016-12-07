@@ -127,7 +127,7 @@ class ManyToManyField extends RelatedField
     /**
      * @return string PK name of model
      */
-    public function getModelPk() : string
+    public function getModelPk()
     {
         if (!$this->_modelPk) {
             $this->_modelPk = MetaData::getInstance($this->ownerClassName)->getPrimaryKeyName();

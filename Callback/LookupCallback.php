@@ -46,24 +46,29 @@ class LookupCallback
             $prevField = null;
         }
 
+        $prevThrough = false;
         foreach ($lookupNodes as $i => $node) {
-            if ($node == 'through' && $prevField instanceof ManyToManyField) {
 
-                $joinAlias = $prevField
-                    ->setConnection($connection)
-                    ->buildThroughQuery($queryBuilder, $queryBuilder->getAlias());
-
-            } else if ($prevField instanceof RelatedField) {
-
+            if ($prevField instanceof RelatedField) {
                 $relatedModel = $prevField->getRelatedModel();
 
-                /** @var \Mindy\Orm\Fields\RelatedField $field */
-                $joinAlias = $prevField
-                    ->setConnection($connection)
-                    ->buildQuery($queryBuilder, $joinAlias);
+                if ($node == 'through') {
+                    $prevThrough = true;
+                } else {
+                    /** @var \Mindy\Orm\Fields\RelatedField $prevField */
+                    if ($prevThrough && $prevField instanceof ManyToManyField) {
+                        $joinAlias = $prevField
+                            ->setConnection($connection)
+                            ->buildThroughQuery($queryBuilder, $queryBuilder->getAlias());
+                    } else {
+                        $joinAlias = $prevField
+                            ->setConnection($connection)
+                            ->buildQuery($queryBuilder, $joinAlias);
+                    }
 
-                if (($nextField = $relatedModel->getField($node)) instanceof RelatedField) {
-                    $prevField = $nextField;
+                    if (($nextField = $relatedModel->getField($node)) instanceof RelatedField) {
+                        $prevField = $nextField;
+                    }
                 }
             }
 

@@ -120,7 +120,7 @@ WHERE ([[customer_1]].[[address]] LIKE @%test%@)", $sql);
 
         $qs = User::objects()->filter([
             'addresses__address__contains' => 'test',
-            'user__groups__pk' => '1'
+            'groups__pk' => '1'
         ]);
         $sql = $qs->allSql();
         $this->assertSql(
