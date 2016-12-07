@@ -58,6 +58,7 @@ class MetaData
      */
     private function createField($config)
     {
+        /** @var $field ModelFieldInterface */
         if (is_string($config)) {
             $config = ['class' => $config];
         }
@@ -66,7 +67,7 @@ class MetaData
             $className = $config['class'];
             unset($config['class']);
             $field = (new ReflectionClass($className))->newInstance($config);
-        } else {
+        } else if (is_object($config)) {
             $field = $config;
         }
 
