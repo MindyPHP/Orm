@@ -38,6 +38,7 @@ class LookupCallback
         $joinAlias = $queryBuilder->getAlias();
 
         $ownerModel = $this->model;
+        $connection = $ownerModel->getConnection();
 
         reset($lookupNodes);
         $prevField = $ownerModel->getField(current($lookupNodes));
@@ -46,11 +47,10 @@ class LookupCallback
         }
 
         foreach ($lookupNodes as $i => $node) {
-
-            if ($node == 'through' && $prevField && $prevField instanceof ManyToManyField) {
+            if ($node == 'through' && $prevField instanceof ManyToManyField) {
 
                 $joinAlias = $prevField
-                    ->setConnection($ownerModel->getConnection())
+                    ->setConnection($connection)
                     ->buildThroughQuery($queryBuilder, $queryBuilder->getAlias());
 
             } else if ($prevField instanceof RelatedField) {
@@ -59,13 +59,12 @@ class LookupCallback
 
                 /** @var \Mindy\Orm\Fields\RelatedField $field */
                 $joinAlias = $prevField
-                    ->setConnection($relatedModel->getConnection())
+                    ->setConnection($connection)
                     ->buildQuery($queryBuilder, $joinAlias);
 
                 if (($nextField = $relatedModel->getField($node)) instanceof RelatedField) {
                     $prevField = $nextField;
                 }
-
             }
 
             if (count($lookupNodes) == $i + 1) {

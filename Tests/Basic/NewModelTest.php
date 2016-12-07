@@ -162,16 +162,14 @@ class NewModelTest extends OrmDatabaseTestCase
 
     public function testTableName()
     {
-        $this->assertSame('new_orm', AbstractModel::tableName());
+        $this->assertSame('abstract_model', AbstractModel::tableName());
         $this->assertSame('new_model', NewModel::tableName());
         $this->assertSame('composite_model', CompositeModel::tableName());
     }
 
     public function testConnection()
     {
-        $model = new User();
-        $connection = $model->getConnection();
-        $this->assertInstanceOf(Connection::class, $connection);
+        $this->assertInstanceOf(Connection::class, (new User())->getConnection());
     }
 
     public function testChangedAttributes()

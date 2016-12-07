@@ -14,11 +14,8 @@
 
 namespace Mindy\Orm\Tests\Models;
 
-
 use Mindy\Orm\Fields\CharField;
-use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\ManyToManyField;
-use Mindy\Orm\Fields\TextField;
 use Mindy\Orm\Model;
 
 /**

@@ -42,7 +42,7 @@ class Solution extends Model
                 'class' => CharField::class,
             ],
             'document' => [
-                'class' => FileField::class,
+                'class' => CharField::class,
                 'null' => true
             ],
             'content' => [

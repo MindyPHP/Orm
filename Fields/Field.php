@@ -134,7 +134,7 @@ abstract class Field implements ModelFieldInterface
     /**
      * @return array
      */
-    public function getSqlIndexes() : array
+    public function getSqlIndexes()
     {
         $indexes = [];
         if ($this->unique && $this->primary === false) {
@@ -146,7 +146,7 @@ abstract class Field implements ModelFieldInterface
     /**
      * @return array
      */
-    public function getSqlOptions() : array
+    public function getSqlOptions()
     {
         $options = [];
 
@@ -267,7 +267,7 @@ abstract class Field implements ModelFieldInterface
      * @param $name
      * @return $this
      */
-    public function setName(string $name)
+    public function setName($name)
     {
         $this->name = $name;
         return $this;
@@ -339,34 +339,6 @@ abstract class Field implements ModelFieldInterface
     public function beforeDelete(ModelInterface $model, $value)
     {
 
-    }
-
-    /**
-     * @param null $fieldClass
-     * @return null|string|false
-     */
-    public function getFormField($fieldClass = null)
-    {
-        if ($this->primary || $this->editable === false) {
-            return null;
-        }
-
-        if ($fieldClass === null) {
-            $fieldClass = $this->choices ? \Mindy\Form\Fields\SelectField::class : \Mindy\Form\Fields\TextField::class;
-        } elseif ($fieldClass === false) {
-            return null;
-        }
-
-        return [
-            'validators' => $this->getValidationConstraints(),
-            'class' => $fieldClass,
-            'required' => $this->isRequired(),
-            'choices' => $this->choices,
-            'name' => $this->name,
-            'label' => $this->verboseName,
-            'hint' => $this->helpText,
-            'value' => $this->default ? $this->default : null
-        ];
     }
 
     public function toArray()

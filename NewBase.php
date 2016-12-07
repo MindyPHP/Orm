@@ -189,12 +189,12 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
 
                 $platform = $this->getConnection()->getDatabasePlatform();
                 $value = $field->convertToDatabaseValueSQL($value, $platform);
-                if (in_array($attributeName, $primaryKeyNames)) {
-                    if ($this->getIsNewRecord()) {
-                        $this->setIsNewRecord(false);
-                    } else if ($this->getAttribute($attributeName) !== $value) {
-                        $this->setIsNewRecord(true);
-                    }
+                if (
+                    in_array($attributeName, $primaryKeyNames) &&
+                    false === $this->getIsNewRecord() &&
+                    $this->getAttribute($attributeName) !== $value
+                ) {
+                    $this->setIsNewRecord(true);
                 }
 
                 $this->attributes->setAttribute($attributeName, $value);
@@ -634,7 +634,7 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
         return end($classMap);
         */
 
-        return self::getShortName();
+        return (new \ReflectionClass(get_called_class()))->getShortName();
     }
 
     /**
@@ -654,7 +654,8 @@ abstract class NewBase implements ModelInterface, ArrayAccess, Serializable
         $classMap = explode('\\', get_called_class());
         return self::normalizeTableName(end($classMap));
         */
-        return self::normalizeTableName(self::getShortName());
+        $shortName = (new \ReflectionClass(get_called_class()))->getShortName();
+        return self::normalizeTableName($shortName);
     }
 
     /**

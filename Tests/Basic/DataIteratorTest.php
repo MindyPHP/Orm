@@ -19,6 +19,8 @@ use Mindy\Orm\Tests\Models\BookCategory;
 
 class DataIteratorTest extends OrmDatabaseTestCase
 {
+    public $driver = 'mysql';
+
     public function getModels()
     {
         return [
@@ -30,8 +32,14 @@ class DataIteratorTest extends OrmDatabaseTestCase
     {
         foreach (range(1, 5) as $i) {
             $model = new BookCategory(['id' => $i]);
+            $this->assertEquals($i, $model->id);
+            $this->assertTrue($model->isValid());
             $this->assertTrue($model->save());
+            $this->assertEquals($i, BookCategory::objects()->count());
+            $this->assertEquals($i, $model->id);
         }
+
+        $this->assertEquals(5, BookCategory::objects()->count());
 
         $qs = BookCategory::objects()->filter(['id__gt' => 0]);
         $this->assertEquals(1, $qs[0]->pk);
