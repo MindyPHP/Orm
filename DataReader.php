@@ -218,7 +218,7 @@ class DataReader implements Iterator, Countable
     /**
      * Resets the iterator to the initial state.
      * This method is required by the interface Iterator.
-     * @throws InvalidCallException if this method is invoked twice
+     * @throws \LogicException if this method is invoked twice
      */
     public function rewind()
     {
@@ -226,7 +226,7 @@ class DataReader implements Iterator, Countable
             $this->_row = $this->_statement->fetch();
             $this->_index = 0;
         } else {
-            throw new InvalidCallException('DataReader cannot rewind. It is a forward-only reader.');
+            throw new \LogicException('DataReader cannot rewind. It is a forward-only reader.');
         }
     }
 

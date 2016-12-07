@@ -12,9 +12,8 @@
  * @date 18/07/14.07.2014 17:10
  */
 
-namespace Mindy\Orm\Tests\Basic;
+namespace Mindy\Orm\Tests;
 
-use Mindy\Orm\Tests\OrmDatabaseTestCase;
 use Mindy\Orm\Tests\Models\BookCategory;
 
 class DataIteratorTest extends OrmDatabaseTestCase

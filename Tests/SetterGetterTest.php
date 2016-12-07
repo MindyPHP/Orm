@@ -6,11 +6,10 @@
  * Time: 13:38
  */
 
-namespace Mindy\Orm\Tests\Basic;
+namespace Mindy\Orm\Tests;
 
 use Mindy\Orm\Tests\Models\Category;
 use Mindy\Orm\Tests\Models\Product;
-use Mindy\Orm\Tests\OrmDatabaseTestCase;
 
 class SetterGetterTest extends OrmDatabaseTestCase
 {

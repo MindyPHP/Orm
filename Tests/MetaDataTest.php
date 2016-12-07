@@ -6,7 +6,7 @@
  * Time: 20:20
  */
 
-namespace Mindy\Orm\Tests\Basic;
+namespace Mindy\Orm\Tests;
 
 use Mindy\Orm\Fields\AutoField;
 use Mindy\Orm\Fields\CharField;

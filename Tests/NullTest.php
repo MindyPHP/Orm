@@ -11,10 +11,9 @@
  * @date 17/04/14.04.2014 15:49
  */
 
-namespace Mindy\Orm\Tests\Basic;
+namespace Mindy\Orm\Tests;
 
 use Mindy\Orm\Tests\Models\Customer;
-use Mindy\Orm\Tests\OrmDatabaseTestCase;
 use Mindy\Orm\Tests\Models\Order;
 
 class NullTest extends OrmDatabaseTestCase

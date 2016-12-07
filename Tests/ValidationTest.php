@@ -12,11 +12,10 @@
  * @date 03/01/14.01.2014 23:57
  */
 
-namespace Mindy\Orm\Tests\Basic;
+namespace Mindy\Orm\Tests;
 
 use Mindy\Orm\Tests\Models\Product;
 use Mindy\Orm\Tests\Models\User;
-use Mindy\Orm\Tests\OrmDatabaseTestCase;
 
 class ValidationTest extends OrmDatabaseTestCase
 {

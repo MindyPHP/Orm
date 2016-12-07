@@ -6,7 +6,7 @@
  * Time: 18:09
  */
 
-namespace Mindy\Orm\Tests\Basic;
+namespace Mindy\Orm\Tests;
 
 use Doctrine\DBAL\Driver\Connection;
 use Mindy\Orm\Fields\AutoField;
@@ -19,7 +19,6 @@ use Mindy\Orm\Tests\Models\DefaultPrimaryKeyModel;
 use Mindy\Orm\Tests\Models\DummyModel;
 use Mindy\Orm\Tests\Models\NewModel;
 use Mindy\Orm\Tests\Models\User;
-use Mindy\Orm\Tests\OrmDatabaseTestCase;
 
 class NewModelTest extends OrmDatabaseTestCase
 {

@@ -124,10 +124,10 @@ WHERE ([[customer_1]].[[address]] LIKE @%test%@)", $sql);
         ]);
         $sql = $qs->allSql();
         $this->assertSql(
-            "SELECT [[users_1]].* FROM [[users]] AS [[users_1]] 
+            "SELECT [[users_1]].* FROM [[users]] AS [[users_1]]
 LEFT JOIN [[customer]] AS [[customer_1]] ON [[customer_1]].[[user_id]]=[[users_1]].[[id]]
 LEFT JOIN [[membership]] AS [[membership_1]] ON [[membership_1]].[[user_id]]=[[users_1]].[[id]]
-LEFT JOIN [[group]] AS [[group_1]] ON [[group_1]].[[id]]=[[membership_1]].[[group_id]] 
+LEFT JOIN [[group]] AS [[group_1]] ON [[group_1]].[[id]]=[[membership_1]].[[group_id]]
 WHERE (([[customer_1]].[[address]] LIKE @%test%@) AND ([[group_1]].[[id]]=@1@))", $sql);
         $this->assertEquals(1, $qs->count());
     }

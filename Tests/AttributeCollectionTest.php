@@ -6,7 +6,7 @@
  * Time: 10:56
  */
 
-namespace Mindy\Orm\Tests\Basic;
+namespace Mindy\Orm\Tests;
 
 use Mindy\Orm\AttributeCollection;
 

@@ -6,10 +6,9 @@
  * Time: 10:24
  */
 
-namespace Mindy\Orm\Tests\Basic;
+namespace Mindy\Orm\Tests;
 
 use Mindy\Orm\Tests\Models\User;
-use Mindy\Orm\Tests\OrmDatabaseTestCase;
 
 class IsNewTest extends OrmDatabaseTestCase
 {

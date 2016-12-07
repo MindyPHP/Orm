@@ -6,9 +6,8 @@
  * Time: 13:56
  */
 
-namespace Mindy\Orm\Tests\Basic;
+namespace Mindy\Orm\Tests;
 
-use Mindy\Orm\Tests\OrmDatabaseTestCase;
 use Mindy\Orm\Tests\Models\User;
 
 class ModelAttributesTest extends OrmDatabaseTestCase

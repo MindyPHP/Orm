@@ -6,10 +6,9 @@
  * Time: 16:01
  */
 
-namespace Mindy\Orm\Tests\Basic;
+namespace Mindy\Orm\Tests;
 
 use Mindy\Orm\BatchDataIterator;
-use Mindy\Orm\Tests\OrmDatabaseTestCase;
 use Mindy\Orm\Tests\Models\User;
 
 class BatchDataIteratorTest extends OrmDatabaseTestCase
