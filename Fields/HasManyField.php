@@ -66,7 +66,7 @@ class HasManyField extends RelatedField
     {
         list($from, $to) = $this->link;
 
-        $manager = new Manager($this->getRelatedModel());
+        $manager = new Manager($this->getRelatedModel(), $this->getModel()->getConnection());
         $manager->filter(array_merge([$from => $this->getModel()->getAttribute($to)], $this->extra));
 
         if ($this->getModel()->getIsNewRecord()) {

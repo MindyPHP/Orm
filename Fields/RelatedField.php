@@ -100,5 +100,5 @@ abstract class RelatedField extends IntField
         return $joinAlias;
     }
 
-    abstract public function getManager() : ManagerInterface;
+    abstract public function getManager();
 }
