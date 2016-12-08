@@ -220,7 +220,7 @@ class ManyToManyField extends RelatedField
     /**
      * @return ManagerInterface
      */
-    public function getManager() : ManagerInterface
+    public function getManager()
     {
         $className = get_class($this->getRelatedModel()->objects());
         $config = [
@@ -233,7 +233,11 @@ class ManyToManyField extends RelatedField
             'throughLink' => $this->link
         ];
         /** @var \Mindy\Orm\Manager $manager */
-        $manager = new $className($this->getRelatedModel(), $config);
+        $manager = (new \ReflectionClass($className))->newInstance([
+            $this->getRelatedModel(),
+            $this->getRelatedModel()->getConnection(),
+            $config
+        ]);
 
         if (!empty($this->link)) {
             list($from, $to) = $this->link;

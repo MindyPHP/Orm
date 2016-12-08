@@ -9,6 +9,7 @@
 namespace Mindy\Orm;
 
 use Doctrine\DBAL\Driver\Connection;
+use Mindy\Application\App;
 
 class Orm
 {
@@ -21,6 +22,11 @@ class Orm
 
     public static function getDefaultConnection()
     {
+        if (self::$connection === null) {
+            self::$connection = App::getInstance()
+                ->getComponent('orm.connection_manager')
+                ->getConnection('default');
+        }
         return self::$connection;
     }
 }

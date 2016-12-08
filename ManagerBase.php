@@ -10,6 +10,7 @@ namespace Mindy\Orm;
 
 use ArrayAccess;
 use IteratorAggregate;
+use Doctrine\DBAL\Connection;
 
 /**
  * Class ManagerBase
@@ -30,11 +31,13 @@ abstract class ManagerBase implements ManagerInterface, IteratorAggregate, Array
     /**
      * ManagerBase constructor.
      * @param ModelInterface $model
+     * @param Connection $connection
      * @param array $config
      */
-    public function __construct(ModelInterface $model, $config = [])
+    public function __construct(ModelInterface $model, Connection $connection, array $config = [])
     {
-        $this->model = $model;
+        $this->setModel($model);
+        $this->setConnection($connection);
 
         foreach ($config as $key => $value) {
             if (property_exists($this, $key)) {
