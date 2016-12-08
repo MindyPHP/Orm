@@ -63,7 +63,9 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
 
     public function __clone()
     {
-        $this->queryBuilder = clone $this->queryBuilder;
+        if ($this->queryBuilder) {
+            $this->queryBuilder = clone $this->queryBuilder;
+        }
     }
 
     /**
