@@ -38,7 +38,7 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
     /**
      * @var \Mindy\QueryBuilder\QueryBuilder
      */
-    private $_qb;
+    protected $queryBuilder;
     /**
      * @var \Mindy\Orm\Model
      */
@@ -59,6 +59,11 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
                 $this->{$key} = $value;
             }
         }
+    }
+
+    public function __clone()
+    {
+        $this->queryBuilder = clone $this->queryBuilder;
     }
 
     /**
@@ -125,7 +130,7 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
      */
     public function getQueryBuilder()
     {
-        if ($this->_qb === null) {
+        if ($this->queryBuilder === null) {
             $builder = QueryBuilder::getInstance($this->getConnection());
             $this->setTableAlias($builder, $this->getModel()->tableName());
             $builder->setAlias($this->getTableAlias());
@@ -141,9 +146,9 @@ abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializa
                 ->setFetchColumnCallback($fetchColumnCallback)
                 ->setCallback($callback)
                 ->setJoinCallback($joinCallback);
-            $this->_qb = $builder;
+            $this->queryBuilder = $builder;
         }
-        return $this->_qb;
+        return $this->queryBuilder;
     }
 
     /**

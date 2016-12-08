@@ -432,8 +432,12 @@ class QuerySet extends QuerySetBase
 
     private function aggregate(Aggregation $q)
     {
-        $result = $this->getConnection()->query($this->buildAggregateSql($q))->fetch();
-        $value = end($result);
+        $sql = $this->buildAggregateSql($q);
+        $statement = $this->getConnection()->query($sql);
+        $value = $statement->fetch();
+        if (is_array($value)) {
+            $value = end($value);
+        }
         return strpos($value, '.') !== false ? floatval($value) : intval($value);
     }
 
