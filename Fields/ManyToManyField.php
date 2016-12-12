@@ -233,7 +233,7 @@ class ManyToManyField extends RelatedField
             'throughLink' => $this->link
         ];
         /** @var \Mindy\Orm\Manager $manager */
-        $manager = (new \ReflectionClass($className))->newInstance([
+        $manager = (new \ReflectionClass($className))->newInstanceArgs([
             $this->getRelatedModel(),
             $this->getRelatedModel()->getConnection(),
             $config
