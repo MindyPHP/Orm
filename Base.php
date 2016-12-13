@@ -189,12 +189,15 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
 
                 $platform = $this->getConnection()->getDatabasePlatform();
                 $value = $field->convertToDatabaseValueSQL($value, $platform);
-                if (
-                    in_array($attributeName, $primaryKeyNames) &&
-                    false === $this->getIsNewRecord() &&
-                    $this->getAttribute($attributeName) !== $value
-                ) {
-                    $this->setIsNewRecord(true);
+
+                if (in_array($attributeName, $primaryKeyNames)) {
+                    // If new primary key is empty - mark model as new
+                    if (empty($value)) {
+                        $this->setIsNewRecord(true);
+                    } else if ($this->getAttribute($attributeName) != $value) {
+                        // If current model isn't new and new primary key value != new value - mark model as new
+                        $this->setIsNewRecord(true);
+                    }
                 }
 
                 $this->attributes->setAttribute($attributeName, $value);
@@ -555,13 +558,17 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
     }
 
     /**
-     * @param array $row
+     * @param array $attributes
      * @return ModelInterface
+     * @internal
      */
-    public static function create(array $row = [])
+    public static function create(array $attributes)
     {
         $className = get_called_class();
-        return new $className($row);
+        /** @var ModelInterface $model */
+        $model = new $className($attributes);
+        $model->setIsNewRecord(false);
+        return $model;
     }
 
     /**
