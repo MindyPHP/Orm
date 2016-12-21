@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 16/09/16
- * Time: 19:28
+ * Time: 19:28.
  */
 
 namespace Mindy\Orm\Tests\Models;
@@ -19,13 +19,13 @@ class TestChanged extends Model
             'name' => [
                 'class' => CharField::class,
                 'length' => 50,
-                'verboseName' => "Name"
-            ]
+                'verboseName' => 'Name',
+            ],
         ];
     }
 
     public static function tableName()
     {
-        return "tests_test_changed";
+        return 'tests_test_changed';
     }
 }

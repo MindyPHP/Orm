@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -34,16 +33,16 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
     protected function getModels()
     {
         return [
-            new Category,
-            new ProductList,
-            new Product,
-            new Group,
-            new Membership,
-            new User,
-            new Project,
-            new ProjectMembership,
-            new Worker,
-            new Blogger
+            new Category(),
+            new ProductList(),
+            new Product(),
+            new Group(),
+            new Membership(),
+            new User(),
+            new Project(),
+            new ProjectMembership(),
+            new Worker(),
+            new Blogger(),
         ];
     }
 
@@ -173,7 +172,7 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
             'name' => 'Bear',
             'price' => 100,
             'description' => 'Funny white bear',
-            'category' => $category
+            'category' => $category,
         ]);
         $this->assertTrue($product->save());
 
@@ -250,7 +249,7 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
         $this->assertEquals(2, ProductList::objects()->count());
         $tableName = $product->getField('lists')->getTableName();
         $tableName = QueryBuilder::getInstance($this->getConnection())->getAdapter()->getRawTableName($tableName);
-        $cmd = $this->getConnection()->query("SELECT * FROM " . $tableName);
+        $cmd = $this->getConnection()->query('SELECT * FROM '.$tableName);
         $all = $cmd->fetchAll();
         $this->assertEquals([], $all);
         $this->assertEquals(0, count($all));
@@ -258,10 +257,10 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
         $product->lists = [$list1];
         $product->save();
 
-        $cmd = $this->getConnection()->query("SELECT * FROM " . $tableName);
+        $cmd = $this->getConnection()->query('SELECT * FROM '.$tableName);
         $all = $cmd->fetchAll();
         $this->assertEquals([
-            ['product_id' => 1, 'product_list_id' => 1]
+            ['product_id' => 1, 'product_list_id' => 1],
         ], $all);
         $this->assertEquals(1, count($all));
 
@@ -271,7 +270,7 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
         $cmd = $this->getConnection()->query("SELECT * FROM {$tableName}");
         $all = $cmd->fetchAll();
         $this->assertEquals([
-            ['product_id' => 1, 'product_list_id' => 2]
+            ['product_id' => 1, 'product_list_id' => 2],
         ], $all);
         $this->assertEquals(1, count($all));
 
@@ -281,7 +280,7 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
         $cmd = $this->getConnection()->query("SELECT * FROM {$tableName}");
         $all = $cmd->fetchAll();
         $this->assertEquals([
-            ['product_id' => 1, 'product_list_id' => 1]
+            ['product_id' => 1, 'product_list_id' => 1],
         ], $all);
         $this->assertEquals(1, count($all));
 
@@ -320,14 +319,14 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
             'project' => $firstProject,
             'worker' => $firstWorker,
             'position' => 1,
-            'curator' => $secondWorker
+            'curator' => $secondWorker,
         ]))->save();
 
         (new ProjectMembership([
             'project' => $firstProject,
             'worker' => $secondWorker,
             'position' => 2,
-            'curator' => $firstWorker
+            'curator' => $firstWorker,
         ]))->save();
 
         $this->assertEquals([
@@ -344,7 +343,7 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
                 'worker_id' => '2',
                 'position' => '2',
                 'curator_id' => '1',
-            ]
+            ],
         ], ProjectMembership::objects()->asArray()->all());
 
         $qs = Worker::objects()->filter(['projects__id__in' => [$firstProject->id]])->order(['projects__through__position'])->asArray();
@@ -355,37 +354,37 @@ WHERE ([[project_1]].[[id]] IN (@1@))
 ORDER BY [[project_membership_1]].[[position]] ASC', $qs->allSql());
         $this->assertEquals([
             ['id' => '1', 'name' => 'Mark'],
-            ['id' => '2', 'name' => 'Alex']
+            ['id' => '2', 'name' => 'Alex'],
         ], $qs->asArray()->all());
 
         $this->assertEquals([
             ['id' => '2', 'name' => 'Alex'],
-            ['id' => '1', 'name' => 'Mark']
+            ['id' => '1', 'name' => 'Mark'],
         ], Worker::objects()->filter(['projects__id__in' => [$firstProject->id]])->order(['-projects__through__position'])->asArray()->all());
 
         $this->assertEquals([
             ['id' => '1', 'name' => 'Mark'],
-            ['id' => '2', 'name' => 'Alex']
+            ['id' => '2', 'name' => 'Alex'],
         ], Worker::objects()->order(['projects__through__position'])->asArray()->all());
 
         $this->assertEquals([
             ['id' => '2', 'name' => 'Alex'],
-            ['id' => '1', 'name' => 'Mark']
+            ['id' => '1', 'name' => 'Mark'],
         ], Worker::objects()->order(['-projects__through__position'])->asArray()->all());
 
         $this->assertEquals([
-            ['id' => '2', 'name' => 'Alex']
+            ['id' => '2', 'name' => 'Alex'],
         ], Worker::objects()->filter(['projects__through__curator' => $firstWorker])->asArray()->all());
 
         $this->assertEquals([
-            ['id' => '1', 'name' => 'Mark']
+            ['id' => '1', 'name' => 'Mark'],
         ], Worker::objects()->filter(['projects__through__curator' => $secondWorker])->asArray()->all());
 
-        $this->assertSql("SELECT [[worker_1]].* FROM [[worker]] AS [[worker_1]] LEFT JOIN [[project_membership]] AS [[project_membership_1]] ON [[project_membership_1]].[[worker_id]]=[[worker_1]].[[id]] LEFT JOIN [[project]] AS [[project_1]] ON [[project_1]].[[id]]=[[project_membership_1]].[[project_id]] WHERE ([[project_membership_1]].[[curator_id]]=@2@)",
+        $this->assertSql('SELECT [[worker_1]].* FROM [[worker]] AS [[worker_1]] LEFT JOIN [[project_membership]] AS [[project_membership_1]] ON [[project_membership_1]].[[worker_id]]=[[worker_1]].[[id]] LEFT JOIN [[project]] AS [[project_1]] ON [[project_1]].[[id]]=[[project_membership_1]].[[project_id]] WHERE ([[project_membership_1]].[[curator_id]]=@2@)',
             Worker::objects()->filter(['projects__through__curator' => $secondWorker])->allSql());
-        $this->assertSql("SELECT [[worker_1]].* FROM [[worker]] AS [[worker_1]] LEFT JOIN [[project_membership]] AS [[project_membership_1]] ON [[project_membership_1]].[[worker_id]]=[[worker_1]].[[id]] LEFT JOIN [[project]] AS [[project_1]] ON [[project_1]].[[id]]=[[project_membership_1]].[[project_id]] ORDER BY [[project_membership_1]].[[position]] ASC",
+        $this->assertSql('SELECT [[worker_1]].* FROM [[worker]] AS [[worker_1]] LEFT JOIN [[project_membership]] AS [[project_membership_1]] ON [[project_membership_1]].[[worker_id]]=[[worker_1]].[[id]] LEFT JOIN [[project]] AS [[project_1]] ON [[project_1]].[[id]]=[[project_membership_1]].[[project_id]] ORDER BY [[project_membership_1]].[[position]] ASC',
             Worker::objects()->order(['projects__through__position'])->asArray()->allSql());
-        $this->assertSql("SELECT [[worker_1]].* FROM [[worker]] AS [[worker_1]] LEFT JOIN [[project_membership]] AS [[project_membership_1]] ON [[project_membership_1]].[[worker_id]]=[[worker_1]].[[id]] LEFT JOIN [[project]] AS [[project_1]] ON [[project_1]].[[id]]=[[project_membership_1]].[[project_id]] WHERE ([[project_1]].[[id]] IN (@1@, @2@)) ORDER BY [[project_membership_1]].[[position]] DESC",
+        $this->assertSql('SELECT [[worker_1]].* FROM [[worker]] AS [[worker_1]] LEFT JOIN [[project_membership]] AS [[project_membership_1]] ON [[project_membership_1]].[[worker_id]]=[[worker_1]].[[id]] LEFT JOIN [[project]] AS [[project_1]] ON [[project_1]].[[id]]=[[project_membership_1]].[[project_id]] WHERE ([[project_1]].[[id]] IN (@1@, @2@)) ORDER BY [[project_membership_1]].[[position]] DESC',
             Worker::objects()->filter(['projects__id__in' => [$firstProject->id, $secondProject->id]])->order(['-projects__through__position'])->allSql());
     }
 
@@ -412,6 +411,5 @@ ORDER BY [[project_membership_1]].[[position]] ASC', $qs->allSql());
         $this->assertEquals(1, $alex->subscribers->count());
         $this->assertEquals(0, $peter->subscribes->count());
         $this->assertEquals(2, $peter->subscribers->count());
-
     }
 }

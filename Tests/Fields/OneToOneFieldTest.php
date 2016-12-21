@@ -3,12 +3,11 @@
  * Created by PhpStorm.
  * User: max
  * Date: 24/07/16
- * Time: 07:34
+ * Time: 07:34.
  */
 
 namespace Mindy\Orm\Tests\Fields;
 
-use Exception;
 use Mindy\Orm\Tests\Models\Member;
 use Mindy\Orm\Tests\Models\MemberProfile;
 use Mindy\Orm\Tests\OrmDatabaseTestCase;
@@ -17,7 +16,7 @@ abstract class OneToOneFieldTest extends OrmDatabaseTestCase
 {
     protected function getModels()
     {
-        return [new Member, new MemberProfile];
+        return [new Member(), new MemberProfile()];
     }
 
     public function testOneToOnePrimaryWithNull()
@@ -33,7 +32,7 @@ abstract class OneToOneFieldTest extends OrmDatabaseTestCase
         $this->assertTrue($profile->save());
         $this->assertNull($profile->user);
     }
-    
+
     public function testOneToOnePrimaryExists()
     {
         $profile = new MemberProfile();
@@ -46,7 +45,7 @@ abstract class OneToOneFieldTest extends OrmDatabaseTestCase
 
         $this->assertTrue($profile->save());
         $this->assertNull($profile->user);
-        
+
         $member = new Member();
         $this->assertTrue($member->isValid());
         $this->assertTrue($member->save());

@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 24/07/16
- * Time: 10:32
+ * Time: 10:32.
  */
 
 namespace Mindy\Orm\Tests\QueryBuilder;
@@ -24,29 +24,29 @@ class QuerySetTest extends OrmDatabaseTestCase
     public function getModels()
     {
         return [
-            new Hits,
-            new User,
-            new Customer,
-            new Group,
-            new Permission,
-            new Membership
+            new Hits(),
+            new User(),
+            new Customer(),
+            new Group(),
+            new Permission(),
+            new Membership(),
         ];
     }
 
     public function testCount()
     {
-        $this->assertTrue((new Hits)->save());
+        $this->assertTrue((new Hits())->save());
         $count = Hits::objects()->count();
         $this->assertEquals(1, $count);
 
-        $this->assertTrue((new Hits)->save());
+        $this->assertTrue((new Hits())->save());
         $count = Hits::objects()->count();
         $this->assertEquals(2, $count);
     }
 
     public function testValuesList()
     {
-        $this->assertTrue((new Hits)->save());
+        $this->assertTrue((new Hits())->save());
         $count = Hits::objects()->count();
         $this->assertEquals(1, $count);
 
@@ -56,8 +56,8 @@ class QuerySetTest extends OrmDatabaseTestCase
 
     public function testFilter()
     {
-        $this->assertTrue((new Hits)->save());
-        $this->assertTrue((new Hits)->save());
+        $this->assertTrue((new Hits())->save());
+        $this->assertTrue((new Hits())->save());
         $count = Hits::objects()->count();
         $this->assertEquals(2, $count);
 
@@ -67,8 +67,8 @@ class QuerySetTest extends OrmDatabaseTestCase
 
     public function testExclude()
     {
-        $this->assertTrue((new Hits)->save());
-        $this->assertTrue((new Hits)->save());
+        $this->assertTrue((new Hits())->save());
+        $this->assertTrue((new Hits())->save());
         $count = Hits::objects()->count();
         $this->assertEquals(2, $count);
 
@@ -78,9 +78,9 @@ class QuerySetTest extends OrmDatabaseTestCase
 
     public function testOrFilter()
     {
-        $this->assertTrue((new Hits)->save());
-        $this->assertTrue((new Hits)->save());
-        $this->assertTrue((new Hits)->save());
+        $this->assertTrue((new Hits())->save());
+        $this->assertTrue((new Hits())->save());
+        $this->assertTrue((new Hits())->save());
         $count = Hits::objects()->count();
         $this->assertEquals(3, $count);
 
@@ -93,9 +93,9 @@ class QuerySetTest extends OrmDatabaseTestCase
 
     public function testOrExclude()
     {
-        $this->assertTrue((new Hits)->save());
-        $this->assertTrue((new Hits)->save());
-        $this->assertTrue((new Hits)->save());
+        $this->assertTrue((new Hits())->save());
+        $this->assertTrue((new Hits())->save());
+        $this->assertTrue((new Hits())->save());
         $count = Hits::objects()->count();
         $this->assertEquals(3, $count);
 
@@ -117,9 +117,9 @@ class QuerySetTest extends OrmDatabaseTestCase
 
     public function testLookup()
     {
-        $this->assertTrue((new Hits)->save());
-        $this->assertTrue((new Hits)->save());
-        $this->assertTrue((new Hits)->save());
+        $this->assertTrue((new Hits())->save());
+        $this->assertTrue((new Hits())->save());
+        $this->assertTrue((new Hits())->save());
         $count = Hits::objects()->filter(['pk__gte' => 2])->count();
         $this->assertEquals(2, $count);
 
@@ -167,7 +167,7 @@ class QuerySetTest extends OrmDatabaseTestCase
         $count = User::objects()->filter([
             'groups__name' => 'foo',
             'addresses__address' => 'foo',
-            'password' => 'bar'
+            'password' => 'bar',
         ])->count();
         $this->assertEquals(1, $count);
     }
@@ -181,11 +181,11 @@ class QuerySetTest extends OrmDatabaseTestCase
         $this->assertEquals([[
             'id' => 1,
             'username' => 'foo',
-            'password' => 'bar'
+            'password' => 'bar',
         ], [
             'id' => 2,
             'username' => 'foo',
-            'password' => 'bar'
+            'password' => 'bar',
         ]], $qs->asArray()->all());
     }
 

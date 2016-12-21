@@ -16,7 +16,7 @@ class TimestampField extends IntField
                         ->atPath($this->getAttributeName())
                         ->addViolation();
                 }
-            })
+            }),
         ]);
     }
 }

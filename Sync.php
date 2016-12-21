@@ -8,8 +8,7 @@ use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\QueryBuilder\QueryBuilder;
 
 /**
- * Class Sync
- * @package Mindy\Orm
+ * Class Sync.
  */
 class Sync
 {
@@ -24,6 +23,7 @@ class Sync
 
     /**
      * Sync constructor.
+     *
      * @param $models
      * @param Connection $connection
      */
@@ -38,6 +38,7 @@ class Sync
 
     /**
      * @return QueryBuilder
+     *
      * @throws \Exception
      */
     protected function getQueryBuilder()
@@ -47,6 +48,7 @@ class Sync
 
     /**
      * @param $model ModelInterface
+     *
      * @return int
      */
     public function createTable(ModelInterface $model)
@@ -99,6 +101,7 @@ class Sync
 
     /**
      * @param $model ModelInterface
+     *
      * @return int
      */
     public function dropTable(ModelInterface $model)
@@ -141,11 +144,13 @@ class Sync
         foreach ($this->_models as $model) {
             $i += $this->createTable($model);
         }
+
         return $i;
     }
 
     /**
-     * Drop all tables from database
+     * Drop all tables from database.
+     *
      * @return int
      */
     public function delete()
@@ -154,12 +159,15 @@ class Sync
         foreach ($this->_models as $model) {
             $i += $this->dropTable($model);
         }
+
         return $i;
     }
 
     /**
      * Check table in database.
+     *
      * @param null $tableName
+     *
      * @return bool
      */
     public function hasTable($tableName)
@@ -167,6 +175,7 @@ class Sync
         if ($tableName instanceof Model) {
             $tableName = $tableName->tableName();
         }
+
         return $this->connection->getSchemaManager()->tablesExist([$tableName]);
     }
 }

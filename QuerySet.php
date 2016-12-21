@@ -14,8 +14,7 @@ use Mindy\QueryBuilder\Q\QOrNot;
 use Mindy\QueryBuilder\QueryBuilder;
 
 /**
- * Class QuerySet
- * @package Mindy\Orm
+ * Class QuerySet.
  */
 class QuerySet extends QuerySetBase
 {
@@ -28,6 +27,7 @@ class QuerySet extends QuerySetBase
     /**
      * Executes query and returns all results as an array.
      * If null, the DB connection returned by [[modelClass]] will be used.
+     *
      * @return array the query results. If the query results in nothing, an empty array will be returned.
      */
     public function all()
@@ -43,6 +43,7 @@ class QuerySet extends QuerySetBase
 
     /**
      * @param int $batchSize
+     *
      * @return \Mindy\Orm\BatchDataIterator
      */
     public function batch($batchSize = 100)
@@ -57,6 +58,7 @@ class QuerySet extends QuerySetBase
 
     /**
      * @param int $batchSize
+     *
      * @return \Mindy\Orm\BatchDataIterator
      */
     public function each($batchSize = 100)
@@ -71,7 +73,8 @@ class QuerySet extends QuerySetBase
 
     /**
      * @param array $columns
-     * @param bool $flat
+     * @param bool  $flat
+     *
      * @return array
      */
     public function valuesList($columns, $flat = false)
@@ -84,6 +87,7 @@ class QuerySet extends QuerySetBase
             foreach ($rows as $item) {
                 $flatArr = array_merge($flatArr, array_values($item));
             }
+
             return $flatArr;
         } else {
             return $rows;
@@ -91,8 +95,10 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * Update records
+     * Update records.
+     *
      * @param array $attributes
+     *
      * @return int updated records
      */
     public function update(array $attributes)
@@ -102,6 +108,7 @@ class QuerySet extends QuerySetBase
 
     /**
      * @param array $attributes
+     *
      * @return string
      */
     public function updateSql(array $attributes)
@@ -110,11 +117,13 @@ class QuerySet extends QuerySetBase
         foreach ($attributes as $key => $value) {
             $attrs[$this->getModel()->convertToPrimaryKeyName($key)] = $value;
         }
+
         return $this->getQueryBuilder()->setTypeUpdate()->update($this->getModel()->tableName(), $attrs)->toSQL();
     }
 
     /**
      * @param array $attributes
+     *
      * @return array
      */
     public function getOrCreate(array $attributes)
@@ -125,6 +134,7 @@ class QuerySet extends QuerySetBase
             /** @var Model $model */
             $model = new $className($attributes);
             $model->save();
+
             return [$model, true];
         }
 
@@ -134,6 +144,7 @@ class QuerySet extends QuerySetBase
     /**
      * @param array $attributes
      * @param array $updateAttributes
+     *
      * @return ModelInterface|Orm|null
      */
     public function updateOrCreate(array $attributes, array $updateAttributes)
@@ -144,18 +155,22 @@ class QuerySet extends QuerySetBase
         }
         $model->setAttributes($updateAttributes);
         $model->save();
+
         return $model;
     }
 
     /**
-     * Paginate models
+     * Paginate models.
+     *
      * @param int $page
      * @param int $pageSize
+     *
      * @return $this
      */
     public function paginate($page = 1, $pageSize = 10)
     {
         $this->getQueryBuilder()->paginate($page, $pageSize);
+
         return $this;
     }
 
@@ -165,11 +180,13 @@ class QuerySet extends QuerySetBase
     public function allSql()
     {
         $qb = clone $this->getQueryBuilder();
+
         return $qb->setTypeSelect()->toSQL();
     }
 
     /**
      * @param array $filter
+     *
      * @return string
      */
     public function getSql($filter = [])
@@ -178,13 +195,17 @@ class QuerySet extends QuerySetBase
             $this->filter($filter);
         }
         $qb = clone $this->getQueryBuilder();
+
         return $qb->setTypeSelect()->toSQL();
     }
 
     /**
      * Executes query and returns a single row of result.
+     *
      * @param array $filter
+     *
      * @return ModelInterface|array|null
+     *
      * @throws MultipleObjectsReturned
      */
     public function get($filter = [])
@@ -193,7 +214,7 @@ class QuerySet extends QuerySetBase
         if (count($rows) > 1) {
             throw new MultipleObjectsReturned();
         } elseif (count($rows) === 0) {
-            return null;
+            return;
         }
 
         if (!empty($this->with)) {
@@ -205,6 +226,7 @@ class QuerySet extends QuerySetBase
         } else {
             $model = $this->createModel($row);
             $model->setIsNewRecord(false);
+
             return $model;
         }
     }
@@ -212,12 +234,15 @@ class QuerySet extends QuerySetBase
     public function setSql($sql)
     {
         $this->sql = $sql;
+
         return $this;
     }
 
     /**
-     * Converts array prefix to string key
+     * Converts array prefix to string key.
+     *
      * @param array $prefix
+     *
      * @return string
      */
     protected function prefixToKey(array $prefix)
@@ -229,8 +254,10 @@ class QuerySet extends QuerySetBase
      * todo remove me
      * Searching closest already connected relation
      * Example: User::objects()->filter(['group__name' => 'Admin', 'group__list__pk' => 2])
-     * at the second time we already have connected 'group' relation, return it
+     * at the second time we already have connected 'group' relation, return it.
+     *
      * @param $prefix
+     *
      * @return array
      */
     protected function searchChain($prefix)
@@ -272,6 +299,7 @@ class QuerySet extends QuerySetBase
                 $this->getOrCreateChainAlias([$name], true, true, is_array($fields) ? $fields : []);
             }
         }
+
         return $this;
     }
 
@@ -281,9 +309,10 @@ class QuerySet extends QuerySetBase
             return array_map(function ($value) {
                 if ($value instanceof Model) {
                     return $value->pk;
-                } else if ($value instanceof Manager || $value instanceof QuerySet) {
+                } elseif ($value instanceof Manager || $value instanceof QuerySet) {
                     return $value->getQueryBuilder();
                 }
+
                 return $value;
             }, $query);
         } else {
@@ -293,47 +322,57 @@ class QuerySet extends QuerySetBase
 
     /**
      * @param array $query
+     *
      * @return $this
      */
     public function filter($query)
     {
         $this->getQueryBuilder()->where($this->convertQuery($query));
+
         return $this;
     }
 
     /**
      * @param array $query
+     *
      * @return $this
      */
     public function orFilter(array $query)
     {
         $this->getQueryBuilder()->orWhere($this->convertQuery($query));
+
         return $this;
     }
 
     /**
      * @param array $query
+     *
      * @return $this
      */
     public function exclude(array $query)
     {
         $this->getQueryBuilder()->where(new QAndNot($this->convertQuery($query)));
+
         return $this;
     }
 
     /**
      * @param array $query
+     *
      * @return $this
      */
     public function orExclude(array $query)
     {
         $this->getQueryBuilder()->orWhere(new QOrNot($this->convertQuery($query)));
+
         return $this;
     }
 
     /**
-     * Converts name => `name`, user.name => `user`.`name`
+     * Converts name => `name`, user.name => `user`.`name`.
+     *
      * @param string $name Column name
+     *
      * @return string Quoted column name
      */
     public function quoteColumnName($name)
@@ -342,8 +381,10 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * Order by alias
+     * Order by alias.
+     *
      * @param $columns
+     *
      * @return $this
      */
     public function order($columns)
@@ -352,28 +393,31 @@ class QuerySet extends QuerySetBase
             $newColumns = array_map(function ($value) {
                 if ($value instanceof Model) {
                     return $value->pk;
-                } else if ($value instanceof Manager || $value instanceof QuerySet) {
+                } elseif ($value instanceof Manager || $value instanceof QuerySet) {
                     return $value->getQueryBuilder();
-                } else if (is_string($value)) {
+                } elseif (is_string($value)) {
                     $direction = substr($value, 0, 1) === '-' ? '-' : '';
                     $column = substr($value, 1);
                     if ($this->getModel()->getMeta()->hasForeignField($column)) {
-                        return $direction . $column . '_id';
+                        return $direction.$column.'_id';
                     } else {
                         return $value;
                     }
                 }
+
                 return $value;
             }, $columns);
         } else {
             $newColumns = $columns;
         }
         $this->getQueryBuilder()->order($newColumns);
+
         return $this;
     }
 
     /**
      * @param null|string|array $q
+     *
      * @return float|int
      */
     public function sum($q)
@@ -383,6 +427,7 @@ class QuerySet extends QuerySetBase
 
     /**
      * @param string $q
+     *
      * @return float|int
      */
     public function sumSql($q)
@@ -392,6 +437,7 @@ class QuerySet extends QuerySetBase
 
     /**
      * @param null|string|array $q
+     *
      * @return float|int
      */
     public function average($q)
@@ -401,6 +447,7 @@ class QuerySet extends QuerySetBase
 
     /**
      * @param null|string|array $q
+     *
      * @return float|int
      */
     public function averageSql($q)
@@ -411,22 +458,25 @@ class QuerySet extends QuerySetBase
     /**
      * @param $columns
      * @param null $option
+     *
      * @return $this
      */
     public function select($columns, $option = null)
     {
         $this->getQueryBuilder()->select($columns, $option);
+
         return $this;
     }
 
     private function buildAggregateSql(Aggregation $q)
     {
         $qb = clone $this->getQueryBuilder();
-        
+
         list($order, $orderOptions) = $qb->getOrder();
         $select = $qb->getSelect();
         $sql = $qb->order(null)->select($q)->toSQL();
         $qb->select($select)->order($order, $orderOptions);
+
         return $sql;
     }
 
@@ -438,11 +488,13 @@ class QuerySet extends QuerySetBase
         if (is_array($value)) {
             $value = end($value);
         }
+
         return strpos($value, '.') !== false ? floatval($value) : intval($value);
     }
 
     /**
      * @param null|string|array $q
+     *
      * @return float|int
      */
     public function min($q)
@@ -452,6 +504,7 @@ class QuerySet extends QuerySetBase
 
     /**
      * @param null|string|array $q
+     *
      * @return float|int
      */
     public function minSql($q)
@@ -461,6 +514,7 @@ class QuerySet extends QuerySetBase
 
     /**
      * @param null|string|array $q
+     *
      * @return float|int
      */
     public function max($q)
@@ -470,6 +524,7 @@ class QuerySet extends QuerySetBase
 
     /**
      * @param null|string|array $q
+     *
      * @return float|int
      */
     public function maxSql($q)
@@ -480,12 +535,13 @@ class QuerySet extends QuerySetBase
     public function delete()
     {
         $statement = $this->getConnection()->query($this->deleteSql());
+
         return $statement->execute();
     }
 
     public function deleteSql()
     {
-//        if ($this->filterHasJoin()) {
+        //        if ($this->filterHasJoin()) {
 //            $this->prepareConditions();
 //            return $this->createCommand()->delete($tableName, [
 //                $this->getPrimaryKeyName() => $this->valuesList(['pk'], true)
@@ -495,11 +551,13 @@ class QuerySet extends QuerySetBase
         $builder = $this->getQueryBuilder()
             ->setTypeDelete()
             ->setAlias(null);
+
         return $builder->toSQL();
     }
 
     /**
      * @param null|array|string $q
+     *
      * @return string
      */
     public function countSql($q = '*')
@@ -509,6 +567,7 @@ class QuerySet extends QuerySetBase
 
     /**
      * @param string $q
+     *
      * @return int
      */
     public function count($q = '*')
@@ -520,9 +579,10 @@ class QuerySet extends QuerySetBase
      * Convert array like:
      * >>> ['developer__id' => '1', 'developer__name' = 'Valve']
      * to:
-     * >>> ['developer' => ['id' => '1', 'name' => 'Valve']]
+     * >>> ['developer' => ['id' => '1', 'name' => 'Valve']].
      *
      * @param $data
+     *
      * @return array
      */
     private function populateWith($data)
@@ -543,11 +603,13 @@ class QuerySet extends QuerySetBase
             }
             $newData[] = $tmp;
         }
+
         return $newData;
     }
 
     /**
-     * Truncate table
+     * Truncate table.
+     *
      * @return int
      */
     public function truncate()
@@ -556,38 +618,45 @@ class QuerySet extends QuerySetBase
         $adapter = QueryBuilder::getInstance($connection)->getAdapter();
         $tableName = $adapter->quoteTableName($adapter->getRawTableName($this->getModel()->tableName()));
         $q = $connection->getDatabasePlatform()->getTruncateTableSQL($tableName);
+
         return $connection->executeUpdate($q);
     }
 
     /**
      * @param mixed $fields
+     *
      * @return $this
      */
     public function distinct($fields = true)
     {
         $this->getQueryBuilder()->distinct($fields);
+
         return $this;
     }
 
     /**
      * @param $columns
+     *
      * @return $this
      */
     public function group($columns)
     {
         $this->getQueryBuilder()->group($columns);
+
         return $this;
     }
 
     public function limit($limit)
     {
         $this->getQueryBuilder()->limit($limit);
+
         return $this;
     }
 
     public function offset($offset)
     {
         $this->getQueryBuilder()->offset($offset);
+
         return $this;
     }
 }

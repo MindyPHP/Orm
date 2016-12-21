@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -16,7 +15,6 @@ namespace Mindy\Orm\Tests\Models;
 
 use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Fields\DateTimeField;
-use Mindy\Orm\Fields\FileField;
 use Mindy\Orm\Fields\IntField;
 use Mindy\Orm\Fields\TextField;
 use Mindy\Orm\Model;
@@ -43,7 +41,7 @@ class Solution extends Model
             ],
             'document' => [
                 'class' => CharField::class,
-                'null' => true
+                'null' => true,
             ],
             'content' => [
                 'class' => TextField::class,
@@ -52,13 +50,13 @@ class Solution extends Model
                 'class' => IntField::class,
                 'choices' => [
                     self::STATUS_SUCCESS => 'Successful',
-                    self::STATUS_COMPLETE => 'Complete'
-                ]
+                    self::STATUS_COMPLETE => 'Complete',
+                ],
             ],
             'created_at' => [
                 'class' => DateTimeField::class,
-                'autoNowAdd' => true
-            ]
+                'autoNowAdd' => true,
+            ],
         ];
     }
 

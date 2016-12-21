@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 27/07/16
- * Time: 13:56
+ * Time: 13:56.
  */
 
 namespace Mindy\Orm\Tests;
@@ -16,7 +16,7 @@ class ModelAttributesTest extends OrmDatabaseTestCase
 
     protected function getModels()
     {
-        return [new User];
+        return [new User()];
     }
 
     public function testDirtyAttributes()

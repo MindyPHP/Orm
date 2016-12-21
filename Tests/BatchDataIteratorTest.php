@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 27/07/16
- * Time: 16:01
+ * Time: 16:01.
  */
 
 namespace Mindy\Orm\Tests;
@@ -15,13 +15,13 @@ class BatchDataIteratorTest extends OrmDatabaseTestCase
 {
     protected function getModels()
     {
-        return [new User];
+        return [new User()];
     }
 
     public function testEach()
     {
         foreach (range(1, 100) as $i) {
-            $user = new User(['id' => $i, 'username' => 'user_' . $i, 'password' => 'pass_' . $i]);
+            $user = new User(['id' => $i, 'username' => 'user_'.$i, 'password' => 'pass_'.$i]);
             $user->save();
         }
         $this->assertEquals(100, User::objects()->count());
@@ -38,14 +38,14 @@ class BatchDataIteratorTest extends OrmDatabaseTestCase
         foreach ($iterator as $i => $model) {
             $this->assertInstanceOf(User::class, $model);
             $this->assertEquals($id, $model->pk);
-            $id++;
+            ++$id;
         }
     }
 
     public function testForeach()
     {
         foreach (range(1, 100) as $i) {
-            (new User(['id' => $i, 'username' => 'user_' . $i, 'password' => 'pass_' . $i]))->save();
+            (new User(['id' => $i, 'username' => 'user_'.$i, 'password' => 'pass_'.$i]))->save();
         }
         $this->assertEquals(100, User::objects()->count());
 
@@ -63,7 +63,7 @@ class BatchDataIteratorTest extends OrmDatabaseTestCase
             foreach ($models as $t => $model) {
                 $this->assertInstanceOf(User::class, $model);
                 $this->assertEquals($id, $model->pk);
-                $id++;
+                ++$id;
             }
         }
     }
@@ -71,7 +71,7 @@ class BatchDataIteratorTest extends OrmDatabaseTestCase
     public function testQuerySet()
     {
         foreach (range(1, 100) as $i) {
-            (new User(['id' => $i, 'username' => 'user_' . $i, 'password' => 'pass_' . $i]))->save();
+            (new User(['id' => $i, 'username' => 'user_'.$i, 'password' => 'pass_'.$i]))->save();
         }
         $this->assertEquals(100, User::objects()->count());
 
@@ -81,7 +81,7 @@ class BatchDataIteratorTest extends OrmDatabaseTestCase
             foreach ($models as $t => $model) {
                 $this->assertInstanceOf(User::class, $model);
                 $this->assertEquals($id, $model->pk);
-                $id++;
+                ++$id;
             }
         }
 
@@ -91,7 +91,7 @@ class BatchDataIteratorTest extends OrmDatabaseTestCase
             foreach ($models as $t => $model) {
                 $this->assertInstanceOf(User::class, $model);
                 $this->assertEquals($id, $model->pk);
-                $id++;
+                ++$id;
             }
         }
     }

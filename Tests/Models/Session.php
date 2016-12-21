@@ -8,8 +8,7 @@ use Mindy\Orm\Fields\IntField;
 use Mindy\Orm\Model;
 
 /**
- * Class Session
- * @package Modules\User
+ * Class Session.
  */
 class Session extends Model
 {
@@ -29,12 +28,12 @@ class Session extends Model
             'data' => [
                 'class' => BlobField::class,
                 'null' => true,
-            ]
+            ],
         ];
     }
 
     public function __toString()
     {
-        return (string)$this->id;
+        return (string) $this->id;
     }
 }

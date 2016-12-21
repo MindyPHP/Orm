@@ -11,15 +11,15 @@ use Mindy\QueryBuilder\QueryBuilder;
 use Mindy\Orm\ManagerInterface;
 
 /**
- * Class ManyToManyField
- * @package Mindy\Orm
+ * Class ManyToManyField.
  */
 class ManyToManyField extends RelatedField
 {
     public $null = true;
 
     /**
-     * If to self, changes 'to' and 'from' fields
+     * If to self, changes 'to' and 'from' fields.
+     *
      * @var bool
      */
     public $reversed = false;
@@ -36,37 +36,44 @@ class ManyToManyField extends RelatedField
      */
     public $link = [];
     /**
-     * Related model class
+     * Related model class.
+     *
      * @var string
      */
     public $modelClass;
     /**
-     * Main model
+     * Main model.
+     *
      * @var \Mindy\Orm\Model
      */
     protected $_model;
     /**
-     * Related model
+     * Related model.
+     *
      * @var \Mindy\Orm\Model
      */
     protected $_relatedModel;
     /**
-     * Primary key name
+     * Primary key name.
+     *
      * @var string
      */
     protected $_modelPk;
     /**
-     * Primary key name of the related model
+     * Primary key name of the related model.
+     *
      * @var string
      */
     protected $_relatedModelPk;
     /**
-     * Model column in "link" table
+     * Model column in "link" table.
+     *
      * @var string
      */
     protected $_modelColumn;
     /**
-     * Related model column in "link" table
+     * Related model column in "link" table.
+     *
      * @var string
      */
     protected $_relatedModelColumn;
@@ -87,6 +94,7 @@ class ManyToManyField extends RelatedField
         if (!$this->_relatedModel) {
             $this->_relatedModel = new $this->modelClass();
         }
+
         return $this->_relatedModel;
     }
 
@@ -98,6 +106,7 @@ class ManyToManyField extends RelatedField
         if (!$this->_relatedModelPk) {
             $this->_relatedModelPk = $this->getRelatedModel()->getPrimaryKeyName();
         }
+
         return $this->_relatedModelPk;
     }
 
@@ -108,6 +117,7 @@ class ManyToManyField extends RelatedField
     {
         if (!empty($this->link)) {
             list($fromId, $toId) = $this->link;
+
             return $toId;
         }
 
@@ -119,8 +129,9 @@ class ManyToManyField extends RelatedField
             }
             $tmp = explode('\\', $cls);
             $column = AbstractModel::normalizeTableName(end($tmp));
-            $this->_relatedModelColumn = $column . '_' . $end;
+            $this->_relatedModelColumn = $column.'_'.$end;
         }
+
         return $this->_relatedModelColumn;
     }
 
@@ -132,11 +143,13 @@ class ManyToManyField extends RelatedField
         if (!$this->_modelPk) {
             $this->_modelPk = MetaData::getInstance($this->ownerClassName)->getPrimaryKeyName();
         }
+
         return $this->_modelPk;
     }
 
     /**
      * @return string Model column in "link" table
+     *
      * @throws Exception
      */
     public function getModelColumn()
@@ -155,7 +168,7 @@ class ManyToManyField extends RelatedField
                         }
                     }
 
-                    $this->_modelColumn = $name . '_id';
+                    $this->_modelColumn = $name.'_id';
                 } else {
                     list($fromId, $toId) = $this->link;
                     if (empty($this->link)) {
@@ -172,9 +185,10 @@ class ManyToManyField extends RelatedField
                 }
                 $tmp = explode('\\', $cls);
                 $column = AbstractModel::normalizeTableName(end($tmp));
-                $this->_modelColumn = $column . '_' . $end;
+                $this->_modelColumn = $column.'_'.$end;
             }
         }
+
         return $this->_modelColumn;
     }
 
@@ -188,10 +202,11 @@ class ManyToManyField extends RelatedField
         } else {
             list($to, $from) = $this->link;
         }
+
         return [
             ['LEFT JOIN', $this->getTableName(), [
-                $throughAlias . '.' . $from => $alias . '.' . $this->getModel()->getMeta()->getPrimaryKeyName()
-            ], $throughAlias]
+                $throughAlias.'.'.$from => $alias.'.'.$this->getModel()->getMeta()->getPrimaryKeyName(),
+            ], $throughAlias],
         ];
     }
 
@@ -205,15 +220,16 @@ class ManyToManyField extends RelatedField
         } else {
             list($from, $to) = $this->link;
         }
+
         return [
             [
                 'LEFT JOIN',
                 $this->getTableName(),
                 [
-                    $throughAlias . '.' . $from => $topAlias . '.' . $this->getModel()->getPrimaryKeyName()
+                    $throughAlias.'.'.$from => $topAlias.'.'.$this->getModel()->getPrimaryKeyName(),
                 ],
-                $throughAlias
-            ]
+                $throughAlias,
+            ],
         ];
     }
 
@@ -230,13 +246,13 @@ class ManyToManyField extends RelatedField
             'relatedTable' => $this->getTableName(),
             'extra' => $this->extra,
             'through' => $this->through,
-            'throughLink' => $this->link
+            'throughLink' => $this->link,
         ];
         /** @var \Mindy\Orm\Manager $manager */
         $manager = (new \ReflectionClass($className))->newInstanceArgs([
             $this->getRelatedModel(),
             $this->getRelatedModel()->getConnection(),
-            $config
+            $config,
         ]);
 
         if (!empty($this->link)) {
@@ -244,11 +260,10 @@ class ManyToManyField extends RelatedField
             $throughAlias = $manager->getQueryBuilder()->makeAliasKey($this->getTableName());
             $this->buildSelectQuery($manager->getQueryBuilder(), $manager->getQueryBuilder()->makeAliasKey($this->getModel()->tableName()));
             if (empty($this->getModel()->pk)) {
-                $manager->filter('[[' . $throughAlias . ']].[[' . $from . ']] IS NULL');
+                $manager->filter('[['.$throughAlias.']].[['.$from.']] IS NULL');
             } else {
-                $manager->filter('[[' . $throughAlias . ']].[[' . $from . ']]=@' . $this->getModel()->pk . '@');
+                $manager->filter('[['.$throughAlias.']].[['.$from.']]=@'.$this->getModel()->pk.'@');
             }
-
         } else {
             $from = $this->getRelatedModelColumn();
             $to = $this->getModelColumn();
@@ -256,9 +271,9 @@ class ManyToManyField extends RelatedField
             $throughAlias = $manager->getQueryBuilder()->makeAliasKey($this->getTableName());
             $this->buildSelectQuery($manager->getQueryBuilder(), $manager->getQueryBuilder()->makeAliasKey($this->getModel()->tableName()));
             if (empty($this->getModel()->pk)) {
-                $manager->filter('[[' . $throughAlias . ']].[[' . $from . ']] IS NULL');
+                $manager->filter('[['.$throughAlias.']].[['.$from.']] IS NULL');
             } else {
-                $manager->filter('[[' . $throughAlias . ']].[[' . $from . ']]=@' . $this->getModel()->pk . '@');
+                $manager->filter('[['.$throughAlias.']].[['.$from.']]=@'.$this->getModel()->pk.'@');
             }
         }
 
@@ -280,11 +295,13 @@ class ManyToManyField extends RelatedField
             $qb->join($joinType, $tableName, $on, $alias);
             $joinAlias = $alias;
         }
+
         return $joinAlias;
     }
 
     /**
-     * Table name of the "link" table
+     * Table name of the "link" table.
+     *
      * @return string
      */
     public function getTableName()
@@ -293,7 +310,8 @@ class ManyToManyField extends RelatedField
             $adapter = QueryBuilder::getInstance($this->getRelatedModel()->getConnection())->getAdapter();
             $parts = [$adapter->getRawTableName($this->getTable()), $adapter->getRawTableName($this->getRelatedTable())];
             sort($parts);
-            return '{{%' . implode('_', $parts) . '}}';
+
+            return '{{%'.implode('_', $parts).'}}';
         } else {
             return call_user_func([$this->through, 'tableName']);
         }
@@ -313,7 +331,7 @@ class ManyToManyField extends RelatedField
 
         return [
             (new IntField(['name' => $from]))->getColumn(),
-            (new IntField(['name' => $to]))->getColumn()
+            (new IntField(['name' => $to]))->getColumn(),
         ];
     }
 
@@ -350,7 +368,7 @@ class ManyToManyField extends RelatedField
                     return [];
                 }
 
-                throw new Exception("ManyToMany field can set only arrays of Models or existing primary keys");
+                throw new Exception('ManyToMany field can set only arrays of Models or existing primary keys');
             }
         } else {
             return [];
@@ -359,6 +377,7 @@ class ManyToManyField extends RelatedField
 
     /**
      * @param array $value
+     *
      * @throws \Exception
      */
     public function setValue($value)
@@ -376,7 +395,7 @@ class ManyToManyField extends RelatedField
             if ($linkModel instanceof ModelInterface) {
                 $manager->link($linkModel);
             } else {
-                throw new Exception("ManyToMany field can set only arrays of Models or existing primary keys");
+                throw new Exception('ManyToMany field can set only arrays of Models or existing primary keys');
             }
         }
     }
@@ -399,14 +418,15 @@ class ManyToManyField extends RelatedField
         } else {
             list($to, $from) = $this->link;
         }
+
         return [
             ['LEFT JOIN', $this->getTableName(), [
-                $throughAlias . '.' . $to => $topAlias . '.' . $relatedModel->getPrimaryKeyName()
+                $throughAlias.'.'.$to => $topAlias.'.'.$relatedModel->getPrimaryKeyName(),
             ], $throughAlias],
 
             ['LEFT JOIN', $this->getRelatedTable(), [
-                $alias . '.' . $this->getModel()->getPrimaryKeyName() => $throughAlias . '.' . $from
-            ], $alias]
+                $alias.'.'.$this->getModel()->getPrimaryKeyName() => $throughAlias.'.'.$from,
+            ], $alias],
         ];
     }
 

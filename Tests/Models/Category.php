@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -14,14 +13,13 @@
 
 namespace Mindy\Orm\Tests\Models;
 
-
 use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Model;
 
 /**
- * Class Category
- * @package Mindy\Orm\Tests\Models
+ * Class Category.
+ *
  * @property string name
  * @property \Mindy\Orm\HasManyManager products
  */
@@ -31,14 +29,14 @@ class Category extends Model
     {
         return [
             'name' => [
-                'class' => CharField::class
+                'class' => CharField::class,
             ],
             'products' => [
                 'class' => HasManyField::class,
                 'modelClass' => Product::class,
                 'null' => true,
                 'editable' => false,
-                'link' => ['category_id', 'id']
+                'link' => ['category_id', 'id'],
             ],
         ];
     }

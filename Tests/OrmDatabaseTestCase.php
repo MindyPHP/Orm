@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -16,11 +15,8 @@ namespace Mindy\Orm\Tests;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
-use Exception;
-use Mindy\MockApp;
 use Mindy\Orm\Orm;
 use Mindy\Orm\Sync;
-use Mindy\QueryBuilder\ConnectionManager;
 use Mindy\QueryBuilder\QueryBuilder;
 
 class OrmDatabaseTestCase extends \PHPUnit_Framework_TestCase
@@ -40,7 +36,7 @@ class OrmDatabaseTestCase extends \PHPUnit_Framework_TestCase
 
     public function getConfig()
     {
-        $path = (@getenv('TRAVIS') ? __DIR__ . '/config_travis.php' : __DIR__ . '/config_local.php');
+        $path = (@getenv('TRAVIS') ? __DIR__.'/config_travis.php' : __DIR__.'/config_local.php');
         $config = include $path;
         if (isset($config[$this->driver])) {
             return $config[$this->driver];
@@ -51,8 +47,8 @@ class OrmDatabaseTestCase extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        if (extension_loaded('pdo_' . $this->driver) === false) {
-            $this->markTestSkipped('pdo_' . $this->driver . ' ext required');
+        if (extension_loaded('pdo_'.$this->driver) === false) {
+            $this->markTestSkipped('pdo_'.$this->driver.' ext required');
         }
 
         $config = $this->getConfig();
@@ -70,7 +66,7 @@ class OrmDatabaseTestCase extends \PHPUnit_Framework_TestCase
 
     protected function assertSql($expected, $actual)
     {
-        $sql = QueryBuilder::getInstance($this->getConnection())->getAdapter()->quoteSql(str_replace([" \n", "\n"], " ", $expected));
+        $sql = QueryBuilder::getInstance($this->getConnection())->getAdapter()->quoteSql(str_replace([" \n", "\n"], ' ', $expected));
         $this->assertEquals($sql, trim($actual));
     }
 
@@ -116,6 +112,7 @@ class OrmDatabaseTestCase extends \PHPUnit_Framework_TestCase
     public function getConnectionType()
     {
         $params = explode(':', $this->connection->dsn);
+
         return array_pop($params);
     }
 
@@ -125,6 +122,7 @@ class OrmDatabaseTestCase extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->setMethods(['setConnection'])->getMock();
         $instance->method('getConnection')->willReturn($this->connection);
+
         return $instance;
     }
 }

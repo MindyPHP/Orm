@@ -5,8 +5,7 @@ namespace Mindy\Orm\Fields;
 use Doctrine\DBAL\Types\Type;
 
 /**
- * Class FloatField
- * @package Mindy\Orm
+ * Class FloatField.
  */
 class FloatField extends Field
 {

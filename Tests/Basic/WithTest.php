@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 27/07/16
- * Time: 15:43
+ * Time: 15:43.
  */
 
 namespace Mindy\Orm\Tests\Basic;
@@ -21,29 +21,29 @@ abstract class WithTest extends OrmDatabaseTestCase
     public function getModels()
     {
         return [
-            new User,
-            new Customer,
-            new Tyre,
-            new ModelTyre,
-            new User1,
-            new Issue
+            new User(),
+            new Customer(),
+            new Tyre(),
+            new ModelTyre(),
+            new User1(),
+            new Issue(),
         ];
     }
 
     public function testWith()
     {
         $user = new User([
-            'username' => 'foo'
+            'username' => 'foo',
         ]);
         $user->save();
 
         (new User([
-            'username' => 'bar'
+            'username' => 'bar',
         ]))->save();
 
         (new Customer([
             'user' => $user,
-            'address' => 'address'
+            'address' => 'address',
         ]))->save();
 
         $tyre = new Tyre();
@@ -51,19 +51,19 @@ abstract class WithTest extends OrmDatabaseTestCase
 
         $modelTyre = new ModelTyre([
             'tyre' => $tyre,
-            'name' => 'Nordman 4'
+            'name' => 'Nordman 4',
         ]);
         $modelTyre->save();
 
         $modelTyre = new ModelTyre([
             'tyre' => $tyre,
-            'name' => 'Nordman 3'
+            'name' => 'Nordman 3',
         ]);
         $modelTyre->save();
 
         $modelTyre = new ModelTyre([
             'tyre' => $tyre,
-            'name' => 'Nordman 2'
+            'name' => 'Nordman 2',
         ]);
         $modelTyre->save();
 
@@ -75,10 +75,10 @@ abstract class WithTest extends OrmDatabaseTestCase
                 'model_tyre' => [
                     'id' => '1',
                     'name' => 'Nordman 4',
-                    'tyre_id' => '1'
+                    'tyre_id' => '1',
                 ],
-                'id' => '1'
-            ]
+                'id' => '1',
+            ],
         ], $data);
 
         $qs = User::objects()->with(['addresses'])->asArray();
@@ -87,22 +87,22 @@ abstract class WithTest extends OrmDatabaseTestCase
                 'addresses' => [
                     'id' => 1,
                     'user_id' => 1,
-                    'address' => 'address'
+                    'address' => 'address',
                 ],
                 'id' => '1',
                 'username' => 'foo',
-                'password' => null
+                'password' => null,
             ],
             [
                 'addresses' => [
                     'id' => null,
                     'user_id' => null,
-                    'address' => ''
+                    'address' => '',
                 ],
                 'id' => '2',
                 'username' => 'bar',
-                'password' => null
-            ]
+                'password' => null,
+            ],
         ], $qs->all());
 
         $qs = User::objects()->filter(['addresses__address' => 'address'])->with(['addresses'])->asArray();
@@ -111,12 +111,12 @@ abstract class WithTest extends OrmDatabaseTestCase
                 'addresses' => [
                     'id' => 1,
                     'user_id' => 1,
-                    'address' => 'address'
+                    'address' => 'address',
                 ],
                 'id' => '1',
                 'username' => 'foo',
-                'password' => ''
-            ]
+                'password' => '',
+            ],
         ], $qs->all());
     }
 
@@ -149,10 +149,10 @@ abstract class WithTest extends OrmDatabaseTestCase
         unset($item['created_at']);
         $this->assertEquals([
             'author' => [
-                'id' => 1
+                'id' => 1,
             ],
             'user' => [
-                'id' => 1
+                'id' => 1,
             ],
             'id' => 1,
             'author_id' => 1,

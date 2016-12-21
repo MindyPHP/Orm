@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 27/07/16
- * Time: 16:44
+ * Time: 16:44.
  */
 
 namespace Mindy\Orm\Tests\Basic;
@@ -15,7 +15,7 @@ abstract class AsArrayTest extends OrmDatabaseTestCase
 {
     public function getModels()
     {
-        return [new Solution];
+        return [new Solution()];
     }
 
     public function testToArray()
@@ -52,7 +52,7 @@ abstract class AsArrayTest extends OrmDatabaseTestCase
             'document' => null,
             'content' => 'qwe',
             'status' => 1,
-            'status__text' => 'Complete'
+            'status__text' => 'Complete',
         ], $array);
 
         $solution->status = Solution::STATUS_SUCCESS;
@@ -69,7 +69,7 @@ abstract class AsArrayTest extends OrmDatabaseTestCase
             'document' => null,
             'content' => 'qwe',
             'status' => 2,
-            'status__text' => 'Successful'
+            'status__text' => 'Successful',
         ], $array);
 
         $solution->save();
@@ -86,7 +86,7 @@ abstract class AsArrayTest extends OrmDatabaseTestCase
             'document' => null,
             'content' => 'qwe',
             'status' => 2,
-            'status__text' => 'Successful'
+            'status__text' => 'Successful',
         ], $array);
     }
 }

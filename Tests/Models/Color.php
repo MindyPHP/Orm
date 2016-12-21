@@ -1,11 +1,10 @@
 <?php
 /**
- * 
- *
  * All rights reserved.
  * 
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -19,8 +18,8 @@ use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Model;
 
 /**
- * Class Color
- * @package Mindy\Orm\Tests\Models
+ * Class Color.
+ *
  * @property string name
  */
 class Color extends Model
@@ -29,12 +28,12 @@ class Color extends Model
     {
         return [
             'name' => [
-                'class' => CharField::class
+                'class' => CharField::class,
             ],
             'cup' => [
                 'class' => ForeignField::class,
-                'modelClass' => Cup::class
-            ]
+                'modelClass' => Cup::class,
+            ],
         ];
     }
 }

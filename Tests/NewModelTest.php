@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 16/09/16
- * Time: 18:09
+ * Time: 18:09.
  */
 
 namespace Mindy\Orm\Tests;
@@ -24,7 +24,7 @@ class NewModelTest extends OrmDatabaseTestCase
 {
     public function testInit()
     {
-        $model = new DummyModel;
+        $model = new DummyModel();
         $this->assertTrue($model->getIsNewRecord());
         $this->assertEquals([], $model->getFields());
         $this->assertEquals(['id' => null], $model->getAttributes());
@@ -114,7 +114,7 @@ class NewModelTest extends OrmDatabaseTestCase
 
     public function testSelectedAttributes()
     {
-        $this->initModels([new User], $this->getConnection());
+        $this->initModels([new User()], $this->getConnection());
 
         $model = new User(['username' => 'foo']);
         $this->assertTrue($model->save());
@@ -131,7 +131,7 @@ class NewModelTest extends OrmDatabaseTestCase
         $model = User::objects()->get(['password' => 'example']);
         $this->assertSame('foo', $model->username);
 
-        $this->dropModels([new User], $this->getConnection());
+        $this->dropModels([new User()], $this->getConnection());
     }
 
     public function testDirtyAttributes()
@@ -176,7 +176,7 @@ class NewModelTest extends OrmDatabaseTestCase
         $model = new User();
         $model->username = 'foo';
         $this->assertEquals([
-            'username' => 'foo'
+            'username' => 'foo',
         ], $model->getChangedAttributes());
     }
 }

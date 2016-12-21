@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 16/09/16
- * Time: 10:24
+ * Time: 10:24.
  */
 
 namespace Mindy\Orm\Tests;
@@ -16,12 +16,12 @@ class IsNewTest extends OrmDatabaseTestCase
 
     public function getModels()
     {
-        return [new User];
+        return [new User()];
     }
 
     public function testSimple()
     {
-        $user = new User;
+        $user = new User();
         $this->assertTrue($user->getIsNewRecord());
 
         $user->pk = 1;

@@ -14,8 +14,7 @@ use Mindy\Orm\ValidationTrait;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
- * Class Field
- * @package Mindy\Orm
+ * Class Field.
  */
 abstract class Field implements ModelFieldInterface
 {
@@ -76,6 +75,7 @@ abstract class Field implements ModelFieldInterface
 
     /**
      * Field constructor.
+     *
      * @param array $config
      */
     public function __construct(array $config = [])
@@ -111,7 +111,7 @@ abstract class Field implements ModelFieldInterface
 
         if (!empty($this->choices)) {
             $constraints[] = new Assert\Choice([
-                'choices' => array_keys($this->choices instanceof Closure ? $this->choices->__invoke() : $this->choices)
+                'choices' => array_keys($this->choices instanceof Closure ? $this->choices->__invoke() : $this->choices),
             ]);
         }
 
@@ -120,6 +120,7 @@ abstract class Field implements ModelFieldInterface
 
     /**
      * @return Column
+     *
      * @throws \Doctrine\DBAL\DBALException
      */
     public function getColumn()
@@ -128,7 +129,8 @@ abstract class Field implements ModelFieldInterface
         if ($type) {
             return new Column($this->getAttributeName(), $type, $this->getSqlOptions());
         }
-        return null;
+
+        return;
     }
 
     /**
@@ -138,8 +140,9 @@ abstract class Field implements ModelFieldInterface
     {
         $indexes = [];
         if ($this->unique && $this->primary === false) {
-            $indexes[] = new Index($this->name . '_idx', [$this->name], true, false);
+            $indexes[] = new Index($this->name.'_idx', [$this->name], true, false);
         }
+
         return $indexes;
     }
 
@@ -178,17 +181,20 @@ abstract class Field implements ModelFieldInterface
 
     /**
      * @param ModelInterface $model
+     *
      * @return $this
      */
     public function setModel(ModelInterface $model)
     {
         $this->_model = $model;
+
         return $this;
     }
 
     public function setModelClass($className)
     {
         $this->ownerClassName = $className;
+
         return $this;
     }
 
@@ -217,16 +223,19 @@ abstract class Field implements ModelFieldInterface
         if (empty($this->value)) {
             return $this->null === true ? null : $this->default;
         }
+
         return $this->value;
     }
 
     /**
      * @param $value
+     *
      * @return $this
      */
     public function setDbValue($value)
     {
         $this->dbValue = $value;
+
         return $this;
     }
 
@@ -250,11 +259,13 @@ abstract class Field implements ModelFieldInterface
 
     /**
      * @param $name
+     *
      * @return $this
      */
     public function setName($name)
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -278,7 +289,6 @@ abstract class Field implements ModelFieldInterface
      */
     public function afterInsert(ModelInterface $model, $value)
     {
-
     }
 
     /**
@@ -287,7 +297,6 @@ abstract class Field implements ModelFieldInterface
      */
     public function afterUpdate(ModelInterface $model, $value)
     {
-
     }
 
     /**
@@ -296,7 +305,6 @@ abstract class Field implements ModelFieldInterface
      */
     public function afterDelete(ModelInterface $model, $value)
     {
-
     }
 
     /**
@@ -305,7 +313,6 @@ abstract class Field implements ModelFieldInterface
      */
     public function beforeInsert(ModelInterface $model, $value)
     {
-
     }
 
     /**
@@ -314,7 +321,6 @@ abstract class Field implements ModelFieldInterface
      */
     public function beforeUpdate(ModelInterface $model, $value)
     {
-
     }
 
     /**
@@ -323,7 +329,6 @@ abstract class Field implements ModelFieldInterface
      */
     public function beforeDelete(ModelInterface $model, $value)
     {
-
     }
 
     public function toArray()
@@ -337,6 +342,7 @@ abstract class Field implements ModelFieldInterface
         if (isset($this->choices[$value])) {
             $value = $this->choices[$value];
         }
+
         return $value;
     }
 
@@ -348,6 +354,7 @@ abstract class Field implements ModelFieldInterface
     /**
      * @param $value
      * @param AbstractPlatform $platform
+     *
      * @return mixed
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
@@ -358,6 +365,7 @@ abstract class Field implements ModelFieldInterface
     /**
      * @param $value
      * @param AbstractPlatform $platform
+     *
      * @return mixed
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
@@ -368,6 +376,7 @@ abstract class Field implements ModelFieldInterface
     /**
      * @param $value
      * @param AbstractPlatform $platform
+     *
      * @return mixed
      */
     public function convertToPHPValueSQL($value, AbstractPlatform $platform)
@@ -378,6 +387,7 @@ abstract class Field implements ModelFieldInterface
     /**
      * @param $value
      * @param AbstractPlatform $platform
+     *
      * @return mixed
      */
     public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)
@@ -385,6 +395,7 @@ abstract class Field implements ModelFieldInterface
         if ($value === null || $value === '') {
             $value = null;
         }
+
         return $this->getSqlType()->convertToDatabaseValueSQL($value, $platform);
     }
 }

@@ -8,8 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
- * Class OneToOneField
- * @package Mindy\Orm
+ * Class OneToOneField.
  */
 class OneToOneField extends ForeignField
 {
@@ -43,8 +42,9 @@ class OneToOneField extends ForeignField
         if ($this->primary === false) {
             $model = $this->getModel();
             if ($model->getIsNewRecord()) {
-                return null;
+                return;
             }
+
             return $this->getRelatedModel()->objects()->get(['pk' => $model->pk]);
         } else {
             return parent::getValue();
@@ -68,7 +68,7 @@ class OneToOneField extends ForeignField
                     if ($this->getRelatedModel()->objects()->filter(['pk' => $value])->count() === 0) {
                         $context->buildViolation('The primary model not found')->addViolation();
                     }
-                })
+                }),
             ];
         } else {
             $constraints = [];
@@ -94,19 +94,20 @@ class OneToOneField extends ForeignField
         }
 
         return $this->getRelatedModel()->objects()->get([
-            $this->to => $value
+            $this->to => $value,
         ]);
     }
 
     public function getSqlIndexes()
     {
         $indexes = [];
-        $name = $this->primary ? $this->name . '_id' : $this->name;
+        $name = $this->primary ? $this->name.'_id' : $this->name;
         if ($this->primary) {
             $indexes[] = new Index('PRIMARY', [$name], true, true);
-        } else if ($this->unique && !$this->primary) {
-            $indexes[] = new Index($name . '_idx', [$name], true, false);
+        } elseif ($this->unique && !$this->primary) {
+            $indexes[] = new Index($name.'_idx', [$name], true, false);
         }
+
         return $indexes;
     }
 
@@ -117,9 +118,10 @@ class OneToOneField extends ForeignField
     {
         if ($this->primary) {
             $primaryKeyName = call_user_func([$this->modelClass, 'getPrimaryKeyName']);
-            return $this->name . '_' . $primaryKeyName;
+
+            return $this->name.'_'.$primaryKeyName;
         } else {
-            return $this->name . '_id';
+            return $this->name.'_id';
         }
     }
 }

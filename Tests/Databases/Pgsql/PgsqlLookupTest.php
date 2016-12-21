@@ -5,6 +5,7 @@
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -23,7 +24,6 @@ class PgsqlLookupTest extends LookupTest
 
     public function tearDown()
     {
-        
     }
 
     public function testYear()
@@ -32,11 +32,11 @@ class PgsqlLookupTest extends LookupTest
         $this->assertTrue((new ProductList(['name' => 'bar', 'date_action' => '2012-03-29 10:35:45']))->save());
 
         $qs = ProductList::objects()->filter(['date_action__year' => 2014]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(YEAR FROM [[product_list_1]].[[date_action]]::timestamp)=@2014@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(YEAR FROM [[product_list_1]].[[date_action]]::timestamp)=@2014@)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
 
         $qs = ProductList::objects()->filter(['date_action__year' => '2013']);
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(YEAR FROM [[product_list_1]].[[date_action]]::timestamp)=@2013@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(YEAR FROM [[product_list_1]].[[date_action]]::timestamp)=@2013@)', $qs->countSql());
         $this->assertEquals(0, $qs->count());
     }
 
@@ -47,11 +47,11 @@ class PgsqlLookupTest extends LookupTest
 
         $qs = ProductList::objects()->filter(['date_action__month' => 4]);
         $this->assertEquals(1, $qs->count());
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(MONTH FROM [[product_list_1]].[[date_action]]::timestamp)=@4@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(MONTH FROM [[product_list_1]].[[date_action]]::timestamp)=@4@)', $qs->countSql());
 
         $qs = ProductList::objects()->filter(['date_action__month' => '3']);
         $this->assertEquals(0, $qs->count());
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(MONTH FROM [[product_list_1]].[[date_action]]::timestamp)=@3@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(MONTH FROM [[product_list_1]].[[date_action]]::timestamp)=@3@)', $qs->countSql());
     }
 
     public function testDay()
@@ -61,11 +61,11 @@ class PgsqlLookupTest extends LookupTest
 
         $qs = ProductList::objects()->filter(['date_action__day' => 29]);
         $this->assertEquals(1, $qs->count());
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(DAY FROM [[product_list_1]].[[date_action]]::timestamp)=@29@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(DAY FROM [[product_list_1]].[[date_action]]::timestamp)=@29@)', $qs->countSql());
 
         $qs = ProductList::objects()->filter(['date_action__day' => '30']);
         $this->assertEquals(0, $qs->count());
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(DAY FROM [[product_list_1]].[[date_action]]::timestamp)=@30@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(DAY FROM [[product_list_1]].[[date_action]]::timestamp)=@30@)', $qs->countSql());
     }
 
     public function testWeekDay()
@@ -75,11 +75,11 @@ class PgsqlLookupTest extends LookupTest
 
         $qs = ProductList::objects()->filter(['date_action__week_day' => 2]);
         $this->assertEquals(1, $qs->count());
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(DOW FROM [[product_list_1]].[[date_action]]::timestamp)=@2@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(DOW FROM [[product_list_1]].[[date_action]]::timestamp)=@2@)', $qs->countSql());
 
         $qs = ProductList::objects()->filter(['date_action__week_day' => '3']);
         $this->assertEquals(0, $qs->count());
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(DOW FROM [[product_list_1]].[[date_action]]::timestamp)=@3@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(DOW FROM [[product_list_1]].[[date_action]]::timestamp)=@3@)', $qs->countSql());
     }
 
     public function testHour()
@@ -89,11 +89,11 @@ class PgsqlLookupTest extends LookupTest
 
         $qs = ProductList::objects()->filter(['date_action__hour' => 10]);
         $this->assertEquals(1, $qs->count());
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(HOUR FROM [[product_list_1]].[[date_action]]::timestamp)=@10@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(HOUR FROM [[product_list_1]].[[date_action]]::timestamp)=@10@)', $qs->countSql());
 
         $qs = ProductList::objects()->filter(['date_action__hour' => '11']);
         $this->assertEquals(0, $qs->count());
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(HOUR FROM [[product_list_1]].[[date_action]]::timestamp)=@11@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(HOUR FROM [[product_list_1]].[[date_action]]::timestamp)=@11@)', $qs->countSql());
     }
 
     public function testMinute()
@@ -102,11 +102,11 @@ class PgsqlLookupTest extends LookupTest
         $this->assertTrue((new ProductList(['name' => 'bar', 'date_action' => '2012-03-29 10:34:45']))->save());
 
         $qs = ProductList::objects()->filter(['date_action__minute' => 35]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(MINUTE FROM [[product_list_1]].[[date_action]]::timestamp)=@35@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(MINUTE FROM [[product_list_1]].[[date_action]]::timestamp)=@35@)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
 
         $qs = ProductList::objects()->filter(['date_action__minute' => '36']);
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(MINUTE FROM [[product_list_1]].[[date_action]]::timestamp)=@36@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(MINUTE FROM [[product_list_1]].[[date_action]]::timestamp)=@36@)', $qs->countSql());
         $this->assertEquals(0, $qs->count());
     }
 
@@ -116,11 +116,11 @@ class PgsqlLookupTest extends LookupTest
         $this->assertTrue((new ProductList(['name' => 'bar', 'date_action' => '2012-03-29 10:35:35']))->save());
 
         $qs = ProductList::objects()->filter(['date_action__second' => 45]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(SECOND FROM [[product_list_1]].[[date_action]]::timestamp)=@45@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(SECOND FROM [[product_list_1]].[[date_action]]::timestamp)=@45@)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
 
         $qs = ProductList::objects()->filter(['date_action__second' => '46']);
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(SECOND FROM [[product_list_1]].[[date_action]]::timestamp)=@46@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (EXTRACT(SECOND FROM [[product_list_1]].[[date_action]]::timestamp)=@46@)', $qs->countSql());
         $this->assertEquals(0, $qs->count());
     }
 
@@ -155,66 +155,66 @@ class PgsqlLookupTest extends LookupTest
     public function testContains()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__contains' => 1]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]]::text LIKE @%1%@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]]::text LIKE @%1%@)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
     }
 
     public function testIcontains()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__icontains' => 1]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE (LOWER([[product_1]].[[id]]::text) LIKE @%1%@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE (LOWER([[product_1]].[[id]]::text) LIKE @%1%@)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
     }
 
     public function testStartswith()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__startswith' => 1]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]]::text LIKE @1%@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]]::text LIKE @1%@)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
     }
 
     public function testIstartswith()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__istartswith' => 1]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE (LOWER([[product_1]].[[id]]::text) LIKE @1%@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE (LOWER([[product_1]].[[id]]::text) LIKE @1%@)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
     }
 
     public function testEndswith()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__endswith' => 1]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]]::text LIKE @%1@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]]::text LIKE @%1@)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
     }
 
     public function testIendswith()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__iendswith' => 1]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE (LOWER([[product_1]].[[id]]::text) LIKE @%1@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE (LOWER([[product_1]].[[id]]::text) LIKE @%1@)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
     }
 }

@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -23,7 +22,7 @@ class DataIteratorTest extends OrmDatabaseTestCase
     public function getModels()
     {
         return [
-            new BookCategory
+            new BookCategory(),
         ];
     }
 
@@ -51,11 +50,11 @@ class DataIteratorTest extends OrmDatabaseTestCase
         $qs = BookCategory::objects()->filter(['id__gt' => 0])->asArray();
         $this->assertEquals(5, $qs->count());
         foreach ($qs as $i => $model) {
-            $this->assertEquals($i + 1, $model["id"]);
+            $this->assertEquals($i + 1, $model['id']);
         }
         $this->assertEquals(5, $qs->count());
         foreach ($qs as $i => $model) {
-            $this->assertEquals($i + 1, $model["id"]);
+            $this->assertEquals($i + 1, $model['id']);
         }
 
         $qs = BookCategory::objects()->filter(['id__gt' => 0]);

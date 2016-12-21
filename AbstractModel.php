@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 16/09/16
- * Time: 17:57
+ * Time: 17:57.
  */
 
 namespace Mindy\Orm;
@@ -15,13 +15,13 @@ use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\QueryBuilder\QueryBuilder;
 
 /**
- * Class NewOrm
- * @package Mindy\Orm
+ * Class NewOrm.
  */
 class AbstractModel extends Base
 {
     /**
      * @return QueryBuilder
+     *
      * @throws Exception
      */
     protected function getQueryBuilder()
@@ -39,6 +39,7 @@ class AbstractModel extends Base
 
     /**
      * @param array $fields
+     *
      * @return bool
      */
     protected function updateInternal(array $fields = [])
@@ -108,16 +109,18 @@ class AbstractModel extends Base
             return implode('_', [
                 $this->tableName(),
                 $this->getPrimaryKeyName(),
-                'seq'
+                'seq',
             ]);
         } catch (DBALException $e) {
-            return null;
+            return;
         }
     }
 
     /**
      * @param array $fields
+     *
      * @return bool
+     *
      * @throws Exception
      */
     public function insert(array $fields = [])
@@ -151,7 +154,9 @@ class AbstractModel extends Base
 
     /**
      * @param array $fields
+     *
      * @return bool
+     *
      * @throws Exception
      */
     public function update(array $fields = [])
@@ -178,11 +183,13 @@ class AbstractModel extends Base
             $this->updateRelated();
             $this->attributes->resetOldAttributes();
         }
+
         return $updated;
     }
 
     /**
      * @param array $fields
+     *
      * @return array
      */
     public function getChangedAttributes(array $fields = [])

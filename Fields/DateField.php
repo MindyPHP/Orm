@@ -9,8 +9,7 @@ use Mindy\Orm\ModelInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class DateField
- * @package Mindy\Orm
+ * Class DateField.
  */
 class DateField extends Field
 {
@@ -38,7 +37,7 @@ class DateField extends Field
     public function getValidationConstraints()
     {
         $constraints = [
-            new Assert\Date()
+            new Assert\Date(),
         ];
         if ($this->isRequired()) {
             $constraints[] = new Assert\NotBlank();
@@ -55,6 +54,7 @@ class DateField extends Field
         if ($this->autoNow || $this->autoNowAdd) {
             return false;
         }
+
         return parent::isRequired();
     }
 
@@ -95,6 +95,7 @@ class DateField extends Field
         if (($value instanceof DateTime) == false) {
             $value = (new DateTime())->setTimestamp(is_numeric($value) ? $value : strtotime($value));
         }
+
         return $this->getSqlType()->convertToDatabaseValue($value, $platform);
     }
 }

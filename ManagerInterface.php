@@ -3,14 +3,13 @@
  * Created by PhpStorm.
  * User: max
  * Date: 16/09/16
- * Time: 19:14
+ * Time: 19:14.
  */
 
 namespace Mindy\Orm;
 
 /**
- * Interface ManagerInterface
- * @package Mindy\Orm
+ * Interface ManagerInterface.
  */
 interface ManagerInterface extends QuerySetInterface
 {

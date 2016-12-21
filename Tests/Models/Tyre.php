@@ -5,6 +5,7 @@
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -23,8 +24,8 @@ class Tyre extends Model
         return [
             'model_tyre' => [
                 'class' => HasManyField::class,
-                'modelClass' => ModelTyre::class
-            ]
+                'modelClass' => ModelTyre::class,
+            ],
         ];
     }
 }

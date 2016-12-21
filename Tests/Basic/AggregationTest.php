@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 27/07/16
- * Time: 15:53
+ * Time: 15:53.
  */
 
 namespace Mindy\Orm\Tests\Basic;
@@ -18,7 +18,7 @@ abstract class AggregationTest extends OrmDatabaseTestCase
 {
     public function getModels()
     {
-        return [new User, new Group, new Customer, new Membership];
+        return [new User(), new Group(), new Customer(), new Membership()];
     }
 
     public function testMax()
@@ -80,7 +80,7 @@ abstract class AggregationTest extends OrmDatabaseTestCase
         $this->assertTrue($customer->save());
 
         $customer2 = new Customer();
-        $customer2->address = "Anton work";
+        $customer2->address = 'Anton work';
         $customer2->user = $user;
         $this->assertTrue($customer2->save());
 
@@ -93,7 +93,7 @@ abstract class AggregationTest extends OrmDatabaseTestCase
         $groupDev->users->link($max);
 
         $customer3 = new Customer();
-        $customer3->address = "Max home";
+        $customer3->address = 'Max home';
         $customer3->user = $max;
         $customer3->save();
     }

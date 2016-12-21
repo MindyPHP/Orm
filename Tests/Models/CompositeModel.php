@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 16/09/16
- * Time: 19:45
+ * Time: 19:45.
  */
 
 namespace Mindy\Orm\Tests\Models;
@@ -17,12 +17,12 @@ class CompositeModel extends DummyModel
         return [
             'order_id' => [
                 'class' => IntField::class,
-                'primary' => true
+                'primary' => true,
             ],
             'user_id' => [
                 'class' => IntField::class,
-                'primary' => true
-            ]
+                'primary' => true,
+            ],
         ];
     }
 }

@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 26/07/16
- * Time: 19:24
+ * Time: 19:24.
  */
 
 namespace Mindy\Orm\Callback;
@@ -26,20 +26,22 @@ class FetchColumnCallback
     {
         if ($column === 'pk') {
             return $this->model->getPrimaryKeyName();
-        } else if ($this->meta->hasForeignField($column)) {
-            return strpos($column, '_id') === false ? $column . '_id' : $column;
-        } else if (strpos($column, '_id') === false) {
+        } elseif ($this->meta->hasForeignField($column)) {
+            return strpos($column, '_id') === false ? $column.'_id' : $column;
+        } elseif (strpos($column, '_id') === false) {
             $fields = $this->meta->getManyToManyFields();
             foreach ($fields as $field) {
                 if (empty($field->through) === false) {
                     $meta = MetaData::getInstance($field->through);
                     if ($meta->hasForeignField($column)) {
-                        return strpos($column, '_id') === false ? $column . '_id' : $column;
+                        return strpos($column, '_id') === false ? $column.'_id' : $column;
                     }
                 }
             }
+
             return $column;
         }
+
         return $column;
     }
 }

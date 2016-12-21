@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -20,7 +19,6 @@ use Mindy\Orm\Tests\OrmDatabaseTestCase;
 
 class DefaultManagerModel extends Model
 {
-
 }
 
 class CustomManager extends Manager
@@ -38,7 +36,8 @@ class CustomManagerModel extends Model
     public static function objectsManager($instance = null)
     {
         $className = get_called_class();
-        return new CustomManager($instance ? $instance : new $className);
+
+        return new CustomManager($instance ? $instance : new $className());
     }
 }
 
@@ -46,21 +45,21 @@ class ManagerTest extends OrmDatabaseTestCase
 {
     public function testDefaultManager()
     {
-        $model = new DefaultManagerModel;
+        $model = new DefaultManagerModel();
         $this->assertInstanceOf(Manager::class, $model->objects());
         $this->assertInstanceOf(Manager::class, DefaultManagerModel::objects());
     }
 
     public function testCustomManager()
     {
-        $model = new CustomManagerModel;
+        $model = new CustomManagerModel();
         $this->assertInstanceOf(CustomManager::class, $model->objects());
         $this->assertInstanceOf(CustomManager::class, CustomManagerModel::objects());
     }
 
     public function testMethod()
     {
-        $model = new CustomManagerModel;
+        $model = new CustomManagerModel();
         $this->assertInstanceOf(CustomManager::class, $model->objects()->published());
     }
 }

@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 08/12/16
- * Time: 13:19
+ * Time: 13:19.
  */
 
 namespace Mindy\Orm;
@@ -32,6 +32,7 @@ class ConnectionManager
 
     /**
      * ConnectionManager constructor.
+     *
      * @param array $config
      */
     public function __construct(array $config = [])
@@ -55,8 +56,8 @@ class ConnectionManager
     protected function configure(array $config)
     {
         foreach ($config as $key => $value) {
-            if (method_exists($this, 'set' . ucfirst($key))) {
-                $this->{'set' . ucfirst($key)}($value);
+            if (method_exists($this, 'set'.ucfirst($key))) {
+                $this->{'set'.ucfirst($key)}($value);
             } else {
                 $this->{$key} = $value;
             }
@@ -65,16 +66,19 @@ class ConnectionManager
 
     /**
      * @param string $name
+     *
      * @return $this
      */
     public function setDefaultConnection(string $name)
     {
         $this->defaultConnection = $name;
+
         return $this;
     }
 
     /**
      * @param null $name
+     *
      * @return \Doctrine\DBAL\Connection|null
      */
     public function getConnection($name = null)
@@ -82,6 +86,7 @@ class ConnectionManager
         if (empty($name)) {
             $name = $this->defaultConnection;
         }
+
         return $this->connections[$name];
     }
 }

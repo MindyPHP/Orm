@@ -6,8 +6,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 
 /**
- * Class IntField
- * @package Mindy\Orm
+ * Class IntField.
  */
 class IntField extends Field
 {
@@ -36,6 +35,7 @@ class IntField extends Field
         } else {
             $options['unsigned'] = $this->unsigned;
         }
+
         return $options;
     }
 
@@ -44,14 +44,15 @@ class IntField extends Field
      */
     public function setValue($value)
     {
-        parent::setValue($this->null ? $value : (int)$value);
+        parent::setValue($this->null ? $value : (int) $value);
     }
 
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         if ($value === null) {
-            return null;
+            return;
         }
-        return (int)parent::convertToPHPValue($value, $platform);
+
+        return (int) parent::convertToPHPValue($value, $platform);
     }
 }

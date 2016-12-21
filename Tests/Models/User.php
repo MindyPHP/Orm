@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -22,8 +21,8 @@ use Mindy\Orm\Model;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class User
- * @package Mindy\Orm\Tests\Models
+ * Class User.
+ *
  * @property string username
  * @property string password
  */
@@ -37,16 +36,16 @@ class User extends Model
                 'null' => false,
                 'validators' => [
                     new Assert\Length(['min' => 3, 'max' => 20]),
-                ]
+                ],
             ],
             'password' => new PasswordField([
-                'null' => true
+                'null' => true,
             ]),
             'groups' => [
                 'class' => ManyToManyField::class,
                 'modelClass' => Group::class,
                 'through' => Membership::class,
-                'link' => ['user_id', 'group_id']
+                'link' => ['user_id', 'group_id'],
             ],
             'addresses' => [
                 'class' => HasManyField::class,
@@ -65,6 +64,7 @@ class User extends Model
     public static function objectsManager($instance = null)
     {
         $className = get_called_class();
-        return new UserManager($instance ? $instance : new $className);
+
+        return new UserManager($instance ? $instance : new $className());
     }
 }

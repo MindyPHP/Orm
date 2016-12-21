@@ -1,11 +1,10 @@
 <?php
 /**
- * 
- *
  * All rights reserved.
  * 
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -26,14 +25,14 @@ class Book extends Model
                 'class' => ForeignField::class,
                 'modelClass' => BookCategory::class,
                 'null' => true,
-                'editable' => false
+                'editable' => false,
             ],
             'category_new' => [
                 'class' => ForeignField::class,
                 'modelClass' => BookCategory::class,
                 'null' => true,
-                'editable' => false
-            ]
+                'editable' => false,
+            ],
         ];
     }
 }

@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 16/09/16
- * Time: 16:32
+ * Time: 16:32.
  */
 
 namespace Mindy\Orm;
@@ -11,9 +11,10 @@ namespace Mindy\Orm;
 use Doctrine\DBAL\Connection;
 
 /**
- * Interface ModelInterface
- * @package Mindy\Orm
+ * Interface ModelInterface.
+ *
  * @property int|string $pk
+ *
  * @method static \Mindy\Orm\Manager|\Mindy\Orm\TreeManager objects($instance = null)
  */
 interface ModelInterface
@@ -25,6 +26,7 @@ interface ModelInterface
 
     /**
      * @param null $instance
+     *
      * @return Manager
      */
     public static function objectsManager($instance = null);
@@ -56,30 +58,35 @@ interface ModelInterface
 
     /**
      * @param bool $asArray
+     *
      * @return array|string
      */
     public static function getPrimaryKeyName($asArray = false);
 
     /**
      * @param array $fields
+     *
      * @return bool
      */
     public function insert(array $fields = []);
 
     /**
      * @param array $fields
+     *
      * @return bool
      */
     public function update(array $fields = []);
 
     /**
      * @param array $fields
+     *
      * @return bool
      */
     public function save(array $fields = []);
 
     /**
      * @param array $row
+     *
      * @return ModelInterface
      */
     public static function create(array $row);

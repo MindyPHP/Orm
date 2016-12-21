@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 24/07/16
- * Time: 13:12
+ * Time: 13:12.
  */
 
 namespace Mindy\Orm\Tests\Models;

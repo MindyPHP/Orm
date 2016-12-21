@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 26/07/16
- * Time: 19:32
+ * Time: 19:32.
  */
 
 namespace Mindy\Orm\Callback;
@@ -35,10 +35,10 @@ class JoinCallback
             } else {
                 if ($nodeName == 'through' && $prevField && $prevField instanceof ManyToManyField) {
                     $alias = $prevField->setConnection($this->model->getConnection())->buildThroughQuery($queryBuilder, $queryBuilder->getAlias());
-                } else if ($this->model->hasField($nodeName)) {
+                } elseif ($this->model->hasField($nodeName)) {
                     $field = $this->model->getField($nodeName);
                     if ($field instanceof RelatedField) {
-                        /** @var \Mindy\Orm\Fields\RelatedField $field */
+                        /* @var \Mindy\Orm\Fields\RelatedField $field */
                         $alias = $field->setConnection($this->model->getConnection())->buildQuery($queryBuilder, $queryBuilder->getAlias());
                         $prevField = $field;
                     }

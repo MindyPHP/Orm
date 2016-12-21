@@ -12,13 +12,12 @@ use Mindy\Orm\Fields\RelatedField;
 use ReflectionClass;
 
 /**
- * Class MetaData
- * @package Mindy\Orm
+ * Class MetaData.
  */
 class MetaData
 {
     /**
-     * Default pk name
+     * Default pk name.
      */
     const DEFAULT_PRIMARY_KEY_NAME = 'id';
 
@@ -45,6 +44,7 @@ class MetaData
 
     /**
      * MetaData constructor.
+     *
      * @param string $className
      */
     final private function __construct($className)
@@ -54,11 +54,12 @@ class MetaData
 
     /**
      * @param $config
+     *
      * @return ModelFieldInterface
      */
     private function createField($config)
     {
-        /** @var $field ModelFieldInterface */
+        /* @var $field ModelFieldInterface */
         if (is_string($config)) {
             $config = ['class' => $config];
         }
@@ -67,7 +68,7 @@ class MetaData
             $className = $config['class'];
             unset($config['class']);
             $field = (new ReflectionClass($className))->newInstance($config);
-        } else if (is_object($config)) {
+        } elseif (is_object($config)) {
             $field = $config;
         }
 
@@ -82,7 +83,6 @@ class MetaData
         $primaryFields = [];
 
         foreach (call_user_func([$className, 'getFields']) as $name => $config) {
-
             $field = $this->createField($config);
             $field->setName($name);
             $field->setModelClass($className);
@@ -98,7 +98,7 @@ class MetaData
         if (empty($primaryFields)) {
             $autoField = new AutoField([
                 'name' => self::DEFAULT_PRIMARY_KEY_NAME,
-                'modelClass' => $className
+                'modelClass' => $className,
             ]);
 
             $this->fields[self::DEFAULT_PRIMARY_KEY_NAME] = $autoField;
@@ -110,6 +110,7 @@ class MetaData
 
     /**
      * @param $subClass
+     *
      * @return array|[]ModelFieldInterface
      */
     private function fetchFields($subClass)
@@ -120,6 +121,7 @@ class MetaData
                 $fields[$name] = $field;
             }
         }
+
         return $fields;
     }
 
@@ -158,6 +160,7 @@ class MetaData
     /**
      * @deprecated since 3.0
      * @codeCoverageIgnore
+     *
      * @return string
      */
     public function getPkName()
@@ -167,6 +170,7 @@ class MetaData
 
     /**
      * @param bool $asArray
+     *
      * @return array|string
      */
     public function getPrimaryKeyName($asArray = false)
@@ -176,6 +180,7 @@ class MetaData
 
     /**
      * @param $name
+     *
      * @return bool
      */
     public function hasRelatedField($name)
@@ -185,11 +190,13 @@ class MetaData
 
     /**
      * @param $name
+     *
      * @return bool
      */
     public function getRelatedField($name)
     {
         $field = $this->getField($name);
+
         return $field instanceof RelatedField ? $field : null;
     }
 
@@ -204,7 +211,9 @@ class MetaData
     /**
      * @deprecated since 3.0
      * @codeCoverageIgnore
+     *
      * @param $name
+     *
      * @return bool
      */
     public function hasForeignKey($name)
@@ -214,6 +223,7 @@ class MetaData
 
     /**
      * @param $name
+     *
      * @return bool
      */
     public function hasHasManyField($name)
@@ -223,6 +233,7 @@ class MetaData
 
     /**
      * @param $name
+     *
      * @return bool
      */
     public function hasManyToManyField($name)
@@ -232,6 +243,7 @@ class MetaData
 
     /**
      * @param $name
+     *
      * @return bool
      */
     public function hasOneToOneField($name)
@@ -242,17 +254,21 @@ class MetaData
     /**
      * @deprecated since 3.0
      * @codeCoverageIgnore
+     *
      * @param $name
+     *
      * @return mixed|null
      */
     public function getForeignKey($name)
     {
         $fields = $this->getForeignFields();
+
         return isset($fields[$name]) ? $fields[$name] : null;
     }
 
     /**
      * @param $className
+     *
      * @return MetaData
      */
     public static function getInstance($className)
@@ -260,6 +276,7 @@ class MetaData
         if (!isset(self::$instances[$className])) {
             self::$instances[$className] = new self($className);
         }
+
         return self::$instances[$className];
     }
 
@@ -269,7 +286,7 @@ class MetaData
     public function getAttributes()
     {
         if ($this->attributes === null) {
-            /** @var \Mindy\Orm\Model $className */
+            /* @var \Mindy\Orm\Model $className */
             $attributes = [];
             foreach ($this->getFields() as $name => $field) {
                 $attributeName = $field->getAttributeName();
@@ -279,12 +296,14 @@ class MetaData
             }
             $this->attributes = $attributes;
         }
+
         return $this->attributes;
     }
 
     /**
      * @deprecated since 3.0
      * @codeCoverageIgnore
+     *
      * @return array|[]ModelFieldInterface
      */
     public function getFieldsInit()
@@ -302,6 +321,7 @@ class MetaData
 
     /**
      * @param $name
+     *
      * @return mixed|null
      */
     public function getMappingName($name)
@@ -311,6 +331,7 @@ class MetaData
 
     /**
      * @param $name
+     *
      * @return \Mindy\Orm\Fields\Field
      */
     public function getField($name)
@@ -324,14 +345,16 @@ class MetaData
         if (isset($this->fields[$name])) {
             $field = $this->fields[$name];
             $field->cleanValue();
+
             return $field;
         }
 
-        return null;
+        return;
     }
 
     /**
      * @param $name
+     *
      * @return bool
      */
     public function hasField($name)
@@ -339,11 +362,13 @@ class MetaData
         if ($name === 'pk') {
             $name = $this->getPkName();
         }
+
         return array_key_exists($name, $this->fields) || array_key_exists($name, $this->mapping);
     }
 
     /**
      * @param $name
+     *
      * @return bool
      */
     public function hasForeignField($name)
@@ -353,27 +378,32 @@ class MetaData
 
     /**
      * @param $name
+     *
      * @return ModelFieldInterface
      */
     public function getForeignField($name)
     {
         $field = $this->getField($name);
+
         return $field instanceof ForeignField ? $field : null;
     }
 
     /**
      * @param $name
+     *
      * @return ModelFieldInterface
      */
     public function getOneToOneField($name)
     {
         $field = $this->getField($name);
+
         return $field instanceof OneToOneField ? $field : null;
     }
 
     /**
      * @deprecated since 3.0
      * @codeCoverageIgnore
+     *
      * @return array|ManyToManyField[]
      */
     public function getManyFields()
@@ -383,26 +413,31 @@ class MetaData
 
     /**
      * @param $name
+     *
      * @return mixed|null
      */
     public function getManyToManyField($name)
     {
         $field = $this->getField($name);
+
         return $field instanceof ManyToManyField ? $field : null;
     }
 
     /**
      * @param $name
+     *
      * @return mixed|null
      */
     public function getHasManyField($name)
     {
         $field = $this->getField($name);
+
         return $field instanceof HasManyField ? $field : null;
     }
 
     /**
      * @param $keys
+     *
      * @return bool
      */
     public static function isPrimaryKey($keys)

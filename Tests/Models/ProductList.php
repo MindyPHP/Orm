@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -20,8 +19,8 @@ use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Model;
 
 /**
- * Class ProductList
- * @package Mindy\Orm\Tests\Models
+ * Class ProductList.
+ *
  * @property string name
  * @property \Mindy\Orm\ManyToManyManager products
  */
@@ -31,18 +30,18 @@ class ProductList extends Model
     {
         return [
             'name' => [
-                'class' => CharField::class
+                'class' => CharField::class,
             ],
             'products' => [
                 'class' => ManyToManyField::class,
                 'modelClass' => Product::class,
-                'link' => ['product_list_id', 'product_id']
+                'link' => ['product_list_id', 'product_id'],
             ],
             'date_action' => [
                 'class' => DateTimeField::class,
                 'required' => false,
-                'null' => true
-            ]
+                'null' => true,
+            ],
         ];
     }
 }

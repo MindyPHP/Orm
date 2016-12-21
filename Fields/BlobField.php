@@ -5,8 +5,7 @@ namespace Mindy\Orm\Fields;
 use Doctrine\DBAL\Types\Type;
 
 /**
- * Class BlobField
- * @package Mindy\Orm
+ * Class BlobField.
  */
 class BlobField extends Field
 {
@@ -15,4 +14,3 @@ class BlobField extends Field
         return Type::getType(Type::BLOB);
     }
 }
-

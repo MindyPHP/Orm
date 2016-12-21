@@ -1,11 +1,11 @@
 <?php
 
 namespace Mindy\Orm\Fields;
+
 use Doctrine\DBAL\Types\Type;
 
 /**
- * Class DecimalField
- * @package Mindy\Orm
+ * Class DecimalField.
  */
 class DecimalField extends Field
 {
@@ -33,12 +33,13 @@ class DecimalField extends Field
     {
         return array_merge(parent::getSqlOptions(), [
             'precision' => $this->precision,
-            'scale' => $this->scale
+            'scale' => $this->scale,
         ]);
     }
 
     /**
      * @param $value
+     *
      * @return float
      */
     public function setValue($value)

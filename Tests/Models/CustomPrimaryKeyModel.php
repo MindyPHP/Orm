@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 16/09/16
- * Time: 19:04
+ * Time: 19:04.
  */
 
 namespace Mindy\Orm\Tests\Models;
@@ -18,7 +18,7 @@ class CustomPrimaryKeyModel extends AbstractModel
         return [
             'id' => [
                 'class' => IntField::class,
-                'primary' => true
+                'primary' => true,
             ],
         ];
     }

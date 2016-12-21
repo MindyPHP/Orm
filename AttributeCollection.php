@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 16/09/16
- * Time: 10:57
+ * Time: 10:57.
  */
 
 namespace Mindy\Orm;
@@ -30,6 +30,7 @@ class AttributeCollection
 
     /**
      * @param $name
+     *
      * @return mixed|null
      */
     public function __get($name)
@@ -39,6 +40,7 @@ class AttributeCollection
 
     /**
      * @param $name
+     *
      * @return bool
      */
     public function __isset($name)
@@ -48,6 +50,7 @@ class AttributeCollection
 
     /**
      * @param $name
+     *
      * @return bool
      */
     public function hasAttribute($name)
@@ -57,6 +60,7 @@ class AttributeCollection
 
     /**
      * @param $name
+     *
      * @return string|int|null
      */
     public function getAttribute($name)
@@ -64,6 +68,7 @@ class AttributeCollection
         if (isset($this->mapping[$name])) {
             $name = $this->mapping[$name];
         }
+
         return isset($this->attributes[$name]) ? $this->attributes[$name] : null;
     }
 
@@ -87,6 +92,7 @@ class AttributeCollection
 
     /**
      * @param $name
+     *
      * @return mixed|null
      */
     public function getOldAttribute($name)
@@ -103,7 +109,7 @@ class AttributeCollection
     }
 
     /**
-     * Clear old attributes
+     * Clear old attributes.
      */
     public function resetOldAttributes()
     {

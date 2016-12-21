@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -24,7 +23,7 @@ abstract class OrderByLookupTest extends OrmDatabaseTestCase
 {
     protected function getModels()
     {
-        return [new User, new Group, new Membership, new Customer];
+        return [new User(), new Group(), new Membership(), new Customer()];
     }
 
     public function testWithoutLookup()
@@ -134,8 +133,8 @@ abstract class OrderByLookupTest extends OrmDatabaseTestCase
         $this->assertEquals(2, Group::objects()->count());
 
         $this->assertEquals([
-            ['id' => '1','group_id' => '1', 'user_id' => '1'],
-            ['id' => '2','group_id' => '2', 'user_id' => '2']
+            ['id' => '1', 'group_id' => '1', 'user_id' => '1'],
+            ['id' => '2', 'group_id' => '2', 'user_id' => '2'],
         ], Membership::objects()->asArray()->all());
 
 //        $this->assertSql(1, $userA->groups->countSql());

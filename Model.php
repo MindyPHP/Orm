@@ -5,8 +5,7 @@ namespace Mindy\Orm;
 use ReflectionClass;
 
 /**
- * Class Model
- * @package Mindy\Orm
+ * Class Model.
  */
 class Model extends AbstractModel
 {
@@ -19,7 +18,7 @@ class Model extends AbstractModel
     {
         $bundleName = self::getBundleName();
         if (!empty($bundleName)) {
-            return sprintf("%s_%s",
+            return sprintf('%s_%s',
                 self::normalizeTableName(str_replace('Bundle', '', $bundleName)),
                 parent::tableName()
             );
@@ -29,7 +28,8 @@ class Model extends AbstractModel
     }
 
     /**
-     * Return module name
+     * Return module name.
+     *
      * @return string
      */
     public static function getBundleName()
@@ -37,8 +37,10 @@ class Model extends AbstractModel
         $object = new ReflectionClass(get_called_class());
         if ($pos = strpos($object->getFileName(), 'Bundle')) {
             $shortPath = substr($object->getFileName(), $pos + 7);
+
             return substr($shortPath, 0, strpos($shortPath, '/'));
         }
+
         return '';
     }
 
@@ -47,6 +49,6 @@ class Model extends AbstractModel
      */
     public function __toString()
     {
-        return (string)$this->getShortName();
+        return (string) $this->getShortName();
     }
 }

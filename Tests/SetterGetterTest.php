@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 27/07/16
- * Time: 13:38
+ * Time: 13:38.
  */
 
 namespace Mindy\Orm\Tests;
@@ -15,7 +15,7 @@ class SetterGetterTest extends OrmDatabaseTestCase
 {
     public function getModels()
     {
-        return [new Product, new Category];
+        return [new Product(), new Category()];
     }
 
     public function testSimple()

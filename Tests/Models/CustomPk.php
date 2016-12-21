@@ -1,11 +1,10 @@
 <?php
 /**
- * 
- *
  * All rights reserved.
  * 
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -13,7 +12,6 @@
  */
 
 namespace Mindy\Orm\Tests\Models;
-
 
 use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Model;
@@ -25,8 +23,8 @@ class CustomPk extends Model
         return [
             'id' => [
                 'class' => CharField::class,
-                'primary' => true
-            ]
+                'primary' => true,
+            ],
         ];
     }
 }

@@ -6,8 +6,7 @@ use Doctrine\DBAL\Types\Type;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class TimeField
- * @package Mindy\Orm
+ * Class TimeField.
  */
 class TimeField extends Field
 {
@@ -27,7 +26,7 @@ class TimeField extends Field
     public function getValidationConstraints()
     {
         $constraints = [
-            new Assert\Time()
+            new Assert\Time(),
         ];
         if ($this->isRequired()) {
             $constraints[] = new Assert\NotBlank();
@@ -52,6 +51,7 @@ class TimeField extends Field
         if ($this->autoNow || $this->autoNowAdd) {
             return false;
         }
+
         return parent::isRequired();
     }
 }

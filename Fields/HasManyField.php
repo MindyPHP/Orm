@@ -3,16 +3,13 @@
 namespace Mindy\Orm\Fields;
 
 use Exception;
-use Mindy\Orm\HasManyManager;
 use Mindy\Orm\Manager;
 use Mindy\Orm\ManagerInterface;
 use Mindy\Orm\Model;
-use Mindy\Orm\QuerySet;
 use Mindy\QueryBuilder\QueryBuilder;
 
 /**
- * Class HasManyField
- * @package Mindy\Orm
+ * Class HasManyField.
  */
 class HasManyField extends RelatedField
 {
@@ -34,7 +31,8 @@ class HasManyField extends RelatedField
      * TODO: docs
      * Explain by example: model User has many models Pages
      * User->id <- from
-     * Pages->user_id <- to
+     * Pages->user_id <- to.
+     *
      * @var string
      */
     public $from;
@@ -88,7 +86,7 @@ class HasManyField extends RelatedField
         list($from, $to) = $this->link;
 
         return [
-            ['LEFT JOIN', $tableName, [$alias . '.' . $from => $topAlias . '.' . $to], $alias]
+            ['LEFT JOIN', $tableName, [$alias.'.'.$from => $topAlias.'.'.$to], $alias],
         ];
     }
 
@@ -101,7 +99,7 @@ class HasManyField extends RelatedField
     {
         return implode('_', [
             $this->getModel()->tableName(),
-            $this->getRelatedModel()->getMeta()->getPrimaryKeyName()
+            $this->getRelatedModel()->getMeta()->getPrimaryKeyName(),
         ]);
     }
 

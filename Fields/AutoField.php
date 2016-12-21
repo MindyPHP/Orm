@@ -7,8 +7,7 @@ use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Mindy\QueryBuilder\Expression;
 
 /**
- * Class AutoField
- * @package Mindy\Orm
+ * Class AutoField.
  */
 class AutoField extends BigIntField
 {
@@ -29,7 +28,7 @@ class AutoField extends BigIntField
         return [
             'autoincrement' => true,
             'length' => $this->length,
-            'notnull' => true
+            'notnull' => true,
         ];
     }
 
@@ -38,6 +37,7 @@ class AutoField extends BigIntField
         if ($value === null && $platform instanceof PostgreSqlPlatform) {
             $value = new Expression('DEFAULT');
         }
+
         return parent::convertToDatabaseValueSQL($value, $platform);
     }
 }

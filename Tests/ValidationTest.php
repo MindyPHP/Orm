@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -25,7 +24,7 @@ class ValidationTest extends OrmDatabaseTestCase
         $this->assertFalse($model->isValid());
         $this->assertEquals(1, count($model->getErrors()));
         $this->assertEquals(['username' => [
-            'This value should not be blank.'
+            'This value should not be blank.',
         ]], $model->getErrors());
         $model->username = '123456';
         $this->assertSame('123456', $model->username);
@@ -52,12 +51,12 @@ class ValidationTest extends OrmDatabaseTestCase
         $this->assertFalse($model->isValid());
 
         $this->assertEquals(['username' => [
-            'This value should not be blank.'
+            'This value should not be blank.',
         ]], $model->getErrors());
 
         $nameField = $model->getField('username');
         $this->assertEquals([
-            'This value should not be blank.'
+            'This value should not be blank.',
         ], $nameField->getErrors());
 
         $model->username = 'hi';

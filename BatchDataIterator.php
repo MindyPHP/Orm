@@ -5,6 +5,7 @@
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -15,8 +16,6 @@ namespace Mindy\Orm;
 
 use Doctrine\DBAL\Connection;
 use Iterator;
-use Mindy\Helper\Traits\Accessors;
-use Mindy\Helper\Traits\Configurator;
 
 /**
  * BatchQueryResult represents a batch query from which you can retrieve data in batches.
@@ -35,8 +34,8 @@ use Mindy\Helper\Traits\Configurator;
  * ```
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
+ *
  * @since 2.0
- * @package Mindy\Orm
  */
 class BatchDataIterator implements Iterator
 {
@@ -46,21 +45,21 @@ class BatchDataIterator implements Iterator
     public $asArray;
     /**
      * @var \Mindy\Orm\QuerySet the query object associated with this batch query.
-     * Do not modify this property directly unless after [[reset()]] is called explicitly.
+     *                          Do not modify this property directly unless after [[reset()]] is called explicitly.
      */
     public $qs;
     /**
      * @var \Doctrine\Dbal\Connection the DB connection to be used when performing batch query.
-     * If null, the "db" application component will be used.
+     *                                If null, the "db" application component will be used.
      */
     protected $connection;
     /**
-     * @var integer the number of rows to be returned in each batch.
+     * @var int the number of rows to be returned in each batch.
      */
     public $batchSize = 100;
     /**
-     * @var boolean whether to return a single row during each iteration.
-     * If false, a whole batch of rows will be returned in each iteration.
+     * @var bool whether to return a single row during each iteration.
+     *           If false, a whole batch of rows will be returned in each iteration.
      */
     public $each = false;
     /**
@@ -76,12 +75,13 @@ class BatchDataIterator implements Iterator
      */
     private $_value;
     /**
-     * @var string|integer the key for the current iteration
+     * @var string|int the key for the current iteration
      */
     private $_key;
 
     /**
      * BatchDataIterator constructor.
+     *
      * @param array $config
      */
     public function __construct(Connection $connection, array $config = [])
@@ -139,7 +139,7 @@ class BatchDataIterator implements Iterator
         if ($this->each) {
             $this->_value = current($this->_batch);
             if (key($this->_batch) !== null) {
-                $this->_key++;
+                ++$this->_key;
             } else {
                 $this->_key = null;
             }
@@ -151,6 +151,7 @@ class BatchDataIterator implements Iterator
 
     /**
      * Fetches the next batch of data.
+     *
      * @return array the data fetched
      */
     protected function fetchData()
@@ -164,13 +165,15 @@ class BatchDataIterator implements Iterator
         while ($count++ < $this->batchSize && ($row = $this->_dataReader->read())) {
             $rows[] = $row;
         }
+
         return $this->asArray ? $rows : $this->qs->createModels($rows);
     }
 
     /**
      * Returns the index of the current dataset.
      * This method is required by the interface Iterator.
-     * @return integer the index of the current row.
+     *
+     * @return int the index of the current row.
      */
     public function key()
     {
@@ -180,6 +183,7 @@ class BatchDataIterator implements Iterator
     /**
      * Returns the current dataset.
      * This method is required by the interface Iterator.
+     *
      * @return mixed the current dataset.
      */
     public function current()
@@ -190,7 +194,8 @@ class BatchDataIterator implements Iterator
     /**
      * Returns whether there is a valid dataset at the current position.
      * This method is required by the interface Iterator.
-     * @return boolean whether there is a valid dataset at the current position.
+     *
+     * @return bool whether there is a valid dataset at the current position.
      */
     public function valid()
     {

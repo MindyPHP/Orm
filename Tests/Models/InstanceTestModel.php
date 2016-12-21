@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -25,7 +24,7 @@ class InstanceTestModel extends Model
             return 123;
         }
         $className = get_called_class();
-        return new Manager($instance ? $instance : new $className);
+
+        return new Manager($instance ? $instance : new $className());
     }
 }
-

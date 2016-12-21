@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 26/07/16
- * Time: 19:29
+ * Time: 19:29.
  */
 
 namespace Mindy\Orm\Callback;
@@ -24,6 +24,7 @@ class LookupCallback
 
     /**
      * LookupCallback constructor.
+     *
      * @param Model $model
      */
     public function __construct(ModelInterface $model)
@@ -48,7 +49,6 @@ class LookupCallback
 
         $prevThrough = false;
         foreach ($lookupNodes as $i => $node) {
-
             if ($prevField instanceof RelatedField) {
                 $relatedModel = $prevField->getRelatedModel();
 
@@ -74,12 +74,12 @@ class LookupCallback
 
             if (count($lookupNodes) == $i + 1) {
                 if ($lookupBuilder->hasLookup($node) === false) {
-                    $column = $joinAlias . '.' . $lookupBuilder->fetchColumnName($node);
-                    $columnWithLookup = $column . $lookupBuilder->getSeparator() . $lookupBuilder->getDefault();
+                    $column = $joinAlias.'.'.$lookupBuilder->fetchColumnName($node);
+                    $columnWithLookup = $column.$lookupBuilder->getSeparator().$lookupBuilder->getDefault();
                     $queryBuilder->where([$columnWithLookup => $value]);
                 } else {
                     $lookup = $node;
-                    $column = $joinAlias . '.' . $lookupBuilder->fetchColumnName($lookupNodes[$i - 1]);
+                    $column = $joinAlias.'.'.$lookupBuilder->fetchColumnName($lookupNodes[$i - 1]);
                 }
             }
         }

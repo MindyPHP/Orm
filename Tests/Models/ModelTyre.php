@@ -5,6 +5,7 @@
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -27,8 +28,8 @@ class ModelTyre extends Model
             ],
             'tyre' => [
                 'class' => ForeignField::class,
-                'modelClass' => Tyre::class
-            ]
+                'modelClass' => Tyre::class,
+            ],
         ];
     }
 }

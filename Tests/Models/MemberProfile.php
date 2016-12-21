@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 16/09/16
- * Time: 15:32
+ * Time: 15:32.
  */
 
 namespace Mindy\Orm\Tests\Models;
@@ -20,8 +20,8 @@ class MemberProfile extends Model
                 'class' => OneToOneField::class,
                 'modelClass' => Member::class,
                 'primary' => true,
-                'to' => 'id'
-            ]
+                'to' => 'id',
+            ],
         ];
     }
 }

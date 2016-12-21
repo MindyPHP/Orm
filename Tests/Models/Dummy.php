@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 27/07/16
- * Time: 14:49
+ * Time: 14:49.
  */
 
 namespace Mindy\Orm\Tests\Models;
@@ -21,8 +21,8 @@ class Dummy extends Model
             ],
             'address' => [
                 'class' => CharField::class,
-                'default' => 'example'
-            ]
+                'default' => 'example',
+            ],
         ];
     }
 }

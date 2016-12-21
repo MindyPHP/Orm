@@ -5,8 +5,7 @@ namespace Mindy\Orm\Fields;
 use Doctrine\DBAL\Types\Type;
 
 /**
- * Class TextField
- * @package Mindy\Orm
+ * Class TextField.
  */
 class TextField extends Field
 {

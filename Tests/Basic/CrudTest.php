@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 26/07/16
- * Time: 10:38
+ * Time: 10:38.
  */
 
 namespace Mindy\Orm\Tests\Basic;
@@ -18,14 +18,14 @@ abstract class CrudTest extends OrmDatabaseTestCase
 {
     public function getModels()
     {
-        return [new User, new Solution, new Customer];
+        return [new User(), new Solution(), new Customer()];
     }
 
     public function testLastInsertId()
     {
         $c = $this->getConnection();
         $adapter = QueryBuilder::getInstance($c)->getAdapter();
-        $model = new User;
+        $model = new User();
         $tableName = $adapter->getRawTableName($model->tableName());
         $c->insert($tableName, ['username' => 'foo']);
         $this->assertEquals(1, $c->lastInsertId($model->getSequenceName()));
@@ -312,14 +312,14 @@ abstract class CrudTest extends OrmDatabaseTestCase
 
     /**
      * https://github.com/studio107/Mindy_Query/issues/11
-     * Issue #11
+     * Issue #11.
      */
     public function testIssue11()
     {
         // Fix hhvm test
         date_default_timezone_set('UTC');
 
-        $this->initModels([new Solution], $this->getConnection());
+        $this->initModels([new Solution()], $this->getConnection());
         list($modelOne, $created) = Solution::objects()->getOrCreate([
             'status' => 1,
             'name' => 'test',
@@ -331,7 +331,7 @@ abstract class CrudTest extends OrmDatabaseTestCase
         $this->assertEquals(1, $modelOne->pk);
         $sql = Solution::objects()->filter(['id' => '1'])->updateSql(['status' => 2]);
         $this->assertSql("UPDATE [[solution]] SET [[status]]=2 WHERE ([[id]]='1')", $sql);
-        $this->dropModels([new Solution], $this->getConnection());
+        $this->dropModels([new Solution()], $this->getConnection());
     }
 
     // https://github.com/studio107/Mindy_Orm/issues/65
@@ -365,7 +365,6 @@ abstract class CrudTest extends OrmDatabaseTestCase
         $this->assertTrue($saved);
     }
 
-
     public function testCreateMore()
     {
         $this->assertTrue((new User(['username' => 'foo']))->save());
@@ -373,12 +372,12 @@ abstract class CrudTest extends OrmDatabaseTestCase
 
         Customer::objects()->create([
             'user' => $user,
-            'address' => 'Broadway'
+            'address' => 'Broadway',
         ]);
 
         Customer::objects()->create([
             'user_id' => $user->id,
-            'address' => 'Broadway'
+            'address' => 'Broadway',
         ]);
 
         $address1 = Customer::objects()->get(['pk' => 1]);

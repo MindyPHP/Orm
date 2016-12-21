@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 24/07/16
- * Time: 13:19
+ * Time: 13:19.
  */
 
 namespace Mindy\Orm;
@@ -12,13 +12,13 @@ use Exception;
 use Mindy\QueryBuilder\QueryBuilder;
 
 /**
- * Class ManyToManyManager
- * @package Mindy\Orm
+ * Class ManyToManyManager.
  */
 abstract class ManyToManyManager extends ManagerBase
 {
     /**
-     * Main model
+     * Main model.
+     *
      * @var \Mindy\Orm\Model
      */
     public $primaryModel;
@@ -39,7 +39,8 @@ abstract class ManyToManyManager extends ManagerBase
      */
     public $modelColumn;
     /**
-     * Link table name
+     * Link table name.
+     *
      * @var string
      */
     public $relatedTable;
@@ -47,6 +48,7 @@ abstract class ManyToManyManager extends ManagerBase
     /**
      * @param Model $model
      * @param array $extra
+     *
      * @return int
      */
     public function link(Model $model, array $extra = [])
@@ -56,6 +58,7 @@ abstract class ManyToManyManager extends ManagerBase
 
     /**
      * @param Model $model
+     *
      * @return int
      */
     public function unlink(Model $model)
@@ -73,35 +76,39 @@ abstract class ManyToManyManager extends ManagerBase
 
     /**
      * @return int
+     *
      * @throws Exception
      */
     public function clean()
     {
         if ($this->primaryModel->pk === null) {
-            throw new Exception('Unable to clean models: the primary key of ' . get_class($this->primaryModel) . ' is null.');
+            throw new Exception('Unable to clean models: the primary key of '.get_class($this->primaryModel).' is null.');
         }
         $db = $this->primaryModel->getConnection();
         $adapter = QueryBuilder::getInstance($db)->getAdapter();
+
         return $db->delete($adapter->quoteTableName($adapter->getRawTableName($this->relatedTable)), [$this->primaryModelColumn => $this->primaryModel->pk]);
     }
 
     /**
      * @param Model $model
-     * @param bool $link
+     * @param bool  $link
      * @param array $extra
+     *
      * @return int
+     *
      * @throws Exception
      */
     protected function linkUnlinkProcess(Model $model, $link = true, array $extra = [])
     {
         $primaryModel = $this->getPrimaryModel();
         if ($primaryModel && empty($primaryModel->pk)) {
-            throw new Exception('Unable to ' . ($link ? 'link' : 'unlink') . ' models: the primary key of ' . get_class($primaryModel) . ' is ' . $primaryModel->pk . '.');
+            throw new Exception('Unable to '.($link ? 'link' : 'unlink').' models: the primary key of '.get_class($primaryModel).' is '.$primaryModel->pk.'.');
         }
 
         if ($this->through && $link) {
             /** @var \Mindy\Orm\Model $throughModel */
-            $throughModel = new $this->through;
+            $throughModel = new $this->through();
             if (empty($this->throughLink)) {
                 $from = $this->primaryModelColumn;
                 $to = $this->modelColumn;
@@ -112,6 +119,7 @@ abstract class ManyToManyManager extends ManagerBase
                 $from => $this->primaryModel->pk,
                 $to => $model->pk,
             ]);
+
             return $through->pk;
         } else {
             $db = $this->primaryModel->getConnection();

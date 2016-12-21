@@ -19,5 +19,5 @@ return [
         'password' => '',
         'host' => 'localhost',
         'driver' => 'pdo_pgsql',
-    ]
+    ],
 ];

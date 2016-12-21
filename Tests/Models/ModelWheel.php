@@ -5,6 +5,7 @@
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -14,7 +15,6 @@
 namespace Mindy\Orm\Tests\Models;
 
 use Mindy\Orm\Fields\CharField;
-use Mindy\Orm\Fields\ImageField;
 use Mindy\Orm\Fields\IntField;
 use Mindy\Orm\Model;
 
@@ -33,12 +33,12 @@ class ModelWheel extends Model
         return [
             'name' => [
                 'class' => CharField::class,
-                'verboseName' => 'Наименование'
+                'verboseName' => 'Наименование',
             ],
             'upper_name' => [
                 'class' => CharField::class,
                 'verboseName' => 'НАИМЕНОВАНИЕ',
-                'null' => true
+                'null' => true,
             ],
             'producer_wheel_id' => [
                 'class' => IntField::class,
@@ -49,19 +49,19 @@ class ModelWheel extends Model
                 'verboseName' => 'Тип',
                 'choices' => [
                     self::TYPE_STAMP => 'Штампованый',
-                    self::TYPE_CAST => 'Литой'
-                ]
+                    self::TYPE_CAST => 'Литой',
+                ],
             ],
             'color' => [
                 'class' => CharField::class,
                 'verboseName' => 'Цвет',
-                'null' => true
+                'null' => true,
             ],
             'image' => [
                 'class' => CharField::class,
                 'verboseName' => 'Изображение',
-                'null' => true
-            ]
+                'null' => true,
+            ],
         ];
     }
 }

@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 16/09/16
- * Time: 19:27
+ * Time: 19:27.
  */
 
 namespace Mindy\Orm\Tests\Models;
@@ -19,21 +19,21 @@ class Issue extends Model
         return [
             'author' => [
                 'class' => ForeignField::class,
-                'modelClass' => User1::class
+                'modelClass' => User1::class,
             ],
             'user' => [
                 'class' => ForeignField::class,
-                'modelClass' => User1::class
+                'modelClass' => User1::class,
             ],
             'created_at' => [
                 'class' => DateTimeField::class,
-                'autoNowAdd' => true
-            ]
+                'autoNowAdd' => true,
+            ],
         ];
     }
 
     public static function tableName()
     {
-        return "issue";
+        return 'issue';
     }
 }

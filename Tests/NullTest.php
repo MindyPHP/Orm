@@ -5,6 +5,7 @@
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -22,7 +23,7 @@ class NullTest extends OrmDatabaseTestCase
 
     protected function getModels()
     {
-        return [new Order, new Customer];
+        return [new Order(), new Customer()];
     }
 
     public function testIsNull()

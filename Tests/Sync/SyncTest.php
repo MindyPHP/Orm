@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -25,7 +24,7 @@ abstract class SyncTest extends OrmDatabaseTestCase
 {
     public function testCreate()
     {
-        $sync = new Sync([new ProductList], $this->getConnection());
+        $sync = new Sync([new ProductList()], $this->getConnection());
         $sync->delete();
         $sync->create();
 
@@ -39,12 +38,13 @@ abstract class SyncTest extends OrmDatabaseTestCase
         foreach ($this->getConnection()->getSchemaManager()->listTables() as $table) {
             $tableNames[] = $table->getName();
         }
+
         return $tableNames;
     }
 
     public function testDrop()
     {
-        $model = new ProductList;
+        $model = new ProductList();
 
         $schemaManager = $this->getConnection()->getSchemaManager();
         $sync = new Sync([$model], $this->getConnection());
@@ -66,7 +66,7 @@ abstract class SyncTest extends OrmDatabaseTestCase
 
         $this->assertEquals([], $this->getTableNames());
 
-        $sync = new Sync([new ProductList, new Category, new User, new Product], $c);
+        $sync = new Sync([new ProductList(), new Category(), new User(), new Product()], $c);
         $created = $sync->create();
         $this->assertEquals(5, $created);
 

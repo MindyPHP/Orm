@@ -1,11 +1,10 @@
 <?php
 /**
- * 
- *
  * All rights reserved.
  * 
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -14,14 +13,13 @@
 
 namespace Mindy\Orm\Tests\Models;
 
-
 use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Model;
 
 /**
- * Class Design
- * @package Mindy\Orm\Tests\Models
+ * Class Design.
+ *
  * @property string name
  */
 class Design extends Model
@@ -30,12 +28,12 @@ class Design extends Model
     {
         return [
             'name' => [
-                'class' => CharField::class
+                'class' => CharField::class,
             ],
             'cup' => [
                 'class' => ForeignField::class,
-                'modelClass' => Cup::class
-            ]
+                'modelClass' => Cup::class,
+            ],
         ];
     }
 }

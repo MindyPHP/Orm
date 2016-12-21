@@ -3,11 +3,9 @@
 namespace Mindy\Orm\Fields;
 
 use Doctrine\DBAL\Types\Type;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class BooleanField
- * @package Mindy\Orm
+ * Class BooleanField.
  */
 class BooleanField extends Field
 {
@@ -38,7 +36,7 @@ class BooleanField extends Field
     public function getSqlOptions()
     {
         return array_merge(parent::getSqlOptions(), [
-            'default' => $this->default
+            'default' => $this->default,
         ]);
     }
 
@@ -47,7 +45,7 @@ class BooleanField extends Field
      */
     public function setValue($value)
     {
-        parent::setValue((bool)$value);
+        parent::setValue((bool) $value);
     }
 
     /**
@@ -55,6 +53,6 @@ class BooleanField extends Field
      */
     public function getValue()
     {
-        return (bool)parent::getValue();
+        return (bool) parent::getValue();
     }
 }

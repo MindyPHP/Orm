@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -22,8 +21,8 @@ use Mindy\Orm\Model;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class Product
- * @package Mindy\Orm\Tests\Models
+ * Class Product.
+ *
  * @property string name
  * @property string price
  * @property string description
@@ -41,16 +40,16 @@ class Product extends Model
                 'class' => CharField::class,
                 'default' => 'Product',
                 'validators' => [
-                    new Assert\Length(['min' => 3])
-                ]
+                    new Assert\Length(['min' => 3]),
+                ],
             ],
             'price' => [
                 'class' => CharField::class,
-                'default' => 0
+                'default' => 0,
             ],
             'description' => [
                 'class' => TextField::class,
-                'null' => true
+                'null' => true,
             ],
             'category' => [
                 'class' => ForeignField::class,
@@ -60,8 +59,8 @@ class Product extends Model
             'lists' => [
                 'class' => ManyToManyField::class,
                 'modelClass' => ProductList::class,
-                'link' => ['product_id', 'product_list_id']
-            ]
+                'link' => ['product_id', 'product_list_id'],
+            ],
         ];
     }
 }

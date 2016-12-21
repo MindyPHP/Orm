@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -14,15 +13,14 @@
 
 namespace Mindy\Orm\Tests\Models;
 
-
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\IntField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Model;
 
 /**
- * Class Order
- * @package Mindy\Orm\Tests\Models
+ * Class Order.
+ *
  * @property \Mindy\Orm\Tests\Models\Customer customer
  * @property \Mindy\Orm\ManyToManyManager products
  */
@@ -33,17 +31,17 @@ class Order extends Model
         return [
             'customer' => [
                 'class' => ForeignField::class,
-                'modelClass' => Customer::class
+                'modelClass' => Customer::class,
             ],
             'products' => [
                 'class' => ManyToManyField::class,
                 'modelClass' => Product::class,
-                'link' => ['order_id', 'product_id']
+                'link' => ['order_id', 'product_id'],
             ],
             'discount' => [
                 'class' => IntField::class,
-                'null' => true
-            ]
+                'null' => true,
+            ],
         ];
     }
 }

@@ -3,12 +3,10 @@
 namespace Mindy\Orm\Fields;
 
 use Doctrine\DBAL\Connection;
-use Mindy\Orm\ManagerInterface;
 use Mindy\QueryBuilder\QueryBuilder;
 
 /**
- * Class RelatedField
- * @package Mindy\Orm
+ * Class RelatedField.
  */
 abstract class RelatedField extends IntField
 {
@@ -26,7 +24,7 @@ abstract class RelatedField extends IntField
     protected $connection;
 
     abstract public function getJoin(QueryBuilder $qb, $topAlias);
-    
+
     abstract public function getSelectJoin(QueryBuilder $qb, $topAlias);
 
     abstract protected function fetch($value);
@@ -39,6 +37,7 @@ abstract class RelatedField extends IntField
         if (!$this->_relatedModel) {
             $this->_relatedModel = new $this->modelClass();
         }
+
         return $this->_relatedModel;
     }
 
@@ -57,11 +56,13 @@ abstract class RelatedField extends IntField
 
     /**
      * @param Connection $db
+     *
      * @return $this
      */
     public function setConnection(Connection $db)
     {
         $this->connection = $db;
+
         return $this;
     }
 
@@ -82,6 +83,7 @@ abstract class RelatedField extends IntField
                 $joinAlias = $alias;
             }
         }
+
         return $joinAlias;
     }
 
@@ -97,6 +99,7 @@ abstract class RelatedField extends IntField
                 $joinAlias = $alias;
             }
         }
+
         return $joinAlias;
     }
 

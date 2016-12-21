@@ -3,18 +3,19 @@
 namespace Mindy\Orm;
 
 /**
- * Class Manager
- * @package Mindy\Orm
+ * Class Manager.
  */
 class Manager extends ManyToManyManager
 {
     /**
      * @param string|array $value
+     *
      * @return $this
      */
     public function with($value)
     {
         $this->getQuerySet()->with($value);
+
         return $this;
     }
 
@@ -24,17 +25,20 @@ class Manager extends ManyToManyManager
     public function asArray($value = true)
     {
         $this->getQuerySet()->asArray($value);
+
         return $this;
     }
 
     /**
      * @param $columns
      * @param null $option
+     *
      * @return \Mindy\Orm\Manager
      */
     public function select($columns, $option = null)
     {
         $this->getQuerySet()->select($columns, $option);
+
         return $this;
     }
 
@@ -48,6 +52,7 @@ class Manager extends ManyToManyManager
 
     /**
      * @param array $q
+     *
      * @return string
      */
     public function getSql(array $q = [])
@@ -57,6 +62,7 @@ class Manager extends ManyToManyManager
 
     /**
      * @param $rows
+     *
      * @return Model[]
      */
     public function createModels($rows)
@@ -66,6 +72,7 @@ class Manager extends ManyToManyManager
 
     /**
      * @param bool $asArray
+     *
      * @return string
      */
     public function allSql($asArray = false)
@@ -91,6 +98,7 @@ class Manager extends ManyToManyManager
 
     /**
      * @param $q
+     *
      * @return string
      */
     public function averageSql($q)
@@ -108,6 +116,7 @@ class Manager extends ManyToManyManager
 
     /**
      * @param $q
+     *
      * @return string
      */
     public function minSql($q)
@@ -125,6 +134,7 @@ class Manager extends ManyToManyManager
 
     /**
      * @param $q
+     *
      * @return string
      */
     public function maxSql($q)
@@ -142,6 +152,7 @@ class Manager extends ManyToManyManager
 
     /**
      * @param $q
+     *
      * @return string
      */
     public function sumSql($q)
@@ -152,6 +163,7 @@ class Manager extends ManyToManyManager
     /**
      * @param $q
      * @param bool $flat
+     *
      * @return array
      */
     public function valuesList($q, $flat = false)
@@ -161,7 +173,9 @@ class Manager extends ManyToManyManager
 
     /**
      * Get model if exists. Else create model.
+     *
      * @param array $attributes
+     *
      * @return array
      */
     public function getOrCreate(array $attributes)
@@ -172,13 +186,16 @@ class Manager extends ManyToManyManager
     public function setSql($sql)
     {
         $this->getQuerySet()->setSql($sql);
+
         return $this;
     }
 
     /**
      * Find and update model if exists. Else create model.
-     * @param array $attributes attributes for query
+     *
+     * @param array $attributes       attributes for query
      * @param array $updateAttributes attributes for update|create
+     *
      * @return Orm
      */
     public function updateOrCreate(array $attributes, array $updateAttributes)
@@ -210,12 +227,14 @@ class Manager extends ManyToManyManager
     {
         $model = $this->getModel();
         $model->setAttributes($attributes);
+
         return $model->save();
     }
 
     public function addGroupBy($column)
     {
         $this->getQuerySet()->addGroupBy($column);
+
         return $this;
     }
 
@@ -238,6 +257,7 @@ class Manager extends ManyToManyManager
     public function group($fields)
     {
         $this->getQuerySet()->group($fields);
+
         return $this;
     }
 

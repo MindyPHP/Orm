@@ -1,11 +1,10 @@
 <?php
 /**
- * 
- *
  * All rights reserved.
  * 
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -14,14 +13,13 @@
 
 namespace Mindy\Orm\Tests\Models;
 
-
 use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Model;
 
 /**
- * Class Worker
- * @package Mindy\Orm\Tests\Models
+ * Class Worker.
+ *
  * @property string name
  * @property \Mindy\Orm\ManyToManyManager projects
  */
@@ -31,14 +29,14 @@ class Worker extends Model
     {
         return [
             'name' => [
-                'class' => CharField::class
+                'class' => CharField::class,
             ],
             'projects' => [
                 'class' => ManyToManyField::class,
                 'modelClass' => Project::class,
                 'through' => ProjectMembership::class,
-                'link' => ['worker_id', 'project_id']
-            ]
+                'link' => ['worker_id', 'project_id'],
+            ],
         ];
     }
 }

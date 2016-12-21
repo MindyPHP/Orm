@@ -6,8 +6,7 @@ use Doctrine\DBAL\Types\Type;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class DateTimeField
- * @package Mindy\Orm
+ * Class DateTimeField.
  */
 class DateTimeField extends DateField
 {
@@ -25,7 +24,7 @@ class DateTimeField extends DateField
     public function getValidationConstraints()
     {
         $constraints = [
-            new Assert\DateTime()
+            new Assert\DateTime(),
         ];
         if ($this->isRequired()) {
             $constraints[] = new Assert\NotBlank();

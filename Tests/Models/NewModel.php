@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 16/09/16
- * Time: 19:43
+ * Time: 19:43.
  */
 
 namespace Mindy\Orm\Tests\Models;
@@ -16,10 +16,10 @@ class NewModel extends DummyModel
     {
         return [
             'username' => [
-                'class' => CharField::class
+                'class' => CharField::class,
             ],
             'password' => [
-                'class' => CharField::class
+                'class' => CharField::class,
             ],
         ];
     }

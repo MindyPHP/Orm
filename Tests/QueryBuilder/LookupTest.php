@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -14,7 +13,6 @@
 
 namespace Mindy\Orm\Tests\QueryBuilder;
 
-use Mindy\QueryBuilder\Expression;
 use Mindy\QueryBuilder\Q\QAnd;
 use Mindy\QueryBuilder\Q\QOr;
 use Mindy\Orm\Tests\OrmDatabaseTestCase;
@@ -30,12 +28,12 @@ abstract class LookupTest extends OrmDatabaseTestCase
     public function getModels()
     {
         return [
-            new Order,
-            new User,
-            new Customer,
-            new Product,
-            new Category,
-            new ProductList
+            new Order(),
+            new User(),
+            new Customer(),
+            new Product(),
+            new Category(),
+            new ProductList(),
         ];
     }
 
@@ -44,7 +42,7 @@ abstract class LookupTest extends OrmDatabaseTestCase
         $this->assertTrue((new Product())->save());
         $this->assertEquals(1, Product::objects()->count());
         $qs = Product::objects()->filter(['id' => 1]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]]=1)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]]=1)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
     }
 
@@ -52,127 +50,127 @@ abstract class LookupTest extends OrmDatabaseTestCase
     {
         $qs = Product::objects()->filter(['id__isnull' => true]);
         $this->assertEquals(0, $qs->count());
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]] IS NULL)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]] IS NULL)', $qs->countSql());
     }
 
     public function testIn()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__in' => [1, 2, 3, 4, 5]]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]] IN (1, 2, 3, 4, 5))", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]] IN (1, 2, 3, 4, 5))', $qs->countSql());
         $this->assertEquals(5, $qs->count());
     }
 
     public function testGte()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__gte' => 2]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]]>=2)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]]>=2)', $qs->countSql());
         $this->assertEquals(4, $qs->count());
     }
 
     public function testGt()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__gt' => 1]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]]>1)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]]>1)', $qs->countSql());
         $this->assertEquals(4, $qs->count());
     }
 
     public function testLte()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__lte' => 1]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]]<=1)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]]<=1)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
     }
 
     public function testLt()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__lt' => 2]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]]<2)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]]<2)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
     }
 
     public function testContains()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__contains' => 1]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]] LIKE @%1%@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]] LIKE @%1%@)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
     }
 
     public function testIcontains()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__icontains' => 1]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE (LOWER([[product_1]].[[id]]) LIKE @%1%@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE (LOWER([[product_1]].[[id]]) LIKE @%1%@)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
     }
 
     public function testStartswith()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__startswith' => 1]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]] LIKE @1%@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]] LIKE @1%@)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
     }
 
     public function testIstartswith()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__istartswith' => 1]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE (LOWER([[product_1]].[[id]]) LIKE @1%@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE (LOWER([[product_1]].[[id]]) LIKE @1%@)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
     }
 
     public function testEndswith()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__endswith' => 1]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]] LIKE @%1@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE ([[product_1]].[[id]] LIKE @%1@)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
     }
 
     public function testIendswith()
     {
         foreach (range(1, 5) as $i) {
-            $model = new Product(['name' => 'name_' . $i]);
+            $model = new Product(['name' => 'name_'.$i]);
             $model->save();
         }
         $qs = Product::objects()->filter(['id__iendswith' => 1]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE (LOWER([[product_1]].[[id]]) LIKE @%1@)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE (LOWER([[product_1]].[[id]]) LIKE @%1@)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
     }
 
@@ -284,11 +282,11 @@ abstract class LookupTest extends OrmDatabaseTestCase
         $this->assertTrue((new ProductList(['name' => 'bar', 'date_action' => '2013-02-28 10:37:43']))->save());
 
         $qs = ProductList::objects()->filter(['id__range' => [0, 1]]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE ([[product_list_1]].[[id]] BETWEEN 0 AND 1)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE ([[product_list_1]].[[id]] BETWEEN 0 AND 1)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
 
         $qs = ProductList::objects()->filter(['id__range' => [10, 20]]);
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE ([[product_list_1]].[[id]] BETWEEN 10 AND 20)", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE ([[product_list_1]].[[id]] BETWEEN 10 AND 20)', $qs->countSql());
         $this->assertEquals(0, $qs->count());
     }
 
@@ -336,16 +334,16 @@ abstract class LookupTest extends OrmDatabaseTestCase
     public function testAllSql()
     {
         $qs = Product::objects()->filter(['id' => 1]);
-        $this->assertSql("SELECT [[product_1]].* FROM [[product]] AS [[product_1]] WHERE (([[product_1]].[[id]]=1))", $qs->getSql());
-        $this->assertSql("SELECT [[product_1]].* FROM [[product]] AS [[product_1]] WHERE (([[product_1]].[[id]]=1))", $qs->allSql());
-        $this->assertSql("SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE (([[product_1]].[[id]]=1))", $qs->countSql());
+        $this->assertSql('SELECT [[product_1]].* FROM [[product]] AS [[product_1]] WHERE (([[product_1]].[[id]]=1))', $qs->getSql());
+        $this->assertSql('SELECT [[product_1]].* FROM [[product]] AS [[product_1]] WHERE (([[product_1]].[[id]]=1))', $qs->allSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[product]] AS [[product_1]] WHERE (([[product_1]].[[id]]=1))', $qs->countSql());
     }
 
     public function testQ()
     {
         $qs = Product::objects()->filter(new QOr([
             ['name' => 'vasya', 'id__lte' => 7],
-            ['name' => 'petya', 'id__gte' => 4]
+            ['name' => 'petya', 'id__gte' => 4],
         ]));
         $this->assertSql(
             "WHERE (([[product_1]].[[name]]='vasya' OR [[product_1]].[[id]]<=7) OR ([[product_1]].[[name]]='petya' OR [[product_1]].[[id]]>=4))",
@@ -355,9 +353,9 @@ abstract class LookupTest extends OrmDatabaseTestCase
         $qs = Product::objects()->filter([
             new QOr([
                 ['name' => 'vasya', 'id__lte' => 7],
-                ['name' => 'petya', 'id__gte' => 4]
+                ['name' => 'petya', 'id__gte' => 4],
             ]),
-            'price__gte' => 200
+            'price__gte' => 200,
         ]);
         $this->assertSql(
             "WHERE ((([[product_1]].[[name]]='vasya' OR [[product_1]].[[id]]<=7) OR ([[product_1]].[[name]]='petya' OR [[product_1]].[[id]]>=4)) AND ([[product_1]].[[price]]>=200))",
@@ -367,9 +365,9 @@ abstract class LookupTest extends OrmDatabaseTestCase
         $qs = Product::objects()->filter([
             new QAnd([
                 ['name' => 'vasya', 'id__lte' => 7],
-                ['name' => 'petya', 'id__gte' => 4]
+                ['name' => 'petya', 'id__gte' => 4],
             ]),
-            'price__gte' => 200
+            'price__gte' => 200,
         ]);
 
         $this->assertSql(

@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 20/09/16
- * Time: 10:58
+ * Time: 10:58.
  */
 
 namespace Mindy\Orm;
@@ -12,8 +12,7 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
 
 /**
- * Class ValidationTrait
- * @package Mindy\Orm
+ * Class ValidationTrait.
  */
 trait ValidationTrait
 {
@@ -45,16 +44,19 @@ trait ValidationTrait
     {
         $errors = $this->getValidator()->validate($this->getValue(), $this->getValidationConstraints());
         $this->setErrors($errors);
+
         return count($errors) === 0;
     }
 
     /**
      * @param ConstraintViolationListInterface $errors
+     *
      * @return $this
      */
     protected function setErrors(ConstraintViolationListInterface $errors)
     {
         $this->errors = $errors;
+
         return $this;
     }
 
@@ -67,6 +69,7 @@ trait ValidationTrait
         foreach ($this->errors as $key => $error) {
             $errors[] = $error->getMessage();
         }
+
         return $errors;
     }
 }

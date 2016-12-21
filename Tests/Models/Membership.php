@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -13,7 +12,6 @@
  */
 
 namespace Mindy\Orm\Tests\Models;
-
 
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Model;
@@ -25,12 +23,12 @@ class Membership extends Model
         return [
             'group' => [
                 'class' => ForeignField::class,
-                'modelClass' => Group::class
+                'modelClass' => Group::class,
             ],
             'user' => [
                 'class' => ForeignField::class,
-                'modelClass' => User::class
-            ]
+                'modelClass' => User::class,
+            ],
         ];
     }
 }

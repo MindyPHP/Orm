@@ -1,11 +1,10 @@
 <?php
 /**
- * 
- *
  * All rights reserved.
  * 
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -19,8 +18,8 @@ use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Model;
 
 /**
- * Class Cup
- * @package Mindy\Orm\Tests\Models
+ * Class Cup.
+ *
  * @property string name
  */
 class Cup extends Model
@@ -29,18 +28,18 @@ class Cup extends Model
     {
         return [
             'name' => [
-                'class' => CharField::class
+                'class' => CharField::class,
             ],
             'designs' => [
                 'class' => HasManyField::class,
                 'modelClass' => Design::class,
-                'link' => ['cup_id', 'id']
+                'link' => ['cup_id', 'id'],
             ],
             'colors' => [
                 'class' => HasManyField::class,
                 'modelClass' => Color::class,
-                'link' => ['cup_id', 'id']
-            ]
+                'link' => ['cup_id', 'id'],
+            ],
         ];
     }
 }

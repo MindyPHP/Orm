@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -13,7 +12,6 @@
  */
 
 namespace Mindy\Orm\Tests\Models;
-
 
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\IntField;
@@ -26,19 +24,19 @@ class ProjectMembership extends Model
         return [
             'project' => [
                 'class' => ForeignField::class,
-                'modelClass' => Project::class
+                'modelClass' => Project::class,
             ],
             'worker' => [
                 'class' => ForeignField::class,
-                'modelClass' => Worker::class
+                'modelClass' => Worker::class,
             ],
             'position' => [
-                'class' => IntField::class
+                'class' => IntField::class,
             ],
             'curator' => [
                 'class' => ForeignField::class,
-                'modelClass' => Worker::class
-            ]
+                'modelClass' => Worker::class,
+            ],
         ];
     }
 }

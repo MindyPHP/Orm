@@ -3,18 +3,16 @@
  * Created by PhpStorm.
  * User: max
  * Date: 16/09/16
- * Time: 15:15
+ * Time: 15:15.
  */
 
 namespace Mindy\Orm\Fields;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Mindy\Orm\ManagerInterface;
 use Mindy\Orm\ModelInterface;
 
 /**
- * Interface ModelFieldInterface
- * @package Mindy\Orm\Fields
+ * Interface ModelFieldInterface.
  */
 interface ModelFieldInterface
 {
@@ -71,6 +69,7 @@ interface ModelFieldInterface
     /**
      * @param $value
      * @param AbstractPlatform $platform
+     *
      * @return mixed
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform);
@@ -78,6 +77,7 @@ interface ModelFieldInterface
     /**
      * @param $value
      * @param AbstractPlatform $platform
+     *
      * @return mixed
      */
     public function convertToPHPValue($value, AbstractPlatform $platform);
@@ -85,6 +85,7 @@ interface ModelFieldInterface
     /**
      * @param $value
      * @param AbstractPlatform $platform
+     *
      * @return mixed
      */
     public function convertToPHPValueSQL($value, AbstractPlatform $platform);
@@ -92,53 +93,66 @@ interface ModelFieldInterface
     /**
      * @param $value
      * @param AbstractPlatform $platform
+     *
      * @return mixed
      */
     public function convertToDatabaseValueSQL($value, AbstractPlatform $platform);
 
     /**
-     * internal event
+     * internal event.
+     *
      * @param ModelInterface $model
      * @param $value
+     *
      * @return
      */
     public function afterInsert(ModelInterface $model, $value);
 
     /**
-     * internal event
+     * internal event.
+     *
      * @param ModelInterface $model
      * @param $value
+     *
      * @return
      */
     public function afterUpdate(ModelInterface $model, $value);
 
     /**
-     * internal event
+     * internal event.
+     *
      * @param ModelInterface $model
+     *
      * @return
      */
     public function afterDelete(ModelInterface $model, $value);
 
     /**
-     * internal event
+     * internal event.
+     *
      * @param ModelInterface $model
      * @param $value
+     *
      * @return
      */
     public function beforeInsert(ModelInterface $model, $value);
 
     /**
-     * internal event
+     * internal event.
+     *
      * @param ModelInterface $model
      * @param $value
+     *
      * @return
      */
     public function beforeUpdate(ModelInterface $model, $value);
 
     /**
-     * internal event
+     * internal event.
+     *
      * @param ModelInterface $model
      * @param $value
+     *
      * @return
      */
     public function beforeDelete(ModelInterface $model, $value);

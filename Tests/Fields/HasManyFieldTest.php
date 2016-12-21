@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -26,13 +25,13 @@ abstract class HasManyFieldTest extends OrmDatabaseTestCase
 {
     public function getModels()
     {
-        return [new Product, new Category, new Cup, new Design, new Color];
+        return [new Product(), new Category(), new Cup(), new Design(), new Color()];
     }
 
     public function testSimple()
     {
         $categoryToys = new Category([
-            'name' => 'Toys'
+            'name' => 'Toys',
         ]);
         $this->assertTrue($categoryToys->getIsNewRecord());
         $categoryToys->save();
@@ -55,7 +54,7 @@ abstract class HasManyFieldTest extends OrmDatabaseTestCase
             'category' => $categoryToys,
             'name' => 'Bear',
             'price' => 100,
-            'description' => 'Funny white bear'
+            'description' => 'Funny white bear',
         ]);
         $product_bear->save();
 
@@ -65,7 +64,7 @@ abstract class HasManyFieldTest extends OrmDatabaseTestCase
             'category' => $category_animals,
             'name' => 'Rabbit',
             'price' => 110,
-            'description' => 'Rabbit with carrot'
+            'description' => 'Rabbit with carrot',
         ]);
         $product_rabbit->save();
 
@@ -79,7 +78,6 @@ abstract class HasManyFieldTest extends OrmDatabaseTestCase
 
     public function testThrough()
     {
-
     }
 
     public function testMultiple()

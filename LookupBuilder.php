@@ -5,10 +5,8 @@ namespace Mindy\Orm;
 use Mindy\QueryBuilder\LookupBuilder\Legacy;
 
 /**
- * Class LookupBuilder
- * @package Mindy\Orm
+ * Class LookupBuilder.
  */
 class LookupBuilder extends Legacy
 {
-
 }

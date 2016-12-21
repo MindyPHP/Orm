@@ -5,6 +5,7 @@
  * 
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -25,7 +26,7 @@ abstract class QueryTest extends OrmDatabaseTestCase
 
     protected function getModels()
     {
-        return [new User, new Group, new Membership, new Customer];
+        return [new User(), new Group(), new Membership(), new Customer()];
     }
 
     public function testGet()
@@ -35,11 +36,11 @@ abstract class QueryTest extends OrmDatabaseTestCase
         $this->assertEquals('foo', $user->username);
 
         $sql = User::objects()->asArray()->getSql(['pk' => 1]);
-        $this->assertSql("SELECT [[users_1]].* FROM [[users]] AS [[users_1]] WHERE ([[users_1]].[[id]]=1)", $sql);
+        $this->assertSql('SELECT [[users_1]].* FROM [[users]] AS [[users_1]] WHERE ([[users_1]].[[id]]=1)', $sql);
         $this->assertEquals([
             'id' => 1,
             'username' => 'foo',
-            'password' => ''
+            'password' => '',
         ], User::objects()->asArray()->get(['pk' => 1]));
     }
 
@@ -51,7 +52,7 @@ abstract class QueryTest extends OrmDatabaseTestCase
         $this->assertEquals([[
             'id' => 1,
             'username' => 'foo',
-            'password' => ''
+            'password' => '',
         ]], $qs->asArray()->all());
     }
 
@@ -61,7 +62,7 @@ abstract class QueryTest extends OrmDatabaseTestCase
         $this->assertTrue((new User(['username' => 'bar']))->save());
         $qs = User::objects()->filter(['username' => 'foo'])->exclude(['username' => 'bar']);
         $this->assertEquals(1, $qs->count());
-        $this->assertSql("SELECT COUNT(*) FROM [[users]] AS [[users_1]] WHERE (([[users_1]].[[username]]=@foo@)) AND ((NOT ([[users_1]].[[username]]=@bar@)))", $qs->countSql());
+        $this->assertSql('SELECT COUNT(*) FROM [[users]] AS [[users_1]] WHERE (([[users_1]].[[username]]=@foo@)) AND ((NOT ([[users_1]].[[username]]=@bar@)))', $qs->countSql());
     }
 
     public function testOrExclude()
@@ -72,7 +73,7 @@ abstract class QueryTest extends OrmDatabaseTestCase
         $this->assertEquals(2, $qs->count());
         $qs->exclude(['username' => 'foo'])->orExclude(['username' => 'bar']);
         $this->assertSql(
-            "SELECT COUNT(*) FROM [[users]] AS [[users_1]] WHERE ((NOT ([[users_1]].[[username]]=@foo@))) OR ((NOT ([[users_1]].[[username]]=@bar@)))",
+            'SELECT COUNT(*) FROM [[users]] AS [[users_1]] WHERE ((NOT ([[users_1]].[[username]]=@foo@))) OR ((NOT ([[users_1]].[[username]]=@bar@)))',
             $qs->countSql()
         );
     }

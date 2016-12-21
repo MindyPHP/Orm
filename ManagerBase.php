@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 25/07/16
- * Time: 20:25
+ * Time: 20:25.
  */
 
 namespace Mindy\Orm;
@@ -13,8 +13,7 @@ use IteratorAggregate;
 use Doctrine\DBAL\Connection;
 
 /**
- * Class ManagerBase
- * @package Mindy\Orm
+ * Class ManagerBase.
  */
 abstract class ManagerBase implements ManagerInterface, IteratorAggregate, ArrayAccess
 {
@@ -30,9 +29,10 @@ abstract class ManagerBase implements ManagerInterface, IteratorAggregate, Array
 
     /**
      * ManagerBase constructor.
+     *
      * @param ModelInterface $model
-     * @param Connection $connection
-     * @param array $config
+     * @param Connection     $connection
+     * @param array          $config
      */
     public function __construct(ModelInterface $model, Connection $connection, array $config = [])
     {
@@ -50,26 +50,29 @@ abstract class ManagerBase implements ManagerInterface, IteratorAggregate, Array
 
     protected function init()
     {
-
     }
 
     /**
      * @param QuerySet $qs
+     *
      * @return $this
      */
     public function setQuerySet(QuerySet $qs)
     {
         $this->qs = $qs;
+
         return $this;
     }
 
     /**
      * @param ModelInterface $model
+     *
      * @return $this
      */
     public function setModel(ModelInterface $model)
     {
         $this->model = $model;
+
         return $this;
     }
 
@@ -88,9 +91,10 @@ abstract class ManagerBase implements ManagerInterface, IteratorAggregate, Array
     {
         if ($this->qs === null) {
             $this->qs = new QuerySet([
-                'model' => $this->getModel()
+                'model' => $this->getModel(),
             ]);
         }
+
         return $this->qs;
     }
 
@@ -100,6 +104,7 @@ abstract class ManagerBase implements ManagerInterface, IteratorAggregate, Array
     public function setConnection($connection)
     {
         $this->getQuerySet()->setConnection($connection);
+
         return $this;
     }
 
@@ -125,6 +130,7 @@ abstract class ManagerBase implements ManagerInterface, IteratorAggregate, Array
     public function limit($limit)
     {
         $this->getQuerySet()->limit($limit);
+
         return $this;
     }
 
@@ -134,6 +140,7 @@ abstract class ManagerBase implements ManagerInterface, IteratorAggregate, Array
     public function offset($offset)
     {
         $this->getQuerySet()->offset($offset);
+
         return $this;
     }
 
@@ -143,6 +150,7 @@ abstract class ManagerBase implements ManagerInterface, IteratorAggregate, Array
     public function paginate($page, $pageSize = 10)
     {
         $this->getQuerySet()->paginate($page, $pageSize);
+
         return $this;
     }
 
@@ -152,6 +160,7 @@ abstract class ManagerBase implements ManagerInterface, IteratorAggregate, Array
     public function order($columns)
     {
         $this->getQuerySet()->order($columns);
+
         return $this;
     }
 
@@ -185,6 +194,7 @@ abstract class ManagerBase implements ManagerInterface, IteratorAggregate, Array
     public function filter($conditions)
     {
         $this->getQuerySet()->filter($conditions);
+
         return $this;
     }
 
@@ -194,6 +204,7 @@ abstract class ManagerBase implements ManagerInterface, IteratorAggregate, Array
     public function orFilter($conditions)
     {
         $this->getQuerySet()->orFilter($conditions);
+
         return $this;
     }
 
@@ -203,6 +214,7 @@ abstract class ManagerBase implements ManagerInterface, IteratorAggregate, Array
     public function exclude($conditions)
     {
         $this->getQuerySet()->exclude($conditions);
+
         return $this;
     }
 
@@ -212,6 +224,7 @@ abstract class ManagerBase implements ManagerInterface, IteratorAggregate, Array
     public function orExclude($conditions)
     {
         $this->getQuerySet()->orExclude($conditions);
+
         return $this;
     }
 

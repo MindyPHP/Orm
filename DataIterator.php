@@ -1,11 +1,10 @@
 <?php
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
  * @email max@studio107.ru
+ *
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
@@ -17,8 +16,7 @@ namespace Mindy\Orm;
 use ArrayIterator;
 
 /**
- * Class DataIterator
- * @package Mindy\Orm
+ * Class DataIterator.
  */
 class DataIterator extends ArrayIterator
 {
@@ -33,9 +31,10 @@ class DataIterator extends ArrayIterator
 
     /**
      * DataIterator constructor.
+     *
      * @param array $data
      * @param array $config
-     * @param int $flags
+     * @param int   $flags
      */
     public function __construct(array $data, array $config = [], $flags = 0)
     {

@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: max
  * Date: 06/12/2016
- * Time: 21:30
+ * Time: 21:30.
  */
 
 namespace Mindy\Orm;
@@ -27,6 +27,7 @@ class Orm
                 ->getComponent('orm.connection_manager')
                 ->getConnection('default');
         }
+
         return self::$connection;
     }
 }

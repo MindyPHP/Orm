@@ -4,15 +4,12 @@ namespace Mindy\Orm\Fields;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Exception;
-use InvalidArgumentException;
-use Mindy\Orm\Base;
 use Mindy\Orm\ModelInterface;
 use Mindy\Orm\ManagerInterface;
 use Mindy\QueryBuilder\QueryBuilder;
 
 /**
- * Class ForeignField
- * @package Mindy\Orm
+ * Class ForeignField.
  */
 class ForeignField extends RelatedField
 {
@@ -42,28 +39,31 @@ class ForeignField extends RelatedField
     public function getJoin(QueryBuilder $qb, $topAlias)
     {
         $alias = $qb->makeAliasKey($this->getRelatedModel()->tableName());
+
         return [
             [
                 'LEFT JOIN',
                 $this->getRelatedTable(false),
-                [$topAlias . '.' . $this->name . '_id' => $alias . '.' . $this->getRelatedModel()->getPrimaryKeyName()],
-                $alias
-            ]
+                [$topAlias.'.'.$this->name.'_id' => $alias.'.'.$this->getRelatedModel()->getPrimaryKeyName()],
+                $alias,
+            ],
         ];
     }
 
     /**
      * @param $value
+     *
      * @return \Mindy\Orm\Model|\Mindy\Orm\TreeModel|null
+     *
      * @throws Exception
      */
     protected function fetch($value)
     {
         if (empty($value)) {
             if ($this->null === true) {
-                return null;
+                return;
             } else {
-                throw new Exception("Value in fetch method of PrimaryKeyField cannot be empty");
+                throw new Exception('Value in fetch method of PrimaryKeyField cannot be empty');
             }
         }
 
@@ -81,6 +81,7 @@ class ForeignField extends RelatedField
         if ($value instanceof ModelInterface) {
             return $value->pk;
         }
+
         return $value;
     }
 
@@ -94,34 +95,34 @@ class ForeignField extends RelatedField
      */
     public function getAttributeName()
     {
-        return $this->name . '_id';
+        return $this->name.'_id';
     }
 
     /**
      * @param $value
      * @param AbstractPlatform $platform
-     * @return null
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         if ($value instanceof ModelInterface) {
             return $value;
-        } else if (!is_null($value)) {
+        } elseif (!is_null($value)) {
             return $this->fetchModel($value);
         }
+
         return $value;
     }
 
     /**
      * @param $value
      * @param AbstractPlatform $platform
-     * @return null
      */
     public function convertToPHPValueSQL($value, AbstractPlatform $platform)
     {
         if ($value instanceof ModelInterface) {
             return $value->pk;
         }
+
         return $value;
     }
 
@@ -136,6 +137,7 @@ class ForeignField extends RelatedField
     /**
      * @param $value
      * @param AbstractPlatform $platform
+     *
      * @return int|string
      */
     public function convertToDatabaseValueSql($value, AbstractPlatform $platform)
