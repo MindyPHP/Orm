@@ -18,10 +18,20 @@ class Model extends AbstractModel
     {
         $bundleName = self::getBundleName();
         if (!empty($bundleName)) {
-            return sprintf('%s_%s',
-                self::normalizeTableName(str_replace('Bundle', '', $bundleName)),
-                parent::tableName()
-            );
+            $ns = (new ReflectionClass(get_called_class()))->getNamespaceName();
+            $prefix = substr($ns, strpos($ns, 'Model') + 6);
+            if ($prefix) {
+                return sprintf('%s_%s_%s',
+                    self::normalizeTableName(str_replace('Bundle', '', $bundleName)),
+                    self::normalizeTableName($prefix),
+                    parent::tableName()
+                );
+            } else {
+                return sprintf('%s_%s',
+                    self::normalizeTableName(str_replace('Bundle', '', $bundleName)),
+                    parent::tableName()
+                );
+            }
         } else {
             return parent::tableName();
         }
