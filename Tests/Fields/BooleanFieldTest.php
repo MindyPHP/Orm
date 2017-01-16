@@ -41,8 +41,7 @@ class BooleanFieldTest extends \PHPUnit_Framework_TestCase
 
         $field = new BooleanField(['default' => true]);
         $this->assertTrue($field->getValue());
-        $field->setValue(new class()
-        {
+        $field->setValue(new class() {
         });
         $this->assertTrue($field->getValue());
         $this->assertTrue($field->isValid());
