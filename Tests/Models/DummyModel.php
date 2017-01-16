@@ -12,7 +12,7 @@ use Mindy\Orm\Base;
 
 class DummyModel extends Base
 {
-    public function update(array $fields = []) : bool
+    public function update(array $fields = [])
     {
         $state = true;
         if ($state) {
@@ -22,7 +22,7 @@ class DummyModel extends Base
         return $state;
     }
 
-    public function insert(array $fields = []) : bool
+    public function insert(array $fields = [])
     {
         $state = true;
         if ($state) {
