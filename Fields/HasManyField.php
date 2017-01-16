@@ -60,7 +60,7 @@ class HasManyField extends RelatedField
     /**
      * @return ManagerInterface
      */
-    public function getManager() : ManagerInterface
+    public function getManager()
     {
         list($from, $to) = $this->link;
 

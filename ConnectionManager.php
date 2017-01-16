@@ -69,7 +69,7 @@ class ConnectionManager
      *
      * @return $this
      */
-    public function setDefaultConnection(string $name)
+    public function setDefaultConnection($name)
     {
         $this->defaultConnection = $name;
 
