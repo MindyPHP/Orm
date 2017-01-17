@@ -1,46 +1,46 @@
 {
-  "name": "mindy/orm",
-  "homepage": "https://github.com/MindyPHP/Orm",
-  "license": "MIT",
-  "autoload": {
-    "psr-4": {
-      "Mindy\\Orm\\": ""
+    "name": "mindy/orm",
+    "homepage": "https://github.com/MindyPHP/Orm",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Mindy\\Orm\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
     },
-    "exclude-from-classmap": [
-      "/Tests/"
-    ]
-  },
-  "require": {
-    "php": ">=5.5.9",
-    "imagine/imagine": "*",
-    "doctrine/dbal": "~2.0",
-    "symfony/validator": "~3.0",
-    "mindy/query_builder": "~2.0",
-    "cocur/slugify": "~2.0",
-    "league/flysystem": "~1.0",
-    "mindy/validation": "~2.0"
-  },
-  "suggested": {
-    "league/flysystem": "For storing files",
-    "mindy/orm-fields": "Collection of extra fields: IpField, JsonField",
-    "mindy/orm-file-field": "For FileField and ImageField",
-    "mindy/orm-slug-field": "For Slug and AutoSlug fields",
-    "mindy/orm-nested-set": "Nested set for Mindy Orm"
-  },
-  "authors": [
-    {
-      "name": "Maxim Falaleev",
-      "email": "max@studio107.ru",
-      "homepage": "http://studio107.ru"
+    "require": {
+        "php": ">=5.5.9",
+        "imagine/imagine": "*",
+        "doctrine/dbal": "~2.0",
+        "symfony/validator": "~3.0",
+        "mindy/query_builder": "~2.0",
+        "cocur/slugify": "~2.0",
+        "league/flysystem": "~1.0",
+        "mindy/validation": "~2.0"
+    },
+    "suggested": {
+        "league/flysystem": "For storing files",
+        "mindy/orm-fields": "Collection of extra fields: IpField, JsonField",
+        "mindy/orm-file-field": "For FileField and ImageField",
+        "mindy/orm-slug-field": "For Slug and AutoSlug fields",
+        "mindy/orm-nested-set": "Nested set for Mindy Orm"
+    },
+    "authors": [
+        {
+            "name": "Maxim Falaleev",
+            "email": "max@studio107.ru",
+            "homepage": "http://studio107.ru"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/MindyPHP/Mindy/issues?state=open"
+    },
+    "minimum-stability": "dev",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "3.7-dev"
+        }
     }
-  ],
-  "support": {
-    "issues": "https://github.com/MindyPHP/Mindy/issues?state=open"
-  },
-  "minimum-stability": "dev",
-  "extra": {
-    "branch-alias": {
-      "dev-master": "3.6-dev"
-    }
-  }
 }
