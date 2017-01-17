@@ -78,6 +78,11 @@ interface ModelInterface
     public function update(array $fields = []);
 
     /**
+     * @return bool
+     */
+    public function delete();
+
+    /**
      * @param array $fields
      *
      * @return bool
