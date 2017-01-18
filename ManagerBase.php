@@ -31,8 +31,8 @@ abstract class ManagerBase implements ManagerInterface, IteratorAggregate, Array
      * ManagerBase constructor.
      *
      * @param ModelInterface $model
-     * @param Connection     $connection
-     * @param array          $config
+     * @param Connection $connection
+     * @param array $config
      */
     public function __construct(ModelInterface $model, Connection $connection, array $config = [])
     {
@@ -186,6 +186,13 @@ abstract class ManagerBase implements ManagerInterface, IteratorAggregate, Array
     public function each($batchSize = 100)
     {
         return $this->getQuerySet()->each($batchSize);
+    }
+
+    public function having($having)
+    {
+        $this->getQuerySet()->having($having);
+
+        return $this;
     }
 
     /**

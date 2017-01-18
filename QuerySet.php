@@ -659,4 +659,10 @@ class QuerySet extends QuerySetBase
 
         return $this;
     }
+
+    public function having($having)
+    {
+        $this->getQueryBuilder()->having($having);
+        return $this;
+    }
 }
