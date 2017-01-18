@@ -323,7 +323,8 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
             $instance = new $className();
         }
 
-        if (class_exists($managerClass = self::getManagerClass())) {
+        $managerClass = self::getManagerClass();
+        if (class_exists($managerClass)) {
             return new $managerClass($instance, $instance->getConnection());
         }
 
