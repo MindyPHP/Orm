@@ -474,8 +474,15 @@ class QuerySet extends QuerySetBase
 
         list($order, $orderOptions) = $qb->getOrder();
         $select = $qb->getSelect();
-        $sql = $qb->order(null)->select($q)->toSQL();
-        $qb->select($select)->order($order, $orderOptions);
+
+        $sql = $qb
+            ->order(null)
+            ->select(array_merge($select, [$q]))
+            ->toSQL();
+
+        $qb
+            ->select($select)
+            ->order($order, $orderOptions);
 
         return $sql;
     }

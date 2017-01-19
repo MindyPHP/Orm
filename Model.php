@@ -45,13 +45,12 @@ class Model extends AbstractModel
     public static function getBundleName()
     {
         $object = new ReflectionClass(get_called_class());
-        if ($pos = strpos($object->getFileName(), 'Bundle')) {
-            $shortPath = substr($object->getFileName(), $pos + 7);
+        $path = $object->getFileName();
+        $basePath = substr($path, 0, strrpos(strtolower($path), 'bundle') + 7);
+        $phpFiles = glob(sprintf('%s/*Bundle.php', $basePath));
+        $bundleName = pathinfo(current($phpFiles), PATHINFO_FILENAME);
 
-            return substr($shortPath, 0, strpos($shortPath, '/'));
-        }
-
-        return '';
+        return empty($bundleName) ? '' : $bundleName;
     }
 
     /**
