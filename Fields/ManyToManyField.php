@@ -1,14 +1,22 @@
 <?php
 
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
+ */
+
 namespace Mindy\Orm\Fields;
 
 use Exception;
+use Mindy\Orm\AbstractModel;
+use Mindy\Orm\ManagerInterface;
 use Mindy\Orm\MetaData;
 use Mindy\Orm\Model;
 use Mindy\Orm\ModelInterface;
-use Mindy\Orm\AbstractModel;
 use Mindy\QueryBuilder\QueryBuilder;
-use Mindy\Orm\ManagerInterface;
 
 /**
  * Class ManyToManyField.
@@ -148,9 +156,9 @@ class ManyToManyField extends RelatedField
     }
 
     /**
-     * @return string Model column in "link" table
-     *
      * @throws Exception
+     *
+     * @return string Model column in "link" table
      */
     public function getModelColumn()
     {
@@ -312,9 +320,9 @@ class ManyToManyField extends RelatedField
             sort($parts);
 
             return '{{%'.implode('_', $parts).'}}';
-        } else {
-            return call_user_func([$this->through, 'tableName']);
         }
+
+        return call_user_func([$this->through, 'tableName']);
     }
 
     /**
@@ -363,16 +371,15 @@ class ManyToManyField extends RelatedField
                 $value[0] instanceof Model
             ) {
                 return $value;
-            } else {
-                if (empty($value[0])) {
-                    return [];
-                }
-
-                throw new Exception('ManyToMany field can set only arrays of Models or existing primary keys');
             }
-        } else {
-            return [];
+            if (empty($value[0])) {
+                return [];
+            }
+
+            throw new Exception('ManyToMany field can set only arrays of Models or existing primary keys');
         }
+
+        return [];
     }
 
     /**

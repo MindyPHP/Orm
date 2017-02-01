@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
+ */
+
 namespace Mindy\Orm;
 
 use Mindy\Orm\Exception\MultipleObjectsReturned;
@@ -89,9 +97,9 @@ class QuerySet extends QuerySetBase
             }
 
             return $flatArr;
-        } else {
-            return $rows;
         }
+
+        return $rows;
     }
 
     /**
@@ -204,9 +212,9 @@ class QuerySet extends QuerySetBase
      *
      * @param array $filter
      *
-     * @return ModelInterface|array|null
-     *
      * @throws MultipleObjectsReturned
+     *
+     * @return ModelInterface|array|null
      */
     public function get($filter = [])
     {
@@ -223,12 +231,11 @@ class QuerySet extends QuerySetBase
         $row = array_shift($rows);
         if ($this->asArray) {
             return $row;
-        } else {
-            $model = $this->createModel($row);
-            $model->setIsNewRecord(false);
-
-            return $model;
         }
+        $model = $this->createModel($row);
+        $model->setIsNewRecord(false);
+
+        return $model;
     }
 
     public function setSql($sql)
@@ -400,9 +407,9 @@ class QuerySet extends QuerySetBase
                     $column = substr($value, 1);
                     if ($this->getModel()->getMeta()->hasForeignField($column)) {
                         return $direction.$column.'_id';
-                    } else {
-                        return $value;
                     }
+
+                    return $value;
                 }
 
                 return $value;
@@ -670,6 +677,7 @@ class QuerySet extends QuerySetBase
     public function having($having)
     {
         $this->getQueryBuilder()->having($having);
+
         return $this;
     }
 }

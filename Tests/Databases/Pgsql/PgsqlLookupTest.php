@@ -1,22 +1,18 @@
 <?php
 
-/**
- * All rights reserved.
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- *
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 08/02/15 14:33
+ * Author: Maxim Falaleev <max@studio107.ru>
  */
 
 namespace Mindy\Orm\Tests\Databases\Pgsql;
 
-use Mindy\Orm\Tests\QueryBuilder\LookupTest;
 use Mindy\Orm\Tests\Models\Product;
 use Mindy\Orm\Tests\Models\ProductList;
+use Mindy\Orm\Tests\QueryBuilder\LookupTest;
 
 class PgsqlLookupTest extends LookupTest
 {

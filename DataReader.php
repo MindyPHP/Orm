@@ -1,9 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: max
- * Date: 15/09/16
- * Time: 14:47.
+
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
  */
 
 namespace Mindy\Orm;
@@ -86,7 +88,7 @@ class DataReader implements Iterator, Countable
      * @param int|string $column   Number of the column (1-indexed) or name of the column
      *                             in the result set. If using the column name, be aware that the name
      *                             should match the case of the column, as returned by the driver.
-     * @param mixed      $value    Name of the PHP variable to which the column will be bound.
+     * @param mixed      $value    name of the PHP variable to which the column will be bound
      * @param int        $dataType Data type of the parameter
      *
      * @see http://www.php.net/manual/en/function.PDOStatement-bindColumn.php
@@ -164,7 +166,7 @@ class DataReader implements Iterator, Countable
      * This method is only useful when there are multiple result sets
      * returned by the query. Not all DBMS support this feature.
      *
-     * @return bool Returns true on success or false on failure.
+     * @return bool returns true on success or false on failure
      */
     public function nextResult()
     {
@@ -189,7 +191,7 @@ class DataReader implements Iterator, Countable
     /**
      * whether the reader is closed or not.
      *
-     * @return bool whether the reader is closed or not.
+     * @return bool whether the reader is closed or not
      */
     public function getIsClosed()
     {
@@ -201,7 +203,7 @@ class DataReader implements Iterator, Countable
      * Note, most DBMS may not give a meaningful count.
      * In this case, use "SELECT COUNT(*) FROM tableName" to obtain the number of rows.
      *
-     * @return int number of rows contained in the result.
+     * @return int number of rows contained in the result
      */
     public function getRowCount()
     {
@@ -214,7 +216,7 @@ class DataReader implements Iterator, Countable
      * Note, most DBMS may not give a meaningful count.
      * In this case, use "SELECT COUNT(*) FROM tableName" to obtain the number of rows.
      *
-     * @return int number of rows contained in the result.
+     * @return int number of rows contained in the result
      */
     public function count()
     {
@@ -225,7 +227,7 @@ class DataReader implements Iterator, Countable
      * Returns the number of columns in the result set.
      * Note, even there's no row in the reader, this still gives correct column number.
      *
-     * @return int the number of columns in the result set.
+     * @return int the number of columns in the result set
      */
     public function getColumnCount()
     {
@@ -252,7 +254,7 @@ class DataReader implements Iterator, Countable
      * Returns the index of the current row.
      * This method is required by the interface Iterator.
      *
-     * @return int the index of the current row.
+     * @return int the index of the current row
      */
     public function key()
     {
@@ -263,7 +265,7 @@ class DataReader implements Iterator, Countable
      * Returns the current row.
      * This method is required by the interface Iterator.
      *
-     * @return mixed the current row.
+     * @return mixed the current row
      */
     public function current()
     {
@@ -284,7 +286,7 @@ class DataReader implements Iterator, Countable
      * Returns whether there is a row of data at current position.
      * This method is required by the interface Iterator.
      *
-     * @return bool whether there is a row of data at current position.
+     * @return bool whether there is a row of data at current position
      */
     public function valid()
     {

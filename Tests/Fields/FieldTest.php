@@ -1,9 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: max
- * Date: 15/09/16
- * Time: 16:21.
+
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
  */
 
 namespace Tests\Orm\Fields;

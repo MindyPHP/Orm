@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
+ */
+
 namespace Mindy\Orm\Fields;
 
 use Doctrine\DBAL\Types\Type;
@@ -46,8 +54,8 @@ class DecimalField extends Field
     {
         if (is_null($value)) {
             return $this->value = $value;
-        } else {
-            return $this->value = round($value, $this->scale);
         }
+
+        return $this->value = round($value, $this->scale);
     }
 }

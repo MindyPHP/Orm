@@ -1,15 +1,11 @@
 <?php
 
-/**
- * All rights reserved.
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- *
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 10/12/14 15:25
+ * Author: Maxim Falaleev <max@studio107.ru>
  */
 
 namespace Mindy\Orm;
@@ -54,7 +50,7 @@ class BatchDataIterator implements Iterator
      */
     protected $connection;
     /**
-     * @var int the number of rows to be returned in each batch.
+     * @var int the number of rows to be returned in each batch
      */
     public $batchSize = 100;
     /**
@@ -63,7 +59,7 @@ class BatchDataIterator implements Iterator
      */
     public $each = false;
     /**
-     * @var DataReader the data reader associated with this batch query.
+     * @var DataReader the data reader associated with this batch query
      */
     private $_dataReader;
     /**
@@ -173,7 +169,7 @@ class BatchDataIterator implements Iterator
      * Returns the index of the current dataset.
      * This method is required by the interface Iterator.
      *
-     * @return int the index of the current row.
+     * @return int the index of the current row
      */
     public function key()
     {
@@ -184,7 +180,7 @@ class BatchDataIterator implements Iterator
      * Returns the current dataset.
      * This method is required by the interface Iterator.
      *
-     * @return mixed the current dataset.
+     * @return mixed the current dataset
      */
     public function current()
     {
@@ -195,7 +191,7 @@ class BatchDataIterator implements Iterator
      * Returns whether there is a valid dataset at the current position.
      * This method is required by the interface Iterator.
      *
-     * @return bool whether there is a valid dataset at the current position.
+     * @return bool whether there is a valid dataset at the current position
      */
     public function valid()
     {

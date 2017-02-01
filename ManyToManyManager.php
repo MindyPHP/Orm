@@ -1,9 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: max
- * Date: 24/07/16
- * Time: 13:19.
+
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
  */
 
 namespace Mindy\Orm;
@@ -75,9 +77,9 @@ abstract class ManyToManyManager extends ManagerBase
     }
 
     /**
-     * @return int
-     *
      * @throws Exception
+     *
+     * @return int
      */
     public function clean()
     {
@@ -95,9 +97,9 @@ abstract class ManyToManyManager extends ManagerBase
      * @param bool  $link
      * @param array $extra
      *
-     * @return int
-     *
      * @throws Exception
+     *
+     * @return int
      */
     protected function linkUnlinkProcess(Model $model, $link = true, array $extra = [])
     {
@@ -121,21 +123,20 @@ abstract class ManyToManyManager extends ManagerBase
             ]);
 
             return $through->pk;
-        } else {
-            $db = $this->primaryModel->getConnection();
-            $builder = QueryBuilder::getInstance($db);
-            $data = array_merge([
+        }
+        $db = $this->primaryModel->getConnection();
+        $builder = QueryBuilder::getInstance($db);
+        $data = array_merge([
                 $this->primaryModelColumn => $this->primaryModel->pk,
                 $this->modelColumn => $model->pk,
             ], $extra);
-            $adapter = $builder->getAdapter();
-            if ($link) {
-                $state = $model->getConnection()->insert($adapter->quoteTableName($adapter->getRawTableName($this->relatedTable)), $data);
-            } else {
-                $state = $model->getConnection()->delete($adapter->quoteTableName($adapter->getRawTableName($this->relatedTable)), $data);
-            }
-
-            return $state;
+        $adapter = $builder->getAdapter();
+        if ($link) {
+            $state = $model->getConnection()->insert($adapter->quoteTableName($adapter->getRawTableName($this->relatedTable)), $data);
+        } else {
+            $state = $model->getConnection()->delete($adapter->quoteTableName($adapter->getRawTableName($this->relatedTable)), $data);
         }
+
+        return $state;
     }
 }

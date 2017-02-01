@@ -1,16 +1,18 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: max
- * Date: 25/07/16
- * Time: 20:25.
+
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
  */
 
 namespace Mindy\Orm;
 
 use ArrayAccess;
-use IteratorAggregate;
 use Doctrine\DBAL\Connection;
+use IteratorAggregate;
 
 /**
  * Class ManagerBase.

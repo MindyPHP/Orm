@@ -1,16 +1,18 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: max
- * Date: 16/09/16
- * Time: 19:39.
+
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
  */
 
 namespace Mindy\Orm;
 
+use ArrayAccess;
 use Doctrine\DBAL\Connection;
 use Exception;
-use ArrayAccess;
 use Mindy\Orm\Fields\AutoField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
@@ -123,18 +125,17 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
     /**
      * @param $name
      *
-     * @return mixed
-     *
      * @throws Exception
+     *
+     * @return mixed
      */
     public function __get($name)
     {
         $name = $this->convertToPrimaryKeyName($name);
         if ($this->hasField($name)) {
             return $this->getFieldValue($name);
-        } else {
-            throw new Exception('Setting unknown property '.get_class($this).'::'.$name);
         }
+        throw new Exception('Setting unknown property '.get_class($this).'::'.$name);
     }
 
     /**
@@ -161,9 +162,9 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
      * @param string $name
      * @param bool   $throw
      *
-     * @return ModelFieldInterface|null
-     *
      * @throws Exception
+     *
+     * @return ModelFieldInterface|null
      */
     public function getField($name, $throw = false)
     {
@@ -171,9 +172,9 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
         if (self::getMeta()->hasField($name) === false) {
             if ($throw) {
                 throw new Exception('Unknown field');
-            } else {
-                return;
             }
+
+            return;
         }
 
         $field = self::getMeta()->getField($name);
@@ -335,9 +336,9 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
      * @param $method
      * @param $args
      *
-     * @return mixed
-     *
      * @throws Exception
+     *
+     * @return mixed
      */
     public function __call($method, $args)
     {
@@ -346,9 +347,8 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
             return call_user_func_array([$this, $manager], array_merge([$this], $args));
         } elseif (method_exists($this, $method)) {
             return call_user_func_array([$this, $method], $args);
-        } else {
-            throw new Exception('Call unknown method '.$method);
         }
+        throw new Exception('Call unknown method '.$method);
     }
 
     /**
@@ -363,18 +363,18 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
             $name = preg_replace('/\\{\\{(.*?)\\}\\}/', '\1', $name);
 
             return str_replace('%', $tablePrefix, $name);
-        } else {
-            return $name;
         }
+
+        return $name;
     }
 
     /**
      * @param $method
      * @param $args
      *
-     * @return mixed
-     *
      * @throws Exception
+     *
+     * @return mixed
      */
     public static function __callStatic($method, $args)
     {
@@ -389,9 +389,8 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
             return call_user_func_array([$className, $manager], $args);
         } elseif (method_exists($className, $method)) {
             return call_user_func_array([$className, $method], $args);
-        } else {
-            throw new Exception("Call unknown method {$method}");
         }
+        throw new Exception("Call unknown method {$method}");
     }
 
     /**
@@ -447,8 +446,6 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
         } elseif (isset($this->related[$name])) {
             return $this->related[$name];
         }
-
-        return;
     }
 
     /**
@@ -544,9 +541,9 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
     {
         if ($this->getIsNewRecord()) {
             return $this->insert($fields);
-        } else {
-            return $this->update($fields);
         }
+
+        return $this->update($fields);
     }
 
     protected function beforeDeleteInternal()
@@ -653,12 +650,12 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
 
             if ($name == $field->getAttributeName()) {
                 return $field->convertToPHPValueSQL($attributeValue, $platform);
-            } else {
-                return $field->convertToPHPValue($attributeValue, $platform);
             }
-        } else {
-            return $field->getValue();
+
+            return $field->convertToPHPValue($attributeValue, $platform);
         }
+
+        return $field->getValue();
     }
 
     /**
@@ -759,9 +756,9 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
     }
 
     /**
-     * @return Connection
-     *
      * @throws Exception
+     *
+     * @return Connection
      */
     public function getConnection()
     {
@@ -814,7 +811,7 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
     /**
      * String representation of object.
      *
-     * @link http://php.net/manual/en/serializable.serialize.php
+     * @see http://php.net/manual/en/serializable.serialize.php
      *
      * @return string the string representation of the object or null
      *
@@ -828,7 +825,7 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
     /**
      * Constructs the object.
      *
-     * @link http://php.net/manual/en/serializable.unserialize.php
+     * @see http://php.net/manual/en/serializable.unserialize.php
      *
      * @param string $serialized <p>
      *                           The string representation of the object.

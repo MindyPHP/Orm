@@ -1,10 +1,13 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: max
- * Date: 20/09/16
- * Time: 11:33.
+
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
  */
+
 require __DIR__.'/../vendor/autoload.php';
 
 use Mindy\Orm\Tests\Connections;

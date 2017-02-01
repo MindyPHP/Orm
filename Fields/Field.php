@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
+ */
+
 namespace Mindy\Orm\Fields;
 
 use Closure;
@@ -9,8 +17,8 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Types\Type;
 use Mindy\Orm\Model;
 use Mindy\Orm\ModelInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 use Mindy\Orm\ValidationTrait;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
@@ -119,9 +127,9 @@ abstract class Field implements ModelFieldInterface
     }
 
     /**
-     * @return Column
-     *
      * @throws \Doctrine\DBAL\DBALException
+     *
+     * @return Column
      */
     public function getColumn()
     {
@@ -129,8 +137,6 @@ abstract class Field implements ModelFieldInterface
         if ($type) {
             return new Column($this->getAttributeName(), $type, $this->getSqlOptions());
         }
-
-        return;
     }
 
     /**
@@ -278,9 +284,9 @@ abstract class Field implements ModelFieldInterface
     {
         if ($this->verboseName) {
             return $this->verboseName;
-        } else {
-            return str_replace('_', ' ', ucfirst($this->name));
         }
+
+        return str_replace('_', ' ', ucfirst($this->name));
     }
 
     /**

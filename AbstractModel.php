@@ -1,9 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: max
- * Date: 16/09/16
- * Time: 17:57.
+
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
  */
 
 namespace Mindy\Orm;
@@ -20,9 +22,9 @@ use Mindy\QueryBuilder\QueryBuilder;
 class AbstractModel extends Base
 {
     /**
-     * @return QueryBuilder
-     *
      * @throws Exception
+     *
+     * @return QueryBuilder
      */
     protected function getQueryBuilder()
     {
@@ -119,9 +121,9 @@ class AbstractModel extends Base
     /**
      * @param array $fields
      *
-     * @return bool
-     *
      * @throws Exception
+     *
+     * @return bool
      */
     public function insert(array $fields = [])
     {
@@ -155,9 +157,9 @@ class AbstractModel extends Base
     /**
      * @param array $fields
      *
-     * @return bool
-     *
      * @throws Exception
+     *
+     * @return bool
      */
     public function update(array $fields = [])
     {

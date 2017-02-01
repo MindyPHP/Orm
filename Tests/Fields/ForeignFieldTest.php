@@ -1,16 +1,18 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: max
- * Date: 27/07/16
- * Time: 16:45.
+
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
  */
 
 namespace Mindy\Orm\Tests\Fields;
 
-use Mindy\QueryBuilder\QueryBuilder;
-use Mindy\Orm\Tests\OrmDatabaseTestCase;
 use Mindy\Orm\Tests\Models\Product;
+use Mindy\Orm\Tests\OrmDatabaseTestCase;
+use Mindy\QueryBuilder\QueryBuilder;
 
 class ForeignFieldTest extends OrmDatabaseTestCase
 {

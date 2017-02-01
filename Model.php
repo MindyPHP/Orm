@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
+ */
+
 namespace Mindy\Orm;
 
 use ReflectionClass;
@@ -26,15 +34,15 @@ class Model extends AbstractModel
                     self::normalizeTableName($prefix),
                     parent::tableName()
                 );
-            } else {
-                return sprintf('%s_%s',
+            }
+
+            return sprintf('%s_%s',
                     self::normalizeTableName(str_replace('Bundle', '', $bundleName)),
                     parent::tableName()
                 );
-            }
-        } else {
-            return parent::tableName();
         }
+
+        return parent::tableName();
     }
 
     /**

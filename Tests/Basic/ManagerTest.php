@@ -1,14 +1,11 @@
 <?php
-/**
- * All rights reserved.
+
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- *
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 04/01/14.01.2014 02:38
+ * Author: Maxim Falaleev <max@studio107.ru>
  */
 
 namespace Mindy\Orm\Tests\Basic;

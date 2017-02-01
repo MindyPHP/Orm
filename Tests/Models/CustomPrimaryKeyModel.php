@@ -1,15 +1,17 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: max
- * Date: 16/09/16
- * Time: 19:04.
+
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
  */
 
 namespace Mindy\Orm\Tests\Models;
 
-use Mindy\Orm\Fields\IntField;
 use Mindy\Orm\AbstractModel;
+use Mindy\Orm\Fields\IntField;
 
 class CustomPrimaryKeyModel extends AbstractModel
 {

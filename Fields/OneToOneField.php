@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
+ */
+
 namespace Mindy\Orm\Fields;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -46,9 +54,9 @@ class OneToOneField extends ForeignField
             }
 
             return $this->getRelatedModel()->objects()->get(['pk' => $model->pk]);
-        } else {
-            return parent::getValue();
         }
+
+        return parent::getValue();
     }
 
     public function getValidationConstraints()
@@ -120,8 +128,8 @@ class OneToOneField extends ForeignField
             $primaryKeyName = call_user_func([$this->modelClass, 'getPrimaryKeyName']);
 
             return $this->name.'_'.$primaryKeyName;
-        } else {
-            return $this->name.'_id';
         }
+
+        return $this->name.'_id';
     }
 }

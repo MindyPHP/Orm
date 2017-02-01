@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
+ */
+
 namespace Mindy\Orm;
 
 use Mindy\Orm\Fields\AutoField;
@@ -348,8 +356,6 @@ class MetaData
 
             return $field;
         }
-
-        return;
     }
 
     /**
@@ -448,8 +454,8 @@ class MetaData
         $pks = static::getPrimaryKeyName(true);
         if (count($keys) === count($pks)) {
             return count(array_intersect($keys, $pks)) === count($pks);
-        } else {
-            return false;
         }
+
+        return false;
     }
 }

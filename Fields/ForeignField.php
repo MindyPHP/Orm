@@ -1,11 +1,19 @@
 <?php
 
+/*
+ * (c) Studio107 <mail@studio107.ru> http://studio107.ru
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ *
+ * Author: Maxim Falaleev <max@studio107.ru>
+ */
+
 namespace Mindy\Orm\Fields;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Exception;
-use Mindy\Orm\ModelInterface;
 use Mindy\Orm\ManagerInterface;
+use Mindy\Orm\ModelInterface;
 use Mindy\QueryBuilder\QueryBuilder;
 
 /**
@@ -53,18 +61,17 @@ class ForeignField extends RelatedField
     /**
      * @param $value
      *
-     * @return \Mindy\Orm\Model|\Mindy\Orm\TreeModel|null
-     *
      * @throws Exception
+     *
+     * @return \Mindy\Orm\Model|\Mindy\Orm\TreeModel|null
      */
     protected function fetch($value)
     {
         if (empty($value)) {
             if ($this->null === true) {
                 return;
-            } else {
-                throw new Exception('Value in fetch method of PrimaryKeyField cannot be empty');
             }
+            throw new Exception('Value in fetch method of PrimaryKeyField cannot be empty');
         }
 
         return $this->fetchModel($value);
