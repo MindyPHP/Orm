@@ -34,7 +34,7 @@ trait LegacyMethodsTrait
     {
         @trigger_error('The '.__METHOD__.' method is deprecated since version 3.0 and will be removed in 4.0.', E_USER_DEPRECATED);
 
-        return App::getInstance()->getComponent('router')->trans($route, $data);
+        return App::getInstance()->getComponent('router')->generateUrl($route, $data);
     }
 
     /**
