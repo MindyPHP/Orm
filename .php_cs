@@ -1,7 +1,7 @@
 <?php
 
 $header = <<<EOF
-This file is part of Mindy Orm.
+This file is part of Mindy Framework.
 (c) {year} Maxim Falaleev
 
 For the full copyright and license information, please view the LICENSE
