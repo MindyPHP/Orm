@@ -1,11 +1,11 @@
 <?php
 
 /*
- * (c) Studio107 <mail@studio107.ru> http://studio107.ru
- * For the full copyright and license information, please view
- * the LICENSE file that was distributed with this source code.
+ * This file is part of Mindy Orm.
+ * (c) 2017 Maxim Falaleev
  *
- * Author: Maxim Falaleev <max@studio107.ru>
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Mindy\Orm\Tests\Databases\Pgsql;
@@ -71,7 +71,7 @@ WHERE ([[customer_1]].[[address]]::text LIKE @%test%@)', $sql);
 
         $qs = User::objects()->filter([
             'addresses__address__contains' => 'test',
-            'user__groups__pk' => '1',
+            'groups__pk' => '1',
         ]);
         $sql = $qs->allSql();
         $this->assertSql(
@@ -81,5 +81,18 @@ LEFT JOIN [[membership]] AS [[membership_1]] ON [[membership_1]].[[user_id]]=[[u
 LEFT JOIN [[group]] AS [[group_1]] ON [[group_1]].[[id]]=[[membership_1]].[[group_id]] 
 WHERE (([[customer_1]].[[address]]::text LIKE @%test%@) AND ([[group_1]].[[id]]=@1@))', $sql);
         $this->assertEquals(1, $qs->count());
+    }
+
+    public function testPgsqlManyLookupMultiple()
+    {
+        $qs = User::objects()->filter([
+            'groups__pk' => '1',
+        ]);
+        $sql = $qs->allSql();
+        $this->assertSql(
+            'SELECT [[users_1]].* FROM [[users]] AS [[users_1]] 
+LEFT JOIN [[membership]] AS [[membership_1]] ON [[membership_1]].[[user_id]]=[[users_1]].[[id]]
+LEFT JOIN [[group]] AS [[group_1]] ON [[group_1]].[[id]]=[[membership_1]].[[group_id]] 
+WHERE ([[group_1]].[[id]]=@1@)', $sql);
     }
 }

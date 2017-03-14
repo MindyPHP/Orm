@@ -1,11 +1,11 @@
 <?php
 
 /*
- * (c) Studio107 <mail@studio107.ru> http://studio107.ru
- * For the full copyright and license information, please view
- * the LICENSE file that was distributed with this source code.
+ * This file is part of Mindy Orm.
+ * (c) 2017 Maxim Falaleev
  *
- * Author: Maxim Falaleev <max@studio107.ru>
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Mindy\Orm\Fields;
@@ -315,7 +315,7 @@ class ManyToManyField extends RelatedField
     public function getTableName()
     {
         if (!$this->through) {
-            $adapter = QueryBuilder::getInstance($this->getRelatedModel()->getConnection())->getAdapter();
+            $adapter = QueryBuilder::getInstance($this->getConnection())->getAdapter();
             $parts = [$adapter->getRawTableName($this->getTable()), $adapter->getRawTableName($this->getRelatedTable())];
             sort($parts);
 

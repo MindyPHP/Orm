@@ -10,6 +10,11 @@
             "/Tests/"
         ]
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Mindy\\Orm\\Tests\\": ""
+        }
+    },
     "require": {
         "php": ">=5.5.9",
         "doctrine/dbal": "~2.0",
@@ -38,5 +43,8 @@
         "branch-alias": {
             "dev-master": "3.6.8-dev"
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0"
     }
 }

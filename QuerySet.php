@@ -1,11 +1,11 @@
 <?php
 
 /*
- * (c) Studio107 <mail@studio107.ru> http://studio107.ru
- * For the full copyright and license information, please view
- * the LICENSE file that was distributed with this source code.
+ * This file is part of Mindy Orm.
+ * (c) 2017 Maxim Falaleev
  *
- * Author: Maxim Falaleev <max@studio107.ru>
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Mindy\Orm;
@@ -150,21 +150,27 @@ class QuerySet extends QuerySetBase
     }
 
     /**
+     * Find and update model if exists. Else create model.
+     *
      * @param array $attributes
      * @param array $updateAttributes
      *
-     * @return ModelInterface|Orm|null
+     * @return ModelInterface|bool
      */
     public function updateOrCreate(array $attributes, array $updateAttributes)
     {
         $model = $this->get($attributes);
         if ($model === null) {
             $model = $this->getModel()->create();
+            $model->setIsNewRecord(true);
         }
-        $model->setAttributes($updateAttributes);
-        $model->save();
 
-        return $model;
+        $model->setAttributes($updateAttributes);
+        if ($model->save()) {
+            return $model;
+        }
+
+        return false;
     }
 
     /**
