@@ -10,8 +10,14 @@
 
 namespace Mindy\Orm\Tests\Models;
 
-use Mindy\Orm\AbstractModel;
+use Mindy\Orm\Manager;
 
-class DefaultPrimaryKeyModel extends AbstractModel
+class CustomManager extends Manager
 {
+    public function published()
+    {
+        // do something like this
+        // $this->getQuerySet()->filter(['published' => 1]);
+        return $this;
+    }
 }

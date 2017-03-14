@@ -1,15 +1,16 @@
 <?php
 
 /*
- * (c) Studio107 <mail@studio107.ru> http://studio107.ru
- * For the full copyright and license information, please view
- * the LICENSE file that was distributed with this source code.
+ * This file is part of Mindy Orm.
+ * (c) 2017 Maxim Falaleev
  *
- * Author: Maxim Falaleev <max@studio107.ru>
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Mindy\Orm\Tests;
 
+use Doctrine\DBAL\DriverManager;
 use Mindy\Orm\Manager;
 use Mindy\Orm\ManagerInterface;
 use Mindy\Orm\ModelInterface;
@@ -34,7 +35,13 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $qs->method('average')->willReturn(1);
         $qs->method('sum')->willReturn(1);
 
-        $manager = new Manager($model);
+        $connection = DriverManager::getConnection([
+            'memory' => 'true',
+            'driver' => 'pdo_sqlite',
+        ]);
+//        Orm::setDefaultConnection($connection);
+
+        $manager = new Manager($model, $connection);
         $manager->setQuerySet($qs);
         $manager->setModel($model);
         $this->assertInstanceOf(ModelInterface::class, $manager->getModel());

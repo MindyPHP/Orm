@@ -1,41 +1,23 @@
 <?php
 
 /*
- * (c) Studio107 <mail@studio107.ru> http://studio107.ru
- * For the full copyright and license information, please view
- * the LICENSE file that was distributed with this source code.
+ * This file is part of Mindy Orm.
+ * (c) 2017 Maxim Falaleev
  *
- * Author: Maxim Falaleev <max@studio107.ru>
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Mindy\Orm\Tests\Basic;
 
 use Mindy\Orm\Manager;
 use Mindy\Orm\Model;
+use Mindy\Orm\Tests\Models\Custom;
+use Mindy\Orm\Tests\Models\CustomManager;
 use Mindy\Orm\Tests\OrmDatabaseTestCase;
 
 class DefaultManagerModel extends Model
 {
-}
-
-class CustomManager extends Manager
-{
-    public function published()
-    {
-        // do something like this
-        // $this->getQuerySet()->filter(['published' => 1]);
-        return $this;
-    }
-}
-
-class CustomManagerModel extends Model
-{
-    public static function objectsManager($instance = null)
-    {
-        $className = get_called_class();
-
-        return new CustomManager($instance ? $instance : new $className());
-    }
 }
 
 class ManagerTest extends OrmDatabaseTestCase
@@ -49,14 +31,14 @@ class ManagerTest extends OrmDatabaseTestCase
 
     public function testCustomManager()
     {
-        $model = new CustomManagerModel();
+        $model = new Custom();
         $this->assertInstanceOf(CustomManager::class, $model->objects());
-        $this->assertInstanceOf(CustomManager::class, CustomManagerModel::objects());
+        $this->assertInstanceOf(CustomManager::class, Custom::objects());
     }
 
     public function testMethod()
     {
-        $model = new CustomManagerModel();
+        $model = new Custom();
         $this->assertInstanceOf(CustomManager::class, $model->objects()->published());
     }
 }

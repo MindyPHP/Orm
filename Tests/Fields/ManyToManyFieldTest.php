@@ -1,15 +1,16 @@
 <?php
 
 /*
- * (c) Studio107 <mail@studio107.ru> http://studio107.ru
- * For the full copyright and license information, please view
- * the LICENSE file that was distributed with this source code.
+ * This file is part of Mindy Orm.
+ * (c) 2017 Maxim Falaleev
  *
- * Author: Maxim Falaleev <max@studio107.ru>
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Mindy\Orm\Tests\Fields;
 
+use Mindy\Orm\Orm;
 use Mindy\Orm\Tests\Models\Blogger;
 use Mindy\Orm\Tests\Models\Category;
 use Mindy\Orm\Tests\Models\Group;
@@ -43,6 +44,12 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
         ];
     }
 
+    public function testTableNames()
+    {
+        $tables = $this->connection->getSchemaManager()->listTableNames();
+        $this->assertTrue(in_array('product_list', $tables, true));
+    }
+
     public function testSimple()
     {
         $category = new Category();
@@ -56,6 +63,11 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
         $product->category = $category;
 
         $this->assertNull($product->pk);
+
+        // General error: 1 no such table: product_list fix for sqlite
+        $product->setConnection($this->connection);
+        $lists = $product->lists;
+        $lists->getModel()->setConnection($this->connection);
 
         // TODO тут нужно выбрасывать исключение потому что обращаемся к связанным данным у новой(!) не сохраненной модели
         $this->assertEquals(0, $product->lists->count());
@@ -140,6 +152,11 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
 
         $pk = $list->pk;
 
+        // General error: 1 no such table: product_list fix for sqlite
+        $product->setConnection($this->connection);
+        $lists = $product->lists;
+        $lists->getModel()->setConnection($this->connection);
+
         // Test array of Models
         $product->lists = [$list];
         $product->save(['lists']);
@@ -176,6 +193,11 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
         $list = new ProductList(['name' => 'Toys']);
         $this->assertTrue($list->save());
 
+        // General error: 1 no such table: product_list fix for sqlite
+        $product->setConnection($this->connection);
+        $lists = $product->lists;
+        $lists->getModel()->setConnection($this->connection);
+
         $this->assertEquals(0, $product->lists->count());
         $product->lists = [$list];
         $product->save();
@@ -207,11 +229,19 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
         $product_rabbit->save();
 
         $this->assertInstanceOf('\Mindy\Orm\ManyToManyManager', $product_rabbit->lists);
+
+        // General error: 1 no such table: product_list fix for sqlite
+        $product_rabbit->setConnection($this->connection);
+        $product_rabbit->lists->getModel()->setConnection($this->connection);
         $this->assertEquals(0, $product_rabbit->lists->count());
 
         $best_sellers = new ProductList();
         $best_sellers->name = 'Best sellers';
         $best_sellers->save();
+
+        // General error: 1 no such table: product_list fix for sqlite
+        $best_sellers->setConnection($this->connection);
+        $best_sellers->products->getModel()->setConnection($this->connection);
 
         $this->assertEquals(0, $best_sellers->products->count());
 
@@ -389,8 +419,10 @@ ORDER BY [[project_membership_1]].[[position]] ASC', $qs->allSql());
     {
         $max = new Blogger(['name' => 'max']);
         $this->assertTrue($max->save());
+
         $alex = new Blogger(['name' => 'alex']);
         $this->assertTrue($alex->save());
+
         $peter = new Blogger(['name' => 'peter']);
         $this->assertTrue($peter->save());
 
@@ -401,6 +433,18 @@ ORDER BY [[project_membership_1]].[[position]] ASC', $qs->allSql());
         // Alex was subscribed to Peter
         $alex->subscribes = [$peter];
         $alex->save();
+
+        // General error: 1 no such table: product_list fix for sqlite
+//        $max->setConnection($this->connection);
+//        $max->subscribes->setConnection($this->connection);
+//        $max->subscribes->getModel()->setConnection($this->connection);
+
+//        $max->setConnection($this->connection);
+//        $max->subscribes->setConnection($this->connection);
+//        $max->subscribes->setConnection($this->connection);
+
+        $tables = $this->connection->getSchemaManager()->listTableNames();
+        $this->assertTrue(in_array('blogger', $tables, true));
 
         $this->assertEquals(2, $max->subscribes->count());
         $this->assertEquals(0, $max->subscribers->count());

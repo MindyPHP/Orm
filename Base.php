@@ -1,11 +1,11 @@
 <?php
 
 /*
- * (c) Studio107 <mail@studio107.ru> http://studio107.ru
- * For the full copyright and license information, please view
- * the LICENSE file that was distributed with this source code.
+ * This file is part of Mindy Orm.
+ * (c) 2017 Maxim Falaleev
  *
- * Author: Maxim Falaleev <max@studio107.ru>
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Mindy\Orm;
@@ -758,22 +758,12 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
     /**
      * @throws Exception
      *
-     * @return Connection
+     * @return Connection|null
      */
     public function getConnection()
     {
         if ($this->connection === null) {
-            $connection = Orm::getDefaultConnection();
-
-            /*
-            $app = App::getInstance();
-            $connection = $app->db->getConnection($this->using);
-            if (($connection instanceof Connection) === false) {
-                throw new Exception('Unknown connection ' . $this->using);
-            }
-            */
-
-            $this->connection = $connection;
+            return Orm::getDefaultConnection();
         }
 
         return $this->connection;

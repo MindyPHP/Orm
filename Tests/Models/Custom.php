@@ -8,10 +8,15 @@
  * file that was distributed with this source code.
  */
 
-require __DIR__.'/../vendor/autoload.php';
+namespace Mindy\Orm\Tests\Models;
 
-use Mindy\Orm\Tests\Connections;
+use Mindy\Orm\Model;
 
-define('MINDY_ORM_TEST', true);
-
-$mockConnections = new Connections(include(__DIR__.'/connections_settings.php'));
+/**
+ * Class Custom
+ *
+ * @method static \Mindy\Orm\Tests\Models\CustomManager objects($instance = null)
+ */
+class Custom extends Model
+{
+}

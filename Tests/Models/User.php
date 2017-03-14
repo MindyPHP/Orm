@@ -1,11 +1,11 @@
 <?php
 
 /*
- * (c) Studio107 <mail@studio107.ru> http://studio107.ru
- * For the full copyright and license information, please view
- * the LICENSE file that was distributed with this source code.
+ * This file is part of Mindy Orm.
+ * (c) 2017 Maxim Falaleev
  *
- * Author: Maxim Falaleev <max@studio107.ru>
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Mindy\Orm\Tests\Models;
@@ -13,7 +13,6 @@ namespace Mindy\Orm\Tests\Models;
 use Mindy\Orm\Fields\CharField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
-use Mindy\Orm\Fields\PasswordField;
 use Mindy\Orm\Model;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -35,7 +34,7 @@ class User extends Model
                     new Assert\Length(['min' => 3, 'max' => 20]),
                 ],
             ],
-            'password' => new PasswordField([
+            'password' => new CharField([
                 'null' => true,
             ]),
             'groups' => [
@@ -56,12 +55,5 @@ class User extends Model
     public static function tableName()
     {
         return 'users';
-    }
-
-    public static function objectsManager($instance = null)
-    {
-        $className = get_called_class();
-
-        return new UserManager($instance ? $instance : new $className());
     }
 }
