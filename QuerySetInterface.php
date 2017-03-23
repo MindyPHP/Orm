@@ -76,7 +76,7 @@ interface QuerySetInterface
      *
      * @return $this
      */
-    public function setConnection($connection);
+    public function setConnection(Connection $connection);
 
     /**
      * @return Connection

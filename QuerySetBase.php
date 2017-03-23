@@ -23,7 +23,7 @@ use Serializable;
 /**
  * Class QuerySetBase.
  */
-abstract class QuerySetBase implements IteratorAggregate, ArrayAccess, Serializable
+abstract class QuerySetBase implements QuerySetInterface, IteratorAggregate, ArrayAccess, Serializable
 {
     /**
      * @var string the name of the ActiveRecord class

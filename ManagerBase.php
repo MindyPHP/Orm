@@ -103,7 +103,7 @@ abstract class ManagerBase implements ManagerInterface, IteratorAggregate, Array
     /**
      * {@inheritdoc}
      */
-    public function setConnection($connection)
+    public function setConnection(Connection $connection)
     {
         $this->getQuerySet()->setConnection($connection);
 

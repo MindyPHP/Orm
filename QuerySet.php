@@ -350,7 +350,7 @@ class QuerySet extends QuerySetBase
      *
      * @return $this
      */
-    public function orFilter(array $query)
+    public function orFilter($query)
     {
         $this->getQueryBuilder()->orWhere($this->convertQuery($query));
 
@@ -362,7 +362,7 @@ class QuerySet extends QuerySetBase
      *
      * @return $this
      */
-    public function exclude(array $query)
+    public function exclude($query)
     {
         $this->getQueryBuilder()->where(new QAndNot($this->convertQuery($query)));
 
@@ -374,7 +374,7 @@ class QuerySet extends QuerySetBase
      *
      * @return $this
      */
-    public function orExclude(array $query)
+    public function orExclude($query)
     {
         $this->getQueryBuilder()->orWhere(new QOrNot($this->convertQuery($query)));
 
