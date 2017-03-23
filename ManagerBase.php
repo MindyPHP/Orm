@@ -52,6 +52,13 @@ abstract class ManagerBase implements ManagerInterface
     {
     }
 
+    public function __clone()
+    {
+        if ($this->qs) {
+            $this->qs = clone $this->qs;
+        }
+    }
+
     /**
      * @param QuerySet $qs
      *
