@@ -17,8 +17,8 @@ use Mindy\Orm\Model;
 /**
  * Class Worker.
  *
- * @property string name
- * @property \Mindy\Orm\ManyToManyManager projects
+ * @property string $name
+ * @property \Mindy\Orm\Manager $projects
  */
 class Worker extends Model
 {

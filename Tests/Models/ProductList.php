@@ -18,8 +18,8 @@ use Mindy\Orm\Model;
 /**
  * Class ProductList.
  *
- * @property string name
- * @property \Mindy\Orm\ManyToManyManager products
+ * @property string $name
+ * @property \Mindy\Orm\Manager $products
  */
 class ProductList extends Model
 {

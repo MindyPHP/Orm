@@ -17,8 +17,8 @@ use Mindy\Orm\Model;
 /**
  * Class Group.
  *
- * @property string name
- * @property \Mindy\Orm\ManyToManyManager users
+ * @property string $name
+ * @property \Mindy\Orm\Manager $users
  */
 class Group extends Model
 {

@@ -17,9 +17,9 @@ use Mindy\Orm\Model;
 /**
  * Class Blogger.
  *
- * @property string name
- * @property \Mindy\Orm\ManyToManyManager subscribers
- * @property \Mindy\Orm\ManyToManyManager subscribes
+ * @property string $name
+ * @property \Mindy\Orm\Manager $subscribers
+ * @property \Mindy\Orm\Manager $subscribes
  */
 class Blogger extends Model
 {

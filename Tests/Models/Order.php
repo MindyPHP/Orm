@@ -18,8 +18,8 @@ use Mindy\Orm\Model;
 /**
  * Class Order.
  *
- * @property \Mindy\Orm\Tests\Models\Customer customer
- * @property \Mindy\Orm\ManyToManyManager products
+ * @property \Mindy\Orm\Tests\Models\Customer $customer
+ * @property \Mindy\Orm\Manager $products
  */
 class Order extends Model
 {
