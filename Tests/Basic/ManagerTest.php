@@ -11,14 +11,10 @@
 namespace Mindy\Orm\Tests\Basic;
 
 use Mindy\Orm\Manager;
-use Mindy\Orm\Model;
 use Mindy\Orm\Tests\Models\Custom;
 use Mindy\Orm\Tests\Models\CustomManager;
+use Mindy\Orm\Tests\Models\DefaultManagerModel;
 use Mindy\Orm\Tests\OrmDatabaseTestCase;
-
-class DefaultManagerModel extends Model
-{
-}
 
 class ManagerTest extends OrmDatabaseTestCase
 {

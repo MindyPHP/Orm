@@ -10,15 +10,8 @@
 
 namespace Mindy\Orm\Tests\Basic;
 
-use Mindy\Orm\AbstractModel;
-
-class TableNameModel extends AbstractModel
-{
-}
-
-class VeryLongTableNameModel extends AbstractModel
-{
-}
+use Mindy\Orm\Tests\Models\TableNameModel;
+use Mindy\Orm\Tests\Models\VeryLongTableNameModel;
 
 class TableNameTest extends \PHPUnit_Framework_TestCase
 {
