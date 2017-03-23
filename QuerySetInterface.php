@@ -12,6 +12,7 @@ namespace Mindy\Orm;
 
 use ArrayAccess;
 use IteratorAggregate;
+use Mindy\Orm\Exception\MultipleObjectsReturned;
 use Mindy\QueryBuilder\ConnectionAwareInterface;
 
 /**
@@ -20,9 +21,13 @@ use Mindy\QueryBuilder\ConnectionAwareInterface;
 interface QuerySetInterface extends ConnectionAwareInterface, IteratorAggregate, ArrayAccess
 {
     /**
+     * Executes query and returns a single row of result.
+     *
      * @param $conditions
      *
-     * @return array|ModelInterface
+     * @return array|ModelInterface|null
+     *
+     * @throws MultipleObjectsReturned
      */
     public function get($conditions = []);
 
@@ -58,6 +63,15 @@ interface QuerySetInterface extends ConnectionAwareInterface, IteratorAggregate,
      * @return array|ModelInterface[]
      */
     public function all();
+
+    /**
+     * Update records.
+     *
+     * @param array $attributes
+     *
+     * @return int updated records
+     */
+    public function update(array $attributes);
 
     /**
      * @param string $q

@@ -191,6 +191,11 @@ class Manager extends ManyToManyManager
         return $this->getQuerySet()->getOrCreate($attributes);
     }
 
+    /**
+     * @param $sql
+     *
+     * @return $this
+     */
     public function setSql($sql)
     {
         $this->getQuerySet()->setSql($sql);
@@ -206,26 +211,51 @@ class Manager extends ManyToManyManager
         return $this->getQuerySet()->updateOrCreate($attributes, $updateAttributes);
     }
 
+    /**
+     * @param array $attributes
+     *
+     * @return int
+     */
     public function update(array $attributes)
     {
         return $this->getQuerySet()->update($attributes);
     }
 
+    /**
+     * @param array $attributes
+     *
+     * @return string
+     */
     public function updateSql(array $attributes)
     {
         return $this->getQuerySet()->updateSql($attributes);
     }
 
+    /**
+     * @param array $attributes
+     *
+     * @return bool
+     */
     public function delete(array $attributes = [])
     {
         return $this->filter($attributes)->getQuerySet()->delete();
     }
 
+    /**
+     * @param array $attributes
+     *
+     * @return string
+     */
     public function deleteSql(array $attributes = [])
     {
         return $this->filter($attributes)->getQuerySet()->deleteSql();
     }
 
+    /**
+     * @param array $attributes
+     *
+     * @return bool
+     */
     public function create(array $attributes)
     {
         $model = $this->getModel();
@@ -234,6 +264,11 @@ class Manager extends ManyToManyManager
         return $model->save();
     }
 
+    /**
+     * @param $column
+     *
+     * @return $this
+     */
     public function addGroupBy($column)
     {
         $this->getQuerySet()->addGroupBy($column);
@@ -241,6 +276,9 @@ class Manager extends ManyToManyManager
         return $this;
     }
 
+    /**
+     * @return int
+     */
     public function truncate()
     {
         return $this->getQuerySet()->truncate();
@@ -264,16 +302,27 @@ class Manager extends ManyToManyManager
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getTableAlias()
     {
         return $this->getQuerySet()->getTableAlias();
     }
 
+    /**
+     * @param $name
+     *
+     * @return string
+     */
     public function quoteColumnName($name)
     {
         return $this->getQuerySet()->quoteColumnName($name);
     }
 
+    /**
+     * @return \Mindy\QueryBuilder\QueryBuilder
+     */
     public function getQueryBuilder()
     {
         return $this->getQuerySet()->getQueryBuilder();

@@ -30,6 +30,9 @@ class QuerySet extends QuerySetBase
      * @var array a list of relations that this query should be performed with
      */
     protected $with = [];
+    /**
+     * @var string
+     */
     protected $sql;
 
     /**
@@ -103,11 +106,7 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * Update records.
-     *
-     * @param array $attributes
-     *
-     * @return int updated records
+     * {@inheritdoc}
      */
     public function update(array $attributes)
     {
@@ -214,13 +213,7 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * Executes query and returns a single row of result.
-     *
-     * @param array $filter
-     *
-     * @throws MultipleObjectsReturned
-     *
-     * @return ModelInterface|array|null
+     * {@inheritdoc}
      */
     public function get($filter = [])
     {
@@ -244,6 +237,11 @@ class QuerySet extends QuerySetBase
         return $model;
     }
 
+    /**
+     * @param string $sql
+     *
+     * @return $this
+     */
     public function setSql($sql)
     {
         $this->sql = $sql;
@@ -296,6 +294,13 @@ class QuerySet extends QuerySetBase
         return [$model, $alias, $prefixRemains, $chainRemains];
     }
 
+    /**
+     * todo remove me
+     *
+     * @param $with
+     *
+     * @return $this
+     */
     public function with($with)
     {
         if (!is_array($with)) {
@@ -316,6 +321,11 @@ class QuerySet extends QuerySetBase
         return $this;
     }
 
+    /**
+     * @param $query
+     *
+     * @return array
+     */
     protected function convertQuery($query)
     {
         if (is_array($query)) {
@@ -334,9 +344,7 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param array $query
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function filter($query)
     {
@@ -346,9 +354,7 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param array $query
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function orFilter($query)
     {
@@ -358,9 +364,7 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param array $query
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function exclude($query)
     {
@@ -370,9 +374,7 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param array $query
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function orExclude($query)
     {
@@ -390,15 +392,11 @@ class QuerySet extends QuerySetBase
      */
     public function quoteColumnName($name)
     {
-        return $this->getConnection()->quoteColumnName($name);
+        return $this->getAdapter()->quoteColumn($name);
     }
 
     /**
-     * Order by alias.
-     *
-     * @param $columns
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function order($columns)
     {
@@ -429,9 +427,7 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param null|string|array $q
-     *
-     * @return float|int
+     * {@inheritdoc}
      */
     public function sum($q)
     {
@@ -449,9 +445,7 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param null|string|array $q
-     *
-     * @return float|int
+     * {@inheritdoc}
      */
     public function average($q)
     {
@@ -481,6 +475,11 @@ class QuerySet extends QuerySetBase
         return $this;
     }
 
+    /**
+     * @param Aggregation $q
+     *
+     * @return string
+     */
     private function buildAggregateSql(Aggregation $q)
     {
         $qb = clone $this->getQueryBuilder();
@@ -500,6 +499,11 @@ class QuerySet extends QuerySetBase
         return $sql;
     }
 
+    /**
+     * @param Aggregation $q
+     *
+     * @return float|int
+     */
     private function aggregate(Aggregation $q)
     {
         $sql = $this->buildAggregateSql($q);
@@ -513,9 +517,7 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param null|string|array $q
-     *
-     * @return float|int
+     * {@inheritdoc}
      */
     public function min($q)
     {
@@ -533,9 +535,7 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param null|string|array $q
-     *
-     * @return float|int
+     * {@inheritdoc}
      */
     public function max($q)
     {
@@ -552,6 +552,9 @@ class QuerySet extends QuerySetBase
         return $this->buildAggregateSql(new Max($q));
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function delete()
     {
         $statement = $this->getConnection()->query($this->deleteSql());
@@ -559,6 +562,9 @@ class QuerySet extends QuerySetBase
         return $statement->execute();
     }
 
+    /**
+     * @return string
+     */
     public function deleteSql()
     {
         //        if ($this->filterHasJoin()) {
@@ -586,9 +592,7 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param string $q
-     *
-     * @return int
+     * {@inheritdoc}
      */
     public function count($q = '*')
     {
@@ -643,9 +647,7 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param mixed $fields
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function distinct($fields = true)
     {
@@ -655,9 +657,7 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param $columns
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function group($columns)
     {
@@ -666,6 +666,19 @@ class QuerySet extends QuerySetBase
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function addGroupBy($columns)
+    {
+        $this->getQueryBuilder()->addGroupBy($columns);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function limit($limit)
     {
         $this->getQueryBuilder()->limit($limit);
@@ -673,6 +686,9 @@ class QuerySet extends QuerySetBase
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function offset($offset)
     {
         $this->getQueryBuilder()->offset($offset);
@@ -680,6 +696,9 @@ class QuerySet extends QuerySetBase
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function having($having)
     {
         $this->getQueryBuilder()->having($having);

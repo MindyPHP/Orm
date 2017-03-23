@@ -48,10 +48,16 @@ abstract class ManagerBase implements ManagerInterface
         $this->init();
     }
 
+    /**
+     * Init method
+     */
     protected function init()
     {
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function __clone()
     {
         if ($this->qs) {
@@ -195,6 +201,10 @@ abstract class ManagerBase implements ManagerInterface
         return $this->getQuerySet()->each($batchSize);
     }
 
+    /**
+     * @param $having
+     * @return $this
+     */
     public function having($having)
     {
         $this->getQuerySet()->having($having);
