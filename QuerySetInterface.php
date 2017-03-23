@@ -10,12 +10,14 @@
 
 namespace Mindy\Orm;
 
-use Doctrine\Dbal\Connection;
+use ArrayAccess;
+use IteratorAggregate;
+use Mindy\QueryBuilder\ConnectionAwareInterface;
 
 /**
  * Interface QuerySetInterface.
  */
-interface QuerySetInterface
+interface QuerySetInterface extends ConnectionAwareInterface, IteratorAggregate, ArrayAccess
 {
     /**
      * @param $conditions
@@ -70,18 +72,6 @@ interface QuerySetInterface
      * @return $this
      */
     public function order($columns);
-
-    /**
-     * @param string|Connection $connection
-     *
-     * @return $this
-     */
-    public function setConnection(Connection $connection);
-
-    /**
-     * @return Connection
-     */
-    public function getConnection();
 
     /**
      * @param int $batchSize

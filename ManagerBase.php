@@ -10,14 +10,12 @@
 
 namespace Mindy\Orm;
 
-use ArrayAccess;
 use Doctrine\DBAL\Connection;
-use IteratorAggregate;
 
 /**
  * Class ManagerBase.
  */
-abstract class ManagerBase implements ManagerInterface, IteratorAggregate, ArrayAccess
+abstract class ManagerBase implements ManagerInterface
 {
     /**
      * @var \Mindy\Orm\QuerySet

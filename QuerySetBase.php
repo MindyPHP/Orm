@@ -10,21 +10,21 @@
 
 namespace Mindy\Orm;
 
-use ArrayAccess;
-use Doctrine\DBAL\Connection;
+use Serializable;
 use Exception;
-use IteratorAggregate;
 use Mindy\Orm\Callback\FetchColumnCallback;
 use Mindy\Orm\Callback\JoinCallback;
 use Mindy\Orm\Callback\LookupCallback;
+use Mindy\QueryBuilder\ConnectionAwareTrait;
 use Mindy\QueryBuilder\QueryBuilder;
-use Serializable;
 
 /**
  * Class QuerySetBase.
  */
-abstract class QuerySetBase implements QuerySetInterface, IteratorAggregate, ArrayAccess, Serializable
+abstract class QuerySetBase implements QuerySetInterface, Serializable
 {
+    use ConnectionAwareTrait;
+
     /**
      * @var string the name of the ActiveRecord class
      */
@@ -34,10 +34,6 @@ abstract class QuerySetBase implements QuerySetInterface, IteratorAggregate, Arr
      *           of [[modelClass]] will be created to represent each record.
      */
     protected $asArray;
-    /**
-     * @var Connection
-     */
-    protected $connection;
     /**
      * @var DataIterator
      */
@@ -83,7 +79,7 @@ abstract class QuerySetBase implements QuerySetInterface, IteratorAggregate, Arr
      */
     protected function getAdapter()
     {
-        return QueryBuilder::getInstance($this->getConnection())->getAdapter();
+        return $this->getQueryBuilder()->getAdapter();
     }
 
     /**
@@ -107,26 +103,6 @@ abstract class QuerySetBase implements QuerySetInterface, IteratorAggregate, Arr
     }
 
     /**
-     * @param \Doctrine\Dbal\Connection $connection
-     *
-     * @return $this
-     */
-    public function setConnection(Connection $connection)
-    {
-        $this->connection = $connection;
-
-        return $this;
-    }
-
-    /**
-     * @return Connection
-     */
-    public function getConnection()
-    {
-        return $this->model->getConnection();
-    }
-
-    /**
      * @return string
      */
     public function getTableAlias()
@@ -134,6 +110,12 @@ abstract class QuerySetBase implements QuerySetInterface, IteratorAggregate, Arr
         return $this->_tableAlias;
     }
 
+    /**
+     * @param QueryBuilder $qb
+     * @param $tableName
+     *
+     * @return $this
+     */
     protected function setTableAlias(QueryBuilder $qb, $tableName)
     {
         $this->_tableAlias = $qb->makeAliasKey($tableName);
@@ -215,13 +197,7 @@ abstract class QuerySetBase implements QuerySetInterface, IteratorAggregate, Arr
     abstract public function all();
 
     /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Retrieve an external iterator.
-     *
-     * @see http://php.net/manual/en/iteratoraggregate.getiterator.php
-     *
-     * @return \Traversable An instance of an object implementing <b>Iterator</b> or
-     *                      <b>\Traversable</b>
+     * {@inheritdoc}
      */
     public function getIterator()
     {
@@ -236,19 +212,7 @@ abstract class QuerySetBase implements QuerySetInterface, IteratorAggregate, Arr
     }
 
     /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Whether a offset exists.
-     *
-     * @see http://php.net/manual/en/arrayaccess.offsetexists.php
-     *
-     * @param mixed $offset <p>
-     *                      An offset to check for.
-     *                      </p>
-     *
-     * @return bool true on success or false on failure.
-     *              </p>
-     *              <p>
-     *              The return value will be casted to boolean if non-boolean was returned.
+     * {@inheritdoc}
      */
     public function offsetExists($offset)
     {
@@ -256,16 +220,7 @@ abstract class QuerySetBase implements QuerySetInterface, IteratorAggregate, Arr
     }
 
     /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Offset to retrieve.
-     *
-     * @see http://php.net/manual/en/arrayaccess.offsetget.php
-     *
-     * @param mixed $offset <p>
-     *                      The offset to retrieve.
-     *                      </p>
-     *
-     * @return mixed can return all value types
+     * {@inheritdoc}
      */
     public function offsetGet($offset)
     {
@@ -273,17 +228,7 @@ abstract class QuerySetBase implements QuerySetInterface, IteratorAggregate, Arr
     }
 
     /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Offset to set.
-     *
-     * @see http://php.net/manual/en/arrayaccess.offsetset.php
-     *
-     * @param mixed $offset <p>
-     *                      The offset to assign the value to.
-     *                      </p>
-     * @param mixed $value  <p>
-     *                      The value to set.
-     *                      </p>
+     * {@inheritdoc}
      */
     public function offsetSet($offset, $value)
     {
@@ -291,14 +236,7 @@ abstract class QuerySetBase implements QuerySetInterface, IteratorAggregate, Arr
     }
 
     /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Offset to unset.
-     *
-     * @see http://php.net/manual/en/arrayaccess.offsetunset.php
-     *
-     * @param mixed $offset <p>
-     *                      The offset to unset.
-     *                      </p>
+     * {@inheritdoc}
      */
     public function offsetUnset($offset)
     {
@@ -306,12 +244,7 @@ abstract class QuerySetBase implements QuerySetInterface, IteratorAggregate, Arr
     }
 
     /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * String representation of object.
-     *
-     * @see http://php.net/manual/en/serializable.serialize.php
-     *
-     * @return string the string representation of the object or null
+     * {@inheritdoc}
      */
     public function serialize()
     {
@@ -319,16 +252,7 @@ abstract class QuerySetBase implements QuerySetInterface, IteratorAggregate, Arr
     }
 
     /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * Constructs the object.
-     *
-     * @see http://php.net/manual/en/serializable.unserialize.php
-     *
-     * @param string $serialized <p>
-     *                           The string representation of the object.
-     *                           </p>
-     *
-     * @return Model[]
+     * {@inheritdoc}
      */
     public function unserialize($data)
     {
