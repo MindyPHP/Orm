@@ -25,6 +25,7 @@ class CloneTest extends \PHPUnit_Framework_TestCase
         $connection = DriverManager::getConnection($config);
 
         $model = new Dummy;
+        $model->setConnection($connection);
 
         $qs = new QuerySet();
         $qs->setModel($model);
@@ -43,6 +44,7 @@ class CloneTest extends \PHPUnit_Framework_TestCase
         $connection = DriverManager::getConnection($config);
 
         $model = new Dummy;
+        $model->setConnection($connection);
 
         return new Manager($model, $connection);
     }

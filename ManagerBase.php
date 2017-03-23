@@ -105,6 +105,7 @@ abstract class ManagerBase implements ManagerInterface
         if ($this->qs === null) {
             $this->qs = new QuerySet([
                 'model' => $this->getModel(),
+                'connection' => $this->getModel()->getConnection(),
             ]);
         }
 
