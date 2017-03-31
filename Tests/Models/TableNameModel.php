@@ -1,9 +1,11 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: max
- * Date: 23/03/2017
- * Time: 20:58
+
+/*
+ * This file is part of Mindy Framework.
+ * (c) 2017 Maxim Falaleev
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Mindy\Orm\Tests\Models;
@@ -12,5 +14,4 @@ use Mindy\Orm\AbstractModel;
 
 class TableNameModel extends AbstractModel
 {
-
 }

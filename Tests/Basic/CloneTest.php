@@ -1,9 +1,11 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: max
- * Date: 23/03/2017
- * Time: 20:57
+
+/*
+ * This file is part of Mindy Framework.
+ * (c) 2017 Maxim Falaleev
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Mindy\Orm\Tests\Basic;
@@ -24,7 +26,7 @@ class CloneTest extends \PHPUnit_Framework_TestCase
         ];
         $connection = DriverManager::getConnection($config);
 
-        $model = new Dummy;
+        $model = new Dummy();
         $model->setConnection($connection);
 
         $qs = new QuerySet();
@@ -43,7 +45,7 @@ class CloneTest extends \PHPUnit_Framework_TestCase
         ];
         $connection = DriverManager::getConnection($config);
 
-        $model = new Dummy;
+        $model = new Dummy();
         $model->setConnection($connection);
 
         return new Manager($model, $connection);

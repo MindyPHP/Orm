@@ -10,13 +10,13 @@
 
 namespace Mindy\Orm;
 
-use Serializable;
 use Exception;
 use Mindy\Orm\Callback\FetchColumnCallback;
 use Mindy\Orm\Callback\JoinCallback;
 use Mindy\Orm\Callback\LookupCallback;
 use Mindy\QueryBuilder\ConnectionAwareTrait;
 use Mindy\QueryBuilder\QueryBuilder;
+use Serializable;
 
 /**
  * Class QuerySetBase.

@@ -204,6 +204,7 @@ abstract class ManagerBase implements ManagerInterface
 
     /**
      * @param $having
+     *
      * @return $this
      */
     public function having($having)

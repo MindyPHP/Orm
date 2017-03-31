@@ -25,9 +25,9 @@ interface QuerySetInterface extends ConnectionAwareInterface, IteratorAggregate,
      *
      * @param $conditions
      *
-     * @return array|ModelInterface|null
-     *
      * @throws MultipleObjectsReturned
+     *
+     * @return array|ModelInterface|null
      */
     public function get($conditions = []);
 
