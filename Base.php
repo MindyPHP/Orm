@@ -789,6 +789,9 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
 
             /** @var \Mindy\Orm\Fields\RelatedField $field */
             $field = $this->getField($name);
+            if ($field instanceof HasManyField) {
+                continue;
+            }
             if (empty($value)) {
                 $field->getManager()->clean();
             } else {
