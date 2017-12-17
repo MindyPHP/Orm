@@ -2,6 +2,12 @@
     "name": "mindy/orm",
     "homepage": "https://github.com/MindyPHP/Orm",
     "license": "MIT",
+    "config": {
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
+    },
     "autoload": {
         "psr-4": {
             "Mindy\\Orm\\": ""
@@ -18,8 +24,9 @@
     "require": {
         "php": ">=5.5.9",
         "doctrine/dbal": "~2.0",
-        "symfony/validator": "~3.0",
-        "mindy/query_builder": "~3.0"
+        "mindy/query_builder": "~3.0",
+        "symfony/event-dispatcher": "^3.4",
+        "symfony/validator": "~3.0"
     },
     "suggested": {
         "league/flysystem": "For storing files",

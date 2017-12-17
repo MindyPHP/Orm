@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Mindy Framework.
  * (c) 2017 Maxim Falaleev
@@ -13,11 +15,14 @@ namespace Mindy\Orm;
 use ArrayAccess;
 use Doctrine\DBAL\Connection;
 use Exception;
+use Mindy\Orm\Event\SaveEvent;
 use Mindy\Orm\Fields\AutoField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Fields\ModelFieldInterface;
 use Serializable;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class NewBase.
@@ -50,6 +55,10 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
      * @var Connection
      */
     protected $connection;
+    /**
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher;
 
     /**
      * NewOrm constructor.
@@ -62,6 +71,26 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
 
         $this->attributes = new AttributeCollection();
         $this->setAttributes($attributes);
+    }
+
+    /**
+     * @param EventDispatcherInterface $eventDispatcher
+     */
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+    /**
+     * @return EventDispatcherInterface
+     */
+    public function getEventDispatcher(): EventDispatcherInterface
+    {
+        if (null === $this->eventDispatcher) {
+            $this->eventDispatcher = new EventDispatcher();
+        }
+
+        return $this->eventDispatcher;
     }
 
     /**
@@ -488,7 +517,7 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
     {
     }
 
-    protected function beforeInsertInternal()
+    protected function beforeInsertInternal(): void
     {
         $meta = self::getMeta();
         foreach ($meta->getAttributes() as $name) {
@@ -496,10 +525,13 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
             $field->beforeInsert($this, $this->getAttribute($field->getAttributeName()));
         }
 
-        $this->beforeSave($this, true);
+        $this->getEventDispatcher()->dispatch(
+            SaveEvent::BEFORE_SAVE_EVENT,
+            new SaveEvent($this, true)
+        );
     }
 
-    protected function afterInsertInternal()
+    protected function afterInsertInternal(): void
     {
         $meta = self::getMeta();
         foreach ($meta->getAttributes() as $name) {
@@ -507,10 +539,13 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
             $field->afterInsert($this, $this->getAttribute($field->getAttributeName()));
         }
 
-        $this->afterSave($this, true);
+        $this->getEventDispatcher()->dispatch(
+            SaveEvent::AFTER_SAVE_EVENT,
+            new SaveEvent($this, true)
+        );
     }
 
-    protected function beforeUpdateInternal()
+    protected function beforeUpdateInternal(): void
     {
         $meta = self::getMeta();
         foreach ($meta->getAttributes() as $name) {
@@ -518,10 +553,13 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
             $field->beforeUpdate($this, $this->getAttribute($field->getAttributeName()));
         }
 
-        $this->beforeSave($this, false);
+        $this->getEventDispatcher()->dispatch(
+            SaveEvent::BEFORE_UPDATE_EVENT,
+            new SaveEvent($this, false)
+        );
     }
 
-    protected function afterUpdateInternal()
+    protected function afterUpdateInternal(): void
     {
         $meta = self::getMeta();
         foreach ($meta->getAttributes() as $name) {
@@ -529,7 +567,10 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
             $field->afterUpdate($this, $this->getAttribute($field->getAttributeName()));
         }
 
-        $this->afterSave($this, false);
+        $this->getEventDispatcher()->dispatch(
+            SaveEvent::AFTER_UPDATE_EVENT,
+            new SaveEvent($this, false)
+        );
     }
 
     /**
@@ -537,13 +578,11 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
      *
      * @return bool
      */
-    public function save(array $fields = [])
+    public function save(array $fields = []): bool
     {
-        if ($this->getIsNewRecord()) {
-            return $this->insert($fields);
-        }
-
-        return $this->update($fields);
+        return $this->getIsNewRecord() ?
+            $this->insert($fields) :
+            $this->update($fields);
     }
 
     protected function beforeDeleteInternal()
