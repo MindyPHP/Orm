@@ -59,6 +59,16 @@ class AttributeCollectionTest extends TestCase
         $this->assertSame(123, $user->getAttribute('pk'));
         $this->assertSame(['pk' => 123], $user->getAttributes());
         $this->assertTrue($user->hasAttribute('pk'));
-        $this->assertTrue(isset($user['pk']));
+        $this->assertTrue($user->offsetExists('pk'));
+        $this->assertTrue($user->__isset('pk'));
+        
+        unset($user['pk']);
+        $this->assertNull($user['pk']);
+
+        $user['pk'] = 321;
+        $this->assertSame(321, $user['pk']);
+
+        $this->assertCount(1, $user);
+        $this->assertSame(1, $user->count());
     }
 }

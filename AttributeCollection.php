@@ -13,17 +13,31 @@ declare(strict_types=1);
 namespace Mindy\Orm;
 
 use ArrayAccess;
+use Countable;
+use Mindy\Orm\Utils\Collection;
+use Mindy\Orm\Utils\CollectionInterface;
 
-class AttributeCollection implements ArrayAccess
+class AttributeCollection implements ArrayAccess, Countable
 {
     /**
-     * @var array
+     * @var CollectionInterface
      */
-    protected $attributes = [];
+    protected $attributes;
     /**
-     * @var array
+     * @var CollectionInterface
      */
-    protected $oldAttributes = [];
+    protected $oldAttributes;
+
+    /**
+     * AttributeCollection constructor.
+     *
+     * @param array $attributes
+     */
+    public function __construct(array $attributes = [])
+    {
+        $this->attributes = new Collection($attributes);
+        $this->oldAttributes = new Collection();
+    }
 
     /**
      * @param $name
@@ -59,55 +73,55 @@ class AttributeCollection implements ArrayAccess
      *
      * @return bool
      */
-    public function hasAttribute($name)
+    public function hasAttribute(string $name): bool
     {
-        return array_key_exists($name, $this->attributes);
+        return $this->attributes->has($name);
     }
 
     /**
-     * @param $name
+     * @param string $name
      *
-     * @return string|int|null
+     * @return mixed
      */
-    public function getAttribute($name)
+    public function getAttribute(string $name)
     {
-        return isset($this->attributes[$name]) ? $this->attributes[$name] : null;
+        return $this->attributes->get($name);
     }
 
     /**
      * @param $name
      * @param $value
      */
-    public function setAttribute($name, $value)
+    public function setAttribute(string $name, $value)
     {
-        $this->oldAttributes[$name] = $this->getAttribute($name);
-        $this->attributes[$name] = $value;
+        $this->oldAttributes->set($name, $this->attributes->get($name));
+        $this->attributes->set($name, $value);
     }
 
     /**
      * @return array
      */
-    public function getAttributes()
+    public function getAttributes(): array
     {
-        return $this->attributes;
+        return $this->attributes->all();
     }
 
     /**
-     * @param $name
+     * @param string $name
      *
-     * @return mixed|null
+     * @return mixed
      */
-    public function getOldAttribute($name)
+    public function getOldAttribute(string $name)
     {
-        return isset($this->oldAttributes[$name]) ? $this->oldAttributes[$name] : null;
+        return $this->oldAttributes->get($name);
     }
 
     /**
      * @return array
      */
-    public function getOldAttributes()
+    public function getOldAttributes(): array
     {
-        return $this->oldAttributes;
+        return $this->oldAttributes->all();
     }
 
     /**
@@ -115,7 +129,7 @@ class AttributeCollection implements ArrayAccess
      */
     public function resetOldAttributes()
     {
-        $this->oldAttributes = [];
+        $this->oldAttributes->clear();
     }
 
     /**
@@ -123,72 +137,46 @@ class AttributeCollection implements ArrayAccess
      */
     public function getDirtyAttributes()
     {
-        return array_keys($this->getOldAttributes());
+        return $this->oldAttributes->keys();
     }
 
     /**
-     * Whether a offset exists
-     * @link http://php.net/manual/en/arrayaccess.offsetexists.php
-     * @param mixed $offset <p>
-     * An offset to check for.
-     * </p>
-     * @return boolean true on success or false on failure.
-     * </p>
-     * <p>
-     * The return value will be casted to boolean if non-boolean was returned.
-     * @since 5.0.0
+     * {@inheritdoc}
      */
     public function offsetExists($offset)
     {
-        return array_key_exists($offset, $this->attributes);
+        return $this->attributes->offsetExists($offset);
     }
 
     /**
-     * Offset to retrieve
-     * @link http://php.net/manual/en/arrayaccess.offsetget.php
-     * @param mixed $offset <p>
-     * The offset to retrieve.
-     * </p>
-     * @return mixed Can return all value types.
-     * @since 5.0.0
+     * {@inheritdoc}
      */
     public function offsetGet($offset)
     {
-        if (array_key_exists($offset, $this->attributes)) {
-            return $this->attributes[$offset];
-        }
-
-        return null;
+        return $this->attributes->offsetGet($offset);
     }
 
     /**
-     * Offset to set
-     * @link http://php.net/manual/en/arrayaccess.offsetset.php
-     * @param mixed $offset <p>
-     * The offset to assign the value to.
-     * </p>
-     * @param mixed $value <p>
-     * The value to set.
-     * </p>
-     * @return void
-     * @since 5.0.0
+     * {@inheritdoc}
      */
     public function offsetSet($offset, $value)
     {
-        $this->attributes[$offset] = $value;
+        $this->attributes->offsetSet($offset, $value);
     }
 
     /**
-     * Offset to unset
-     * @link http://php.net/manual/en/arrayaccess.offsetunset.php
-     * @param mixed $offset <p>
-     * The offset to unset.
-     * </p>
-     * @return void
-     * @since 5.0.0
+     * {@inheritdoc}
      */
     public function offsetUnset($offset)
     {
-        unset($this->attributes[$offset]);
+        $this->attributes->offsetUnset($offset);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function count()
+    {
+        return $this->attributes->count();
     }
 }
