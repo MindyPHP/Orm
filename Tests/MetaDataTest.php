@@ -21,8 +21,9 @@ use Mindy\Orm\MetaData;
 use Mindy\Orm\Tests\Models\Customer;
 use Mindy\Orm\Tests\Models\MemberProfile;
 use Mindy\Orm\Tests\Models\User;
+use PHPUnit\Framework\TestCase;
 
-class MetaDataTest extends \PHPUnit_Framework_TestCase
+class MetaDataTest extends TestCase
 {
     public function testPrimaryKey()
     {

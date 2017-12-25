@@ -12,8 +12,9 @@ namespace Mindy\Orm\Tests\Basic;
 
 use Mindy\Orm\Tests\Models\TableNameModel;
 use Mindy\Orm\Tests\Models\VeryLongTableNameModel;
+use PHPUnit\Framework\TestCase;
 
-class TableNameTest extends \PHPUnit_Framework_TestCase
+class TableNameTest extends TestCase
 {
     public function testTableName()
     {

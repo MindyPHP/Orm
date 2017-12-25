@@ -12,8 +12,9 @@ namespace Mindy\Orm\Fields;
 
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Mindy\QueryBuilder\Expression;
+use PHPUnit\Framework\TestCase;
 
-class AutoFieldTest extends \PHPUnit_Framework_TestCase
+class AutoFieldTest extends TestCase
 {
     public function testField()
     {

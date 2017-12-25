@@ -11,8 +11,9 @@
 namespace Tests\Orm\Fields;
 
 use Mindy\Orm\Fields\FloatField;
+use PHPUnit\Framework\TestCase;
 
-class FloatFieldTest extends \PHPUnit_Framework_TestCase
+class FloatFieldTest extends TestCase
 {
     public function testFloat()
     {

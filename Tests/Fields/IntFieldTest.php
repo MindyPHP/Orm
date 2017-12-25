@@ -11,8 +11,9 @@
 namespace Mindy\Orm\Fields;
 
 use Doctrine\DBAL\Platforms\SqlitePlatform;
+use PHPUnit\Framework\TestCase;
 
-class IntFieldTest extends \PHPUnit_Framework_TestCase
+class IntFieldTest extends TestCase
 {
     public function testField()
     {

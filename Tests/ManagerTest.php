@@ -15,8 +15,9 @@ use Mindy\Orm\Manager;
 use Mindy\Orm\ManagerInterface;
 use Mindy\Orm\ModelInterface;
 use Mindy\Orm\QuerySet;
+use PHPUnit\Framework\TestCase;
 
-class ManagerTest extends \PHPUnit_Framework_TestCase
+class ManagerTest extends TestCase
 {
     public function testManager()
     {

@@ -11,8 +11,9 @@
 namespace Tests\Orm\Fields;
 
 use Mindy\Orm\Fields\BooleanField;
+use PHPUnit\Framework\TestCase;
 
-class BooleanFieldTest extends \PHPUnit_Framework_TestCase
+class BooleanFieldTest extends TestCase
 {
     public function testField()
     {

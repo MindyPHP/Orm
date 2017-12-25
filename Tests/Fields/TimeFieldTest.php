@@ -11,8 +11,9 @@
 namespace Tests\Orm\Fields;
 
 use Mindy\Orm\Fields\TimeField;
+use PHPUnit\Framework\TestCase;
 
-class TimeFieldTest extends \PHPUnit_Framework_TestCase
+class TimeFieldTest extends TestCase
 {
     public function testField()
     {

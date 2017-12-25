@@ -11,8 +11,9 @@
 namespace Mindy\Orm\Tests;
 
 use Mindy\Orm\AttributeCollection;
+use PHPUnit\Framework\TestCase;
 
-class AttributeCollectionTest extends \PHPUnit_Framework_TestCase
+class AttributeCollectionTest extends TestCase
 {
     public function testOldAttributes()
     {

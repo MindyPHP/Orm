@@ -15,8 +15,9 @@ use Doctrine\DBAL\DriverManager;
 use Mindy\Orm\Orm;
 use Mindy\Orm\Sync;
 use Mindy\QueryBuilder\QueryBuilder;
+use PHPUnit\Framework\TestCase;
 
-class OrmDatabaseTestCase extends \PHPUnit_Framework_TestCase
+class OrmDatabaseTestCase extends TestCase
 {
     /**
      * @var array
