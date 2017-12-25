@@ -11,8 +11,9 @@
 namespace Tests\Orm\Fields;
 
 use Mindy\Orm\Fields\DecimalField;
+use PHPUnit\Framework\TestCase;
 
-class DecimalFieldTest extends \PHPUnit_Framework_TestCase
+class DecimalFieldTest extends TestCase
 {
     public function testDecimal()
     {

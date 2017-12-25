@@ -11,8 +11,9 @@
 namespace Tests\Orm\Fields;
 
 use Mindy\Orm\Fields\TimestampField;
+use PHPUnit\Framework\TestCase;
 
-class TimestampFieldTest extends \PHPUnit_Framework_TestCase
+class TimestampFieldTest extends TestCase
 {
     public function testField()
     {

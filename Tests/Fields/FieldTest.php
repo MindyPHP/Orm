@@ -12,8 +12,9 @@ namespace Tests\Orm\Fields;
 
 use Doctrine\DBAL\Schema\Column;
 use Mindy\Orm\Fields\CharField;
+use PHPUnit\Framework\TestCase;
 
-class FieldTest extends \PHPUnit_Framework_TestCase
+class FieldTest extends TestCase
 {
     public function testField()
     {

@@ -10,7 +10,9 @@
 
 namespace Tests\Orm\Fields;
 
-class FieldValidationTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class FieldValidationTest extends TestCase
 {
     public function testIsValid()
     {

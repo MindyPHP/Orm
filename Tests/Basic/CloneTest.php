@@ -14,8 +14,9 @@ use Doctrine\DBAL\DriverManager;
 use Mindy\Orm\Manager;
 use Mindy\Orm\QuerySet;
 use Mindy\Orm\Tests\Models\Dummy;
+use PHPUnit\Framework\TestCase;
 
-class CloneTest extends \PHPUnit_Framework_TestCase
+class CloneTest extends TestCase
 {
     protected function getQuerySet()
     {
