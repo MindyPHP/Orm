@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Mindy Framework.
  * (c) 2017 Maxim Falaleev
@@ -19,7 +21,7 @@ class TimestampField extends IntField
     {
         return array_merge(parent::getValidationConstraints(), [
             new Assert\Callback(function ($value, ExecutionContextInterface $context, $payload) {
-                if (false == preg_match('/^[1-9][0-9]*$/', $value)) {
+                if (false == preg_match('/^[1-9][0-9]*$/', (string)$value)) {
                     $context->buildViolation('Incorrect value')
                         ->atPath($this->getAttributeName())
                         ->addViolation();

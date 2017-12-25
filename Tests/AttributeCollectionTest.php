@@ -50,4 +50,15 @@ class AttributeCollectionTest extends TestCase
 
         $this->assertEquals([], $user->getDirtyAttributes());
     }
+
+    public function testBasic()
+    {
+        $user = new AttributeCollection();
+
+        $user->setAttribute('pk', 123);
+        $this->assertSame(123, $user->getAttribute('pk'));
+        $this->assertSame(['pk' => 123], $user->getAttributes());
+        $this->assertTrue($user->hasAttribute('pk'));
+        $this->assertTrue(isset($user['pk']));
+    }
 }

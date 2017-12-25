@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Mindy Framework.
  * (c) 2017 Maxim Falaleev
@@ -10,17 +12,18 @@
 
 namespace Mindy\Orm;
 
+use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 
+/**
+ * Class ConnectionManager
+ */
 class ConnectionManager
 {
     /**
-     * @var string
-     */
-    protected $defaultConnection = 'default';
-
-    /**
-     * @var array|\Doctrine\DBAL\Connection[]
+     * @var Connection[]
      */
     protected $connections = [];
     /**
@@ -35,60 +38,41 @@ class ConnectionManager
     /**
      * ConnectionManager constructor.
      *
-     * @param array $config
+     * @param array              $connections
+     * @param Configuration|null $configuration
+     * @param EventManager|null  $eventManager
      */
-    public function __construct(array $config = [])
+    public function __construct(array $connections = [], Configuration $configuration = null, EventManager $eventManager = null)
     {
-        $this->configure($config);
-    }
+        $this->configuration = $configuration ?? new Configuration();
+        $this->eventManager = $eventManager ?? new EventManager();
 
-    /**
-     * @param array $connections
-     */
-    public function setConnections(array $connections)
-    {
         foreach ($connections as $name => $config) {
-            $this->connections[$name] = DriverManager::getConnection($config, $this->configuration, $this->eventManager);
+            $this->connections[$name] = $this->createConnection($config);
         }
     }
 
     /**
-     * @param array $config
+     * @param string|array $config
+     *
+     * @return Connection
      */
-    protected function configure(array $config)
+    protected function createConnection($config): Connection
     {
-        foreach ($config as $key => $value) {
-            if (method_exists($this, 'set'.ucfirst($key))) {
-                $this->{'set'.ucfirst($key)}($value);
-            } else {
-                $this->{$key} = $value;
-            }
+        if (is_string($config)) {
+            $config = ['url' => $config];
         }
+
+        return DriverManager::getConnection($config, $this->configuration, $this->eventManager);
     }
 
     /**
      * @param string $name
      *
-     * @return $this
+     * @return Connection|null
      */
-    public function setDefaultConnection($name)
+    public function getConnection(string $name = 'default')
     {
-        $this->defaultConnection = $name;
-
-        return $this;
-    }
-
-    /**
-     * @param null $name
-     *
-     * @return \Doctrine\DBAL\Connection|null
-     */
-    public function getConnection($name = null)
-    {
-        if (empty($name)) {
-            $name = $this->defaultConnection;
-        }
-
         return $this->connections[$name];
     }
 }
