@@ -18,6 +18,7 @@ use Mindy\Orm\Tests\Models\Membership;
 use Mindy\Orm\Tests\Models\Permission;
 use Mindy\Orm\Tests\Models\User;
 use Mindy\Orm\Tests\OrmDatabaseTestCase;
+use Mindy\QueryBuilder\Interfaces\IAdapter;
 
 class QuerySetTest extends OrmDatabaseTestCase
 {
@@ -33,6 +34,16 @@ class QuerySetTest extends OrmDatabaseTestCase
             new Permission(),
             new Membership(),
         ];
+    }
+
+    /**
+     * @expectedException \Mindy\Orm\Exception\MultipleObjectsReturned
+     */
+    public function testMultipleObjectsReturnedException()
+    {
+        $this->assertTrue((new Hits())->save());
+        $this->assertTrue((new Hits())->save());
+        Hits::objects()->get();
     }
 
     public function testCount()

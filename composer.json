@@ -23,8 +23,10 @@
     },
     "require": {
         "php": ">=7.0",
+        "doctrine/common": "~2.0|~3.0",
         "doctrine/dbal": "~2.0|~3.0",
         "mindy/query_builder": "~3.0|~4.0",
+        "symfony/event-dispatcher": "~3.0|~4.0",
         "symfony/validator": "~3.0|~4.0"
     },
     "suggested": {

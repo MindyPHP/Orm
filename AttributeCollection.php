@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Mindy Framework.
  * (c) 2017 Maxim Falaleev
@@ -10,16 +12,32 @@
 
 namespace Mindy\Orm;
 
-class AttributeCollection
+use ArrayAccess;
+use Countable;
+use Mindy\Orm\Utils\Collection;
+use Mindy\Orm\Utils\CollectionInterface;
+
+class AttributeCollection implements ArrayAccess, Countable
 {
     /**
-     * @var array
+     * @var CollectionInterface
      */
-    protected $attributes = [];
+    protected $attributes;
     /**
-     * @var array
+     * @var CollectionInterface
      */
-    protected $oldAttributes = [];
+    protected $oldAttributes;
+
+    /**
+     * AttributeCollection constructor.
+     *
+     * @param array $attributes
+     */
+    public function __construct(array $attributes = [])
+    {
+        $this->attributes = new Collection($attributes);
+        $this->oldAttributes = new Collection();
+    }
 
     /**
      * @param $name
@@ -55,59 +73,55 @@ class AttributeCollection
      *
      * @return bool
      */
-    public function hasAttribute($name)
+    public function hasAttribute(string $name): bool
     {
-        return array_key_exists($name, $this->attributes);
+        return $this->attributes->has($name);
     }
 
     /**
-     * @param $name
+     * @param string $name
      *
-     * @return string|int|null
+     * @return mixed
      */
-    public function getAttribute($name)
+    public function getAttribute(string $name)
     {
-        if (isset($this->mapping[$name])) {
-            $name = $this->mapping[$name];
-        }
-
-        return isset($this->attributes[$name]) ? $this->attributes[$name] : null;
+        return $this->attributes->get($name);
     }
 
     /**
      * @param $name
      * @param $value
      */
-    public function setAttribute($name, $value)
+    public function setAttribute(string $name, $value)
     {
-        $this->oldAttributes[$name] = $this->getAttribute($name);
-        $this->attributes[$name] = $value;
+        $this->oldAttributes->set($name, $this->attributes->get($name));
+        $this->attributes->set($name, $value);
     }
 
     /**
      * @return array
      */
-    public function getAttributes()
+    public function getAttributes(): array
     {
-        return $this->attributes;
+        return $this->attributes->all();
     }
 
     /**
-     * @param $name
+     * @param string $name
      *
-     * @return mixed|null
+     * @return mixed
      */
-    public function getOldAttribute($name)
+    public function getOldAttribute(string $name)
     {
-        return isset($this->oldAttributes[$name]) ? $this->oldAttributes[$name] : null;
+        return $this->oldAttributes->get($name);
     }
 
     /**
      * @return array
      */
-    public function getOldAttributes()
+    public function getOldAttributes(): array
     {
-        return $this->oldAttributes;
+        return $this->oldAttributes->all();
     }
 
     /**
@@ -115,7 +129,7 @@ class AttributeCollection
      */
     public function resetOldAttributes()
     {
-        $this->oldAttributes = [];
+        $this->oldAttributes->clear();
     }
 
     /**
@@ -123,14 +137,46 @@ class AttributeCollection
      */
     public function getDirtyAttributes()
     {
-        return array_keys($this->getOldAttributes());
+        return $this->oldAttributes->keys();
     }
 
     /**
-     * @param string $name
+     * {@inheritdoc}
      */
-    public function remove($name)
+    public function offsetExists($offset)
     {
-        $this->setAttribute($name, null);
+        return $this->attributes->offsetExists($offset);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetGet($offset)
+    {
+        return $this->attributes->offsetGet($offset);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->attributes->offsetSet($offset, $value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetUnset($offset)
+    {
+        $this->attributes->offsetUnset($offset);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function count()
+    {
+        return $this->attributes->count();
     }
 }

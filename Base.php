@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Mindy Framework.
  * (c) 2017 Maxim Falaleev
@@ -22,7 +24,7 @@ use Serializable;
 /**
  * Class NewBase.
  *
- * @method static \Mindy\Orm\Manager objects($instance = null)
+ * @method static Manager objects($instance = null)
  */
 abstract class Base implements ModelInterface, ArrayAccess, Serializable
 {
@@ -71,7 +73,7 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
      */
     public function convertToPrimaryKeyName($name)
     {
-        return $name == 'pk' ? $this->getPrimaryKeyName() : $name;
+        return $name === 'pk' ? $this->getPrimaryKeyName() : $name;
     }
 
     /**
@@ -661,21 +663,7 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
     /**
      * @return string
      */
-    public static function classNameShort()
-    {
-        @trigger_error('The '.__METHOD__.' method is deprecated since version 3.0 and will be removed in 4.0.', E_USER_DEPRECATED);
-        /*
-        $classMap = explode('\\', get_called_class());
-        return end($classMap);
-        */
-
-        return (new \ReflectionClass(get_called_class()))->getShortName();
-    }
-
-    /**
-     * @return string
-     */
-    public static function getShortName()
+    public static function getShortName(): string
     {
         return (new \ReflectionClass(get_called_class()))->getShortName();
     }
@@ -685,13 +673,7 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
      */
     public static function tableName()
     {
-        /*
-        $classMap = explode('\\', get_called_class());
-        return self::normalizeTableName(end($classMap));
-        */
-        $shortName = (new \ReflectionClass(get_called_class()))->getShortName();
-
-        return self::normalizeTableName($shortName);
+        return self::normalizeTableName(self::getShortName());
     }
 
     /**

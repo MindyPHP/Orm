@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Mindy Framework.
  * (c) 2017 Maxim Falaleev
@@ -95,7 +97,7 @@ class OneToOneField extends ForeignField
         ]);
     }
 
-    public function getSqlIndexes()
+    public function getSqlIndexes(): array
     {
         $indexes = [];
         $name = $this->primary ? $this->name.'_id' : $this->name;

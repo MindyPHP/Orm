@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Mindy Framework.
  * (c) 2017 Maxim Falaleev
@@ -21,7 +23,7 @@ interface ModelFieldInterface
     /**
      * @param string $name
      */
-    public function setName($name);
+    public function setName(string $name);
 
     /**
      * @param ModelInterface $model
@@ -39,9 +41,9 @@ interface ModelFieldInterface
     public function getValue();
 
     /**
-     * @return string|null|bool
+     * @return string
      */
-    public function getVerboseName();
+    public function getVerboseName(): string;
 
     /**
      * @return \Doctrine\Dbal\Types\Type|false|null

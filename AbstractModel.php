@@ -229,43 +229,4 @@ class AbstractModel extends Base
 
         return $changed;
     }
-
-    /**
-     * @return array|Table[]
-     */
-    public static function createSchemaTables()
-    {
-        $columns = [];
-        $indexes = [];
-
-        $meta = self::getMeta();
-        $model = self::create();
-
-        $tables = [];
-        foreach ($meta->getFields() as $name => $field) {
-            $field->setModel($model);
-
-            if ($field instanceof ManyToManyField) {
-                /* @var $field \Mindy\Orm\Fields\ManyToManyField */
-                if ($field->through === null) {
-                    $tables[] = new Table($field->getTableName(), $field->getColumns());
-                }
-            } else {
-                $column = $field->getColumn();
-                if (empty($column)) {
-                    continue;
-                }
-
-                $columns[] = $column;
-                $indexes = array_merge($indexes, $field->getSqlIndexes());
-            }
-        }
-
-        $table = new Table($model->tableName(), $columns, $indexes);
-        $table->setPrimaryKey($model->getPrimaryKeyName(true), 'primary');
-
-        $tables[] = $table;
-
-        return $tables;
-    }
 }
