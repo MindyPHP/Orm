@@ -97,7 +97,7 @@ class OneToOneField extends ForeignField
         ]);
     }
 
-    public function getSqlIndexes()
+    public function getSqlIndexes(): array
     {
         $indexes = [];
         $name = $this->primary ? $this->name.'_id' : $this->name;
