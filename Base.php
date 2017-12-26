@@ -671,7 +671,7 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
     /**
      * @return string
      */
-    public static function tableName(): string
+    public static function tableName()
     {
         return self::normalizeTableName(self::getShortName());
     }
