@@ -73,10 +73,6 @@ abstract class HasManyFieldTest extends OrmDatabaseTestCase
         $this->assertEquals(2, $categoryToys->products->count());
     }
 
-    public function testThrough()
-    {
-    }
-
     public function testMultiple()
     {
         $cup = new Cup();

@@ -66,12 +66,12 @@ class MysqlLookupTest extends LookupTest
         $this->assertTrue((new ProductList(['name' => 'foo', 'date_action' => '2014-04-29 10:35:45']))->save());
         $this->assertTrue((new ProductList(['name' => 'bar', 'date_action' => '2013-03-28 10:35:45']))->save());
 
-        $qs = ProductList::objects()->filter(['date_action__week_day' => 3]);
+        $qs = ProductList::objects()->filter(['date_action__week_day' => 2]);
         $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (DAYOFWEEK([[product_list_1]].[[date_action]])=@3@)', $qs->countSql());
         $this->assertEquals(1, $qs->count());
 
-        $qs = ProductList::objects()->filter(['date_action__week_day' => '4']);
-        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (DAYOFWEEK([[product_list_1]].[[date_action]])=@4@)', $qs->countSql());
+        $qs = ProductList::objects()->filter(['date_action__week_day' => '5']);
+        $this->assertSql('SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (DAYOFWEEK([[product_list_1]].[[date_action]])=@6@)', $qs->countSql());
         $this->assertEquals(0, $qs->count());
     }
 

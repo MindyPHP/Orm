@@ -218,16 +218,16 @@ abstract class LookupTest extends OrmDatabaseTestCase
         $this->assertTrue((new ProductList(['name' => 'foo', 'date_action' => '2014-04-29 10:35:45']))->save());
         $this->assertTrue((new ProductList(['name' => 'bar', 'date_action' => '2013-02-28 10:35:45']))->save());
 
-        $qs = ProductList::objects()->filter(['date_action__week_day' => 1]);
+        $qs = ProductList::objects()->filter(['date_action__week_day' => 2]);
         $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (strftime('%w', [[product_list_1]].[[date_action]])=@2@)", $qs->countSql());
         $this->assertEquals(1, $qs->count());
 
         $qs = ProductList::objects()->filter(['date_action__week_day' => '5']);
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (strftime('%w', [[product_list_1]].[[date_action]])=@6@)", $qs->countSql());
+        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (strftime('%w', [[product_list_1]].[[date_action]])=@5@)", $qs->countSql());
         $this->assertEquals(0, $qs->count());
 
-        $qs = ProductList::objects()->filter(['date_action__week_day' => '6']);
-        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (strftime('%w', [[product_list_1]].[[date_action]])=@1@)", $qs->countSql());
+        $qs = ProductList::objects()->filter(['date_action__week_day' => '7']);
+        $this->assertSql("SELECT COUNT(*) FROM [[product_list]] AS [[product_list_1]] WHERE (strftime('%w', [[product_list_1]].[[date_action]])=@0@)", $qs->countSql());
         $this->assertEquals(0, $qs->count());
     }
 
