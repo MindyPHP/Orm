@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /*
  * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,12 +20,16 @@ use Doctrine\DBAL\DriverManager;
 /**
  * Class ConnectionManager
  */
-class ConnectionManager
+final class ConnectionManager
 {
     /**
      * @var Connection[]
      */
     protected $connections = [];
+    /**
+     * @var string
+     */
+    protected $defaultConnection = 'default';
     /**
      * @var null
      */
@@ -39,11 +43,13 @@ class ConnectionManager
      * ConnectionManager constructor.
      *
      * @param array              $connections
+     * @param string             $defaultConnection
      * @param Configuration|null $configuration
      * @param EventManager|null  $eventManager
      */
-    public function __construct(array $connections = [], Configuration $configuration = null, EventManager $eventManager = null)
+    public function __construct(array $connections = [], string $defaultConnection = 'default', Configuration $configuration = null, EventManager $eventManager = null)
     {
+        $this->defaultConnection = $defaultConnection;
         $this->configuration = $configuration ?? new Configuration();
         $this->eventManager = $eventManager ?? new EventManager();
 
@@ -71,8 +77,16 @@ class ConnectionManager
      *
      * @return Connection|null
      */
-    public function getConnection(string $name = 'default')
+    public function getConnection(string $name = null)
     {
+        if (empty($name)) {
+            $name = $this->defaultConnection;
+        }
+
+        if (false === array_key_exists($name, $this->connections)) {
+            return null;
+        }
+
         return $this->connections[$name];
     }
 }
