@@ -20,7 +20,7 @@ return [
         'memory' => true,
 //        'path' => __DIR__ . '/sqlite.db',
         'driver' => 'pdo_sqlite',
-        'driverClass' => 'Mindy\QueryBuilder\Driver\SqliteDriver',
+        'driverClass' => 'Mindy\QueryBuilder\Database\Sqlite\Driver',
     ],
     'pgsql' => [
         'dbname' => 'test',

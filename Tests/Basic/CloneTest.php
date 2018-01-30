@@ -23,7 +23,7 @@ class CloneTest extends TestCase
         $config = [
             'memory' => true,
             'driver' => 'pdo_sqlite',
-            'driverClass' => 'Mindy\QueryBuilder\Driver\SqliteDriver',
+            'driverClass' => 'Mindy\QueryBuilder\Database\Sqlite\Driver',
         ];
         $connection = DriverManager::getConnection($config);
 
@@ -42,7 +42,7 @@ class CloneTest extends TestCase
         $config = [
             'memory' => true,
             'driver' => 'pdo_sqlite',
-            'driverClass' => 'Mindy\QueryBuilder\Driver\SqliteDriver',
+            'driverClass' => 'Mindy\QueryBuilder\Database\Sqlite\Driver',
         ];
         $connection = DriverManager::getConnection($config);
 
