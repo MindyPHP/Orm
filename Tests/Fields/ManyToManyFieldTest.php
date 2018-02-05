@@ -378,7 +378,7 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
         $this->assertSql('SELECT [[worker_1]].* FROM [[worker]] AS [[worker_1]]
 LEFT JOIN [[project_membership]] AS [[project_membership_1]] ON [[project_membership_1]].[[worker_id]]=[[worker_1]].[[id]]
 LEFT JOIN [[project]] AS [[project_1]] ON [[project_1]].[[id]]=[[project_membership_1]].[[project_id]]
-WHERE ([[project_1]].[[id]] IN (\'1\'))
+WHERE ([[project_1]].[[id]] IN (1))
 ORDER BY [[project_membership_1]].[[position]] ASC', $qs->allSql());
         $this->assertEquals([
             ['id' => '1', 'name' => 'Mark'],
@@ -409,13 +409,13 @@ ORDER BY [[project_membership_1]].[[position]] ASC', $qs->allSql());
         ], Worker::objects()->filter(['projects__through__curator' => $secondWorker])->asArray()->all());
 
         $this->assertSame(
-            'SELECT worker_1.* FROM worker AS worker_1 LEFT JOIN project_membership AS project_membership_1 ON project_membership_1.worker_id=worker_1.id LEFT JOIN project AS project_1 ON project_1.id=project_membership_1.project_id WHERE (project_membership_1.curator_id = \'2\')',
+            'SELECT worker_1.* FROM worker AS worker_1 LEFT JOIN project_membership AS project_membership_1 ON project_membership_1.worker_id=worker_1.id LEFT JOIN project AS project_1 ON project_1.id=project_membership_1.project_id WHERE (project_membership_1.curator_id = 2)',
             Worker::objects()->filter(['projects__through__curator' => $secondWorker])->allSql());
         $this->assertSame(
             'SELECT worker_1.* FROM worker AS worker_1 LEFT JOIN project_membership AS project_membership_1 ON project_membership_1.worker_id=worker_1.id LEFT JOIN project AS project_1 ON project_1.id=project_membership_1.project_id ORDER BY project_membership_1.position ASC',
             Worker::objects()->order(['projects__through__position'])->asArray()->allSql());
         $this->assertSame(
-            'SELECT worker_1.* FROM worker AS worker_1 LEFT JOIN project_membership AS project_membership_1 ON project_membership_1.worker_id=worker_1.id LEFT JOIN project AS project_1 ON project_1.id=project_membership_1.project_id WHERE (project_1.id IN (\'1\', \'2\')) ORDER BY project_membership_1.position DESC',
+            'SELECT worker_1.* FROM worker AS worker_1 LEFT JOIN project_membership AS project_membership_1 ON project_membership_1.worker_id=worker_1.id LEFT JOIN project AS project_1 ON project_1.id=project_membership_1.project_id WHERE (project_1.id IN (1, 2)) ORDER BY project_membership_1.position DESC',
             Worker::objects()->filter(['projects__id__in' => [$firstProject->id, $secondProject->id]])->order(['-projects__through__position'])->allSql());
     }
 

@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -43,7 +44,7 @@ class QuerySet extends QuerySetBase
      */
     public function all()
     {
-        $sql = $this->sql === null ? $this->allSql() : $this->sql;
+        $sql = null === $this->sql ? $this->allSql() : $this->sql;
         $rows = $this->getConnection()->query($sql)->fetchAll();
         if ($this->asArray) {
             return !empty($this->with) ? $this->populateWith($rows) : $rows;
@@ -125,11 +126,17 @@ class QuerySet extends QuerySetBase
             $attrs[$this->getModel()->convertToPrimaryKeyName($key)] = $value;
         }
 
-        return $this
+        $sql = $this
             ->getQueryBuilder()
             ->update($this->getModel()->tableName())
             ->values($attrs)
             ->toSQL();
+
+        if (class_exists('SqlFormatter')) {
+            return \SqlFormatter::format($sql);
+        }
+
+        return $sql;
     }
 
     /**
@@ -140,7 +147,7 @@ class QuerySet extends QuerySetBase
     public function getOrCreate(array $attributes)
     {
         $model = $this->get($attributes);
-        if ($model === null) {
+        if (null === $model) {
             $className = get_class($this->getModel());
             /** @var Model $model */
             $model = new $className($attributes);
@@ -163,7 +170,7 @@ class QuerySet extends QuerySetBase
     public function updateOrCreate(array $attributes, array $updateAttributes)
     {
         $model = $this->get($attributes);
-        if ($model === null) {
+        if (null === $model) {
             $model = $this->getModel()->create();
             $model->setIsNewRecord(true);
         }
@@ -192,17 +199,27 @@ class QuerySet extends QuerySetBase
     }
 
     /**
+     * @throws \Doctrine\DBAL\DBALException
+     *
      * @return string
      */
     public function allSql()
     {
         $qb = clone $this->getQueryBuilder();
 
-        return $qb->toSQL();
+        $sql = $qb->toSQL();
+
+        if (class_exists('SqlFormatter')) {
+            return \SqlFormatter::format($sql);
+        }
+
+        return $sql;
     }
 
     /**
      * @param array $filter
+     *
+     * @throws \Doctrine\DBAL\DBALException
      *
      * @return string
      */
@@ -213,7 +230,13 @@ class QuerySet extends QuerySetBase
         }
         $qb = clone $this->getQueryBuilder();
 
-        return $qb->toSQL();
+        $sql = $qb->toSQL();
+
+        if (class_exists('SqlFormatter')) {
+            return \SqlFormatter::format($sql);
+        }
+
+        return $sql;
     }
 
     /**
@@ -224,7 +247,7 @@ class QuerySet extends QuerySetBase
         $rows = $this->getConnection()->query($this->getSql($filter))->fetchAll();
         if (count($rows) > 1) {
             throw new MultipleObjectsReturned();
-        } elseif (count($rows) === 0) {
+        } elseif (0 === count($rows)) {
             return;
         }
 
@@ -411,7 +434,7 @@ class QuerySet extends QuerySetBase
                 } elseif ($value instanceof Manager || $value instanceof QuerySet) {
                     return $value->getQueryBuilder();
                 } elseif (is_string($value)) {
-                    $direction = substr($value, 0, 1) === '-' ? '-' : '';
+                    $direction = '-' === substr($value, 0, 1) ? '-' : '';
                     $column = substr($value, 1);
                     if ($this->getModel()->getMeta()->hasForeignField($column)) {
                         return $direction.$column.'_id';
@@ -445,7 +468,13 @@ class QuerySet extends QuerySetBase
      */
     public function sumSql($q)
     {
-        return $this->buildAggregateSql(new Sum($q));
+        $sql =  $this->buildAggregateSql(new Sum($q));
+
+        if (class_exists('SqlFormatter')) {
+            return \SqlFormatter::format($sql);
+        }
+
+        return $sql;
     }
 
     /**
@@ -463,7 +492,13 @@ class QuerySet extends QuerySetBase
      */
     public function averageSql($q)
     {
-        return $this->buildAggregateSql(new Avg($q));
+        $sql = $this->buildAggregateSql(new Avg($q));
+
+        if (class_exists('SqlFormatter')) {
+            return \SqlFormatter::format($sql);
+        }
+
+        return $sql;
     }
 
     /**
@@ -493,6 +528,10 @@ class QuerySet extends QuerySetBase
             ->select($q)
             ->toSQL();
 
+        if (class_exists('SqlFormatter')) {
+            return \SqlFormatter::format($sql);
+        }
+
         return $sql;
     }
 
@@ -510,7 +549,7 @@ class QuerySet extends QuerySetBase
             $value = end($value);
         }
 
-        return strpos($value, '.') !== false ? floatval($value) : intval($value);
+        return false !== strpos((string)$value, '.') ? floatval($value) : intval($value);
     }
 
     /**
@@ -528,7 +567,13 @@ class QuerySet extends QuerySetBase
      */
     public function minSql($q)
     {
-        return $this->buildAggregateSql(new Min($q));
+        $sql =  $this->buildAggregateSql(new Min($q));
+
+        if (class_exists('SqlFormatter')) {
+            return \SqlFormatter::format($sql);
+        }
+
+        return $sql;
     }
 
     /**
@@ -546,7 +591,13 @@ class QuerySet extends QuerySetBase
      */
     public function maxSql($q)
     {
-        return $this->buildAggregateSql(new Max($q));
+        $sql = $this->buildAggregateSql(new Max($q));
+
+        if (class_exists('SqlFormatter')) {
+            return \SqlFormatter::format($sql);
+        }
+
+        return $sql;
     }
 
     /**
@@ -571,11 +622,17 @@ class QuerySet extends QuerySetBase
 //            ], $this->params);
 //        }
 
-        return $this
+        $sql = $this
             ->getQueryBuilder()
             ->delete($this->getModel()->tableName())
             ->setAlias(null)
             ->toSQL();
+
+        if (class_exists('SqlFormatter')) {
+            return \SqlFormatter::format($sql);
+        }
+
+        return $sql;
     }
 
     /**
@@ -585,7 +642,13 @@ class QuerySet extends QuerySetBase
      */
     public function countSql($q = '*')
     {
-        return $this->buildAggregateSql(new Count($q));
+        $sql = $this->buildAggregateSql(new Count($q));
+
+        if (class_exists('SqlFormatter')) {
+            return \SqlFormatter::format($sql);
+        }
+
+        return $sql;
     }
 
     /**
@@ -612,7 +675,7 @@ class QuerySet extends QuerySetBase
         foreach ($data as $row) {
             $tmp = [];
             foreach ($row as $key => $value) {
-                if (strpos($key, '__') !== false) {
+                if (false !== strpos($key, '__')) {
                     list($prefix, $postfix) = explode('__', $key);
                     if (!isset($tmp[$prefix])) {
                         $tmp[$prefix] = [];

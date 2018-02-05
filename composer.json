@@ -2,12 +2,6 @@
     "name": "mindy/orm",
     "homepage": "https://github.com/MindyPHP/Orm",
     "license": "MIT",
-    "config": {
-        "preferred-install": {
-            "*": "dist"
-        },
-        "sort-packages": true
-    },
     "autoload": {
         "psr-4": {
             "Mindy\\Orm\\": ""
@@ -25,12 +19,13 @@
         "php": ">=7.0",
         "doctrine/common": "~2.0|~3.0",
         "doctrine/dbal": "~2.0|~3.0",
-        "mindy/query_builder": ">=4.0.4",
+        "mindy/query_builder": ">=4.0.7",
         "symfony/event-dispatcher": "~3.0|~4.0",
         "symfony/validator": "~3.0|~4.0"
     },
     "suggested": {
         "league/flysystem": "For storing files",
+        "jdorn/sql-formatter": "Pretty SQL",
         "mindy/orm-fields": "Collection of extra fields: IpField, JsonField",
         "mindy/orm-file-field": "For FileField and ImageField",
         "mindy/orm-slug-field": "For Slug and AutoSlug fields",

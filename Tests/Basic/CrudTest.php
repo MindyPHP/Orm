@@ -333,7 +333,7 @@ abstract class CrudTest extends OrmDatabaseTestCase
         ]);
         $this->assertEquals(1, $modelOne->pk);
         $sql = Solution::objects()->filter(['id' => '1'])->updateSql(['status' => 2]);
-        $this->assertSql("UPDATE [[solution]] SET status = '2' WHERE (id = '1')", $sql);
+        $this->assertSql("UPDATE [[solution]] SET status = '2' WHERE (id = 1)", $sql);
         $this->dropModels([new Solution()], $this->getConnection());
     }
 

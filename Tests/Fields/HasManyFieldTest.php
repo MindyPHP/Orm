@@ -46,7 +46,7 @@ abstract class HasManyFieldTest extends OrmDatabaseTestCase
         $tableAliasSql = $builder->getQuotedName('product_1');
         $categoryIdSql = $builder->getQuotedName('category_id');
 
-        $this->assertEquals("SELECT COUNT(*) FROM $tableSql AS $tableAliasSql WHERE ($tableAliasSql.$categoryIdSql = '1')", $categoryToys->products->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM $tableSql AS $tableAliasSql WHERE ($tableAliasSql.$categoryIdSql = 1)", $categoryToys->products->countSql());
         $this->assertEquals(0, $categoryToys->products->count());
 
         $product_bear = new Product([
