@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -26,17 +27,17 @@ class FetchColumnCallback
 
     public function run($column)
     {
-        if ($column === 'pk') {
+        if ('pk' === $column) {
             return $this->model->getPrimaryKeyName();
         } elseif ($this->meta->hasForeignField($column)) {
-            return strpos($column, '_id') === false ? $column.'_id' : $column;
-        } elseif (strpos($column, '_id') === false) {
+            return false === strpos($column, '_id') ? $column.'_id' : $column;
+        } elseif (false === strpos($column, '_id')) {
             $fields = $this->meta->getManyToManyFields();
             foreach ($fields as $field) {
-                if (empty($field->through) === false) {
+                if (false === empty($field->through)) {
                     $meta = MetaData::getInstance($field->through);
                     if ($meta->hasForeignField($column)) {
-                        return strpos($column, '_id') === false ? $column.'_id' : $column;
+                        return false === strpos($column, '_id') ? $column.'_id' : $column;
                     }
                 }
             }

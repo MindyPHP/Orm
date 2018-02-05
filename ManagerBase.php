@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -102,7 +103,7 @@ abstract class ManagerBase implements ManagerInterface
      */
     public function getQuerySet()
     {
-        if ($this->qs === null) {
+        if (null === $this->qs) {
             $this->qs = new QuerySet([
                 'model' => $this->getModel(),
                 'connection' => $this->getModel()->getConnection(),
@@ -133,7 +134,7 @@ abstract class ManagerBase implements ManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function all()
+    public function all(): array
     {
         return $this->getQuerySet()->all();
     }
@@ -203,9 +204,7 @@ abstract class ManagerBase implements ManagerInterface
     }
 
     /**
-     * @param $having
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function having($having)
     {

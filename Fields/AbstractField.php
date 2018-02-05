@@ -3,8 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -99,7 +98,7 @@ abstract class AbstractField implements ModelFieldInterface
 
         if ($this->unique) {
             $constraints[] = new Assert\Callback(function ($value, ExecutionContextInterface $context, $payload) {
-                if ($value === null && $this->null === true) {
+                if (null === $value && true === $this->null) {
                     return;
                 }
 
@@ -131,7 +130,7 @@ abstract class AbstractField implements ModelFieldInterface
     public function getSqlIndexes(): array
     {
         $indexes = [];
-        if ($this->unique && $this->primary === false) {
+        if ($this->unique && false === $this->primary) {
             $indexes[] = new Index($this->name.'_idx', [$this->name], true, false);
         }
 
@@ -146,7 +145,7 @@ abstract class AbstractField implements ModelFieldInterface
         $options = [];
 
         foreach (['length', 'default'] as $key) {
-            if ($this->{$key} !== null) {
+            if (null !== $this->{$key}) {
                 $options[$key] = $this->{$key};
             }
         }
@@ -213,7 +212,7 @@ abstract class AbstractField implements ModelFieldInterface
     public function getValue()
     {
         if (empty($this->value)) {
-            return $this->null === true ? null : $this->default;
+            return true === $this->null ? null : $this->default;
         }
 
         return $this->value;
@@ -246,7 +245,7 @@ abstract class AbstractField implements ModelFieldInterface
      */
     public function isRequired()
     {
-        return $this->null === false && is_null($this->default) === true;
+        return false === $this->null && true === is_null($this->default);
     }
 
     /**
@@ -371,7 +370,7 @@ abstract class AbstractField implements ModelFieldInterface
      */
     public function convertToDatabaseValueSQL($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value === '') {
+        if (null === $value || '' === $value) {
             $value = null;
         }
 

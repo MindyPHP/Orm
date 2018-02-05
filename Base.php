@@ -3,8 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -73,7 +72,7 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
      */
     public function convertToPrimaryKeyName($name)
     {
-        return $name === 'pk' ? $this->getPrimaryKeyName() : $name;
+        return 'pk' === $name ? $this->getPrimaryKeyName() : $name;
     }
 
     /**
@@ -171,7 +170,7 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
     public function getField($name, $throw = false)
     {
         $name = $this->convertToPrimaryKeyName($name);
-        if (self::getMeta()->hasField($name) === false) {
+        if (false === self::getMeta()->hasField($name)) {
             if ($throw) {
                 throw new Exception('Unknown field');
             }
@@ -361,7 +360,7 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
      */
     public static function getRawTableName($name, $tablePrefix = '')
     {
-        if (strpos($name, '{{') !== false) {
+        if (false !== strpos($name, '{{')) {
             $name = preg_replace('/\\{\\{(.*?)\\}\\}/', '\1', $name);
 
             return str_replace('%', $tablePrefix, $name);
@@ -383,7 +382,7 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
         $manager = $method.'Manager';
         $className = get_called_class();
 
-        if ($method === 'tableName') {
+        if ('tableName' === $method) {
             $tableName = call_user_func([$className, $method]);
 
             return self::getRawTableName($tableName);
@@ -424,14 +423,14 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
             }
 
             $field->setValue($this->getAttribute($field->getAttributeName()));
-            if ($field->isValid() === false) {
+            if (false === $field->isValid()) {
                 $errors[$name] = $field->getErrors();
             }
         }
 
         $this->setErrors($errors);
 
-        return count($errors) == 0;
+        return 0 == count($errors);
     }
 
     /**
@@ -621,7 +620,7 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
     public function setIsNewRecord($value)
     {
         $this->isNewRecord = $value;
-        if ($value === false) {
+        if (false === $value) {
             $this->attributes->resetOldAttributes();
         }
     }
@@ -744,7 +743,7 @@ abstract class Base implements ModelInterface, ArrayAccess, Serializable
      */
     public function getConnection()
     {
-        if ($this->connection === null) {
+        if (null === $this->connection) {
             return Orm::getDefaultConnection();
         }
 

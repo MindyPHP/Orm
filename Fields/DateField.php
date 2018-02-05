@@ -3,8 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -83,7 +82,7 @@ class DateField extends Field
      */
     public function beforeUpdate(ModelInterface $model, $value)
     {
-        if ($this->autoNow && $model->getIsNewRecord() === false) {
+        if ($this->autoNow && false === $model->getIsNewRecord()) {
             $model->setAttribute($this->getAttributeName(), new \DateTime());
         }
     }
@@ -102,7 +101,7 @@ class DateField extends Field
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (($value instanceof DateTime) == false) {
+        if (false == ($value instanceof DateTime)) {
             $value = (new DateTime())->setTimestamp(is_numeric($value) ? $value : strtotime($value));
         }
 

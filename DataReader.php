@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -95,7 +96,7 @@ class DataReader implements Iterator, Countable
      */
     public function bindColumn($column, &$value, $dataType = null)
     {
-        if ($dataType === null) {
+        if (null === $dataType) {
             $this->_statement->bindColumn($column, $value);
         } else {
             $this->_statement->bindColumn($column, $value, $dataType);
@@ -170,7 +171,7 @@ class DataReader implements Iterator, Countable
      */
     public function nextResult()
     {
-        if (($result = $this->_statement->nextRowset()) !== false) {
+        if (false !== ($result = $this->_statement->nextRowset())) {
             $this->_index = -1;
         }
 
@@ -290,6 +291,6 @@ class DataReader implements Iterator, Countable
      */
     public function valid()
     {
-        return $this->_row !== false;
+        return false !== $this->_row;
     }
 }

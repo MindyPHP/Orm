@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,7 +26,8 @@ class MysqlLookupTest extends LookupTest
         $qs = ProductList::objects()->filter(['date_action__year' => 2014]);
         $this->assertSame(
             'SELECT COUNT(*) FROM product_list AS product_list_1 WHERE (EXTRACT(YEAR FROM product_list_1.date_action) = \'2014\')',
-            $qs->countSql());
+            $qs->countSql()
+        );
         $this->assertEquals(1, $qs->count());
 
         $qs = ProductList::objects()->filter(['date_action__year' => '2012']);

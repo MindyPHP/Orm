@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,7 +12,6 @@
 namespace Mindy\Orm;
 
 use Exception;
-use Mindy\QueryBuilder\QueryBuilder;
 use Mindy\QueryBuilder\QueryBuilderFactory;
 use Mindy\QueryBuilder\Utils\TableNameResolver;
 
@@ -50,22 +50,26 @@ abstract class ManyToManyManager extends ManagerBase
     public $relatedTable;
 
     /**
-     * @param Model $model
-     * @param array $extra
+     * @param ModelInterface $model
+     * @param array          $extra
+     *
+     * @throws Exception
      *
      * @return int
      */
-    public function link(Model $model, array $extra = [])
+    public function link(ModelInterface $model, array $extra = [])
     {
         return $this->linkUnlinkProcess($model, true, $extra);
     }
 
     /**
-     * @param Model $model
+     * @param ModelInterface $model
+     *
+     * @throws Exception
      *
      * @return int
      */
-    public function unlink(Model $model)
+    public function unlink(ModelInterface $model)
     {
         return $this->linkUnlinkProcess($model, false);
     }
@@ -85,7 +89,7 @@ abstract class ManyToManyManager extends ManagerBase
      */
     public function clean()
     {
-        if ($this->primaryModel->pk === null) {
+        if (null === $this->primaryModel->pk) {
             throw new Exception('Unable to clean models: the primary key of '.get_class($this->primaryModel).' is null.');
         }
         $db = $this->primaryModel->getConnection();
@@ -95,15 +99,15 @@ abstract class ManyToManyManager extends ManagerBase
     }
 
     /**
-     * @param Model $model
-     * @param bool  $link
-     * @param array $extra
+     * @param ModelInterface $model
+     * @param bool           $link
+     * @param array          $extra
      *
      * @throws Exception
      *
      * @return int
      */
-    protected function linkUnlinkProcess(Model $model, $link = true, array $extra = [])
+    protected function linkUnlinkProcess(ModelInterface $model, $link = true, array $extra = [])
     {
         $primaryModel = $this->getPrimaryModel();
         if ($primaryModel && empty($primaryModel->pk)) {

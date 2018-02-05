@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +15,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Mindy\Orm\Orm;
 use Mindy\Orm\Sync;
-use Mindy\QueryBuilder\QueryBuilder;
 use Mindy\QueryBuilder\QueryBuilderFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -46,7 +46,7 @@ class OrmDatabaseTestCase extends TestCase
 
     public function setUp()
     {
-        if (extension_loaded('pdo_'.$this->driver) === false) {
+        if (false === extension_loaded('pdo_'.$this->driver)) {
             $this->markTestSkipped('pdo_'.$this->driver.' ext required');
         }
 
@@ -54,11 +54,12 @@ class OrmDatabaseTestCase extends TestCase
         if (false === $config) {
             $this->markTestSkipped(sprintf(
                 'Configuration for %s not available. Available configrations %s',
-                $this->driver, implode(', ', array_keys($config))
+                $this->driver,
+                implode(', ', array_keys($config))
             ));
         }
 
-        if ($this->connection === null) {
+        if (null === $this->connection) {
             $this->connection = DriverManager::getConnection($config);
             Orm::setDefaultConnection($this->connection);
         }

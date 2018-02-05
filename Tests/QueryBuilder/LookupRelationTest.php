@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -36,7 +37,9 @@ abstract class LookupRelationTest extends OrmDatabaseTestCase
             'SELECT customer_1.* 
 FROM customer AS customer_1 
 LEFT JOIN users AS users_1 ON customer_1.user_id=users_1.id 
-WHERE (users_1.username = \'foo\')', $sql);
+WHERE (users_1.username = \'foo\')',
+            $sql
+        );
     }
 
     public function testSimpleLookup()
@@ -52,7 +55,9 @@ WHERE (users_1.username = \'foo\')', $sql);
             'SELECT customer_1.* 
 FROM customer AS customer_1 
 LEFT JOIN users AS users_1 ON customer_1.user_id=users_1.id 
-WHERE (users_1.username LIKE \'t%\')', $sql);
+WHERE (users_1.username LIKE \'t%\')',
+            $sql
+        );
     }
 
     public function testManyLookup()
@@ -92,7 +97,9 @@ WHERE (users_1.username LIKE \'t%\')', $sql);
             'SELECT users_1.* 
 FROM users AS users_1 
 LEFT JOIN customer AS customer_1 ON customer_1.user_id=users_1.id
-WHERE (customer_1.address LIKE \'%test%\')', $sql);
+WHERE (customer_1.address LIKE \'%test%\')',
+            $sql
+        );
         $this->assertEquals(1, $qs->count());
     }
 
@@ -118,7 +125,9 @@ WHERE (customer_1.address LIKE \'%test%\')', $sql);
 LEFT JOIN customer AS customer_1 ON customer_1.user_id=users_1.id
 LEFT JOIN membership AS membership_1 ON membership_1.user_id=users_1.id
 LEFT JOIN `group` AS group_1 ON group_1.id=membership_1.group_id
-WHERE ((customer_1.address LIKE \'%test%\') AND (group_1.id = 1))', $sql);
+WHERE ((customer_1.address LIKE \'%test%\') AND (group_1.id = 1))',
+            $sql
+        );
         $this->assertEquals(1, $qs->count());
     }
 

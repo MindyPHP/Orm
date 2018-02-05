@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,9 +12,7 @@
 namespace Mindy\Orm;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Schema\Table;
 use Exception;
-use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\QueryBuilder\QueryBuilder;
 use Mindy\QueryBuilder\QueryBuilderFactory;
 use Mindy\QueryBuilder\Utils\TableNameResolver;
@@ -84,14 +83,14 @@ class AbstractModel extends Base
             ->values($values)
             ->toSQL();
         $inserted = $connection->executeUpdate($sql);
-        if ($inserted === false) {
+        if (false === $inserted) {
             return false;
         }
 
         foreach (self::getMeta()->getPrimaryKeyName(true) as $primaryKeyName) {
             if (
                 empty($this->getAttribute($this->getSequenceName())) ||
-                in_array($primaryKeyName, $dirty) === false
+                false === in_array($primaryKeyName, $dirty)
             ) {
                 $values[$primaryKeyName] = $connection->lastInsertId($this->getSequenceName());
             }
@@ -226,7 +225,7 @@ class AbstractModel extends Base
                 $sqlType = $field->getSqlType();
                 if ($sqlType) {
                     $value = $field->convertToDatabaseValue($attribute, $platform);
-                    $changed[$name] = $value === null ? $field->default : $value;
+                    $changed[$name] = null === $value ? $field->default : $value;
                 }
             }
         }

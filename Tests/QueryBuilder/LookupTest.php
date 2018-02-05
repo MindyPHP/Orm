@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -331,9 +332,9 @@ abstract class LookupTest extends OrmDatabaseTestCase
     public function testAllSql()
     {
         $qs = Product::objects()->filter(['id' => 1]);
-        $this->assertSame('SELECT product_1.* FROM product AS product_1 WHERE ((product_1.id = 1))', $qs->getSql());
-        $this->assertSame('SELECT product_1.* FROM product AS product_1 WHERE ((product_1.id = 1))', $qs->allSql());
-        $this->assertSame('SELECT COUNT(*) FROM product AS product_1 WHERE ((product_1.id = 1))', $qs->countSql());
+        $this->assertSame('SELECT product_1.* FROM product AS product_1 WHERE (product_1.id = 1)', $qs->getSql());
+        $this->assertSame('SELECT product_1.* FROM product AS product_1 WHERE (product_1.id = 1)', $qs->allSql());
+        $this->assertSame('SELECT COUNT(*) FROM product AS product_1 WHERE (product_1.id = 1)', $qs->countSql());
     }
 
     public function testQ()

@@ -3,8 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of Mindy Framework.
- * (c) 2018 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,19 +24,19 @@ final class ConnectionManager
     /**
      * @var Connection[]
      */
-    protected $connections = [];
+    private $connections = [];
     /**
      * @var string
      */
-    protected $defaultConnection = 'default';
+    private $defaultConnection = 'default';
     /**
      * @var null
      */
-    protected $configuration = null;
+    private $configuration = null;
     /**
      * @var null
      */
-    protected $eventManager = null;
+    private $eventManager = null;
 
     /**
      * ConnectionManager constructor.
@@ -63,7 +62,7 @@ final class ConnectionManager
      *
      * @return Connection
      */
-    protected function createConnection($config): Connection
+    private function createConnection($config): Connection
     {
         if (is_string($config)) {
             $config = ['url' => $config];

@@ -3,8 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,7 +18,6 @@ use Mindy\Orm\MetaData;
 use Mindy\Orm\Model;
 use Mindy\Orm\ModelInterface;
 use Mindy\QueryBuilder\QueryBuilder;
-use Mindy\QueryBuilder\QueryBuilderFactory;
 use Mindy\QueryBuilder\Utils\TableNameResolver;
 
 /**
@@ -321,7 +319,7 @@ class ManyToManyField extends RelatedField
         if (!$this->through) {
             $parts = [
                 TableNameResolver::getTableName($this->getTable()),
-                TableNameResolver::getTableName($this->getRelatedTable())
+                TableNameResolver::getTableName($this->getRelatedTable()),
             ];
             sort($parts);
 
@@ -364,7 +362,7 @@ class ManyToManyField extends RelatedField
         }
 
         if (!is_array($value)) {
-            if (is_string($value) && strpos($value, ',') !== false) {
+            if (is_string($value) && false !== strpos($value, ',')) {
                 $value = explode(',', $value);
             } else {
                 $value = [$value];
@@ -400,7 +398,7 @@ class ManyToManyField extends RelatedField
         $manager->clean();
         foreach ($value as $linkModel) {
             if (
-                ($linkModel instanceof ModelInterface) === false &&
+                false === ($linkModel instanceof ModelInterface) &&
                 !is_a($linkModel, $this->modelClass)) {
                 $linkModel = call_user_func([$this->modelClass, 'objects'])->get(['pk' => $linkModel]);
             }

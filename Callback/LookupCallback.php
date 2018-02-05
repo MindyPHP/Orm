@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -54,7 +55,7 @@ class LookupCallback
             if ($prevField instanceof RelatedField) {
                 $relatedModel = $prevField->getRelatedModel();
 
-                if ($node == 'through') {
+                if ('through' == $node) {
                     $prevThrough = true;
                 } else {
                     /** @var \Mindy\Orm\Fields\RelatedField $prevField */
@@ -75,7 +76,7 @@ class LookupCallback
             }
 
             if (count($lookupNodes) == $i + 1) {
-                if ($lookupBuilder->hasLookup($node) === false) {
+                if (false === $lookupBuilder->hasLookup($node)) {
                     $column = $joinAlias.'.'.$lookupBuilder->fetchColumnName($node);
                     $columnWithLookup = $column.$lookupBuilder->getSeparator().$lookupBuilder->getDefault();
                     $queryBuilder->where([$columnWithLookup => $value]);

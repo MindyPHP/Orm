@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -103,7 +104,7 @@ class BatchDataIterator implements Iterator
      */
     public function reset()
     {
-        if ($this->_dataReader !== null) {
+        if (null !== $this->_dataReader) {
             $this->_dataReader->close();
         }
         $this->_dataReader = null;
@@ -128,20 +129,20 @@ class BatchDataIterator implements Iterator
      */
     public function next()
     {
-        if ($this->_batch === null || !$this->each || $this->each && next($this->_batch) === false) {
+        if (null === $this->_batch || !$this->each || $this->each && false === next($this->_batch)) {
             $this->_batch = $this->fetchData();
             reset($this->_batch);
         }
         if ($this->each) {
             $this->_value = current($this->_batch);
-            if (key($this->_batch) !== null) {
+            if (null !== key($this->_batch)) {
                 ++$this->_key;
             } else {
                 $this->_key = null;
             }
         } else {
             $this->_value = $this->_batch;
-            $this->_key = $this->_key === null ? 0 : $this->_key + 1;
+            $this->_key = null === $this->_key ? 0 : $this->_key + 1;
         }
     }
 
@@ -152,7 +153,7 @@ class BatchDataIterator implements Iterator
      */
     protected function fetchData()
     {
-        if ($this->_dataReader === null) {
+        if (null === $this->_dataReader) {
             $qb = clone $this->qs->getQueryBuilder();
             $this->_dataReader = new DataReader($this->connection->query($qb->toSQL()));
         }

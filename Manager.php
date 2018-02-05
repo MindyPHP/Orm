@@ -1,14 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
 namespace Mindy\Orm;
+
+use Doctrine\DBAL\DBALException;
+use Mindy\QueryBuilder\Exception\NotSupportedException;
+use Mindy\QueryBuilder\QueryBuilderInterface;
 
 /**
  * Class Manager.
@@ -22,7 +27,9 @@ class Manager extends ManyToManyManager
      */
     public function with($value)
     {
-        $this->getQuerySet()->with($value);
+        $this
+            ->getQuerySet()
+            ->with($value);
 
         return $this;
     }
@@ -32,20 +39,21 @@ class Manager extends ManyToManyManager
      */
     public function asArray($value = true)
     {
-        $this->getQuerySet()->asArray($value);
+        $this
+            ->getQuerySet()
+            ->asArray($value);
 
         return $this;
     }
 
     /**
-     * @param $columns
-     * @param null $option
-     *
-     * @return \Mindy\Orm\Manager
+     * {@inheritdoc}
      */
     public function select($columns, $option = null)
     {
-        $this->getQuerySet()->select($columns, $option);
+        $this
+            ->getQuerySet()
+            ->select($columns, $option);
 
         return $this;
     }
@@ -59,16 +67,6 @@ class Manager extends ManyToManyManager
     }
 
     /**
-     * @param array $q
-     *
-     * @return string
-     */
-    public function getSql(array $q = [])
-    {
-        return $this->filter($q)->getQuerySet()->getSql();
-    }
-
-    /**
      * @param $rows
      *
      * @return Model[]
@@ -79,19 +77,23 @@ class Manager extends ManyToManyManager
     }
 
     /**
-     * @param bool $asArray
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws NotSupportedException
      *
      * @return string
      */
-    public function allSql($asArray = false)
+    public function allSql(): string
     {
-        return $this->getQuerySet()->asArray($asArray)->allSql();
+        return $this->getQuerySet()->allSql();
     }
 
     /**
-     * @return mixed
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws NotSupportedException
+     *
+     * @return string
      */
-    public function countSql()
+    public function countSql(): string
     {
         return $this->getQuerySet()->countSql();
     }
@@ -107,9 +109,12 @@ class Manager extends ManyToManyManager
     /**
      * @param $q
      *
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws NotSupportedException
+     *
      * @return string
      */
-    public function averageSql($q)
+    public function averageSql($q): string
     {
         return $this->getQuerySet()->averageSql($q);
     }
@@ -125,9 +130,12 @@ class Manager extends ManyToManyManager
     /**
      * @param $q
      *
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws NotSupportedException
+     *
      * @return string
      */
-    public function minSql($q)
+    public function minSql($q): string
     {
         return $this->getQuerySet()->minSql($q);
     }
@@ -143,9 +151,12 @@ class Manager extends ManyToManyManager
     /**
      * @param $q
      *
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws NotSupportedException
+     *
      * @return string
      */
-    public function maxSql($q)
+    public function maxSql($q): string
     {
         return $this->getQuerySet()->maxSql($q);
     }
@@ -161,9 +172,12 @@ class Manager extends ManyToManyManager
     /**
      * @param $q
      *
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws NotSupportedException
+     *
      * @return string
      */
-    public function sumSql($q)
+    public function sumSql($q): string
     {
         return $this->getQuerySet()->sumSql($q);
     }
@@ -172,9 +186,12 @@ class Manager extends ManyToManyManager
      * @param $q
      * @param bool $flat
      *
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
+     *
      * @return array
      */
-    public function valuesList($q, $flat = false)
+    public function valuesList($q, $flat = false): array
     {
         return $this->getQuerySet()->valuesList($q, $flat);
     }
@@ -184,6 +201,8 @@ class Manager extends ManyToManyManager
      *
      * @param array $attributes
      *
+     * @throws Exception\MultipleObjectsReturned
+     *
      * @return array
      */
     public function getOrCreate(array $attributes)
@@ -192,15 +211,15 @@ class Manager extends ManyToManyManager
     }
 
     /**
-     * @param $sql
+     * @param string $sql
      *
-     * @return $this
+     * @throws \Doctrine\DBAL\DBALException
+     *
+     * @return array
      */
-    public function setSql($sql)
+    public function raw(string $sql)
     {
-        $this->getQuerySet()->setSql($sql);
-
-        return $this;
+        return $this->getQuerySet()->raw($sql);
     }
 
     /**
@@ -224,11 +243,16 @@ class Manager extends ManyToManyManager
     /**
      * @param array $attributes
      *
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws NotSupportedException
+     *
      * @return string
      */
-    public function updateSql(array $attributes)
+    public function updateSql(array $attributes): string
     {
-        return $this->getQuerySet()->updateSql($attributes);
+        return $this
+            ->getQuerySet()
+            ->updateSql($attributes);
     }
 
     /**
@@ -238,17 +262,26 @@ class Manager extends ManyToManyManager
      */
     public function delete(array $attributes = [])
     {
-        return $this->filter($attributes)->getQuerySet()->delete();
+        return $this
+            ->filter($attributes)
+            ->getQuerySet()
+            ->delete();
     }
 
     /**
      * @param array $attributes
      *
+     * @throws DBALException
+     * @throws NotSupportedException
+     *
      * @return string
      */
-    public function deleteSql(array $attributes = [])
+    public function deleteSql(array $attributes = []): string
     {
-        return $this->filter($attributes)->getQuerySet()->deleteSql();
+        return $this
+            ->filter($attributes)
+            ->getQuerySet()
+            ->deleteSql();
     }
 
     /**
@@ -256,7 +289,7 @@ class Manager extends ManyToManyManager
      *
      * @return bool
      */
-    public function create(array $attributes)
+    public function create(array $attributes): bool
     {
         $model = $this->getModel();
         $model->setAttributes($attributes);
@@ -265,23 +298,22 @@ class Manager extends ManyToManyManager
     }
 
     /**
-     * @param $column
+     * @throws DBALException
+     * @throws NotSupportedException
      *
-     * @return $this
-     */
-    public function addGroupBy($column)
-    {
-        $this->getQuerySet()->addGroupBy($column);
-
-        return $this;
-    }
-
-    /**
      * @return int
      */
     public function truncate()
     {
         return $this->getQuerySet()->truncate();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSql($conditions = [])
+    {
+        return $this->getQuerySet()->getSql($conditions);
     }
 
     /**
@@ -311,19 +343,11 @@ class Manager extends ManyToManyManager
     }
 
     /**
-     * @param $name
+     * @throws NotSupportedException
      *
-     * @return string
+     * @return \Mindy\QueryBuilder\QueryBuilderInterface
      */
-    public function quoteColumnName($name)
-    {
-        return $this->getQuerySet()->quoteColumnName($name);
-    }
-
-    /**
-     * @return \Mindy\QueryBuilder\QueryBuilder
-     */
-    public function getQueryBuilder()
+    public function getQueryBuilder(): QueryBuilderInterface
     {
         return $this->getQuerySet()->getQueryBuilder();
     }

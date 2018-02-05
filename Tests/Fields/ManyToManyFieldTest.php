@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,8 +22,6 @@ use Mindy\Orm\Tests\Models\ProjectMembership;
 use Mindy\Orm\Tests\Models\User;
 use Mindy\Orm\Tests\Models\Worker;
 use Mindy\Orm\Tests\OrmDatabaseTestCase;
-use Mindy\QueryBuilder\QueryBuilder;
-use Mindy\QueryBuilder\QueryBuilderFactory;
 use Mindy\QueryBuilder\Utils\TableNameResolver;
 
 abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
@@ -410,13 +409,16 @@ ORDER BY [[project_membership_1]].[[position]] ASC', $qs->allSql());
 
         $this->assertSame(
             'SELECT worker_1.* FROM worker AS worker_1 LEFT JOIN project_membership AS project_membership_1 ON project_membership_1.worker_id=worker_1.id LEFT JOIN project AS project_1 ON project_1.id=project_membership_1.project_id WHERE (project_membership_1.curator_id = 2)',
-            Worker::objects()->filter(['projects__through__curator' => $secondWorker])->allSql());
+            Worker::objects()->filter(['projects__through__curator' => $secondWorker])->allSql()
+        );
         $this->assertSame(
             'SELECT worker_1.* FROM worker AS worker_1 LEFT JOIN project_membership AS project_membership_1 ON project_membership_1.worker_id=worker_1.id LEFT JOIN project AS project_1 ON project_1.id=project_membership_1.project_id ORDER BY project_membership_1.position ASC',
-            Worker::objects()->order(['projects__through__position'])->asArray()->allSql());
+            Worker::objects()->order(['projects__through__position'])->asArray()->allSql()
+        );
         $this->assertSame(
             'SELECT worker_1.* FROM worker AS worker_1 LEFT JOIN project_membership AS project_membership_1 ON project_membership_1.worker_id=worker_1.id LEFT JOIN project AS project_1 ON project_1.id=project_membership_1.project_id WHERE (project_1.id IN (1, 2)) ORDER BY project_membership_1.position DESC',
-            Worker::objects()->filter(['projects__id__in' => [$firstProject->id, $secondProject->id]])->order(['-projects__through__position'])->allSql());
+            Worker::objects()->filter(['projects__id__in' => [$firstProject->id, $secondProject->id]])->order(['-projects__through__position'])->allSql()
+        );
     }
 
     public function testToSelf()

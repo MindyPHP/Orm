@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,6 +15,7 @@ use Exception;
 use Mindy\Orm\Callback\FetchColumnCallback;
 use Mindy\Orm\Callback\JoinCallback;
 use Mindy\Orm\Callback\LookupCallback;
+use Mindy\QueryBuilder\AdapterInterface;
 use Mindy\QueryBuilder\QueryBuilder;
 use Mindy\QueryBuilder\QueryBuilderFactory;
 use Serializable;
@@ -75,9 +77,9 @@ abstract class QuerySetBase implements QuerySetInterface, Serializable
     /**
      * @throws Exception
      *
-     * @return \Mindy\QueryBuilder\BaseAdapter|\Mindy\QueryBuilder\Interfaces\ISQLGenerator
+     * @return \Mindy\QueryBuilder\AdapterInterface
      */
-    protected function getAdapter()
+    protected function getAdapter(): AdapterInterface
     {
         return $this->getQueryBuilder()->getAdapter();
     }
@@ -85,7 +87,7 @@ abstract class QuerySetBase implements QuerySetInterface, Serializable
     /**
      * @return Model
      */
-    public function getModel()
+    public function getModel(): ModelInterface
     {
         return $this->model;
     }
@@ -124,11 +126,13 @@ abstract class QuerySetBase implements QuerySetInterface, Serializable
     }
 
     /**
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
+     *
      * @return \Mindy\QueryBuilder\QueryBuilder
      */
     public function getQueryBuilder()
     {
-        if ($this->queryBuilder === null) {
+        if (null === $this->queryBuilder) {
             $builder = QueryBuilderFactory::getQueryBuilder($this->getConnection());
             $this->setTableAlias($builder, $this->getModel()->tableName());
             $builder->setAlias($this->getTableAlias());
@@ -165,11 +169,11 @@ abstract class QuerySetBase implements QuerySetInterface, Serializable
     }
 
     /**
-     * @param $row array
+     * @param array $row
      *
      * @return ModelInterface
      */
-    public function createModel(array $row)
+    public function createModel(array $row): ModelInterface
     {
         return $this->getModel()->create($row);
     }
@@ -194,12 +198,12 @@ abstract class QuerySetBase implements QuerySetInterface, Serializable
     /**
      * @return array
      */
-    abstract public function all();
+    abstract public function all(): array;
 
     /**
      * {@inheritdoc}
      */
-    public function getIterator()
+    public function getIterator(): DataIterator
     {
         if (!$this->_iterator) {
             $this->_iterator = new DataIterator($this->all(), [

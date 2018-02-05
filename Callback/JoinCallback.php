@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -35,7 +36,7 @@ class JoinCallback
             if ($i + 1 == count($lookupNodes)) {
                 $column = $nodeName;
             } else {
-                if ($nodeName == 'through' && $prevField && $prevField instanceof ManyToManyField) {
+                if ('through' == $nodeName && $prevField && $prevField instanceof ManyToManyField) {
                     $alias = $prevField->setConnection($this->model->getConnection())->buildThroughQuery($queryBuilder, $queryBuilder->getAlias());
                 } elseif ($this->model->hasField($nodeName)) {
                     $field = $this->model->getField($nodeName);

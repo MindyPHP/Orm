@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -55,7 +56,7 @@ class MetaData
      *
      * @param string $className
      */
-    final private function __construct($className)
+    private function __construct($className)
     {
         $this->init($className);
     }
@@ -293,7 +294,7 @@ class MetaData
      */
     public function getAttributes()
     {
-        if ($this->attributes === null) {
+        if (null === $this->attributes) {
             /* @var \Mindy\Orm\Model $className */
             $attributes = [];
             foreach ($this->getFields() as $name => $field) {
@@ -344,7 +345,7 @@ class MetaData
      */
     public function getField($name)
     {
-        if ($name === 'pk') {
+        if ('pk' === $name) {
             $name = $this->getPrimaryKeyName();
         }
 
@@ -365,7 +366,7 @@ class MetaData
      */
     public function hasField($name)
     {
-        if ($name === 'pk') {
+        if ('pk' === $name) {
             $name = $this->getPkName();
         }
 

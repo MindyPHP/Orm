@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -29,7 +30,7 @@ class MockStorage
 
     public function getFilesystem()
     {
-        if ($this->filesystem === null) {
+        if (null === $this->filesystem) {
             $adapter = new Local(realpath(__DIR__.'/Orm/app/media'));
             $this->filesystem = new Filesystem($adapter, new Config([
                 'disable_asserts' => true,

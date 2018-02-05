@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -81,9 +82,9 @@ class Sync
                 $field->setConnection($this->connection);
 
                 /* @var $field \Mindy\Orm\Fields\ManyToManyField */
-                if ($field->through === null) {
+                if (null === $field->through) {
                     $fieldTableName = TableNameResolver::getTableName($field->getTableName());
-                    if ($this->hasTable($fieldTableName) === false) {
+                    if (false === $this->hasTable($fieldTableName)) {
                         $fieldTable = new Table(
                             $fieldTableName,
                             $field->getColumns()
@@ -103,7 +104,7 @@ class Sync
             }
         }
 
-        if ($this->hasTable($tableName) === false) {
+        if (false === $this->hasTable($tableName)) {
             $table = new Table($tableName, $columns, []);
             $table->setPrimaryKey($model->getPrimaryKeyName(true), 'primary');
             $schemaManager->createTable($table);
@@ -131,7 +132,7 @@ class Sync
 
         $schemaManager = $this->connection->getSchemaManager();
         foreach ($model->getMeta()->getManyToManyFields() as $field) {
-            if ($field->through === null) {
+            if (null === $field->through) {
                 $fieldTable = TableNameResolver::getTableName($field->getTableName());
                 if ($this->hasTable($fieldTable)) {
                     $schemaManager->dropTable($builder->getQuotedName($fieldTable));

@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of Mindy Framework.
- * (c) 2017 Maxim Falaleev
+ * Studio 107 (c) 2018 Maxim Falaleev
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +15,6 @@ use Mindy\Orm\Tests\Models\Customer;
 use Mindy\Orm\Tests\Models\Solution;
 use Mindy\Orm\Tests\Models\User;
 use Mindy\Orm\Tests\OrmDatabaseTestCase;
-use Mindy\QueryBuilder\QueryBuilder;
 use Mindy\QueryBuilder\QueryBuilderFactory;
 use Mindy\QueryBuilder\Utils\TableNameResolver;
 
@@ -36,7 +36,7 @@ abstract class CrudTest extends OrmDatabaseTestCase
 
     public function testBrokenLastInsertId()
     {
-        if ($this->driver != 'mysql') {
+        if ('mysql' != $this->driver) {
             $this->markTestSkipped('mysql specific test');
         }
         $c = $this->getConnection();
@@ -257,7 +257,7 @@ abstract class CrudTest extends OrmDatabaseTestCase
         list($model, $created) = User::objects()->getOrCreate(['username' => 'Max123', 'password' => 'VeryGoodP@ssword']);
         $this->assertTrue($created);
         $this->assertEquals(1, User::objects()->count());
-        if ($this->driver === 'sqlite') {
+        if ('sqlite' === $this->driver) {
             $this->assertEquals(1, $model->pk);
             $this->assertEquals(1, User::objects()->filter(['pk' => 1])->delete());
         } else {

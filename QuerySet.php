@@ -20,7 +20,8 @@ use Mindy\QueryBuilder\Aggregation\Min;
 use Mindy\QueryBuilder\Aggregation\Sum;
 use Mindy\QueryBuilder\Q\QAndNot;
 use Mindy\QueryBuilder\Q\QOrNot;
-use Mindy\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilderFactory;
+use Mindy\QueryBuilder\Utils\TableNameResolver;
 
 /**
  * Class QuerySet.
@@ -31,23 +32,53 @@ class QuerySet extends QuerySetBase
      * @var array a list of relations that this query should be performed with
      */
     protected $with = [];
-    /**
-     * @var string
-     */
-    protected $sql;
 
     /**
      * Executes query and returns all results as an array.
      * If null, the DB connection returned by [[modelClass]] will be used.
      *
+     * @param string $sql
+     *
+     * @throws \Doctrine\DBAL\DBALException
+     *
      * @return array the query results. If the query results in nothing, an empty array will be returned.
      */
-    public function all()
+    public function raw(string $sql)
     {
-        $sql = null === $this->sql ? $this->allSql() : $this->sql;
-        $rows = $this->getConnection()->query($sql)->fetchAll();
+        $rows = $this
+            ->getConnection()
+            ->query($sql)
+            ->fetchAll();
+
         if ($this->asArray) {
-            return !empty($this->with) ? $this->populateWith($rows) : $rows;
+            return $rows;
+        }
+
+        return $this->createModels($rows);
+    }
+
+    /**
+     * Executes query and returns all results as an array.
+     * If null, the DB connection returned by [[modelClass]] will be used.
+     *
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
+     *
+     * @return array the query results. If the query results in nothing, an empty array will be returned.
+     */
+    public function all(): array
+    {
+        $rows = $this
+            ->getConnection()
+            ->query($this->allSql())
+            ->fetchAll();
+
+        if ($this->asArray) {
+            if (false === empty($this->with)) {
+                return $this->populateWith($rows);
+            }
+
+            return $rows;
         }
 
         return $this->createModels($rows);
@@ -87,12 +118,18 @@ class QuerySet extends QuerySetBase
      * @param array $columns
      * @param bool  $flat
      *
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
+     *
      * @return array
      */
-    public function valuesList($columns, $flat = false)
+    public function valuesList($columns, $flat = false): array
     {
         $qb = clone $this->getQueryBuilder();
-        $rows = $this->getConnection()->query($qb->select($columns)->toSQL())->fetchAll();
+        $rows = $this
+            ->getConnection()
+            ->query($qb->select($columns)->toSQL())
+            ->fetchAll();
 
         if ($flat) {
             $flatArr = [];
@@ -117,6 +154,9 @@ class QuerySet extends QuerySetBase
     /**
      * @param array $attributes
      *
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
+     *
      * @return string
      */
     public function updateSql(array $attributes)
@@ -128,7 +168,8 @@ class QuerySet extends QuerySetBase
 
         $sql = $this
             ->getQueryBuilder()
-            ->update($this->getModel()->tableName())
+            ->update()
+            ->table($this->getModel()->tableName())
             ->values($attrs)
             ->toSQL();
 
@@ -137,6 +178,8 @@ class QuerySet extends QuerySetBase
 
     /**
      * @param array $attributes
+     *
+     * @throws MultipleObjectsReturned
      *
      * @return array
      */
@@ -160,6 +203,8 @@ class QuerySet extends QuerySetBase
      *
      * @param array $attributes
      * @param array $updateAttributes
+     *
+     * @throws MultipleObjectsReturned
      *
      * @return ModelInterface|bool
      */
@@ -185,46 +230,48 @@ class QuerySet extends QuerySetBase
      * @param int $page
      * @param int $pageSize
      *
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
+     *
      * @return $this
      */
     public function paginate($page = 1, $pageSize = 10)
     {
-        $this->getQueryBuilder()->paginate($page, $pageSize);
+        $this
+            ->getQueryBuilder()
+            ->paginate($page, $pageSize);
 
         return $this;
     }
 
     /**
      * @throws \Doctrine\DBAL\DBALException
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
      *
      * @return string
      */
-    public function allSql()
+    public function allSql(): string
     {
         $qb = clone $this->getQueryBuilder();
 
-        $sql = $qb->toSQL();
-
-        return $sql;
+        return $qb->toSQL();
     }
 
     /**
      * @param array $filter
      *
      * @throws \Doctrine\DBAL\DBALException
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
      *
      * @return string
      */
-    public function getSql($filter = [])
+    public function getSql($filter = []): string
     {
         if ($filter) {
             $this->filter($filter);
         }
         $qb = clone $this->getQueryBuilder();
 
-        $sql = $qb->toSQL();
-
-        return $sql;
+        return $qb->toSQL();
     }
 
     /**
@@ -236,7 +283,7 @@ class QuerySet extends QuerySetBase
         if (count($rows) > 1) {
             throw new MultipleObjectsReturned();
         } elseif (0 === count($rows)) {
-            return;
+            return null;
         }
 
         if (!empty($this->with)) {
@@ -253,18 +300,6 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * @param string $sql
-     *
-     * @return $this
-     */
-    public function setSql($sql)
-    {
-        $this->sql = $sql;
-
-        return $this;
-    }
-
-    /**
      * Converts array prefix to string key.
      *
      * @param array $prefix
@@ -277,41 +312,6 @@ class QuerySet extends QuerySetBase
     }
 
     /**
-     * todo remove me
-     * Searching closest already connected relation
-     * Example: User::objects()->filter(['group__name' => 'Admin', 'group__list__pk' => 2])
-     * at the second time we already have connected 'group' relation, return it.
-     *
-     * @param $prefix
-     *
-     * @return array
-     */
-    protected function searchChain($prefix)
-    {
-        $model = $this->getModel();
-        $alias = $this->tableAlias;
-
-        $prefixRemains = [];
-        $chainRemains = [];
-
-        foreach ($prefix as $relationName) {
-            $chain[] = $relationName;
-            if ($founded = $this->getChain($chain)) {
-                $model = $founded['model'];
-                $alias = $founded['alias'];
-                $prefixRemains = [];
-                $chainRemains = $chain;
-            } else {
-                $prefixRemains[] = $relationName;
-            }
-        }
-
-        return [$model, $alias, $prefixRemains, $chainRemains];
-    }
-
-    /**
-     * todo remove me
-     *
      * @param $with
      *
      * @return $this
@@ -329,7 +329,6 @@ class QuerySet extends QuerySetBase
 
             if ($this->getModel()->getMeta()->hasRelatedField($name)) {
                 $this->with[] = $name;
-                $this->getOrCreateChainAlias([$name], true, true, is_array($fields) ? $fields : []);
             }
         }
 
@@ -363,7 +362,9 @@ class QuerySet extends QuerySetBase
      */
     public function filter($query)
     {
-        $this->getQueryBuilder()->where($this->convertQuery($query));
+        $this
+            ->getQueryBuilder()
+            ->where($this->convertQuery($query));
 
         return $this;
     }
@@ -373,7 +374,9 @@ class QuerySet extends QuerySetBase
      */
     public function orFilter($query)
     {
-        $this->getQueryBuilder()->orWhere($this->convertQuery($query));
+        $this
+            ->getQueryBuilder()
+            ->orWhere($this->convertQuery($query));
 
         return $this;
     }
@@ -383,7 +386,9 @@ class QuerySet extends QuerySetBase
      */
     public function exclude($query)
     {
-        $this->getQueryBuilder()->where(new QAndNot($this->convertQuery($query)));
+        $this
+            ->getQueryBuilder()
+            ->where(new QAndNot($this->convertQuery($query)));
 
         return $this;
     }
@@ -393,21 +398,11 @@ class QuerySet extends QuerySetBase
      */
     public function orExclude($query)
     {
-        $this->getQueryBuilder()->orWhere(new QOrNot($this->convertQuery($query)));
+        $this
+            ->getQueryBuilder()
+            ->orWhere(new QOrNot($this->convertQuery($query)));
 
         return $this;
-    }
-
-    /**
-     * Converts name => `name`, user.name => `user`.`name`.
-     *
-     * @param string $name Column name
-     *
-     * @return string Quoted column name
-     */
-    public function quoteColumnName($name)
-    {
-        return $this->getAdapter()->quoteColumn($name);
     }
 
     /**
@@ -452,13 +447,14 @@ class QuerySet extends QuerySetBase
     /**
      * @param string $q
      *
-     * @return float|int
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
+     *
+     * @return string
      */
-    public function sumSql($q)
+    public function sumSql($q): string
     {
-        $sql =  $this->buildAggregateSql(new Sum($q));
-
-        return $sql;
+        return $this->buildAggregateSql(new Sum($q));
     }
 
     /**
@@ -472,24 +468,29 @@ class QuerySet extends QuerySetBase
     /**
      * @param null|string|array $q
      *
-     * @return float|int
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
+     *
+     * @return string
      */
-    public function averageSql($q)
+    public function averageSql($q): string
     {
-        $sql = $this->buildAggregateSql(new Avg($q));
-
-        return $sql;
+        return $this->buildAggregateSql(new Avg($q));
     }
 
     /**
      * @param $columns
      * @param null $option
      *
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
+     *
      * @return $this
      */
     public function select($columns, $option = null)
     {
-        $this->getQueryBuilder()->select($columns, $option);
+        $this
+            ->getQueryBuilder()
+            ->select($columns, $option);
 
         return $this;
     }
@@ -497,22 +498,26 @@ class QuerySet extends QuerySetBase
     /**
      * @param Aggregation $q
      *
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
+     *
      * @return string
      */
-    private function buildAggregateSql(Aggregation $q)
+    private function buildAggregateSql(Aggregation $q): string
     {
         $qb = clone $this->getQueryBuilder();
 
-        $sql = (clone $qb)
+        return $qb
             ->resetQueryPart('orderBy')
             ->select($q)
             ->toSQL();
-
-        return $sql;
     }
 
     /**
      * @param Aggregation $q
+     *
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
      *
      * @return float|int
      */
@@ -525,7 +530,7 @@ class QuerySet extends QuerySetBase
             $value = end($value);
         }
 
-        return false !== strpos((string)$value, '.') ? floatval($value) : intval($value);
+        return false !== strpos((string) $value, '.') ? floatval($value) : intval($value);
     }
 
     /**
@@ -539,13 +544,14 @@ class QuerySet extends QuerySetBase
     /**
      * @param null|string|array $q
      *
-     * @return float|int
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
+     *
+     * @return string
      */
-    public function minSql($q)
+    public function minSql($q): string
     {
-        $sql =  $this->buildAggregateSql(new Min($q));
-
-        return $sql;
+        return $this->buildAggregateSql(new Min($q));
     }
 
     /**
@@ -559,13 +565,14 @@ class QuerySet extends QuerySetBase
     /**
      * @param null|string|array $q
      *
-     * @return float|int
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
+     *
+     * @return string
      */
-    public function maxSql($q)
+    public function maxSql($q): string
     {
-        $sql = $this->buildAggregateSql(new Max($q));
-
-        return $sql;
+        return $this->buildAggregateSql(new Max($q));
     }
 
     /**
@@ -573,15 +580,19 @@ class QuerySet extends QuerySetBase
      */
     public function delete()
     {
-        $statement = $this->getConnection()->query($this->deleteSql());
-
-        return $statement->execute();
+        return $this
+            ->getConnection()
+            ->query($this->deleteSql())
+            ->execute();
     }
 
     /**
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
+     *
      * @return string
      */
-    public function deleteSql()
+    public function deleteSql(): string
     {
 //        if ($this->filterHasJoin()) {
 //            $this->prepareConditions();
@@ -590,25 +601,25 @@ class QuerySet extends QuerySetBase
 //            ], $this->params);
 //        }
 
-        $sql = $this
+        return $this
             ->getQueryBuilder()
-            ->delete($this->getModel()->tableName())
+            ->delete()
+            ->table($this->getModel()->tableName())
             ->setAlias(null)
             ->toSQL();
-
-        return $sql;
     }
 
     /**
      * @param null|array|string $q
      *
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
+     *
      * @return string
      */
-    public function countSql($q = '*')
+    public function countSql($q = '*'): string
     {
-        $sql = $this->buildAggregateSql(new Count($q));
-
-        return $sql;
+        return $this->buildAggregateSql(new Count($q));
     }
 
     /**
@@ -629,7 +640,7 @@ class QuerySet extends QuerySetBase
      *
      * @return array
      */
-    private function populateWith($data)
+    private function populateWith(array $data): array
     {
         $newData = [];
         foreach ($data as $row) {
@@ -654,16 +665,35 @@ class QuerySet extends QuerySetBase
     /**
      * Truncate table.
      *
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
+     *
      * @return int
      */
     public function truncate()
     {
-        $connection = $this->getConnection();
-        $adapter = QueryBuilder::getInstance($connection)->getAdapter();
-        $tableName = $adapter->quoteTableName($adapter->getRawTableName($this->getModel()->tableName()));
-        $q = $connection->getDatabasePlatform()->getTruncateTableSQL($tableName);
+        $sql = $this->truncateSql();
 
-        return $connection->executeUpdate($q);
+        return $this
+            ->getConnection()
+            ->executeUpdate($sql);
+    }
+
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Mindy\QueryBuilder\Exception\NotSupportedException
+     *
+     * @return string
+     */
+    public function truncateSql(): string
+    {
+        $connection = $this->getConnection();
+        $builder = QueryBuilderFactory::getQueryBuilder($connection);
+        $tableName = $builder->getQuotedName(TableNameResolver::getTableName($this->getModel()->tableName()));
+
+        return $connection
+            ->getDatabasePlatform()
+            ->getTruncateTableSQL($tableName);
     }
 
     /**
@@ -689,19 +719,11 @@ class QuerySet extends QuerySetBase
     /**
      * {@inheritdoc}
      */
-    public function addGroupBy($columns)
-    {
-        $this->getQueryBuilder()->addGroupBy($columns);
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function limit($limit)
     {
-        $this->getQueryBuilder()->limit($limit);
+        $this
+            ->getQueryBuilder()
+            ->limit($limit);
 
         return $this;
     }
@@ -711,7 +733,9 @@ class QuerySet extends QuerySetBase
      */
     public function offset($offset)
     {
-        $this->getQueryBuilder()->offset($offset);
+        $this
+            ->getQueryBuilder()
+            ->offset($offset);
 
         return $this;
     }
@@ -721,7 +745,9 @@ class QuerySet extends QuerySetBase
      */
     public function having($having)
     {
-        $this->getQueryBuilder()->having($having);
+        $this
+            ->getQueryBuilder()
+            ->having($having);
 
         return $this;
     }
