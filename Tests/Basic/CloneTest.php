@@ -23,7 +23,7 @@ class CloneTest extends TestCase
         $config = [
             'memory' => true,
             'driver' => 'pdo_sqlite',
-            'driverClass' => 'Mindy\QueryBuilder\Driver\SqliteDriver',
+            'driverClass' => 'Mindy\QueryBuilder\Database\Sqlite\Driver',
         ];
         $connection = DriverManager::getConnection($config);
 
@@ -42,7 +42,7 @@ class CloneTest extends TestCase
         $config = [
             'memory' => true,
             'driver' => 'pdo_sqlite',
-            'driverClass' => 'Mindy\QueryBuilder\Driver\SqliteDriver',
+            'driverClass' => 'Mindy\QueryBuilder\Database\Sqlite\Driver',
         ];
         $connection = DriverManager::getConnection($config);
 
@@ -56,13 +56,13 @@ class CloneTest extends TestCase
     {
         $qs = $this->getQuerySet();
 
-        $this->assertSame('SELECT `dummy_1`.* FROM `dummy` AS `dummy_1`', $qs->allSql());
+        $this->assertSame('SELECT dummy_1.* FROM dummy AS dummy_1', $qs->allSql());
 
         $qs->filter(['id' => 1]);
-        $this->assertSame('SELECT `dummy_1`.* FROM `dummy` AS `dummy_1` WHERE (`dummy_1`.`id`=1)', $qs->allSql());
+        $this->assertSame('SELECT dummy_1.* FROM dummy AS dummy_1 WHERE (dummy_1.id = 1)', $qs->allSql());
 
         $cloneQs = clone $qs;
-        $this->assertSame('SELECT `dummy_1`.* FROM `dummy` AS `dummy_1` WHERE (`dummy_1`.`id`=1)', $cloneQs->allSql());
+        $this->assertSame('SELECT dummy_1.* FROM dummy AS dummy_1 WHERE (dummy_1.id = 1)', $cloneQs->allSql());
     }
 
     public function testCloneQuerySetBefore()
@@ -70,25 +70,25 @@ class CloneTest extends TestCase
         $qs = $this->getQuerySet();
         $cloneQs = clone $qs;
 
-        $this->assertSame('SELECT `dummy_1`.* FROM `dummy` AS `dummy_1`', $qs->allSql());
-        $this->assertSame('SELECT `dummy_1`.* FROM `dummy` AS `dummy_1`', $cloneQs->allSql());
+        $this->assertSame('SELECT dummy_1.* FROM dummy AS dummy_1', $qs->allSql());
+        $this->assertSame('SELECT dummy_1.* FROM dummy AS dummy_1', $cloneQs->allSql());
 
         $qs->filter(['id' => 1]);
-        $this->assertSame('SELECT `dummy_1`.* FROM `dummy` AS `dummy_1` WHERE (`dummy_1`.`id`=1)', $qs->allSql());
-        $this->assertSame('SELECT `dummy_1`.* FROM `dummy` AS `dummy_1`', $cloneQs->allSql());
+        $this->assertSame('SELECT dummy_1.* FROM dummy AS dummy_1 WHERE (dummy_1.id = 1)', $qs->allSql());
+        $this->assertSame('SELECT dummy_1.* FROM dummy AS dummy_1', $cloneQs->allSql());
     }
 
     public function testCloneManager()
     {
         $manager = $this->getManager();
 
-        $this->assertSame('SELECT `dummy_1`.* FROM `dummy` AS `dummy_1`', $manager->allSql());
+        $this->assertSame('SELECT dummy_1.* FROM dummy AS dummy_1', $manager->allSql());
 
         $manager->filter(['id' => 1]);
-        $this->assertSame('SELECT `dummy_1`.* FROM `dummy` AS `dummy_1` WHERE (`dummy_1`.`id`=1)', $manager->allSql());
+        $this->assertSame('SELECT dummy_1.* FROM dummy AS dummy_1 WHERE (dummy_1.id = 1)', $manager->allSql());
 
         $cloneManager = clone $manager;
-        $this->assertSame('SELECT `dummy_1`.* FROM `dummy` AS `dummy_1` WHERE (`dummy_1`.`id`=1)', $cloneManager->allSql());
+        $this->assertSame('SELECT dummy_1.* FROM dummy AS dummy_1 WHERE (dummy_1.id = 1)', $cloneManager->allSql());
     }
 
     public function testCloneManagerBefore()
@@ -96,11 +96,11 @@ class CloneTest extends TestCase
         $manager = $this->getManager();
         $cloneManager = clone $manager;
 
-        $this->assertSame('SELECT `dummy_1`.* FROM `dummy` AS `dummy_1`', $manager->allSql());
-        $this->assertSame('SELECT `dummy_1`.* FROM `dummy` AS `dummy_1`', $cloneManager->allSql());
+        $this->assertSame('SELECT dummy_1.* FROM dummy AS dummy_1', $manager->allSql());
+        $this->assertSame('SELECT dummy_1.* FROM dummy AS dummy_1', $cloneManager->allSql());
 
         $manager->filter(['id' => 1]);
-        $this->assertSame('SELECT `dummy_1`.* FROM `dummy` AS `dummy_1` WHERE (`dummy_1`.`id`=1)', $manager->allSql());
-        $this->assertSame('SELECT `dummy_1`.* FROM `dummy` AS `dummy_1`', $cloneManager->allSql());
+        $this->assertSame('SELECT dummy_1.* FROM dummy AS dummy_1 WHERE (dummy_1.id = 1)', $manager->allSql());
+        $this->assertSame('SELECT dummy_1.* FROM dummy AS dummy_1', $cloneManager->allSql());
     }
 }

@@ -13,7 +13,6 @@ namespace Mindy\Orm;
 use ArrayAccess;
 use IteratorAggregate;
 use Mindy\Orm\Exception\MultipleObjectsReturned;
-use Mindy\QueryBuilder\ConnectionAwareInterface;
 
 /**
  * Interface QuerySetInterface.

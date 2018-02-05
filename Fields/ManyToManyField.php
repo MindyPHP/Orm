@@ -19,6 +19,8 @@ use Mindy\Orm\MetaData;
 use Mindy\Orm\Model;
 use Mindy\Orm\ModelInterface;
 use Mindy\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilderFactory;
+use Mindy\QueryBuilder\Utils\TableNameResolver;
 
 /**
  * Class ManyToManyField.
@@ -317,8 +319,10 @@ class ManyToManyField extends RelatedField
     public function getTableName()
     {
         if (!$this->through) {
-            $adapter = QueryBuilder::getInstance($this->getConnection())->getAdapter();
-            $parts = [$adapter->getRawTableName($this->getTable()), $adapter->getRawTableName($this->getRelatedTable())];
+            $parts = [
+                TableNameResolver::getTableName($this->getTable()),
+                TableNameResolver::getTableName($this->getRelatedTable())
+            ];
             sort($parts);
 
             return '{{%'.implode('_', $parts).'}}';

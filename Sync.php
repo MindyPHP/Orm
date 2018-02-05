@@ -14,6 +14,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Table;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilderFactory;
+use Mindy\QueryBuilder\Utils\TableNameResolver;
 
 /**
  * Class Sync.
@@ -51,7 +53,7 @@ class Sync
      */
     protected function getQueryBuilder()
     {
-        return QueryBuilder::getInstance($this->connection);
+        return QueryBuilderFactory::getQueryBuilder($this->connection);
     }
 
     /**
@@ -66,8 +68,8 @@ class Sync
         $model->setConnection($this->connection);
 
         $schemaManager = $this->connection->getSchemaManager();
-        $adapter = $this->getQueryBuilder()->getAdapter();
-        $tableName = $adapter->getRawTableName($model->tableName());
+        $builder = $this->getQueryBuilder();
+        $tableName = TableNameResolver::getTableName($model->tableName());
 
         $columns = [];
         $indexes = [];
@@ -80,9 +82,12 @@ class Sync
 
                 /* @var $field \Mindy\Orm\Fields\ManyToManyField */
                 if ($field->through === null) {
-                    $fieldTableName = $adapter->getRawTableName($field->getTableName());
+                    $fieldTableName = TableNameResolver::getTableName($field->getTableName());
                     if ($this->hasTable($fieldTableName) === false) {
-                        $fieldTable = new Table($adapter->quoteTableName($fieldTableName), $field->getColumns());
+                        $fieldTable = new Table(
+                            $fieldTableName,
+                            $field->getColumns()
+                        );
                         $schemaManager->createTable($fieldTable);
                         $i += 1;
                     }

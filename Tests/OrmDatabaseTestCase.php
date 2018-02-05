@@ -15,6 +15,7 @@ use Doctrine\DBAL\DriverManager;
 use Mindy\Orm\Orm;
 use Mindy\Orm\Sync;
 use Mindy\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilderFactory;
 use PHPUnit\Framework\TestCase;
 
 class OrmDatabaseTestCase extends TestCase
@@ -67,7 +68,8 @@ class OrmDatabaseTestCase extends TestCase
 
     protected function assertSql($expected, $actual)
     {
-        $sql = QueryBuilder::getInstance($this->getConnection())->getAdapter()->quoteSql(str_replace([" \n", "\n"], ' ', $expected));
+        $builder = QueryBuilderFactory::getQueryBuilder($this->getConnection());
+        $sql = $builder->getAdapter()->quoteSql(str_replace([" \n", "\n"], ' ', $expected));
         $this->assertEquals($sql, trim($actual));
     }
 

@@ -125,7 +125,11 @@ class QuerySet extends QuerySetBase
             $attrs[$this->getModel()->convertToPrimaryKeyName($key)] = $value;
         }
 
-        return $this->getQueryBuilder()->setTypeUpdate()->update($this->getModel()->tableName(), $attrs)->toSQL();
+        return $this
+            ->getQueryBuilder()
+            ->update($this->getModel()->tableName())
+            ->values($attrs)
+            ->toSQL();
     }
 
     /**
@@ -194,7 +198,7 @@ class QuerySet extends QuerySetBase
     {
         $qb = clone $this->getQueryBuilder();
 
-        return $qb->setTypeSelect()->toSQL();
+        return $qb->toSQL();
     }
 
     /**
@@ -209,7 +213,7 @@ class QuerySet extends QuerySetBase
         }
         $qb = clone $this->getQueryBuilder();
 
-        return $qb->setTypeSelect()->toSQL();
+        return $qb->toSQL();
     }
 
     /**
@@ -484,17 +488,10 @@ class QuerySet extends QuerySetBase
     {
         $qb = clone $this->getQueryBuilder();
 
-        list($order, $orderOptions) = $qb->getOrder();
-        $select = $qb->getSelect();
-
-        $sql = $qb
-            ->order(null)
-            ->select(array_merge($select, [$q]))
+        $sql = (clone $qb)
+            ->resetQueryPart('orderBy')
+            ->select($q)
             ->toSQL();
-
-        $qb
-            ->select($select)
-            ->order($order, $orderOptions);
 
         return $sql;
     }

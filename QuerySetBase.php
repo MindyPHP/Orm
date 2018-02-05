@@ -14,8 +14,8 @@ use Exception;
 use Mindy\Orm\Callback\FetchColumnCallback;
 use Mindy\Orm\Callback\JoinCallback;
 use Mindy\Orm\Callback\LookupCallback;
-use Mindy\QueryBuilder\ConnectionAwareTrait;
 use Mindy\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilderFactory;
 use Serializable;
 
 /**
@@ -129,7 +129,7 @@ abstract class QuerySetBase implements QuerySetInterface, Serializable
     public function getQueryBuilder()
     {
         if ($this->queryBuilder === null) {
-            $builder = QueryBuilder::getInstance($this->getConnection());
+            $builder = QueryBuilderFactory::getQueryBuilder($this->getConnection());
             $this->setTableAlias($builder, $this->getModel()->tableName());
             $builder->setAlias($this->getTableAlias());
             $model = $this->getModel();

@@ -15,6 +15,8 @@ use Doctrine\DBAL\Schema\Table;
 use Exception;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilderFactory;
+use Mindy\QueryBuilder\Utils\TableNameResolver;
 
 /**
  * Class NewOrm.
@@ -73,11 +75,14 @@ class AbstractModel extends Base
         }
 
         $connection = static::getConnection();
-        $qb = QueryBuilder::getInstance($connection);
-        $adapter = $qb->getAdapter();
+        $qb = QueryBuilderFactory::getQueryBuilder($connection);
 
-        $tableName = $adapter->quoteTableName($adapter->getRawTableName($this->tableName()));
-        $inserted = $connection->executeUpdate($qb->insert($tableName, $values));
+        $tableName = $qb->getQuotedName(TableNameResolver::getTableName($this->tableName()));
+        $sql = $qb
+            ->insert($tableName)
+            ->values($values)
+            ->toSQL();
+        $inserted = $connection->executeUpdate($sql);
         if ($inserted === false) {
             return false;
         }

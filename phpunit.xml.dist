@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.1/phpunit.xsd"
-         backupGlobals="false"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/6.5/phpunit.xsd"
+         stopOnError="true"
          colors="true"
-         bootstrap="vendor/autoload.php"
->
+         bootstrap="vendor/autoload.php">
 
     <php>
         <ini name="error_reporting" value="-1"/>

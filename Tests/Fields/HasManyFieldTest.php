@@ -17,6 +17,7 @@ use Mindy\Orm\Tests\Models\Design;
 use Mindy\Orm\Tests\Models\Product;
 use Mindy\Orm\Tests\OrmDatabaseTestCase;
 use Mindy\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilderFactory;
 
 abstract class HasManyFieldTest extends OrmDatabaseTestCase
 {
@@ -39,12 +40,13 @@ abstract class HasManyFieldTest extends OrmDatabaseTestCase
         $category_animals->save();
 
         $connection = $this->getConnection();
-        $adapter = QueryBuilder::getInstance($connection)->getAdapter();
-        $tableSql = $adapter->quoteColumn('product');
-        $tableAliasSql = $adapter->quoteColumn('product_1');
-        $categoryIdSql = $adapter->quoteColumn('category_id');
+        $builder = QueryBuilderFactory::getQueryBuilder($connection);
+        $adapter = $builder->getAdapter();
+        $tableSql = $builder->getQuotedName('product');
+        $tableAliasSql = $builder->getQuotedName('product_1');
+        $categoryIdSql = $builder->getQuotedName('category_id');
 
-        $this->assertEquals("SELECT COUNT(*) FROM $tableSql AS $tableAliasSql WHERE ($tableAliasSql.$categoryIdSql='1')", $categoryToys->products->countSql());
+        $this->assertEquals("SELECT COUNT(*) FROM $tableSql AS $tableAliasSql WHERE ($tableAliasSql.$categoryIdSql = '1')", $categoryToys->products->countSql());
         $this->assertEquals(0, $categoryToys->products->count());
 
         $product_bear = new Product([
