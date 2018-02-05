@@ -132,10 +132,6 @@ class QuerySet extends QuerySetBase
             ->values($attrs)
             ->toSQL();
 
-        if (class_exists('SqlFormatter')) {
-            return \SqlFormatter::format($sql);
-        }
-
         return $sql;
     }
 
@@ -209,10 +205,6 @@ class QuerySet extends QuerySetBase
 
         $sql = $qb->toSQL();
 
-        if (class_exists('SqlFormatter')) {
-            return \SqlFormatter::format($sql);
-        }
-
         return $sql;
     }
 
@@ -231,10 +223,6 @@ class QuerySet extends QuerySetBase
         $qb = clone $this->getQueryBuilder();
 
         $sql = $qb->toSQL();
-
-        if (class_exists('SqlFormatter')) {
-            return \SqlFormatter::format($sql);
-        }
 
         return $sql;
     }
@@ -470,10 +458,6 @@ class QuerySet extends QuerySetBase
     {
         $sql =  $this->buildAggregateSql(new Sum($q));
 
-        if (class_exists('SqlFormatter')) {
-            return \SqlFormatter::format($sql);
-        }
-
         return $sql;
     }
 
@@ -493,10 +477,6 @@ class QuerySet extends QuerySetBase
     public function averageSql($q)
     {
         $sql = $this->buildAggregateSql(new Avg($q));
-
-        if (class_exists('SqlFormatter')) {
-            return \SqlFormatter::format($sql);
-        }
 
         return $sql;
     }
@@ -527,10 +507,6 @@ class QuerySet extends QuerySetBase
             ->resetQueryPart('orderBy')
             ->select($q)
             ->toSQL();
-
-        if (class_exists('SqlFormatter')) {
-            return \SqlFormatter::format($sql);
-        }
 
         return $sql;
     }
@@ -569,10 +545,6 @@ class QuerySet extends QuerySetBase
     {
         $sql =  $this->buildAggregateSql(new Min($q));
 
-        if (class_exists('SqlFormatter')) {
-            return \SqlFormatter::format($sql);
-        }
-
         return $sql;
     }
 
@@ -592,10 +564,6 @@ class QuerySet extends QuerySetBase
     public function maxSql($q)
     {
         $sql = $this->buildAggregateSql(new Max($q));
-
-        if (class_exists('SqlFormatter')) {
-            return \SqlFormatter::format($sql);
-        }
 
         return $sql;
     }
@@ -628,10 +596,6 @@ class QuerySet extends QuerySetBase
             ->setAlias(null)
             ->toSQL();
 
-        if (class_exists('SqlFormatter')) {
-            return \SqlFormatter::format($sql);
-        }
-
         return $sql;
     }
 
@@ -643,10 +607,6 @@ class QuerySet extends QuerySetBase
     public function countSql($q = '*')
     {
         $sql = $this->buildAggregateSql(new Count($q));
-
-        if (class_exists('SqlFormatter')) {
-            return \SqlFormatter::format($sql);
-        }
 
         return $sql;
     }
