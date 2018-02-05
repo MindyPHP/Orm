@@ -22,6 +22,8 @@ use Mindy\Orm\Tests\Models\User;
 use Mindy\Orm\Tests\Models\Worker;
 use Mindy\Orm\Tests\OrmDatabaseTestCase;
 use Mindy\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilderFactory;
+use Mindy\QueryBuilder\Utils\TableNameResolver;
 
 abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
 {
@@ -274,7 +276,7 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
         $this->assertEquals(1, Product::objects()->count());
         $this->assertEquals(2, ProductList::objects()->count());
         $tableName = $product->getField('lists')->getTableName();
-        $tableName = QueryBuilder::getInstance($this->getConnection())->getAdapter()->getRawTableName($tableName);
+        $tableName = TableNameResolver::getTableName($tableName);
         $cmd = $this->getConnection()->query('SELECT * FROM '.$tableName);
         $all = $cmd->fetchAll();
         $this->assertEquals([], $all);
@@ -376,7 +378,7 @@ abstract class ManyToManyFieldTest extends OrmDatabaseTestCase
         $this->assertSql('SELECT [[worker_1]].* FROM [[worker]] AS [[worker_1]]
 LEFT JOIN [[project_membership]] AS [[project_membership_1]] ON [[project_membership_1]].[[worker_id]]=[[worker_1]].[[id]]
 LEFT JOIN [[project]] AS [[project_1]] ON [[project_1]].[[id]]=[[project_membership_1]].[[project_id]]
-WHERE ([[project_1]].[[id]] IN (@1@))
+WHERE ([[project_1]].[[id]] IN (\'1\'))
 ORDER BY [[project_membership_1]].[[position]] ASC', $qs->allSql());
         $this->assertEquals([
             ['id' => '1', 'name' => 'Mark'],
@@ -406,11 +408,14 @@ ORDER BY [[project_membership_1]].[[position]] ASC', $qs->allSql());
             ['id' => '1', 'name' => 'Mark'],
         ], Worker::objects()->filter(['projects__through__curator' => $secondWorker])->asArray()->all());
 
-        $this->assertSql('SELECT [[worker_1]].* FROM [[worker]] AS [[worker_1]] LEFT JOIN [[project_membership]] AS [[project_membership_1]] ON [[project_membership_1]].[[worker_id]]=[[worker_1]].[[id]] LEFT JOIN [[project]] AS [[project_1]] ON [[project_1]].[[id]]=[[project_membership_1]].[[project_id]] WHERE ([[project_membership_1]].[[curator_id]]=@2@)',
+        $this->assertSame(
+            'SELECT worker_1.* FROM worker AS worker_1 LEFT JOIN project_membership AS project_membership_1 ON project_membership_1.worker_id=worker_1.id LEFT JOIN project AS project_1 ON project_1.id=project_membership_1.project_id WHERE (project_membership_1.curator_id = \'2\')',
             Worker::objects()->filter(['projects__through__curator' => $secondWorker])->allSql());
-        $this->assertSql('SELECT [[worker_1]].* FROM [[worker]] AS [[worker_1]] LEFT JOIN [[project_membership]] AS [[project_membership_1]] ON [[project_membership_1]].[[worker_id]]=[[worker_1]].[[id]] LEFT JOIN [[project]] AS [[project_1]] ON [[project_1]].[[id]]=[[project_membership_1]].[[project_id]] ORDER BY [[project_membership_1]].[[position]] ASC',
+        $this->assertSame(
+            'SELECT worker_1.* FROM worker AS worker_1 LEFT JOIN project_membership AS project_membership_1 ON project_membership_1.worker_id=worker_1.id LEFT JOIN project AS project_1 ON project_1.id=project_membership_1.project_id ORDER BY project_membership_1.position ASC',
             Worker::objects()->order(['projects__through__position'])->asArray()->allSql());
-        $this->assertSql('SELECT [[worker_1]].* FROM [[worker]] AS [[worker_1]] LEFT JOIN [[project_membership]] AS [[project_membership_1]] ON [[project_membership_1]].[[worker_id]]=[[worker_1]].[[id]] LEFT JOIN [[project]] AS [[project_1]] ON [[project_1]].[[id]]=[[project_membership_1]].[[project_id]] WHERE ([[project_1]].[[id]] IN (@1@, @2@)) ORDER BY [[project_membership_1]].[[position]] DESC',
+        $this->assertSame(
+            'SELECT worker_1.* FROM worker AS worker_1 LEFT JOIN project_membership AS project_membership_1 ON project_membership_1.worker_id=worker_1.id LEFT JOIN project AS project_1 ON project_1.id=project_membership_1.project_id WHERE (project_1.id IN (\'1\', \'2\')) ORDER BY project_membership_1.position DESC',
             Worker::objects()->filter(['projects__id__in' => [$firstProject->id, $secondProject->id]])->order(['-projects__through__position'])->allSql());
     }
 

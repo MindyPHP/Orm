@@ -134,7 +134,7 @@ abstract class QuerySetBase implements QuerySetInterface, Serializable
             $builder->setAlias($this->getTableAlias());
             $model = $this->getModel();
             $meta = $model->getMeta();
-            $builder->from($model->tableName());
+            $builder->table($model->tableName());
 
             $fetchColumnCallback = new FetchColumnCallback($model, $meta);
             $callback = new LookupCallback($model);

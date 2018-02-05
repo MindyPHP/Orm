@@ -564,18 +564,18 @@ class QuerySet extends QuerySetBase
      */
     public function deleteSql()
     {
-        //        if ($this->filterHasJoin()) {
+//        if ($this->filterHasJoin()) {
 //            $this->prepareConditions();
 //            return $this->createCommand()->delete($tableName, [
 //                $this->getPrimaryKeyName() => $this->valuesList(['pk'], true)
 //            ], $this->params);
 //        }
 
-        $builder = $this->getQueryBuilder()
-            ->setTypeDelete()
-            ->setAlias(null);
-
-        return $builder->toSQL();
+        return $this
+            ->getQueryBuilder()
+            ->delete($this->getModel()->tableName())
+            ->setAlias(null)
+            ->toSQL();
     }
 
     /**

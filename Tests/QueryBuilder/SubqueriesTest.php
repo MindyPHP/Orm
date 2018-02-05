@@ -54,13 +54,13 @@ abstract class SubqueriesTest extends OrmDatabaseTestCase
         $qs = User::objects()->filter([
             'groups__pk__in' => Group::objects()->filter(['id' => 2])->select('id'),
         ]);
-        $this->assertSql('SELECT [[users_1]].* FROM [[users]] AS [[users_1]] LEFT JOIN [[membership]] AS [[membership_1]] ON [[membership_1]].[[user_id]]=[[users_1]].[[id]] LEFT JOIN [[group]] AS [[group_1]] ON [[group_1]].[[id]]=[[membership_1]].[[group_id]] WHERE ([[group_1]].[[id]] IN (SELECT [[group_1]].[[id]] FROM [[group]] AS [[group_1]] WHERE ([[group_1]].[[id]]=2)))', $qs->allSql());
+        $this->assertSql('SELECT [[users_1]].* FROM [[users]] AS [[users_1]] LEFT JOIN [[membership]] AS [[membership_1]] ON [[membership_1]].[[user_id]]=[[users_1]].[[id]] LEFT JOIN [[group]] AS [[group_1]] ON [[group_1]].[[id]]=[[membership_1]].[[group_id]] WHERE ([[group_1]].[[id]] IN (SELECT [[group_1]].[[id]] FROM [[group]] AS [[group_1]] WHERE ([[group_1]].[[id]] = 2)))', $qs->allSql());
         $this->assertEquals([], $qs->asArray()->all());
 
         $qs = User::objects()->filter([
             'groups__pk__in' => Group::objects()->filter(['id' => 1])->select('id'),
         ])->order(['id']);
-        $this->assertSql('SELECT [[users_1]].* FROM [[users]] AS [[users_1]] LEFT JOIN [[membership]] AS [[membership_1]] ON [[membership_1]].[[user_id]]=[[users_1]].[[id]] LEFT JOIN [[group]] AS [[group_1]] ON [[group_1]].[[id]]=[[membership_1]].[[group_id]] WHERE ([[group_1]].[[id]] IN (SELECT [[group_1]].[[id]] FROM [[group]] AS [[group_1]] WHERE ([[group_1]].[[id]]=1))) ORDER BY [[users_1]].[[id]] ASC', $qs->allSql());
+        $this->assertSql('SELECT [[users_1]].* FROM [[users]] AS [[users_1]] LEFT JOIN [[membership]] AS [[membership_1]] ON [[membership_1]].[[user_id]]=[[users_1]].[[id]] LEFT JOIN [[group]] AS [[group_1]] ON [[group_1]].[[id]]=[[membership_1]].[[group_id]] WHERE ([[group_1]].[[id]] IN (SELECT [[group_1]].[[id]] FROM [[group]] AS [[group_1]] WHERE ([[group_1]].[[id]] = 1))) ORDER BY [[users_1]].[[id]] ASC', $qs->allSql());
         $users = $qs->asArray()->all();
         $this->assertEquals([
             ['id' => 1, 'username' => 'foo', 'password' => ''],

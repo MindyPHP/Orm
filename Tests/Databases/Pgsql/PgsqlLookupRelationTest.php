@@ -19,6 +19,25 @@ class PgsqlLookupRelationTest extends LookupRelationTest
 {
     public $driver = 'pgsql';
 
+    public function testManyLookup()
+    {
+        $user = new User(['username' => 'foo']);
+        $this->assertTrue($user->save());
+
+        $customer = new Customer(['address' => 'test', 'user' => $user]);
+        $this->assertTrue($customer->save());
+
+        $group = new Group(['name' => 'example']);
+        $this->assertTrue($group->save());
+        $user->groups->link($group);
+
+        $qs = Customer::objects()->filter(['user__groups__name' => 'example']);
+        $sql = $qs->allSql();
+        $this->assertSame('SELECT customer_1.* FROM customer AS customer_1 LEFT JOIN users AS users_1 ON customer_1.user_id=users_1.id LEFT JOIN membership AS membership_1 ON membership_1.user_id=users_1.id LEFT JOIN "group" AS group_1 ON group_1.id=membership_1.group_id WHERE (group_1.name = \'example\')', $sql);
+        $this->assertEquals(1, $qs->count());
+        $this->assertEquals(['id' => '1', 'user_id' => '1', 'address' => 'test'], $qs->asArray()->all()[0]);
+    }
+
     public function testSimpleLookup()
     {
         $user = new User(['username' => 'foo']);
@@ -28,11 +47,7 @@ class PgsqlLookupRelationTest extends LookupRelationTest
         $this->assertTrue($customer->save());
 
         $sql = Customer::objects()->filter(['user__username__startswith' => 't'])->allSql();
-        $this->assertSql(
-            'SELECT [[customer_1]].* 
-FROM [[customer]] AS [[customer_1]] 
-LEFT JOIN [[users]] AS [[users_1]] ON [[customer_1]].[[user_id]]=[[users_1]].[[id]] 
-WHERE ([[users_1]].[[username]]::text LIKE @t%@)', $sql);
+        $this->assertSame('SELECT customer_1.* FROM customer AS customer_1 LEFT JOIN users AS users_1 ON customer_1.user_id=users_1.id WHERE (users_1.username::text LIKE \'t%\')', $sql);
     }
 
     public function testManyLookupAnother()
@@ -49,11 +64,7 @@ WHERE ([[users_1]].[[username]]::text LIKE @t%@)', $sql);
 
         $qs = User::objects()->filter(['addresses__address__contains' => 'test']);
         $sql = $qs->allSql();
-        $this->assertSql(
-            'SELECT [[users_1]].* 
-FROM [[users]] AS [[users_1]] 
-LEFT JOIN [[customer]] AS [[customer_1]] ON [[customer_1]].[[user_id]]=[[users_1]].[[id]]
-WHERE ([[customer_1]].[[address]]::text LIKE @%test%@)', $sql);
+        $this->assertSame('SELECT users_1.* FROM users AS users_1 LEFT JOIN customer AS customer_1 ON customer_1.user_id=users_1.id WHERE (customer_1.address::text LIKE \'%test%\')', $sql);
         $this->assertEquals(1, $qs->count());
     }
 
@@ -74,12 +85,7 @@ WHERE ([[customer_1]].[[address]]::text LIKE @%test%@)', $sql);
             'groups__pk' => '1',
         ]);
         $sql = $qs->allSql();
-        $this->assertSql(
-            'SELECT [[users_1]].* FROM [[users]] AS [[users_1]] 
-LEFT JOIN [[customer]] AS [[customer_1]] ON [[customer_1]].[[user_id]]=[[users_1]].[[id]]
-LEFT JOIN [[membership]] AS [[membership_1]] ON [[membership_1]].[[user_id]]=[[users_1]].[[id]]
-LEFT JOIN [[group]] AS [[group_1]] ON [[group_1]].[[id]]=[[membership_1]].[[group_id]] 
-WHERE (([[customer_1]].[[address]]::text LIKE @%test%@) AND ([[group_1]].[[id]]=@1@))', $sql);
+        $this->assertSame('SELECT users_1.* FROM users AS users_1 LEFT JOIN customer AS customer_1 ON customer_1.user_id=users_1.id LEFT JOIN membership AS membership_1 ON membership_1.user_id=users_1.id LEFT JOIN "group" AS group_1 ON group_1.id=membership_1.group_id WHERE ((customer_1.address::text LIKE \'%test%\') AND (group_1.id = \'1\'))', $sql);
         $this->assertEquals(1, $qs->count());
     }
 
@@ -89,10 +95,6 @@ WHERE (([[customer_1]].[[address]]::text LIKE @%test%@) AND ([[group_1]].[[id]]=
             'groups__pk' => '1',
         ]);
         $sql = $qs->allSql();
-        $this->assertSql(
-            'SELECT [[users_1]].* FROM [[users]] AS [[users_1]] 
-LEFT JOIN [[membership]] AS [[membership_1]] ON [[membership_1]].[[user_id]]=[[users_1]].[[id]]
-LEFT JOIN [[group]] AS [[group_1]] ON [[group_1]].[[id]]=[[membership_1]].[[group_id]] 
-WHERE ([[group_1]].[[id]]=@1@)', $sql);
+        $this->assertSame('SELECT users_1.* FROM users AS users_1 LEFT JOIN membership AS membership_1 ON membership_1.user_id=users_1.id LEFT JOIN "group" AS group_1 ON group_1.id=membership_1.group_id WHERE (group_1.id = \'1\')', $sql);
     }
 }

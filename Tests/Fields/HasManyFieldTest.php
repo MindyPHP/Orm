@@ -93,7 +93,7 @@ abstract class HasManyFieldTest extends OrmDatabaseTestCase
 
         $qs = Cup::objects()->filter(['designs__name' => 'Dragon', 'colors__name' => 'red']);
         $sql = $qs->allSql();
-        $this->assertSql("SELECT [[cup_1]].* FROM [[cup]] AS [[cup_1]] LEFT JOIN [[design]] AS [[design_1]] ON [[design_1]].[[cup_id]]=[[cup_1]].[[id]] LEFT JOIN [[color]] AS [[color_1]] ON [[color_1]].[[cup_id]]=[[cup_1]].[[id]] WHERE (([[design_1]].[[name]]='Dragon') AND ([[color_1]].[[name]]='red'))", $sql);
+        $this->assertSql("SELECT [[cup_1]].* FROM [[cup]] AS [[cup_1]] LEFT JOIN [[design]] AS [[design_1]] ON [[design_1]].[[cup_id]]=[[cup_1]].[[id]] LEFT JOIN [[color]] AS [[color_1]] ON [[color_1]].[[cup_id]]=[[cup_1]].[[id]] WHERE (([[design_1]].[[name]] = 'Dragon') AND ([[color_1]].[[name]] = 'red'))", $sql);
         $this->assertEquals(1, $qs->count());
     }
 }

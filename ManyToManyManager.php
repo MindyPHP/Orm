@@ -12,6 +12,8 @@ namespace Mindy\Orm;
 
 use Exception;
 use Mindy\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilderFactory;
+use Mindy\QueryBuilder\Utils\TableNameResolver;
 
 /**
  * Class ManyToManyManager.
@@ -87,9 +89,9 @@ abstract class ManyToManyManager extends ManagerBase
             throw new Exception('Unable to clean models: the primary key of '.get_class($this->primaryModel).' is null.');
         }
         $db = $this->primaryModel->getConnection();
-        $adapter = QueryBuilder::getInstance($db)->getAdapter();
+        $builder = QueryBuilderFactory::getQueryBuilder($db);
 
-        return $db->delete($adapter->quoteTableName($adapter->getRawTableName($this->relatedTable)), [$this->primaryModelColumn => $this->primaryModel->pk]);
+        return $db->delete($builder->getQuotedName(TableNameResolver::getTableName($this->relatedTable)), [$this->primaryModelColumn => $this->primaryModel->pk]);
     }
 
     /**
@@ -125,16 +127,21 @@ abstract class ManyToManyManager extends ManagerBase
             return $through->pk;
         }
         $db = $this->primaryModel->getConnection();
-        $builder = QueryBuilder::getInstance($db);
+        $builder = QueryBuilderFactory::getQueryBuilder($db);
         $data = array_merge([
                 $this->primaryModelColumn => $this->primaryModel->pk,
                 $this->modelColumn => $model->pk,
             ], $extra);
-        $adapter = $builder->getAdapter();
         if ($link) {
-            $state = $model->getConnection()->insert($adapter->quoteTableName($adapter->getRawTableName($this->relatedTable)), $data);
+            $state = $model->getConnection()->insert(
+                $builder->getQuotedName(TableNameResolver::getTableName($this->relatedTable)),
+                $data
+            );
         } else {
-            $state = $model->getConnection()->delete($adapter->quoteTableName($adapter->getRawTableName($this->relatedTable)), $data);
+            $state = $model->getConnection()->delete(
+                $builder->getQuotedName(TableNameResolver::getTableName($this->relatedTable)),
+                $data
+            );
         }
 
         return $state;

@@ -79,7 +79,8 @@ class AbstractModel extends Base
 
         $tableName = $qb->getQuotedName(TableNameResolver::getTableName($this->tableName()));
         $sql = $qb
-            ->insert($tableName)
+            ->insert()
+            ->table($tableName)
             ->values($values)
             ->toSQL();
         $inserted = $connection->executeUpdate($sql);
@@ -88,13 +89,11 @@ class AbstractModel extends Base
         }
 
         foreach (self::getMeta()->getPrimaryKeyName(true) as $primaryKeyName) {
-            foreach (self::getMeta()->getPrimaryKeyName(true) as $primaryKeyName) {
-                if (
-                    empty($this->getAttribute($this->getSequenceName())) ||
-                    in_array($primaryKeyName, $dirty) === false
-                ) {
-                    $values[$primaryKeyName] = $connection->lastInsertId($this->getSequenceName());
-                }
+            if (
+                empty($this->getAttribute($this->getSequenceName())) ||
+                in_array($primaryKeyName, $dirty) === false
+            ) {
+                $values[$primaryKeyName] = $connection->lastInsertId($this->getSequenceName());
             }
         }
 

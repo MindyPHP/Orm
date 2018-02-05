@@ -13,7 +13,7 @@ namespace Mindy\Orm\Callback;
 use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Fields\RelatedField;
 use Mindy\Orm\ModelInterface;
-use Mindy\QueryBuilder\LookupBuilder\LookupBuilder;
+use Mindy\QueryBuilder\LookupBuilder;
 use Mindy\QueryBuilder\QueryBuilder;
 
 class JoinCallback

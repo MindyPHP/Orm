@@ -15,6 +15,8 @@ use Mindy\Orm\Tests\Models\Solution;
 use Mindy\Orm\Tests\Models\User;
 use Mindy\Orm\Tests\OrmDatabaseTestCase;
 use Mindy\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\QueryBuilderFactory;
+use Mindy\QueryBuilder\Utils\TableNameResolver;
 
 abstract class CrudTest extends OrmDatabaseTestCase
 {
@@ -26,9 +28,8 @@ abstract class CrudTest extends OrmDatabaseTestCase
     public function testLastInsertId()
     {
         $c = $this->getConnection();
-        $adapter = QueryBuilder::getInstance($c)->getAdapter();
         $model = new User();
-        $tableName = $adapter->getRawTableName($model->tableName());
+        $tableName = TableNameResolver::getTableName($model->tableName());
         $c->insert($tableName, ['username' => 'foo']);
         $this->assertEquals(1, $c->lastInsertId($model->getSequenceName()));
     }
@@ -39,8 +40,8 @@ abstract class CrudTest extends OrmDatabaseTestCase
             $this->markTestSkipped('mysql specific test');
         }
         $c = $this->getConnection();
-        $adapter = QueryBuilder::getInstance($c)->getAdapter();
-        $c->insert($adapter->quoteTableName($adapter->getRawTableName(User::tableName())), ['username' => 'foo']);
+        $builder = QueryBuilderFactory::getQueryBuilder($c);
+        $c->insert($builder->getQuotedName(TableNameResolver::getTableName(User::tableName())), ['username' => 'foo']);
 
         // Выполняется запрос после INSERT
         $c->query('SELECT 1+1')->fetchAll();
@@ -332,7 +333,7 @@ abstract class CrudTest extends OrmDatabaseTestCase
         ]);
         $this->assertEquals(1, $modelOne->pk);
         $sql = Solution::objects()->filter(['id' => '1'])->updateSql(['status' => 2]);
-        $this->assertSql("UPDATE [[solution]] SET [[status]]=2 WHERE ([[id]]='1')", $sql);
+        $this->assertSql("UPDATE [[solution]] SET status = '2' WHERE (id = '1')", $sql);
         $this->dropModels([new Solution()], $this->getConnection());
     }
 

@@ -13,6 +13,7 @@ namespace Mindy\Orm\Tests\Fields;
 use Mindy\Orm\Tests\Models\Product;
 use Mindy\Orm\Tests\OrmDatabaseTestCase;
 use Mindy\QueryBuilder\QueryBuilder;
+use Mindy\QueryBuilder\Utils\TableNameResolver;
 
 class ForeignFieldTest extends OrmDatabaseTestCase
 {
@@ -25,8 +26,7 @@ class ForeignFieldTest extends OrmDatabaseTestCase
     {
         $c = $this->getConnection();
         $schemaManager = $c->getSchemaManager();
-        $adapter = QueryBuilder::getInstance($c)->getAdapter();
-        $tableName = $adapter->getRawTableName(Product::tableName());
+        $tableName = TableNameResolver::getTableName(Product::tableName());
         $columns = $schemaManager->listTableColumns($tableName);
         $this->assertArrayHasKey('id', $columns);
         $this->assertArrayHasKey('category_id', $columns);

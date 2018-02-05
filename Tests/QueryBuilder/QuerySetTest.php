@@ -115,7 +115,7 @@ class QuerySetTest extends OrmDatabaseTestCase
         $qs = Hits::objects()->orExclude(['id' => 2])->exclude(['id' => 1]);
         $count = $qs->count();
         $sql = $qs->countSql();
-        $this->assertSql('SELECT COUNT(*) FROM [[hits]] AS [[hits_1]] WHERE ((NOT ([[hits_1]].[[id]]=1))) OR ((NOT ([[hits_1]].[[id]]=2)))', $sql);
+        $this->assertSame('SELECT COUNT(*) FROM hits AS hits_1 WHERE ((NOT (hits_1.id = 1))) OR ((NOT (hits_1.id = 2)))', $sql);
         $this->assertEquals(3, $count);
 
         $count = Hits::objects()->exclude(['id' => 1])->orExclude(['id' => 2])->count();

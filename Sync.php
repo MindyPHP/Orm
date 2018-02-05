@@ -125,16 +125,16 @@ class Sync
 
         $model->setConnection($this->connection);
 
-        $adapter = $this->getQueryBuilder()->getAdapter();
+        $builder = $this->getQueryBuilder();
 
 //        $this->connection->executeUpdate($adapter->sqlCheckIntegrity(false, 'public', $model->tableName()));
 
         $schemaManager = $this->connection->getSchemaManager();
         foreach ($model->getMeta()->getManyToManyFields() as $field) {
             if ($field->through === null) {
-                $fieldTable = $adapter->getRawTableName($field->getTableName());
+                $fieldTable = TableNameResolver::getTableName($field->getTableName());
                 if ($this->hasTable($fieldTable)) {
-                    $schemaManager->dropTable($adapter->quoteTableName($fieldTable));
+                    $schemaManager->dropTable($builder->getQuotedName($fieldTable));
                     $i += 1;
                 }
             }
