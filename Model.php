@@ -22,6 +22,7 @@ class Model extends AbstractModel
 
     /**
      * @return string
+     * @throws \ReflectionException
      */
     public static function tableName()
     {
@@ -51,17 +52,21 @@ class Model extends AbstractModel
     /**
      * Return module name.
      *
+     * @throws \ReflectionException
+     *
      * @return string
      */
     public static function getBundleName()
     {
-        $object = new ReflectionClass(get_called_class());
-        $path = $object->getFileName();
+        $path = (new ReflectionClass(get_called_class()))->getFileName();
         $basePath = substr($path, 0, strrpos(strtolower($path), 'bundle') + 7);
-        $phpFiles = glob(sprintf('%s/*Bundle.php', $basePath));
-        $bundleName = pathinfo(current($phpFiles), PATHINFO_FILENAME);
+        $files = glob(sprintf('%s/*Bundle.php', $basePath));
+        $firstBundle = current($files);
+        if ($firstBundle) {
+            return pathinfo($firstBundle, PATHINFO_FILENAME);
+        }
 
-        return empty($bundleName) ? '' : $bundleName;
+        return '';
     }
 
     /**
