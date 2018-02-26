@@ -17,9 +17,6 @@ use Mindy\QueryBuilder\QueryBuilder;
 use Mindy\QueryBuilder\QueryBuilderFactory;
 use Mindy\QueryBuilder\Utils\TableNameResolver;
 
-/**
- * Class NewOrm.
- */
 class AbstractModel extends Base
 {
     /**
@@ -29,21 +26,15 @@ class AbstractModel extends Base
      */
     protected function getQueryBuilder()
     {
-        return QueryBuilder::getInstance($this->getConnection());
-    }
-
-    /**
-     * @return \Mindy\QueryBuilder\BaseAdapter|\Mindy\QueryBuilder\Interfaces\ISQLGenerator
-     */
-    protected function getAdapter()
-    {
-        return $this->getQueryBuilder()->getAdapter();
+        return QueryBuilderFactory::getQueryBuilder($this->getConnection());
     }
 
     /**
      * @param array $fields
      *
      * @return bool
+     *
+     * @throws Exception
      */
     protected function updateInternal(array $fields = [])
     {
@@ -64,6 +55,14 @@ class AbstractModel extends Base
         return $rows >= 0;
     }
 
+    /**
+     * @param array $fields
+     *
+     * @return bool
+     *
+     * @throws DBALException
+     * @throws Exception
+     */
     protected function insertInternal(array $fields = [])
     {
         $dirty = $this->getDirtyAttributes();
@@ -74,7 +73,7 @@ class AbstractModel extends Base
         }
 
         $connection = static::getConnection();
-        $qb = QueryBuilderFactory::getQueryBuilder($connection);
+        $qb = $this->getQueryBuilder();
 
         $tableName = $qb->getQuotedName(TableNameResolver::getTableName($this->tableName()));
         $sql = $qb
@@ -103,6 +102,8 @@ class AbstractModel extends Base
 
     /**
      * @return null|string
+     *
+     * @throws Exception
      */
     public function getSequenceName()
     {
@@ -196,6 +197,8 @@ class AbstractModel extends Base
      * @param array $fields
      *
      * @return array
+     *
+     * @throws Exception
      */
     public function getChangedAttributes(array $fields = [])
     {
